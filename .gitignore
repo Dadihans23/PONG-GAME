@@ -41,3 +41,21 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+
+
+
+# Generated desktop files
+linux/flutter/
+windows/flutter/
+macos/Flutter/
+
+# Android native build cache
+android/app/.cxx/
+
+# Claude
+.claude/
+CLAUDE.md
+
+# Windows ghost file
+nul
