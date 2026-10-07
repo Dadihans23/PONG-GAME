@@ -33,7 +33,7 @@ dependency_overrides:
 dependencies:
   flutter:
     sdk: flutter
-  sensors_plus: ^2.0.0
+  sensors_plus: ^4.0.2
   avatar_glow: ^3.0.1
   hive_flutter: ^1.1.0
   audioplayers: ^5.2.1

@@ -15,17 +15,17 @@ class ScoreGlow extends StatelessWidget {
   Widget build(BuildContext context) {
     return glowEffect
         ? AvatarGlow(
-            duration: Duration(seconds: 1), // Durée de l'effet glow
+            duration: const Duration(seconds: 1), // Durée de l'effet glow
             glowColor: Colors.white, // Couleur du glow
             child: Material(
               elevation: 8.0, // Élève l'avatar pour ajouter une ombre
-              shape: CircleBorder(),
+              shape: const CircleBorder(),
               child: Container(
-                padding: EdgeInsets.all(1),
-                decoration: BoxDecoration(shape: BoxShape.circle , color: Colors.black),
+                padding: const EdgeInsets.all(1),
+                decoration: const BoxDecoration(shape: BoxShape.circle , color: Colors.black),
                 child: Text(
                   '$score',
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
@@ -35,11 +35,11 @@ class ScoreGlow extends StatelessWidget {
             ),
           )
         : Container(
-            padding: EdgeInsets.all(10),
+            padding: const EdgeInsets.all(10),
             color: Colors.black,
             child: Text(
               '$score',
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 30,
                 fontWeight: FontWeight.bold,

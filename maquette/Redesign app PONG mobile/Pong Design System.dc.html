@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,1,0&display=block" rel="stylesheet">
+<style>body{margin:0;background:#050507;color:#F2F2F5;font-family:Archivo,sans-serif;-webkit-font-smoothing:antialiased}a{color:#FF5C93;text-decoration:none}a:hover{color:#FF8AB1}</style>
+</helmet>
+<div style="padding:64px;display:flex;flex-direction:column;gap:72px;width:1480px">
+  <header style="display:flex;flex-direction:column;gap:16px">
+    <div style="display:flex;gap:20px;font-size:13px;font-weight:600;letter-spacing:.06em">
+      <a href="Pong%20Design%20System.dc.html" style="color:#F2F2F5">1 · Système de design</a>
+      <a href="Pong%20Ecrans%20Solo.dc.html">2 · Écrans solo</a>
+      <a href="Pong%20Multijoueur.dc.html">3 · Multijoueur</a>
+      <a href="Pong%20Parcours.dc.html">4 · Parcours &amp; futur</a>
+    </div>
+    <div style="font-size:56px;font-weight:900;letter-spacing:.45em;text-shadow:0 0 32px rgba(233,30,99,.55)">PONG</div>
+    <div style="font-size:20px;font-weight:700;color:#B8B8C4">Système de design — v2</div>
+    <p style="margin:0;max-width:720px;font-size:15px;line-height:1.6;color:#9E9EAB;text-wrap:pretty">Une évolution de l'identité actuelle : même fond quasi noir, même rose néon, mêmes titres espacés. Ce qui change : une palette réduite où chaque couleur a un rôle, une seule famille de boutons et de cartes, et une règle simple — le rose plein est réservé à l'action principale de l'écran.</p>
+  </header>
+
+  <section style="display:flex;flex-direction:column;gap:24px">
+    <div style="font-size:11px;font-weight:800;letter-spacing:.24em;color:#6B6B7A">01 · PRINCIPES</div>
+    <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px">
+      <div style="background:#15151C;border:1px solid #23232D;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:8px"><div style="font-size:16px;font-weight:700">Un seul rose plein</div><div style="font-size:13px;line-height:1.5;color:#9E9EAB">Le rose rempli avec halo = l'action principale, une par écran. Les sélections utilisent le contour rose, jamais le remplissage.</div></div>
+      <div style="background:#15151C;border:1px solid #23232D;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:8px"><div style="font-size:16px;font-weight:700">Couleur = sens</div><div style="font-size:13px;line-height:1.5;color:#9E9EAB">Bleu = toi, vert = l'adversaire, or = record, rouge = erreur. Les anciens boutons turquoise, violet et bleu vif deviennent neutres.</div></div>
+      <div style="background:#15151C;border:1px solid #23232D;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:8px"><div style="font-size:16px;font-weight:700">Le jeu d'abord</div><div style="font-size:13px;line-height:1.5;color:#9E9EAB">En partie, balle et raquettes sont les seuls éléments pleinement lumineux. Tout le reste est « fantôme ».</div></div>
+      <div style="background:#15151C;border:1px solid #23232D;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:8px"><div style="font-size:16px;font-weight:700">Halos mesurés</div><div style="font-size:13px;line-height:1.5;color:#9E9EAB">Un halo signale ce qui est vivant (action, balle, record). Simples BoxShadow Flutter, pas de flou d'arrière-plan.</div></div>
+      <div style="background:#15151C;border:1px solid #23232D;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:8px"><div style="font-size:16px;font-weight:700">Tutoiement</div><div style="font-size:13px;line-height:1.5;color:#9E9EAB">L'app disait déjà « Choisis ». On tutoie partout, phrases courtes qui disent quoi faire.</div></div>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:24px">
+    <div style="font-size:11px;font-weight:800;letter-spacing:.24em;color:#6B6B7A">02 · PALETTE</div>
+    <div style="display:flex;flex-direction:column;gap:28px">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="font-size:14px;font-weight:700;color:#B8B8C4">Fonds &amp; surfaces</div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap">
+          <div style="width:168px;display:flex;flex-direction:column;gap:8px"><div style="height:72px;border-radius:12px;background:#000000;border:1px solid #2A2A36"></div><div style="font-size:13px;font-weight:700">Noir pur</div><div style="font-size:12px;color:#9E9EAB">#000000 · chargement</div></div>
+          <div style="width:168px;display:flex;flex-direction:column;gap:8px"><div style="height:72px;border-radius:12px;background:#0B0B10;border:1px solid #2A2A36"></div><div style="font-size:13px;font-weight:700">Fond</div><div style="font-size:12px;color:#9E9EAB">#0B0B10 · écrans, terrain</div></div>
+          <div style="width:168px;display:flex;flex-direction:column;gap:8px"><div style="height:72px;border-radius:12px;background:#15151C;border:1px solid #2A2A36"></div><div style="font-size:13px;font-weight:700">Surface</div><div style="font-size:12px;color:#9E9EAB">#15151C · cartes, dialogues (opaque, remplace #212121 à 60 %)</div></div>
+          <div style="width:168px;display:flex;flex-direction:column;gap:8px"><div style="height:72px;border-radius:12px;background:#1E1E28;border:1px solid #2A2A36"></div><div style="font-size:13px;font-weight:700">Surface haute</div><div style="font-size:12px;color:#9E9EAB">#1E1E28 · boutons secondaires, segments</div></div>
+          <div style="width:168px;display:flex;flex-direction:column;gap:8px"><div style="height:72px;border-radius:12px;background:#2A2A36"></div><div style="font-size:13px;font-weight:700">Bordure</div><div style="font-size:12px;color:#9E9EAB">#2A2A36 · contours 1 px</div></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="font-size:14px;font-weight:700;color:#B8B8C4">Texte</div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap">
+          <div style="width:168px;display:flex;flex-direction:column;gap:8px"><div style="height:72px;border-radius:12px;background:#F2F2F5"></div><div style="font-size:13px;font-weight:700">Texte principal</div><div style="font-size:12px;color:#9E9EAB">#F2F2F5 · 17:1 sur fond</div></div>
+          <div style="width:168px;display:flex;flex-direction:column;gap:8px"><div style="height:72px;border-radius:12px;background:#B8B8C4"></div><div style="font-size:13px;font-weight:700">Titres d'écran</div><div style="font-size:12px;color:#9E9EAB">#B8B8C4 · le « gris » des titres actuels, éclairci</div></div>
+          <div style="width:168px;display:flex;flex-direction:column;gap:8px"><div style="height:72px;border-radius:12px;background:#9E9EAB"></div><div style="font-size:13px;font-weight:700">Texte secondaire</div><div style="font-size:12px;color:#9E9EAB">#9E9EAB · 7:1 sur fond</div></div>
+          <div style="width:168px;display:flex;flex-direction:column;gap:8px"><div style="height:72px;border-radius:12px;background:#6B6B7A"></div><div style="font-size:13px;font-weight:700">Texte tertiaire</div><div style="font-size:12px;color:#9E9EAB">#6B6B7A · sur-titres, HUD de jeu</div></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="font-size:14px;font-weight:700;color:#B8B8C4">Action &amp; jeu</div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap">
+          <div style="width:168px;display:flex;flex-direction:column;gap:8px"><div style="height:72px;border-radius:12px;background:#E91E63;box-shadow:0 0 24px rgba(233,30,99,.5)"></div><div style="font-size:13px;font-weight:700">Rose néon</div><div style="font-size:12px;color:#9E9EAB">#E91E63 · action principale, sélection</div></div>
+          <div style="width:168px;display:flex;flex-direction:column;gap:8px"><div style="height:72px;border-radius:12px;background:#FF5C93"></div><div style="font-size:13px;font-weight:700">Rose clair</div><div style="font-size:12px;color:#9E9EAB">#FF5C93 · liens et texte rose (contraste 6:1)</div></div>
+          <div style="width:168px;display:flex;flex-direction:column;gap:8px"><div style="height:72px;border-radius:12px;background:#2196F3;box-shadow:0 0 20px rgba(33,150,243,.45)"></div><div style="font-size:13px;font-weight:700">Bleu joueur</div><div style="font-size:12px;color:#9E9EAB">#2196F3 · ta raquette, ton score</div></div>
+          <div style="width:168px;display:flex;flex-direction:column;gap:8px"><div style="height:72px;border-radius:12px;background:#4CAF50;box-shadow:0 0 20px rgba(76,175,80,.45)"></div><div style="font-size:13px;font-weight:700">Vert adversaire</div><div style="font-size:12px;color:#9E9EAB">#4CAF50 · IA ou autre joueur</div></div>
+          <div style="width:168px;display:flex;flex-direction:column;gap:8px"><div style="height:72px;border-radius:12px;background:#FFFFFF;box-shadow:0 0 20px rgba(255,255,255,.4)"></div><div style="font-size:13px;font-weight:700">Balle</div><div style="font-size:12px;color:#9E9EAB">#FFFFFF · seul blanc pur du terrain</div></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="font-size:14px;font-weight:700;color:#B8B8C4">Signaux, podium &amp; données</div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap">
+          <div style="width:168px;display:flex;flex-direction:column;gap:8px"><div style="height:72px;border-radius:12px;background:#FFC93C"></div><div style="font-size:13px;font-weight:700">Or record</div><div style="font-size:12px;color:#9E9EAB">#FFC93C · nouveau record, meilleur score</div></div>
+          <div style="width:168px;display:flex;flex-direction:column;gap:8px"><div style="height:72px;border-radius:12px;background:#66BB6A"></div><div style="font-size:13px;font-weight:700">Succès</div><div style="font-size:12px;color:#9E9EAB">#66BB6A · « Prêt », victoires</div></div>
+          <div style="width:168px;display:flex;flex-direction:column;gap:8px"><div style="height:72px;border-radius:12px;background:#FF5252"></div><div style="font-size:13px;font-weight:700">Erreur</div><div style="font-size:12px;color:#9E9EAB">#FF5252 · champ vide, déconnexion</div></div>
+          <div style="width:168px;display:flex;flex-direction:column;gap:8px"><div style="height:72px;border-radius:12px;background:#9575FF"></div><div style="font-size:13px;font-weight:700">Violet bonus</div><div style="font-size:12px;color:#9E9EAB">#9575FF · power-ups (futur), ex-bouton Statistiques</div></div>
+          <div style="width:168px;display:flex;flex-direction:column;gap:8px"><div style="height:72px;border-radius:12px;display:flex;overflow:hidden"><div style="flex:1;background:#FFD700"></div><div style="flex:1;background:#C0C0C0"></div><div style="flex:1;background:#CD7F32"></div></div><div style="font-size:13px;font-weight:700">Podium</div><div style="font-size:12px;color:#9E9EAB">#FFD700 · #C0C0C0 · #CD7F32 · classement uniquement</div></div>
+          <div style="width:168px;display:flex;flex-direction:column;gap:8px"><div style="height:72px;border-radius:12px;background:#FF9800"></div><div style="font-size:13px;font-weight:700">Orange série</div><div style="font-size:12px;color:#9E9EAB">#FF9800 · série, vitesse</div></div>
+          <div style="width:168px;display:flex;flex-direction:column;gap:8px"><div style="height:72px;border-radius:12px;background:#448AFF"></div><div style="font-size:13px;font-weight:700">Bleu données</div><div style="font-size:12px;color:#9E9EAB">#448AFF · parties jouées</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:24px">
+    <div style="font-size:11px;font-weight:800;letter-spacing:.24em;color:#6B6B7A">03 · TYPOGRAPHIE — ARCHIVO (GOOGLE FONTS, DISPONIBLE DANS FLUTTER)</div>
+    <div style="display:grid;grid-template-columns:260px minmax(0,1fr);gap:20px 32px;align-items:center;background:#0B0B10;border:1px solid #1E1E28;border-radius:20px;padding:32px">
+      <div style="font-size:12px;color:#9E9EAB;line-height:1.5">Logo<br>40 · Black 900 · espacement 0,45 em · halo rose</div>
+      <div style="font-size:40px;font-weight:900;letter-spacing:.45em;text-shadow:0 0 24px rgba(233,30,99,.55)">PONG</div>
+      <div style="font-size:12px;color:#9E9EAB;line-height:1.5">Titre d'écran<br>16 · ExtraBold 800 · 0,42 em · #B8B8C4</div>
+      <div style="font-size:16px;font-weight:800;letter-spacing:.42em;color:#B8B8C4">CLASSEMENT</div>
+      <div style="font-size:12px;color:#9E9EAB;line-height:1.5">Libellé de bouton<br>15 · ExtraBold 800 · 0,3 em</div>
+      <div style="font-size:15px;font-weight:800;letter-spacing:.3em">REJOUER</div>
+      <div style="font-size:12px;color:#9E9EAB;line-height:1.5">Sur-titre<br>11 · ExtraBold 800 · 0,22 em · #6B6B7A</div>
+      <div style="font-size:11px;font-weight:800;letter-spacing:.22em;color:#6B6B7A">MODE DE JEU</div>
+      <div style="font-size:12px;color:#9E9EAB;line-height:1.5">Titre de carte<br>17 · Bold 700</div>
+      <div style="font-size:17px;font-weight:700">Rejoindre une partie</div>
+      <div style="font-size:12px;color:#9E9EAB;line-height:1.5">Corps<br>15 · Regular 400 · interligne 1,5</div>
+      <div style="font-size:15px;line-height:1.5;color:#C8C8D2">Incline le téléphone pour déplacer ta raquette.</div>
+      <div style="font-size:12px;color:#9E9EAB;line-height:1.5">Légende<br>13 · Medium 500 · #9E9EAB</div>
+      <div style="font-size:13px;font-weight:500;color:#9E9EAB">12/09/2026 · 1 / 2 joueurs</div>
+      <div style="font-size:12px;color:#9E9EAB;line-height:1.5">Score de jeu<br>64 · Black 900 · chiffres tabulaires · blanc 22 %</div>
+      <div style="font-size:64px;font-weight:900;font-variant-numeric:tabular-nums;color:rgba(255,255,255,.22);line-height:1">1 250</div>
+      <div style="font-size:12px;color:#9E9EAB;line-height:1.5">Chiffre clé<br>32 · ExtraBold 800 · tabulaires · couleur de donnée</div>
+      <div style="font-size:32px;font-weight:800;font-variant-numeric:tabular-nums;color:#FF9800">23 renvois</div>
+    </div>
+    <p style="margin:0;max-width:820px;font-size:13px;line-height:1.6;color:#9E9EAB">Les titres espacés gardent leur allure « P O N G » mais l'espacement passe en <span style="color:#F2F2F5">letterSpacing</span> au lieu de vrais espaces : lecteurs d'écran corrects, césure propre, et un seul réglage pour toute l'app. Chiffres tabulaires partout où un score change, pour qu'il ne « danse » pas.</p>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:24px">
+    <div style="font-size:11px;font-weight:800;letter-spacing:.24em;color:#6B6B7A">04 · BOUTONS — UNE SEULE FAMILLE</div>
+    <div style="display:grid;grid-template-columns:repeat(3,320px);gap:32px 48px">
+      <div style="display:flex;flex-direction:column;gap:10px"><div style="height:56px;border-radius:16px;background:#E91E63;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;letter-spacing:.3em;box-shadow:0 0 24px rgba(233,30,99,.5),0 8px 28px rgba(233,30,99,.3)">JOUER</div><div style="font-size:13px;font-weight:700">Principal</div><div style="font-size:12px;color:#9E9EAB;line-height:1.5">56 px · rayon 16 · rose + halo. Un seul par écran, en bas, à portée de pouce.</div></div>
+      <div style="display:flex;flex-direction:column;gap:10px"><div style="height:56px;border-radius:16px;background:#1E1E28;border:1px solid #2A2A36;display:flex;align-items:center;justify-content:center;gap:10px;font-size:15px;font-weight:700;color:#F2F2F5"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">leaderboard</span>Classement</div><div style="font-size:13px;font-weight:700">Secondaire</div><div style="font-size:12px;color:#9E9EAB;line-height:1.5">48–56 px · surface haute + bordure. Remplace turquoise, violet et bleu vif.</div></div>
+      <div style="display:flex;flex-direction:column;gap:10px"><div style="height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#C8C8D2">Quitter la partie</div><div style="font-size:13px;font-weight:700">Texte</div><div style="font-size:12px;color:#9E9EAB;line-height:1.5">Zone 48 px, sans fond. Actions de sortie, « Retour à l'accueil ».</div></div>
+      <div style="display:flex;flex-direction:column;gap:10px"><div style="display:flex;gap:8px;background:#0B0B10;padding:6px;border-radius:16px;border:1px solid #1E1E28"><div style="flex:1;height:48px;border-radius:12px;background:#1E1E28;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#9E9EAB">Facile</div><div style="flex:1;height:48px;border-radius:12px;background:rgba(233,30,99,.16);border:1.5px solid #E91E63;box-shadow:0 0 14px rgba(233,30,99,.3);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#FFFFFF">Normal</div><div style="flex:1;height:48px;border-radius:12px;background:#1E1E28;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#9E9EAB">Difficile</div></div><div style="font-size:13px;font-weight:700">Sélectionné / non sélectionné</div><div style="font-size:12px;color:#9E9EAB;line-height:1.5">Contour rose + teinte 16 % + petit halo. Assez rose pour l'identité, distinct du bouton principal.</div></div>
+      <div style="display:flex;flex-direction:column;gap:10px"><div style="height:56px;border-radius:16px;background:#1A1A22;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;letter-spacing:.3em;color:#55556A">PRÊT</div><div style="font-size:13px;font-weight:700">Désactivé</div><div style="font-size:12px;color:#9E9EAB;line-height:1.5">Sans halo, texte #55556A, toujours accompagné d'une phrase qui dit pourquoi.</div></div>
+      <div style="display:flex;flex-direction:column;gap:10px"><div style="display:flex;gap:16px;align-items:center"><div style="width:48px;height:48px;border-radius:14px;background:rgba(30,30,40,.75);display:flex;align-items:center;justify-content:center;color:#C8C8D2"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">pause</span></div><div style="width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#F2F2F5"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">arrow_back</span></div><div style="height:48px;padding:0 18px;border-radius:14px;background:#E91E63;display:flex;align-items:center;font-size:14px;font-weight:800;color:#fff">Rejoindre</div></div><div style="font-size:13px;font-weight:700">Icône · compact de liste</div><div style="font-size:12px;color:#9E9EAB;line-height:1.5">Icônes 48 × 48. Le compact rose (sans halo) sert uniquement d'action de ligne dans une liste.</div></div>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:24px">
+    <div style="font-size:11px;font-weight:800;letter-spacing:.24em;color:#6B6B7A">05 · CARTES, CHAMPS, DIALOGUE</div>
+    <div style="display:flex;gap:48px;flex-wrap:wrap;align-items:flex-start">
+      <div style="width:320px;display:flex;flex-direction:column;gap:12px">
+        <div style="background:rgba(233,30,99,.08);border:1.5px solid #E91E63;border-radius:18px;padding:16px;display:flex;align-items:center;gap:14px;box-shadow:0 0 24px rgba(233,30,99,.18)"><div style="width:44px;height:44px;border-radius:12px;background:rgba(233,30,99,.18);color:#FF5C93;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">person</span></div><div style="flex:1;display:flex;flex-direction:column;gap:2px"><div style="font-size:17px;font-weight:700">Solo</div><div style="font-size:13px;color:#9E9EAB">Contre l'ordinateur</div></div><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1;color:#FF5C93">check_circle</span></div>
+        <div style="background:#15151C;border:1px solid #23232D;border-radius:18px;padding:16px;display:flex;align-items:center;gap:14px"><div style="width:44px;height:44px;border-radius:12px;background:#1E1E28;color:#9E9EAB;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">group</span></div><div style="flex:1;display:flex;flex-direction:column;gap:2px"><div style="font-size:17px;font-weight:700">Multijoueur</div><div style="font-size:13px;color:#9E9EAB">À deux, même Wi-Fi</div></div><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1;color:#55556A">radio_button_unchecked</span></div>
+        <div style="font-size:13px;font-weight:700">Carte de choix</div><div style="font-size:12px;color:#9E9EAB;line-height:1.5">Rayon 18, padding 16. Sélectionnée : même traitement que le bouton sélectionné.</div>
+      </div>
+      <div style="width:320px;display:flex;flex-direction:column;gap:12px">
+        <div style="background:#15151C;border:1.5px solid #FFD700;border-radius:16px;padding:12px 16px;display:flex;align-items:center;gap:14px"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1;color:#FFD700;width:32px;text-align:center">emoji_events</span><div style="flex:1;display:flex;flex-direction:column;gap:2px"><div style="font-size:16px;font-weight:700">Léa</div><div style="font-size:12px;color:#9E9EAB">12/09/2026</div></div><div style="font-size:20px;font-weight:800;font-variant-numeric:tabular-nums">2 650</div></div>
+        <div style="background:#15151C;border:1px solid #23232D;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1;color:#FF9800">local_fire_department</span><div style="font-size:13px;color:#9E9EAB">Meilleure série</div><div style="font-size:28px;font-weight:800;color:#FF9800;font-variant-numeric:tabular-nums">23 renvois</div></div>
+        <div style="font-size:13px;font-weight:700">Ligne de liste · carte statistique</div><div style="font-size:12px;color:#9E9EAB;line-height:1.5">Surface opaque #15151C, bordure 1 px. Bordure colorée réservée au podium.</div>
+      </div>
+      <div style="width:320px;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;flex-direction:column;gap:8px"><div style="font-size:13px;color:#9E9EAB">Ton pseudo</div><div style="height:56px;border-radius:14px;background:#15151C;border:1px solid #2A2A36;display:flex;align-items:center;padding:0 16px;font-size:16px;color:#6B6B7A">Entre ton pseudo</div></div>
+        <div style="display:flex;flex-direction:column;gap:8px"><div style="height:56px;border-radius:14px;background:#15151C;border:1.5px solid #E91E63;box-shadow:0 0 0 4px rgba(233,30,99,.14);display:flex;align-items:center;padding:0 16px;font-size:16px;color:#F2F2F5">Léa<span style="width:2px;height:22px;background:#FF5C93;margin-left:2px"></span></div></div>
+        <div style="display:flex;flex-direction:column;gap:8px"><div style="height:56px;border-radius:14px;background:#15151C;border:1.5px solid #FF5252;box-shadow:0 0 0 4px rgba(255,82,82,.12);display:flex;align-items:center;padding:0 16px;font-size:16px;color:#6B6B7A">Entre ton pseudo</div><div style="display:flex;align-items:center;gap:6px;font-size:13px;color:#FF6B6B"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">error</span>Choisis un pseudo pour jouer</div></div>
+        <div style="font-size:13px;font-weight:700">Champ : défaut · focus · erreur</div><div style="font-size:12px;color:#9E9EAB;line-height:1.5">L'erreur garde le tremblement actuel, ajoute un message en clair.</div>
+      </div>
+      <div style="width:320px;display:flex;flex-direction:column;gap:12px">
+        <div style="background:#15151C;border:1px solid #2A2A36;border-radius:24px;padding:24px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.6)"><div style="width:56px;height:56px;border-radius:28px;background:rgba(255,82,82,.12);color:#FF5252;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:28px;line-height:1">link_off</span></div><div style="font-size:20px;font-weight:700">Titre court</div><div style="font-size:14px;line-height:1.5;color:#9E9EAB">Une phrase qui dit ce qui se passe et quoi faire.</div><div style="height:56px;align-self:stretch;border-radius:16px;background:#E91E63;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;letter-spacing:.3em;box-shadow:0 0 24px rgba(233,30,99,.5);margin-top:8px">OK</div></div>
+        <div style="font-size:13px;font-weight:700">Dialogue</div><div style="font-size:12px;color:#9E9EAB;line-height:1.5">Rayon 24, icône dans une pastille teintée, voile #050508 à 80 %. Remplace le dialogue clair actuel.</div>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:24px">
+    <div style="font-size:11px;font-weight:800;letter-spacing:.24em;color:#6B6B7A">06 · ÉLÉMENTS DE JEU</div>
+    <div style="display:flex;gap:48px;flex-wrap:wrap;align-items:flex-start;background:#0B0B10;border:1px solid #1E1E28;border-radius:20px;padding:32px">
+      <div style="display:flex;flex-direction:column;gap:20px;align-items:center;width:160px"><div style="width:80px;height:15px;border-radius:8px;background:#4CAF50;box-shadow:0 0 16px rgba(76,175,80,.55)"></div><div style="width:20px;height:20px;border-radius:10px;background:#fff;box-shadow:0 0 12px rgba(255,255,255,.8),0 0 32px rgba(255,255,255,.3)"></div><div style="width:80px;height:15px;border-radius:8px;background:#2196F3;box-shadow:0 0 16px rgba(33,150,243,.6)"></div><div style="font-size:12px;color:#9E9EAB;text-align:center;line-height:1.5">Raquettes 80 × 15, rayon 8 · balle 20 px. Tailles inchangées, halo ajouté.</div></div>
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:center;width:200px"><div style="font-size:64px;font-weight:900;color:rgba(255,255,255,.22);font-variant-numeric:tabular-nums;line-height:1">1 250</div><div style="font-size:11px;font-weight:800;letter-spacing:.3em;color:#6B6B7A">LÉA</div><div style="font-size:12px;color:#9E9EAB;text-align:center;line-height:1.5;margin-top:8px">Score fantôme : grand mais à 22 % — lisible d'un coup d'œil, jamais confondu avec la balle.</div></div>
+      <div style="display:flex;flex-direction:column;gap:14px;width:280px">
+        <div style="align-self:flex-start;display:flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:14px;background:rgba(255,201,60,.12);border:1px solid rgba(255,201,60,.5);color:#FFC93C;font-size:11px;font-weight:800;letter-spacing:.18em"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">star</span>NOUVEAU RECORD</div>
+        <div style="align-self:flex-start;display:flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:14px;background:rgba(33,150,243,.14);border:1px solid rgba(33,150,243,.5);color:#64B5F6;font-size:11px;font-weight:800;letter-spacing:.18em">POINT POUR LÉA</div>
+        <div style="align-self:flex-start;display:flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:14px;background:rgba(149,117,255,.14);border:1px solid rgba(149,117,255,.5);color:#B3A0FF;font-size:11px;font-weight:800;letter-spacing:.18em"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">bolt</span>RAQUETTE XL · 6 S</div>
+        <div style="display:flex;gap:8px"><div style="display:flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:14px;background:rgba(102,187,106,.14);color:#66BB6A;font-size:12px;font-weight:700"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">check</span>Prêt</div><div style="display:flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:14px;background:#1E1E28;color:#9E9EAB;font-size:12px;font-weight:700"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">hourglass_top</span>En attente</div></div>
+        <div style="font-size:12px;color:#9E9EAB;line-height:1.5">Pastilles : même gabarit (28 px, contour 50 %, fond 12 %), la couleur porte le sens.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;width:220px"><div style="display:flex;gap:6px;align-items:center"><div style="width:8px;height:8px;border-radius:4px;background:#FF9800"></div><div style="width:8px;height:8px;border-radius:4px;background:#FF9800"></div><div style="width:8px;height:8px;border-radius:4px;background:#2A2A36"></div><div style="width:8px;height:8px;border-radius:4px;background:#2A2A36"></div><span style="font-size:11px;font-weight:800;letter-spacing:.2em;color:#6B6B7A;margin-left:6px">VITESSE 3</span></div><div style="display:flex;gap:6px"><div style="width:14px;height:6px;border-radius:3px;background:#2196F3"></div><div style="width:14px;height:6px;border-radius:3px;background:#2196F3"></div><div style="width:14px;height:6px;border-radius:3px;background:#2196F3"></div><div style="width:14px;height:6px;border-radius:3px;background:#22222C"></div><div style="width:14px;height:6px;border-radius:3px;background:#22222C"></div></div><div style="font-size:12px;color:#9E9EAB;line-height:1.5">Jauges : 4 points = renvois avant la prochaine accélération ; 5 barres = points du duel.</div></div>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:24px">
+    <div style="font-size:11px;font-weight:800;letter-spacing:.24em;color:#6B6B7A">07 · ICÔNES — MATERIAL SYMBOLS ROUNDED, REMPLIES (NATIVES DANS FLUTTER)</div>
+    <div style="display:grid;grid-template-columns:repeat(10,96px);gap:12px">
+      <div style="height:88px;border-radius:14px;background:#15151C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1">person</span><span style="font-size:10px;color:#6B6B7A">person</span></div>
+      <div style="height:88px;border-radius:14px;background:#15151C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1">group</span><span style="font-size:10px;color:#6B6B7A">group</span></div>
+      <div style="height:88px;border-radius:14px;background:#15151C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1">leaderboard</span><span style="font-size:10px;color:#6B6B7A">leaderboard</span></div>
+      <div style="height:88px;border-radius:14px;background:#15151C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1">bar_chart</span><span style="font-size:10px;color:#6B6B7A">bar_chart</span></div>
+      <div style="height:88px;border-radius:14px;background:#15151C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1">help</span><span style="font-size:10px;color:#6B6B7A">help</span></div>
+      <div style="height:88px;border-radius:14px;background:#15151C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1">settings</span><span style="font-size:10px;color:#6B6B7A">settings</span></div>
+      <div style="height:88px;border-radius:14px;background:#15151C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1">pause</span><span style="font-size:10px;color:#6B6B7A">pause</span></div>
+      <div style="height:88px;border-radius:14px;background:#15151C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1">replay</span><span style="font-size:10px;color:#6B6B7A">replay</span></div>
+      <div style="height:88px;border-radius:14px;background:#15151C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1">emoji_events</span><span style="font-size:10px;color:#6B6B7A">emoji_events</span></div>
+      <div style="height:88px;border-radius:14px;background:#15151C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1">screen_rotation</span><span style="font-size:10px;color:#6B6B7A">screen_rotation</span></div>
+      <div style="height:88px;border-radius:14px;background:#15151C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1">wifi</span><span style="font-size:10px;color:#6B6B7A">wifi</span></div>
+      <div style="height:88px;border-radius:14px;background:#15151C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1">wifi_off</span><span style="font-size:10px;color:#6B6B7A">wifi_off</span></div>
+      <div style="height:88px;border-radius:14px;background:#15151C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1">sensors</span><span style="font-size:10px;color:#6B6B7A">sensors</span></div>
+      <div style="height:88px;border-radius:14px;background:#15151C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1">refresh</span><span style="font-size:10px;color:#6B6B7A">refresh</span></div>
+      <div style="height:88px;border-radius:14px;background:#15151C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1">link_off</span><span style="font-size:10px;color:#6B6B7A">link_off</span></div>
+      <div style="height:88px;border-radius:14px;background:#15151C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1">speed</span><span style="font-size:10px;color:#6B6B7A">speed</span></div>
+      <div style="height:88px;border-radius:14px;background:#15151C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1">local_fire_department</span><span style="font-size:10px;color:#6B6B7A">fire</span></div>
+      <div style="height:88px;border-radius:14px;background:#15151C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1">star</span><span style="font-size:10px;color:#6B6B7A">star</span></div>
+      <div style="height:88px;border-radius:14px;background:#15151C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1">bolt</span><span style="font-size:10px;color:#6B6B7A">bolt</span></div>
+      <div style="height:88px;border-radius:14px;background:#15151C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1">public</span><span style="font-size:10px;color:#6B6B7A">public</span></div>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:24px;padding-bottom:64px">
+    <div style="font-size:11px;font-weight:800;letter-spacing:.24em;color:#6B6B7A">08 · GRILLE &amp; ESPACEMENTS</div>
+    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px">
+      <div style="background:#15151C;border:1px solid #23232D;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:6px"><div style="font-size:28px;font-weight:800">20 px</div><div style="font-size:13px;color:#9E9EAB;line-height:1.5">Marges latérales sur tous les écrans (360 de large → 320 utiles).</div></div>
+      <div style="background:#15151C;border:1px solid #23232D;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:6px"><div style="font-size:28px;font-weight:800">8 · 12 · 16 · 24</div><div style="font-size:13px;color:#9E9EAB;line-height:1.5">Échelle d'espacements. 16 entre cartes, 24 entre groupes.</div></div>
+      <div style="background:#15151C;border:1px solid #23232D;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:6px"><div style="font-size:28px;font-weight:800">12 · 16 · 24</div><div style="font-size:13px;color:#9E9EAB;line-height:1.5">Rayons : segments, boutons et cartes, dialogues.</div></div>
+      <div style="background:#15151C;border:1px solid #23232D;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:6px"><div style="font-size:28px;font-weight:800">48 / 56 px</div><div style="font-size:13px;color:#9E9EAB;line-height:1.5">Zone tactile minimum / hauteur du bouton principal.</div></div>
+    </div>
+    <p style="margin:0;max-width:820px;font-size:13px;line-height:1.6;color:#9E9EAB">Structure commune : barre de titre 64 px (retour à gauche, titre espacé centré) · contenu défilant · action principale ancrée en bas à 20 px du bord. Chaque écran suit ce gabarit, ce qui donne la cohérence demandée.</p>
+  </section>
+</div>
+</x-dc>
+</body>
+</html>

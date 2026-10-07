@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pong_game/ball.dart';
-import 'package:sensors_plus/sensors_plus.dart';
-import 'package:pong_game/bricks.dart';
 
 
 
@@ -20,10 +17,10 @@ class _coverScreenState extends State<coverScreen> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      alignment: Alignment(0, -0.2),
+      alignment: const Alignment(0, -0.2),
       child: Text(
         widget.hastarted ? "" : " T A P E Z  L'E C R A N " ,
-        style: TextStyle( color: Colors.white),
+        style: const TextStyle( color: Colors.white),
       ),
     );
   }

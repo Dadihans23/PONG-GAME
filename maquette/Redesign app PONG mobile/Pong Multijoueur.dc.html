@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,1,0&display=block" rel="stylesheet">
+<style>body{margin:0;background:#050507;color:#F2F2F5;font-family:Archivo,sans-serif;-webkit-font-smoothing:antialiased}a{color:#FF5C93;text-decoration:none}a:hover{color:#FF8AB1}</style>
+</helmet>
+<div style="padding:64px;display:flex;flex-direction:column;gap:72px">
+  <header style="display:flex;flex-direction:column;gap:16px">
+    <div style="display:flex;gap:20px;font-size:13px;font-weight:600;letter-spacing:.06em">
+      <a href="Pong%20Design%20System.dc.html">1 · Système de design</a>
+      <a href="Pong%20Ecrans%20Solo.dc.html">2 · Écrans solo</a>
+      <a href="Pong%20Multijoueur.dc.html" style="color:#F2F2F5">3 · Multijoueur</a>
+      <a href="Pong%20Parcours.dc.html">4 · Parcours &amp; futur</a>
+    </div>
+    <div style="font-size:32px;font-weight:900;letter-spacing:.3em">MULTIJOUEUR LOCAL</div>
+    <p style="margin:0;max-width:720px;font-size:15px;line-height:1.6;color:#9E9EAB">Deux téléphones, même Wi-Fi ou partage de connexion, sans Internet ni adresse IP. Exemple : Léa (ce téléphone) contre Tom.</p>
+  </header>
+
+  <section style="display:flex;flex-direction:column;gap:28px">
+    <div style="font-size:11px;font-weight:800;letter-spacing:.24em;color:#6B6B7A">MENU &amp; RECHERCHE</div>
+    <div style="display:flex;gap:48px;flex-wrap:wrap;align-items:flex-start">
+
+      <div id="M1" style="width:360px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#E91E63;color:#fff">M1</span><span style="font-size:14px;font-weight:700">Menu multijoueur</span></div>
+        <div style="width:360px;height:800px;background:#0B0B10;border-radius:28px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.6)">
+          <div style="height:28px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:12px;font-weight:600;color:#C8C8D2;flex:none"><span>9:41</span><span style="display:flex;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">wifi</span><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">battery_full</span></span></div>
+          <div style="height:64px;display:flex;align-items:center;padding:0 8px;flex:none"><div style="width:48px;height:48px;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">arrow_back</span></div><div style="flex:1;text-align:center;font-size:16px;font-weight:800;letter-spacing:.42em;padding-left:.42em;color:#B8B8C4">MULTIJOUEUR</div><div style="width:48px"></div></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:16px;padding:12px 20px 20px">
+            <div style="font-size:14px;color:#9E9EAB">Tu joues en tant que <span style="color:#F2F2F5;font-weight:700">Léa</span></div>
+            <div style="background:#15151C;border:1px solid #23232D;border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:14px">
+              <div style="display:flex;align-items:center;justify-content:space-between"><div style="width:56px;height:56px;border-radius:16px;background:rgba(233,30,99,.16);color:#FF5C93;display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(233,30,99,.2)"><span style="font-family:'Material Symbols Rounded';font-size:30px;line-height:1">add</span></div><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1;color:#6B6B7A">chevron_right</span></div>
+              <div style="display:flex;flex-direction:column;gap:4px"><div style="font-size:20px;font-weight:700">Créer une partie</div><div style="font-size:14px;line-height:1.5;color:#9E9EAB">Ton ami la rejoint depuis son téléphone.</div></div>
+            </div>
+            <div style="background:#15151C;border:1px solid #23232D;border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:14px">
+              <div style="display:flex;align-items:center;justify-content:space-between"><div style="width:56px;height:56px;border-radius:16px;background:rgba(33,150,243,.14);color:#64B5F6;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:30px;line-height:1">login</span></div><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1;color:#6B6B7A">chevron_right</span></div>
+              <div style="display:flex;flex-direction:column;gap:4px"><div style="font-size:20px;font-weight:700">Rejoindre une partie</div><div style="font-size:14px;line-height:1.5;color:#9E9EAB">Trouve la partie d'un ami à proximité.</div></div>
+            </div>
+            <div style="flex:1"></div>
+            <div style="display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:14px;border:1px solid #1E1E28;font-size:13px;line-height:1.5;color:#9E9EAB"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1.1;color:#C8C8D2">wifi</span>Soyez sur le même Wi-Fi, ou connecte-toi au partage de connexion de l'autre. Pas besoin d'Internet.</div>
+          </div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#9E9EAB;text-wrap:pretty">Deux grandes cartes de navigation, sans bouton rose : les deux choix ont le même poids, c'est la carte entière qui est la cible tactile. La condition réseau est rappelée en bas, sans alarme.</p>
+      </div>
+
+      <div id="J1" style="width:360px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#E91E63;color:#fff">J1</span><span style="font-size:14px;font-weight:700">Rejoindre · recherche</span></div>
+        <div style="width:360px;height:800px;background:#0B0B10;border-radius:28px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.6)">
+          <div style="height:28px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:12px;font-weight:600;color:#C8C8D2;flex:none"><span>9:41</span><span style="display:flex;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">wifi</span><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">battery_full</span></span></div>
+          <div style="height:64px;display:flex;align-items:center;padding:0 8px;flex:none"><div style="width:48px;height:48px;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">arrow_back</span></div><div style="flex:1;text-align:center;font-size:16px;font-weight:800;letter-spacing:.42em;padding-left:.42em;color:#B8B8C4">REJOINDRE</div><div style="width:48px"></div></div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:0 40px;text-align:center">
+            <div style="position:relative;width:240px;height:240px;display:flex;align-items:center;justify-content:center">
+              <div style="position:absolute;inset:0;border-radius:120px;border:1px solid rgba(233,30,99,.12)"></div>
+              <div style="position:absolute;inset:36px;border-radius:84px;border:1px solid rgba(233,30,99,.22)"></div>
+              <div style="position:absolute;inset:72px;border-radius:48px;border:1.5px solid rgba(233,30,99,.4);box-shadow:0 0 24px rgba(233,30,99,.25)"></div>
+              <div style="width:56px;height:56px;border-radius:28px;background:rgba(233,30,99,.18);color:#FF5C93;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:28px;line-height:1">sensors</span></div>
+            </div>
+            <div style="font-size:20px;font-weight:700">Recherche de parties…</div>
+            <div style="font-size:14px;line-height:1.5;color:#9E9EAB">Reste près de l'autre joueur, sur le même Wi-Fi.</div>
+          </div>
+          <div style="height:96px"></div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#9E9EAB;text-wrap:pretty">Ondes concentriques qui s'élargissent (simple AnimationController sur trois cercles) : on comprend « je cherche autour de moi » sans un mot technique.</p>
+      </div>
+
+      <div id="J2" style="width:360px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#E91E63;color:#fff">J2</span><span style="font-size:14px;font-weight:700">Rejoindre · parties trouvées</span></div>
+        <div style="width:360px;height:800px;background:#0B0B10;border-radius:28px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.6)">
+          <div style="height:28px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:12px;font-weight:600;color:#C8C8D2;flex:none"><span>9:41</span><span style="display:flex;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">wifi</span><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">battery_full</span></span></div>
+          <div style="height:64px;display:flex;align-items:center;padding:0 8px;flex:none"><div style="width:48px;height:48px;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">arrow_back</span></div><div style="flex:1;text-align:center;font-size:16px;font-weight:800;letter-spacing:.42em;padding-left:.42em;color:#B8B8C4">REJOINDRE</div><div style="width:48px"></div></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:10px;padding:4px 20px 20px">
+            <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#9E9EAB;height:32px"><div style="width:8px;height:8px;border-radius:4px;background:#E91E63;box-shadow:0 0 8px #E91E63"></div>2 parties à proximité · recherche en cours</div>
+            <div style="background:#15151C;border:1px solid #23232D;border-radius:16px;padding:14px 14px 14px 16px;display:flex;align-items:center;gap:14px"><div style="width:44px;height:44px;border-radius:22px;background:rgba(76,175,80,.16);color:#81C784;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800">T</div><div style="flex:1;display:flex;flex-direction:column;gap:3px"><div style="font-size:16px;font-weight:700">Partie de Tom</div><div style="display:flex;align-items:center;gap:4px;font-size:13px;color:#9E9EAB"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">person</span>1 / 2 joueurs</div></div><div style="height:48px;padding:0 16px;border-radius:14px;background:#E91E63;display:flex;align-items:center;font-size:14px;font-weight:800">Rejoindre</div></div>
+            <div style="background:#15151C;border:1px solid #23232D;border-radius:16px;padding:14px 14px 14px 16px;display:flex;align-items:center;gap:14px"><div style="width:44px;height:44px;border-radius:22px;background:#1E1E28;color:#6B6B7A;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800">I</div><div style="flex:1;display:flex;flex-direction:column;gap:3px"><div style="font-size:16px;font-weight:700;color:#9E9EAB">Partie d'Inès</div><div style="display:flex;align-items:center;gap:4px;font-size:13px;color:#6B6B7A"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">group</span>2 / 2 joueurs</div></div><div style="height:48px;padding:0 14px;border-radius:14px;background:#1A1A22;display:flex;align-items:center;font-size:14px;font-weight:700;color:#55556A">Complète</div></div>
+            <div style="flex:1"></div>
+            <div style="height:56px;border-radius:16px;background:#1E1E28;border:1px solid #2A2A36;display:flex;align-items:center;justify-content:center;gap:10px;font-size:15px;font-weight:700"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">refresh</span>Actualiser</div>
+          </div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#9E9EAB;text-wrap:pretty">« Rejoindre » est l'action de chaque ligne : rose compact, sans halo, pour ne pas concurrencer un bouton principal. Une partie pleine reste visible mais grisée, pour éviter le « où est passée la partie de Tom ? ».</p>
+      </div>
+
+      <div id="J3" style="width:360px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#E91E63;color:#fff">J3</span><span style="font-size:14px;font-weight:700">Rejoindre · aucune partie</span></div>
+        <div style="width:360px;height:800px;background:#0B0B10;border-radius:28px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.6)">
+          <div style="height:28px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:12px;font-weight:600;color:#C8C8D2;flex:none"><span>9:41</span><span style="display:flex;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">wifi</span><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">battery_full</span></span></div>
+          <div style="height:64px;display:flex;align-items:center;padding:0 8px;flex:none"><div style="width:48px;height:48px;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">arrow_back</span></div><div style="flex:1;text-align:center;font-size:16px;font-weight:800;letter-spacing:.42em;padding-left:.42em;color:#B8B8C4">REJOINDRE</div><div style="width:48px"></div></div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:0 20px;text-align:center">
+            <div style="width:88px;height:88px;border-radius:44px;background:#15151C;border:1px dashed #2A2A36;display:flex;align-items:center;justify-content:center;color:#6B6B7A"><span style="font-family:'Material Symbols Rounded';font-size:40px;line-height:1">wifi_off</span></div>
+            <div style="font-size:20px;font-weight:700;margin-top:8px">Aucune partie trouvée</div>
+            <div style="align-self:stretch;background:#15151C;border:1px solid #23232D;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:14px;text-align:left;margin-top:12px">
+              <div style="display:flex;gap:12px;align-items:flex-start"><div style="width:24px;height:24px;border-radius:12px;background:#1E1E28;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:none">1</div><div style="font-size:14px;line-height:1.5;color:#C8C8D2">Vérifie que vous êtes sur le même Wi-Fi ou partage de connexion.</div></div>
+              <div style="display:flex;gap:12px;align-items:flex-start"><div style="width:24px;height:24px;border-radius:12px;background:#1E1E28;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:none">2</div><div style="font-size:14px;line-height:1.5;color:#C8C8D2">Demande à l'autre joueur de toucher « Créer une partie ».</div></div>
+            </div>
+          </div>
+          <div style="padding:0 20px 20px"><div style="height:56px;border-radius:16px;background:#E91E63;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:800;letter-spacing:.3em;box-shadow:0 0 24px rgba(233,30,99,.5),0 8px 28px rgba(233,30,99,.3)"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1;letter-spacing:0">refresh</span>ACTUALISER</div></div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#9E9EAB;text-wrap:pretty">Ici, Actualiser devient l'action principale (rose) : c'est la seule chose utile à faire après avoir suivi les deux conseils numérotés.</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:28px">
+    <div style="font-size:11px;font-weight:800;letter-spacing:.24em;color:#6B6B7A">SALON</div>
+    <div style="display:flex;gap:48px;flex-wrap:wrap;align-items:flex-start">
+
+      <div id="L1" style="width:360px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#E91E63;color:#fff">L1</span><span style="font-size:14px;font-weight:700">Salon · hôte seul</span></div>
+        <div style="width:360px;height:800px;background:#0B0B10;border-radius:28px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.6)">
+          <div style="height:28px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:12px;font-weight:600;color:#C8C8D2;flex:none"><span>9:41</span><span style="display:flex;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">wifi</span><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">battery_full</span></span></div>
+          <div style="height:64px;display:flex;align-items:center;padding:0 8px;flex:none"><div style="width:48px"></div><div style="flex:1;text-align:center;font-size:16px;font-weight:800;letter-spacing:.42em;padding-left:.42em;color:#B8B8C4">SALON</div><div style="width:48px"></div></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:12px;padding:4px 20px 20px">
+            <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px"><div style="font-size:24px;font-weight:700">Partie de Léa</div><div style="font-size:14px;color:#9E9EAB">Duel · premier à 5 points</div></div>
+            <div style="background:#15151C;border:1px solid #23232D;border-radius:16px;height:72px;padding:0 16px;display:flex;align-items:center;gap:14px"><div style="width:44px;height:44px;border-radius:22px;background:rgba(33,150,243,.18);color:#64B5F6;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800">L</div><div style="flex:1;display:flex;flex-direction:column;gap:2px"><div style="font-size:16px;font-weight:700">Léa</div><div style="font-size:12px;color:#9E9EAB">Toi · hôte</div></div><div style="display:flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:14px;background:#1E1E28;color:#9E9EAB;font-size:12px;font-weight:700"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">hourglass_top</span>En attente</div></div>
+            <div style="border:1.5px dashed #2A2A36;border-radius:16px;height:72px;padding:0 16px;display:flex;align-items:center;gap:14px"><div style="width:44px;height:44px;border-radius:22px;border:1.5px dashed #3A3A48"></div><div style="font-size:15px;color:#6B6B7A">En attente d'un joueur…</div></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:14px;margin-top:28px;text-align:center">
+              <div style="position:relative;width:120px;height:120px;display:flex;align-items:center;justify-content:center"><div style="position:absolute;inset:0;border-radius:60px;border:1px solid rgba(233,30,99,.15)"></div><div style="position:absolute;inset:24px;border-radius:36px;border:1.5px solid rgba(233,30,99,.35)"></div><span style="font-family:'Material Symbols Rounded';font-size:28px;line-height:1;color:#FF5C93">sensors</span></div>
+              <div style="font-size:14px;line-height:1.5;color:#C8C8D2;max-width:260px">Ta partie est visible par les joueurs à proximité.</div>
+            </div>
+            <div style="flex:1"></div>
+            <div style="text-align:center;font-size:13px;color:#6B6B7A">Disponible dès qu'un joueur te rejoint</div>
+            <div style="height:56px;border-radius:16px;background:#1A1A22;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;letter-spacing:.3em;padding-left:.3em;color:#55556A">PRÊT</div>
+            <div style="height:48px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#C8C8D2">Annuler la partie</div>
+          </div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#9E9EAB;text-wrap:pretty">La place vide en pointillés montre ce qu'on attend. « Prêt » est déjà là mais désactivé, avec la raison écrite au-dessus : l'écran ne change pas de structure quand Tom arrive.</p>
+      </div>
+
+      <div id="L2" style="width:360px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#E91E63;color:#fff">L2</span><span style="font-size:14px;font-weight:700">Salon · joueur connecté (hôte)</span></div>
+        <div style="width:360px;height:800px;background:#0B0B10;border-radius:28px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.6)">
+          <div style="height:28px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:12px;font-weight:600;color:#C8C8D2;flex:none"><span>9:41</span><span style="display:flex;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">wifi</span><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">battery_full</span></span></div>
+          <div style="height:64px;display:flex;align-items:center;padding:0 8px;flex:none"><div style="width:48px"></div><div style="flex:1;text-align:center;font-size:16px;font-weight:800;letter-spacing:.42em;padding-left:.42em;color:#B8B8C4">SALON</div><div style="width:48px"></div></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:12px;padding:4px 20px 20px">
+            <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px"><div style="font-size:24px;font-weight:700">Partie de Léa</div><div style="font-size:14px;color:#9E9EAB">Duel · premier à 5 points</div></div>
+            <div style="background:#15151C;border:1px solid #23232D;border-radius:16px;height:72px;padding:0 16px;display:flex;align-items:center;gap:14px"><div style="width:44px;height:44px;border-radius:22px;background:rgba(33,150,243,.18);color:#64B5F6;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800">L</div><div style="flex:1;display:flex;flex-direction:column;gap:2px"><div style="font-size:16px;font-weight:700">Léa</div><div style="font-size:12px;color:#9E9EAB">Toi · hôte</div></div><div style="display:flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:14px;background:#1E1E28;color:#9E9EAB;font-size:12px;font-weight:700"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">hourglass_top</span>En attente</div></div>
+            <div style="background:#15151C;border:1px solid #23232D;border-radius:16px;height:72px;padding:0 16px;display:flex;align-items:center;gap:14px"><div style="width:44px;height:44px;border-radius:22px;background:rgba(76,175,80,.16);color:#81C784;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800">T</div><div style="flex:1;display:flex;flex-direction:column;gap:2px"><div style="font-size:16px;font-weight:700">Tom</div><div style="font-size:12px;color:#9E9EAB">Vient de rejoindre</div></div><div style="display:flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:14px;background:#1E1E28;color:#9E9EAB;font-size:12px;font-weight:700"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">hourglass_top</span>En attente</div></div>
+            <div style="flex:1"></div>
+            <div style="text-align:center;font-size:13px;color:#9E9EAB">La partie démarre quand vous êtes prêts tous les deux</div>
+            <div style="height:56px;border-radius:16px;background:#E91E63;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;letter-spacing:.3em;padding-left:.3em;box-shadow:0 0 24px rgba(233,30,99,.5),0 8px 28px rgba(233,30,99,.3)">PRÊT</div>
+            <div style="height:48px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#C8C8D2">Annuler la partie</div>
+          </div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#9E9EAB;text-wrap:pretty">Arrivée de Tom : la place se remplit (vibration courte), le bouton s'allume. Le vert de l'adversaire apparaît dès le salon pour préparer la lecture du terrain.</p>
+      </div>
+
+      <div id="L3" style="width:360px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#E91E63;color:#fff">L3</span><span style="font-size:14px;font-weight:700">Salon · vu par l'invité, prêt</span></div>
+        <div style="width:360px;height:800px;background:#0B0B10;border-radius:28px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.6)">
+          <div style="height:28px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:12px;font-weight:600;color:#C8C8D2;flex:none"><span>9:41</span><span style="display:flex;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">wifi</span><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">battery_full</span></span></div>
+          <div style="height:64px;display:flex;align-items:center;padding:0 8px;flex:none"><div style="width:48px"></div><div style="flex:1;text-align:center;font-size:16px;font-weight:800;letter-spacing:.42em;padding-left:.42em;color:#B8B8C4">SALON</div><div style="width:48px"></div></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:12px;padding:4px 20px 20px">
+            <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px"><div style="font-size:24px;font-weight:700">Partie de Tom</div><div style="font-size:14px;color:#9E9EAB">Duel · premier à 5 points</div></div>
+            <div style="background:#15151C;border:1px solid #23232D;border-radius:16px;height:72px;padding:0 16px;display:flex;align-items:center;gap:14px"><div style="width:44px;height:44px;border-radius:22px;background:rgba(76,175,80,.16);color:#81C784;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800">T</div><div style="flex:1;display:flex;flex-direction:column;gap:2px"><div style="font-size:16px;font-weight:700">Tom</div><div style="font-size:12px;color:#9E9EAB">Hôte</div></div><div style="display:flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:14px;background:#1E1E28;color:#9E9EAB;font-size:12px;font-weight:700"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">hourglass_top</span>En attente</div></div>
+            <div style="background:#15151C;border:1px solid rgba(102,187,106,.4);border-radius:16px;height:72px;padding:0 16px;display:flex;align-items:center;gap:14px"><div style="width:44px;height:44px;border-radius:22px;background:rgba(33,150,243,.18);color:#64B5F6;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800">L</div><div style="flex:1;display:flex;flex-direction:column;gap:2px"><div style="font-size:16px;font-weight:700">Léa</div><div style="font-size:12px;color:#9E9EAB">Toi</div></div><div style="display:flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:14px;background:rgba(102,187,106,.14);color:#66BB6A;font-size:12px;font-weight:700"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">check</span>Prêt</div></div>
+            <div style="flex:1"></div>
+            <div style="text-align:center;font-size:13px;color:#9E9EAB">En attente de Tom…</div>
+            <div style="height:56px;border-radius:16px;background:#1E1E28;border:1px solid #2A2A36;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">Je ne suis plus prêt</div>
+            <div style="height:48px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#C8C8D2">Quitter</div>
+          </div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#9E9EAB;text-wrap:pretty">Côté invité, l'ordre s'inverse : l'hôte en haut, « toi » en bas, comme sur le terrain. Une fois prêt, le bouton passe en secondaire pour annuler — le rose disparaît, il n'y a plus rien à faire qu'attendre.</p>
+      </div>
+
+      <div id="L4" style="width:360px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#E91E63;color:#fff">L4</span><span style="font-size:14px;font-weight:700">Salon · les deux prêts, 3-2-1</span></div>
+        <div style="width:360px;height:800px;background:#0B0B10;border-radius:28px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.6)">
+          <div style="height:28px;flex:none"></div>
+          <div style="height:64px;display:flex;align-items:center;justify-content:center;flex:none;font-size:16px;font-weight:800;letter-spacing:.42em;padding-left:.42em;color:#B8B8C4">SALON</div>
+          <div style="display:flex;flex-direction:column;gap:12px;padding:4px 20px">
+            <div style="height:56px"></div>
+            <div style="background:#15151C;border:1px solid rgba(102,187,106,.4);border-radius:16px;height:72px;padding:0 16px;display:flex;align-items:center;gap:14px;opacity:.5"><div style="width:44px;height:44px;border-radius:22px;background:rgba(33,150,243,.18)"></div><div style="flex:1;font-size:16px;font-weight:700">Léa</div><div style="height:28px;padding:0 12px;border-radius:14px;background:rgba(102,187,106,.14);color:#66BB6A;font-size:12px;font-weight:700;display:flex;align-items:center">Prêt</div></div>
+            <div style="background:#15151C;border:1px solid rgba(102,187,106,.4);border-radius:16px;height:72px;padding:0 16px;display:flex;align-items:center;gap:14px;opacity:.5"><div style="width:44px;height:44px;border-radius:22px;background:rgba(76,175,80,.16)"></div><div style="flex:1;font-size:16px;font-weight:700">Tom</div><div style="height:28px;padding:0 12px;border-radius:14px;background:rgba(102,187,106,.14);color:#66BB6A;font-size:12px;font-weight:700;display:flex;align-items:center">Prêt</div></div>
+          </div>
+          <div style="position:absolute;inset:0;background:rgba(5,5,8,.82);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px">
+            <div style="font-size:12px;font-weight:800;letter-spacing:.3em;color:#9E9EAB">LÉA <span style="color:#55556A">CONTRE</span> TOM</div>
+            <div style="width:180px;height:180px;border-radius:90px;border:2px solid #E91E63;box-shadow:0 0 40px rgba(233,30,99,.45),inset 0 0 30px rgba(233,30,99,.2);display:flex;align-items:center;justify-content:center;font-size:104px;font-weight:900;font-variant-numeric:tabular-nums;text-shadow:0 0 24px rgba(233,30,99,.6)">2</div>
+            <div style="font-size:14px;font-weight:800;letter-spacing:.3em;padding-left:.3em">PRENDS TON TÉLÉPHONE</div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#9E9EAB"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">screen_rotation</span>À deux mains, prêt à incliner</div>
+          </div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#9E9EAB;text-wrap:pretty">Le compte à rebours dit quoi faire pendant les 3 secondes : saisir le téléphone à deux mains. Un « bip » + vibration par chiffre, synchronisés sur les deux appareils.</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:28px">
+    <div style="font-size:11px;font-weight:800;letter-spacing:.24em;color:#6B6B7A">DUEL &amp; FIN DU DUEL</div>
+    <div style="display:flex;gap:48px;flex-wrap:wrap;align-items:flex-start">
+
+      <div id="D1" style="width:360px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#E91E63;color:#fff">D1</span><span style="font-size:14px;font-weight:700">Duel · en jeu</span></div>
+        <div style="width:360px;height:800px;background:#0B0B10;border-radius:28px;overflow:hidden;position:relative;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.6)">
+          <div style="position:absolute;left:0;right:0;top:0;height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 20px"><span style="font-size:11px;font-weight:800;letter-spacing:.22em;color:#6B6B7A">DUEL · PREMIER À 5</span><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:#6B6B7A">wifi</span></div>
+          <div style="position:absolute;left:12px;right:12px;top:72px;bottom:16px;border:1px solid rgba(255,255,255,.07);border-radius:16px"></div>
+          <div style="position:absolute;left:12px;right:12px;top:443px;height:2px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.12) 0 12px,transparent 12px 24px)"></div>
+          <div style="position:absolute;left:0;right:0;top:340px;display:flex;flex-direction:column;align-items:center;gap:6px"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;letter-spacing:.3em;color:#6B6B7A">TOM</span><div style="display:flex;gap:4px"><div style="width:12px;height:5px;border-radius:3px;background:rgba(76,175,80,.7)"></div><div style="width:12px;height:5px;border-radius:3px;background:rgba(76,175,80,.7)"></div><div style="width:12px;height:5px;border-radius:3px;background:rgba(76,175,80,.7)"></div><div style="width:12px;height:5px;border-radius:3px;background:#22222C"></div><div style="width:12px;height:5px;border-radius:3px;background:#22222C"></div></div></div><div style="font-size:64px;font-weight:900;color:rgba(129,199,132,.28);font-variant-numeric:tabular-nums;line-height:1">3</div></div>
+          <div style="position:absolute;left:0;right:0;top:462px;display:flex;flex-direction:column;align-items:center;gap:6px"><div style="font-size:64px;font-weight:900;color:rgba(100,181,246,.3);font-variant-numeric:tabular-nums;line-height:1">2</div><div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;letter-spacing:.3em;color:#6B6B7A">LÉA</span><div style="display:flex;gap:4px"><div style="width:12px;height:5px;border-radius:3px;background:rgba(33,150,243,.8)"></div><div style="width:12px;height:5px;border-radius:3px;background:rgba(33,150,243,.8)"></div><div style="width:12px;height:5px;border-radius:3px;background:#22222C"></div><div style="width:12px;height:5px;border-radius:3px;background:#22222C"></div><div style="width:12px;height:5px;border-radius:3px;background:#22222C"></div></div></div></div>
+          <div style="position:absolute;left:220px;top:100px;width:80px;height:15px;border-radius:8px;background:#4CAF50;box-shadow:0 0 16px rgba(76,175,80,.55)"></div>
+          <div style="position:absolute;left:60px;top:740px;width:80px;height:15px;border-radius:8px;background:#2196F3;box-shadow:0 0 16px rgba(33,150,243,.6)"></div>
+          <div style="position:absolute;left:250px;top:250px;width:20px;height:20px;border-radius:10px;background:#fff;box-shadow:0 0 12px rgba(255,255,255,.8),0 0 32px rgba(255,255,255,.3)"></div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#9E9EAB;text-wrap:pretty">Chaque score est du côté de son joueur, teinté de sa couleur, avec 5 barres « premier à 5 ». Pas de pause : la bande du haut n'affiche que le format et un indicateur de connexion qui ne s'allume en rouge qu'en cas de souci.</p>
+      </div>
+
+      <div id="D2" style="width:360px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#E91E63;color:#fff">D2</span><span style="font-size:14px;font-weight:700">Duel · point marqué</span></div>
+        <div style="width:360px;height:800px;background:#0B0B10;border-radius:28px;overflow:hidden;position:relative;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.6)">
+          <div style="position:absolute;left:0;right:0;top:0;height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 20px"><span style="font-size:11px;font-weight:800;letter-spacing:.22em;color:#6B6B7A">DUEL · PREMIER À 5</span><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:#6B6B7A">wifi</span></div>
+          <div style="position:absolute;left:12px;right:12px;top:72px;bottom:16px;border:1px solid rgba(255,255,255,.07);border-radius:16px;background:linear-gradient(180deg,rgba(33,150,243,.14) 0%,rgba(33,150,243,0) 40%)"></div>
+          <div style="position:absolute;left:12px;right:12px;top:443px;height:2px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.12) 0 12px,transparent 12px 24px)"></div>
+          <div style="position:absolute;left:220px;top:100px;width:80px;height:15px;border-radius:8px;background:#4CAF50;opacity:.5"></div>
+          <div style="position:absolute;left:140px;top:740px;width:80px;height:15px;border-radius:8px;background:#2196F3;box-shadow:0 0 16px rgba(33,150,243,.6)"></div>
+          <div style="position:absolute;left:0;right:0;top:300px;display:flex;flex-direction:column;align-items:center;gap:20px">
+            <div style="display:flex;align-items:center;height:36px;padding:0 16px;border-radius:18px;background:rgba(33,150,243,.14);border:1px solid rgba(33,150,243,.55);color:#90CAF9;font-size:13px;font-weight:800;letter-spacing:.2em;box-shadow:0 0 24px rgba(33,150,243,.3)">POINT POUR LÉA</div>
+            <div style="display:flex;align-items:center;gap:20px;font-size:72px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1"><span style="color:#64B5F6;text-shadow:0 0 24px rgba(33,150,243,.5)">3</span><span style="color:#3A3A48;font-size:48px">–</span><span style="color:#81C784">3</span></div>
+            <div style="display:flex;gap:56px;font-size:11px;font-weight:800;letter-spacing:.3em;color:#6B6B7A"><span>LÉA</span><span>TOM</span></div>
+            <div style="font-size:13px;color:#9E9EAB;margin-top:24px">Reprise dans 2…</div>
+          </div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#9E9EAB;text-wrap:pretty">Pendant ~2 s sans balle, le score passe au premier plan en clair. Le halo vient du côté où la balle est sortie, en couleur du gagnant du point. Sur le téléphone de Tom, même écran en vert.</p>
+      </div>
+
+      <div id="V1" style="width:360px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#E91E63;color:#fff">V1</span><span style="font-size:14px;font-weight:700">Fin du duel · victoire</span></div>
+        <div style="width:360px;height:800px;background:#0B0B10;border-radius:28px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.6)">
+          <div style="position:absolute;left:0;right:0;top:0;height:360px;background:radial-gradient(ellipse at 50% 30%,rgba(233,30,99,.22),rgba(233,30,99,0) 65%)"></div>
+          <div style="height:28px;flex:none"></div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:0 20px;position:relative">
+            <div style="font-size:40px;font-weight:900;letter-spacing:.4em;padding-left:.4em;text-shadow:0 0 28px rgba(233,30,99,.7)">VICTOIRE</div>
+            <div style="font-size:18px;font-weight:600;color:#C8C8D2">Léa gagne !</div>
+            <div style="display:flex;align-items:center;gap:24px;margin-top:40px">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:8px"><div style="font-size:72px;font-weight:900;color:#64B5F6;font-variant-numeric:tabular-nums;line-height:1;text-shadow:0 0 24px rgba(33,150,243,.45)">5</div><div style="font-size:11px;font-weight:800;letter-spacing:.3em;color:#9E9EAB">LÉA</div></div>
+              <div style="font-size:40px;color:#3A3A48;padding-bottom:24px">–</div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:8px"><div style="font-size:72px;font-weight:900;color:#81C784;opacity:.6;font-variant-numeric:tabular-nums;line-height:1">3</div><div style="font-size:11px;font-weight:800;letter-spacing:.3em;color:#9E9EAB">TOM</div></div>
+            </div>
+            <div style="font-size:13px;color:#9E9EAB;margin-top:20px">2m 41s · plus long échange : 14 renvois</div>
+          </div>
+          <div style="padding:0 20px 20px;display:flex;flex-direction:column;gap:8px;position:relative">
+            <div style="height:56px;border-radius:16px;background:#E91E63;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:800;letter-spacing:.3em;box-shadow:0 0 24px rgba(233,30,99,.5),0 8px 28px rgba(233,30,99,.3)"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1;letter-spacing:0">replay</span>REJOUER</div>
+            <div style="height:48px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#C8C8D2">Quitter</div>
+          </div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#9E9EAB;text-wrap:pretty">Plein écran plutôt que dialogue : c'est la conclusion d'un duel, elle mérite la place. Victoire = le seul titre avec halo rose de l'app.</p>
+      </div>
+
+      <div id="V2" style="width:360px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#E91E63;color:#fff">V2</span><span style="font-size:14px;font-weight:700">Fin du duel · défaite, attente rejouer</span></div>
+        <div style="width:360px;height:800px;background:#0B0B10;border-radius:28px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.6)">
+          <div style="height:28px;flex:none"></div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:0 20px">
+            <div style="font-size:40px;font-weight:900;letter-spacing:.4em;padding-left:.4em;color:#B8B8C4">DÉFAITE</div>
+            <div style="font-size:18px;font-weight:600;color:#C8C8D2">Tom gagne !</div>
+            <div style="display:flex;align-items:center;gap:24px;margin-top:40px">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:8px"><div style="font-size:72px;font-weight:900;color:#64B5F6;opacity:.6;font-variant-numeric:tabular-nums;line-height:1">3</div><div style="font-size:11px;font-weight:800;letter-spacing:.3em;color:#9E9EAB">LÉA</div></div>
+              <div style="font-size:40px;color:#3A3A48;padding-bottom:24px">–</div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:8px"><div style="font-size:72px;font-weight:900;color:#81C784;font-variant-numeric:tabular-nums;line-height:1">5</div><div style="font-size:11px;font-weight:800;letter-spacing:.3em;color:#9E9EAB">TOM</div></div>
+            </div>
+            <div style="font-size:13px;color:#9E9EAB;margin-top:20px">Si près ! La revanche ?</div>
+          </div>
+          <div style="padding:0 20px 20px;display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;color:#9E9EAB;height:28px"><div style="width:8px;height:8px;border-radius:4px;background:#66BB6A"></div>Tu veux rejouer · Tom n'a pas encore répondu</div>
+            <div style="height:56px;border-radius:16px;background:rgba(233,30,99,.1);border:1.5px solid rgba(233,30,99,.6);display:flex;align-items:center;justify-content:center;gap:10px;font-size:15px;font-weight:700;color:#FF5C93"><div style="width:18px;height:18px;border-radius:9px;border:2px solid rgba(255,92,147,.3);border-top-color:#FF5C93"></div>En attente de Tom…</div>
+            <div style="height:48px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#C8C8D2">Quitter</div>
+          </div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#9E9EAB;text-wrap:pretty">Après « Rejouer », le bouton se transforme en état d'attente (contour rose + roue), et une ligne dit qui doit répondre. Si Tom demande la revanche le premier, la ligne devient « Tom veut rejouer ».</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:28px;padding-bottom:64px">
+    <div style="font-size:11px;font-weight:800;letter-spacing:.24em;color:#6B6B7A">DÉCONNEXIONS &amp; ERREURS</div>
+    <div style="display:flex;gap:48px;flex-wrap:wrap;align-items:flex-start">
+
+      <div id="X1" style="width:360px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#E91E63;color:#fff">X1</span><span style="font-size:14px;font-weight:700">Côté hôte · joueur déconnecté</span></div>
+        <div style="width:360px;height:800px;background:#0B0B10;border-radius:28px;overflow:hidden;position:relative;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.6)">
+          <div style="position:absolute;left:12px;right:12px;top:72px;bottom:16px;border:1px solid rgba(255,255,255,.07);border-radius:16px"></div>
+          <div style="position:absolute;left:12px;right:12px;top:443px;height:2px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.12) 0 12px,transparent 12px 24px)"></div>
+          <div style="position:absolute;left:220px;top:100px;width:80px;height:15px;border-radius:8px;background:#4CAF50"></div>
+          <div style="position:absolute;left:60px;top:740px;width:80px;height:15px;border-radius:8px;background:#2196F3"></div>
+          <div style="position:absolute;inset:0;background:rgba(5,5,8,.8);display:flex;align-items:center;justify-content:center;padding:0 24px">
+            <div style="width:100%;background:#15151C;border:1px solid #2A2A36;border-radius:24px;padding:24px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.6)">
+              <div style="width:56px;height:56px;border-radius:28px;background:rgba(255,82,82,.12);color:#FF5252;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:28px;line-height:1">link_off</span></div>
+              <div style="font-size:20px;font-weight:700">Tom s'est déconnecté</div>
+              <div style="font-size:14px;line-height:1.5;color:#9E9EAB">Ta partie reste ouverte : il peut la rejoindre à nouveau.</div>
+              <div style="align-self:stretch;height:56px;border-radius:16px;background:#E91E63;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;letter-spacing:.2em;box-shadow:0 0 24px rgba(233,30,99,.5);margin-top:8px">RETOUR AU SALON</div>
+            </div>
+          </div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#9E9EAB;text-wrap:pretty">Le pseudo remplace « l'autre joueur » quand on le connaît : plus humain, plus clair. Une seule action, qui correspond au comportement (retour au salon).</p>
+      </div>
+
+      <div id="X2" style="width:360px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#E91E63;color:#fff">X2</span><span style="font-size:14px;font-weight:700">Côté invité · l'hôte a quitté</span></div>
+        <div style="width:360px;height:800px;background:#0B0B10;border-radius:28px;overflow:hidden;position:relative;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.6)">
+          <div style="position:absolute;left:20px;right:20px;top:180px;height:72px;border-radius:16px;background:#15151C"></div>
+          <div style="position:absolute;left:20px;right:20px;top:264px;height:72px;border-radius:16px;background:#15151C"></div>
+          <div style="position:absolute;inset:0;background:rgba(5,5,8,.8);display:flex;align-items:center;justify-content:center;padding:0 24px">
+            <div style="width:100%;background:#15151C;border:1px solid #2A2A36;border-radius:24px;padding:24px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.6)">
+              <div style="width:56px;height:56px;border-radius:28px;background:rgba(255,255,255,.08);color:#C8C8D2;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:28px;line-height:1">logout</span></div>
+              <div style="font-size:20px;font-weight:700">Tom a quitté la partie</div>
+              <div style="font-size:14px;line-height:1.5;color:#9E9EAB">La partie est terminée. Tu peux en rejoindre une autre ou créer la tienne.</div>
+              <div style="align-self:stretch;height:56px;border-radius:16px;background:#E91E63;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;letter-spacing:.2em;box-shadow:0 0 24px rgba(233,30,99,.5);margin-top:8px">RETOUR AU MENU</div>
+            </div>
+          </div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#9E9EAB;text-wrap:pretty">Icône neutre (pas rouge) : ce n'est pas une panne, c'est un choix de l'autre joueur. Le texte propose la suite.</p>
+      </div>
+
+      <div id="X3" style="width:360px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#E91E63;color:#fff">X3</span><span style="font-size:14px;font-weight:700">Connexion impossible</span></div>
+        <div style="width:360px;height:800px;background:#0B0B10;border-radius:28px;overflow:hidden;position:relative;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.6)">
+          <div style="position:absolute;left:20px;right:20px;top:136px;height:72px;border-radius:16px;background:#15151C"></div>
+          <div style="position:absolute;left:20px;right:20px;top:218px;height:72px;border-radius:16px;background:#15151C"></div>
+          <div style="position:absolute;inset:0;background:rgba(5,5,8,.8);display:flex;align-items:center;justify-content:center;padding:0 24px">
+            <div style="width:100%;background:#15151C;border:1px solid #2A2A36;border-radius:24px;padding:24px 24px 12px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.6)">
+              <div style="width:56px;height:56px;border-radius:28px;background:rgba(255,82,82,.12);color:#FF5252;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:28px;line-height:1">wifi_off</span></div>
+              <div style="font-size:20px;font-weight:700">Connexion impossible</div>
+              <div style="font-size:14px;line-height:1.5;color:#9E9EAB">Vérifie que vous êtes sur le même Wi-Fi, puis réessaie.</div>
+              <div style="align-self:stretch;height:56px;border-radius:16px;background:#E91E63;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;letter-spacing:.3em;box-shadow:0 0 24px rgba(233,30,99,.5);margin-top:8px">RÉESSAYER</div>
+              <div style="height:48px;display:flex;align-items:center;font-size:15px;font-weight:700;color:#C8C8D2">Retour</div>
+            </div>
+          </div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#9E9EAB;text-wrap:pretty">Même gabarit pour tous les incidents : icône, titre en mots simples, une phrase de cause probable, une action. Jamais de code d'erreur ni d'adresse.</p>
+      </div>
+    </div>
+  </section>
+</div>
+</x-dc>
+</body>
+</html>

@@ -1,14 +1,6 @@
-import 'dart:async';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:pong_game/ball.dart';
-import 'package:pong_game/coverscreen.dart';
-import 'package:sensors_plus/sensors_plus.dart';
-import 'package:pong_game/bricks.dart';
 import 'package:pong_game/hompage.dart';
-import 'package:audioplayers/audioplayers.dart';
-import 'package:pong_game/leaderboard.dart';
+import 'package:pong_game/game_sound.dart';
 import 'package:pong_game/aide.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -18,68 +10,65 @@ class NamePage extends StatefulWidget {
   const NamePage({super.key, this.savedPseudo});
 
   @override
-  _NamePageState createState() => _NamePageState();
+  State<NamePage> createState() => _NamePageState();
 }
 
 class _NamePageState extends State<NamePage> with SingleTickerProviderStateMixin {
   final TextEditingController _nameController = TextEditingController();
   bool _shakingInput = false;
   late AnimationController _controller;
-  final AudioPlayer _audioPlayer = AudioPlayer();
-  final AudioPlayer _winterPlayer = AudioPlayer();
+  // Sons : un lecteur par son, chargé une fois à l'ouverture de l'écran
+  final GameSound _winterSound = GameSound('sounds/athmopshere.mp3', loop: true);
+  final GameSound _letsgoSound = GameSound('sounds/letsgo.mp3');
+  final GameSound _shootSound = GameSound('sounds/shoot.mp3');
   String selectedDifficulty = 'Normal';
 
-  bool get _hasSavedPseudo => widget.savedPseudo != null && widget.savedPseudo!.isNotEmpty;
+  // Pseudo courant (celui de Hive au lancement, puis le dernier enregistré)
+  String? _pseudo;
+  bool _editingPseudo = false; // true quand le joueur a tapé « Modifier »
+  bool _isStarting = false; // true entre le tap sur « S U I V A N T » et le retour du jeu
+
+  bool get _hasSavedPseudo => _pseudo != null && _pseudo!.isNotEmpty;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 500),
     );
-    _playWelcomeSound();
-    _playWinterMusic();
+    _winterSound.play();
 
+    _pseudo = widget.savedPseudo;
     if (_hasSavedPseudo) {
-      _nameController.text = widget.savedPseudo!;
-    }
-  }
-
-  Future<void> _playWelcomeSound() async {
-    try {
-      await _audioPlayer.play(AssetSource('sounds/welcome.mp3'));
-    } catch (e) {
-      print('Welcome sound error: $e');
-    }
-  }
-
-  Future<void> _playWinterMusic() async {
-    try {
-      await _winterPlayer.setReleaseMode(ReleaseMode.loop);
-      await _winterPlayer.play(AssetSource('sounds/athmopshere.mp3'));
-    } catch (e) {
-      print('Winter music error: $e');
+      _nameController.text = _pseudo!;
     }
   }
 
   void startPlaying() async {
-    final playerName = _nameController.text;
+    // Un second tap pendant le lancement n'ouvre pas une deuxième partie
+    if (_isStarting) return;
+    // Un pseudo vide ou fait d'espaces est refusé
+    final playerName = _nameController.text.trim();
     if (playerName.isNotEmpty) {
+      _isStarting = true;
       // Save pseudo to Hive
       final settingsBox = Hive.box('settings');
       settingsBox.put('pseudo', playerName);
+      _nameController.text = playerName;
+      setState(() {
+        _pseudo = playerName;
+        _editingPseudo = false;
+      });
 
-      _winterPlayer.stop();
+      _winterSound.stop();
 
-      try {
-        final letsgoPlayer = AudioPlayer();
-        await letsgoPlayer.play(AssetSource('sounds/letsgo.mp3'));
-      } catch (e) {
-        print('Letsgo sound error: $e');
-      }
+      // Lecteur membre : NamePage reste dans la pile sous le jeu, le son
+      // continue donc pendant la transition
+      await _letsgoSound.play();
 
-      Navigator.push(
+      if (!mounted) return;
+      await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => MyHomePage(
@@ -89,11 +78,18 @@ class _NamePageState extends State<NamePage> with SingleTickerProviderStateMixin
           ),
         ),
       );
+
+      // Retour du jeu : rafraîchir le meilleur score et relancer la musique
+      _isStarting = false;
+      if (!mounted) return;
+      setState(() {});
+      _winterSound.play();
     } else {
       setState(() {
         _shakingInput = true;
       });
       _controller.forward(from: 0).then((_) {
+        if (!mounted) return;
         setState(() {
           _shakingInput = false;
         });
@@ -103,21 +99,12 @@ class _NamePageState extends State<NamePage> with SingleTickerProviderStateMixin
 
   @override
   void dispose() {
-    _audioPlayer.dispose();
-    _winterPlayer.stop();
-    _winterPlayer.dispose();
+    _winterSound.dispose();
+    _letsgoSound.dispose();
+    _shootSound.dispose();
     _controller.dispose();
     _nameController.dispose();
     super.dispose();
-  }
-
-  Future<void> _playShootSound() async {
-    try {
-      final shootPlayer = AudioPlayer();
-      await shootPlayer.play(AssetSource('sounds/shoot.mp3'));
-    } catch (e) {
-      print('Shoot sound error: $e');
-    }
   }
 
   Widget _buildDifficultyButton(String label) {
@@ -127,12 +114,12 @@ class _NamePageState extends State<NamePage> with SingleTickerProviderStateMixin
         setState(() {
           selectedDifficulty = label;
         });
-        _playShootSound();
+        _shootSound.play();
       },
       child: FractionallySizedBox(
         widthFactor: 0.9,
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
             color: isSelected ? Colors.pink : Colors.grey.shade900,
@@ -142,7 +129,7 @@ class _NamePageState extends State<NamePage> with SingleTickerProviderStateMixin
                       color: Colors.pink.withOpacity(0.6),
                       spreadRadius: 4,
                       blurRadius: 50,
-                      offset: Offset(0, 3),
+                      offset: const Offset(0, 3),
                     ),
                   ]
                 : [],
@@ -168,32 +155,58 @@ class _NamePageState extends State<NamePage> with SingleTickerProviderStateMixin
       backgroundColor: Colors.black12,
       body: SafeArea(
         child: Center(
-          child: Container(
+          child: SizedBox(
             height: MediaQuery.sizeOf(context).height * 0.75,
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 50),
+              padding: const EdgeInsets.symmetric(horizontal: 50),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
-                    child: Text(
-                      "P O N G",
-                      style: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 35,
-                          fontWeight: FontWeight.w800),
-                    ),
+                  const Text(
+                    "P O N G",
+                    style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 35,
+                        fontWeight: FontWeight.w800),
                   ),
 
                   // Pseudo section
-                  if (_hasSavedPseudo)
-                    Text(
-                      "Bonjour ${widget.savedPseudo}",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
+                  if (_hasSavedPseudo && !_editingPseudo)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            "Bonjour $_pseudo",
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        // Action discrète : réaffiche le champ, prérempli
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _editingPseudo = true;
+                            });
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 8),
+                            child: Text(
+                              "Modifier",
+                              style: TextStyle(
+                                color: Colors.pink,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     )
                   else
                     ShakeTransition(
@@ -201,37 +214,35 @@ class _NamePageState extends State<NamePage> with SingleTickerProviderStateMixin
                       duration: const Duration(milliseconds: 500),
                       offset: 10,
                       controller: _controller,
-                      child: Container(
-                        child: TextField(
-                          style: TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.w500),
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 10),
-                            hintText: 'Entrez votre pseudo ',
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                  color: _shakingInput ? Colors.red : Colors.grey),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                  color: _shakingInput ? Colors.red : Colors.grey),
-                            ),
-                            hintStyle: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w100),
-                            fillColor: Colors.black,
+                      child: TextField(
+                        style: const TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.w500),
+                        decoration: InputDecoration(
+                          contentPadding: const EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 10),
+                          hintText: 'Entrez votre pseudo ',
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                                color: _shakingInput ? Colors.red : Colors.grey),
                           ),
-                          controller: _nameController,
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                                color: _shakingInput ? Colors.red : Colors.grey),
+                          ),
+                          hintStyle: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w100),
+                          fillColor: Colors.black,
                         ),
+                        controller: _nameController,
                       ),
                     ),
 
                   // Difficulty selection
                   Column(
                     children: [
-                      Text(
+                      const Text(
                         "Choisis le niveau de difficulté ",
                         style: TextStyle(
                           color: Colors.grey,
@@ -239,13 +250,13 @@ class _NamePageState extends State<NamePage> with SingleTickerProviderStateMixin
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Column(
                         children: [
                           _buildDifficultyButton('Facile'),
-                          SizedBox(height: 15),
+                          const SizedBox(height: 15),
                           _buildDifficultyButton('Normal'),
-                          SizedBox(height: 15),
+                          const SizedBox(height: 15),
                           _buildDifficultyButton('Difficile'),
                         ],
                       ),
@@ -256,7 +267,7 @@ class _NamePageState extends State<NamePage> with SingleTickerProviderStateMixin
                     onTap: startPlaying,
                     child: Container(
                       padding:
-                          EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8),
                           color: Colors.pink,
@@ -265,10 +276,10 @@ class _NamePageState extends State<NamePage> with SingleTickerProviderStateMixin
                               color: Colors.pink.withOpacity(0.6),
                               spreadRadius: 4,
                               blurRadius: 50,
-                              offset: Offset(0, 3),
+                              offset: const Offset(0, 3),
                             ),
                           ]),
-                      child: Text(
+                      child: const Text(
                         "S U I V A N T",
                         style: TextStyle(
                             color: Colors.white,
@@ -279,7 +290,7 @@ class _NamePageState extends State<NamePage> with SingleTickerProviderStateMixin
                   ),
                   Text(
                     "Meilleur score : ${Hive.box<int>('scores').get('topscore', defaultValue: 0)}",
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.grey,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -295,12 +306,12 @@ class _NamePageState extends State<NamePage> with SingleTickerProviderStateMixin
                       );
                     },
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         color: Colors.teal,
                       ),
-                      child: Text(
+                      child: const Text(
                         "A I D E",
                         style: TextStyle(
                           color: Colors.white,
@@ -327,7 +338,8 @@ class ShakeTransition extends StatelessWidget {
   final Axis axis;
   final Widget child;
 
-  ShakeTransition({
+  const ShakeTransition({
+    super.key,
     required this.controller,
     required this.child,
     this.offset = 140.0,

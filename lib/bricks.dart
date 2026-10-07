@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sensors_plus/sensors_plus.dart';
 
 class myBricks extends StatefulWidget {
   
@@ -30,7 +29,7 @@ class _myBricksState extends State<myBricks> {
                 width: widget.playerWidth,
                 decoration: BoxDecoration(
                   color: widget.iscomputer ? Colors.green : Colors.blue ,
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(10),
                     topRight: Radius.circular(10),
                     bottomLeft: Radius.circular(10),

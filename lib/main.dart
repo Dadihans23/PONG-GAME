@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pong_game/entername.dart';
-import 'package:pong_game/hompage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:audioplayers/audioplayers.dart';
+import 'package:pong_game/game_sound.dart';
 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Le jeu est vertical : verrouillage en portrait
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await Hive.initFlutter();
   await Hive.openBox<int>('scores');
   await Hive.openBox('settings');
@@ -58,7 +60,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  final AudioPlayer _audioPlayer = AudioPlayer();
+  final GameSound _loaderSound = GameSound('sounds/loader.mp3');
 
   @override
   void initState() {
@@ -67,11 +69,11 @@ class _SplashScreenState extends State<SplashScreen>
       vsync: this,
       duration: const Duration(seconds: 6),
     );
-    _playLoaderSound();
+    _loaderSound.play();
     _controller.forward();
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        _audioPlayer.stop();
+        _loaderSound.stop();
         final settingsBox = Hive.box('settings');
         final savedPseudo = settingsBox.get('pseudo') as String?;
         Navigator.pushReplacement(
@@ -84,17 +86,9 @@ class _SplashScreenState extends State<SplashScreen>
     });
   }
 
-  Future<void> _playLoaderSound() async {
-    try {
-      await _audioPlayer.play(AssetSource('sounds/loader.mp3'));
-    } catch (e) {
-      print('Loader sound error: $e');
-    }
-  }
-
   @override
   void dispose() {
-    _audioPlayer.dispose();
+    _loaderSound.dispose();
     _controller.dispose();
     super.dispose();
   }

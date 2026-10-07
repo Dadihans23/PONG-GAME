@@ -1,21 +1,20 @@
 import 'dart:async';
-import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:pong_game/ball.dart';
 import 'package:pong_game/coverscreen.dart';
+import 'package:pong_game/game/pong_engine.dart';
+import 'package:pong_game/game/tilt_control.dart';
+import 'package:pong_game/game_sound.dart';
 import 'package:pong_game/scoreplayer.dart';
 import 'package:pong_game/topscore.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:pong_game/bricks.dart';
-import 'package:pong_game/scoreglow.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:pong_game/leaderboard.dart';
 import 'package:pong_game/statistics.dart';
-import 'package:audioplayers/audioplayers.dart';
 
 
 
@@ -31,52 +30,78 @@ class MyHomePage extends StatefulWidget {
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
-enum direction { UP , DOWN , LEFT , RIGHT}
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin {
+  // Nombre maximum de pas de moteur par image : au-delà, le temps en trop est
+  // abandonné pour que la balle ne saute pas après un blocage
+  static const int maxStepsPerFrame = 50;
+
+  // Nombre de pas de moteur par seconde : règle la vitesse de tout le jeu
+  // (balle, adversaire, accélération), identique sur tous les téléphones.
+  // L'ancienne boucle (minuteur de 1 ms) en faisait environ 700 en release
+  // sur un Samsung SM-A135F ; valeur en cours de réglage avec le propriétaire
+  static const int stepsPerSecond = 450;
+
+  // --- Réglages de la raquette, à ajuster au ressenti ---
+  // L'inclinaison est normalisée : 0 = téléphone droit, 1 = téléphone couché
+  // sur le côté (90°). Ces valeurs reproduisent la vitesse d'avant (0,02 par
+  // événement du capteur, 6 événements par seconde sur SM-A135F).
+
+  // Vitesse maximale de la raquette, en unités de terrain par seconde
+  // (le terrain fait 2 unités de large)
+  static const double paddleMaxSpeed = 1.18;
+
+  // Inclinaison qui donne la vitesse maximale. La baisser (0,5 = 30°) rend la
+  // raquette plus vive sans changer sa vitesse maximale
+  static const double tiltForMaxSpeed = 1.0;
+
+  // Zone morte : sous cette inclinaison (0,05 = environ 3°) la raquette ne
+  // bouge pas ; au-delà, la vitesse part de 0 et croît linéairement
+  static const double tiltDeadZone = 0.05;
+
+  // Lissage de l'inclinaison, en secondes : plus grand = plus doux mais plus
+  // de retard, 0 = aucun lissage
+  static const double tiltSmoothingTime = 0.05;
+
+  // Période de lecture de l'accéléromètre : 20 ms = 50 mesures par seconde
+  static const Duration sensorPeriod = Duration(milliseconds: 20);
+
+  // Toute la logique de jeu (balle, raquettes, score, IA) vit dans le moteur
+  late final PongEngine _engine = PongEngine(difficulty: widget.difficulty);
+
   bool hastarted = false;
-  double ballSpeedX = 0.002;
-  double ballSpeedY = 0.002;
-  final Random _random = Random();
-  double _enemyOffset = 0.0;
   bool isPaused = false;
-  Timer? _gameTimer;
   StreamSubscription<AccelerometerEvent>? _accelSubscription;
 
-  // Audio players
-  final AudioPlayer _hitballPlayer = AudioPlayer();
-  final AudioPlayer _pausePlayer = AudioPlayer();
-  final AudioPlayer _backgroundPlayer = AudioPlayer();
-  final AudioPlayer _winPlayer = AudioPlayer();
-  final AudioPlayer _losePlayer = AudioPlayer();
-  final AudioPlayer _gameoverPlayer = AudioPlayer();
+  // Inclinaison du téléphone → vitesse de la raquette
+  final TiltControl _tilt = TiltControl(
+    maxSpeed: paddleMaxSpeed,
+    deadZone: tiltDeadZone,
+    fullTilt: tiltForMaxSpeed,
+    smoothingTime: tiltSmoothingTime,
+  );
+
+  // Boucle de jeu : stepsPerSecond pas de moteur par seconde écoulée
+  late final Ticker _ticker;
+  Duration _lastElapsed = Duration.zero; // Temps du ticker à l'image précédente
+  int _pendingSteps = 0; // Temps écoulé pas encore converti en pas, en millionièmes de pas
+
+  // Sons : un lecteur par son, chargé une fois à l'ouverture de l'écran
+  final GameSound _hitballSound = GameSound('sounds/hitball.mp3');
+  final GameSound _pauseSound = GameSound('sounds/pause.mp3');
+  final GameSound _backgroundSound = GameSound('sounds/background.mp3', loop: true);
+  final GameSound _winSound = GameSound('sounds/win.mp3');
+  final GameSound _gameoverSound = GameSound('sounds/gameover.mp3');
   bool _hasPlayedWinSound = false;
   int _initialTopScore = 0;
 
   double playerWidth =  80 ;
-  double playerX= 0;
-  double enemyX= 0;
-  double deadZone = 0.8; // Ignore les micro-mouvements sous ce seuil
-  double sensitivity = 0.02; // Facteur de sensibilité du mouvement
-  int playerScore = 0;
-  bool ballChangedDirection= false;
   bool glowEffect = false; // Ajoutez une variable pour le glow
-
-  int hitsCounter = 0; // Compteur pour le nombre de fois que le joueur renvoie la balle
 
   int topscore= 0 ;
 
   // Statistics
-  int _currentStreak = 0;
   final Stopwatch _playTimeStopwatch = Stopwatch();
-
-  // ball variables
-  double ballX = 0.0;
-  double ballY = 0.0;
-
-  var ballYDirection = direction.DOWN ;
-  var ballXDirection = direction.LEFT ;
 
 
   Future<void> loadTopScore() async {
@@ -114,388 +139,271 @@ class _MyHomePageState extends State<MyHomePage> {
     final bestStreak = box.get('bestStreak', defaultValue: 0) as int;
     box.put('totalGames', totalGames);
     box.put('totalPlayTimeMs', totalPlayTimeMs);
-    if (_currentStreak > bestStreak) {
-      box.put('bestStreak', _currentStreak);
+    if (_engine.currentStreak > bestStreak) {
+      box.put('bestStreak', _engine.currentStreak);
     }
   }
-  
+
   void startGame(){
     if(hastarted) {
     }
     else{
       hastarted = true;
       _playTimeStopwatch.start();
-      _gameTimer = Timer.periodic(Duration(milliseconds : 1), (timer) {
-          if (!isPaused) {
-            moveEnemy();
-            updateDirection() ;
-            moveBall();
-            if (isplayerdead()){
-              timer.cancel();
-              _gameTimer = null;
-              _playTimeStopwatch.stop();
-              _saveStats();
-              _addToLeaderboard(widget.playerName, playerScore);
-              _gameoverPlayer.play(AssetSource('sounds/gameover.mp3'));
-              _showdialog();
-            };
-          }
-      });
+      _startTicker();
+    }
+  }
+
+  // Le ticker repart de zéro à chaque démarrage : aucun temps accumulé
+  // pendant la pause ou avant la partie n'est rattrapé
+  void _startTicker() {
+    _lastElapsed = Duration.zero;
+    // Le lissage repart de l'inclinaison actuelle du téléphone
+    _tilt.reset();
+    _ticker.start();
+  }
+
+  // Appelé une fois par image tant que la partie tourne
+  void _onFrame(Duration elapsed) {
+    final int frameMicroseconds = (elapsed - _lastElapsed).inMicroseconds;
+    _pendingSteps += frameMicroseconds * stepsPerSecond;
+    _lastElapsed = elapsed;
+
+    // Les pas entiers sont joués, le reste est gardé pour l'image suivante
+    int steps = _pendingSteps ~/ 1000000;
+    _pendingSteps = _pendingSteps % 1000000;
+    if (steps > maxStepsPerFrame) {
+      steps = maxStepsPerFrame;
+    }
+
+    _engine.paddleHalfWidth = playerWidth / MediaQuery.of(context).size.width + 0.10;
+
+    // Raquette : l'inclinaison lissée donne une vitesse en unités par seconde,
+    // que le moteur applique à chaque pas. Le ticker ne tourne que pendant une
+    // partie en cours : la raquette ne bouge donc ni avant le premier tap, ni
+    // en pause, ni après la défaite
+    _engine.playerSpeed = _tilt.update(frameMicroseconds / 1000000) / stepsPerSecond;
+
+    for (int i = 0; i < steps; i++) {
+      final events = _engine.tick();
+      for (final event in events) {
+        _handleEvent(event);
+      }
+      // Partie perdue : les pas restants de l'image ne sont pas joués
+      if (events.contains(PongEvent.playerDead)) {
+        break;
+      }
+    }
+
+    // Un seul rafraîchissement par image
+    setState(() {});
+  }
+
+  void _handleEvent(PongEvent event) {
+    switch (event) {
+      case PongEvent.playerHit:
+        // Vibration haptique
+        HapticFeedback.lightImpact();
+
+        // Son de contact paddle
+        _hitballSound.play();
+
+        glowEffect = true; // Activez le glow effect lorsque le score change
+        Future.delayed(const Duration(seconds: 1), () {
+          if (!mounted) return;
+          setState(() {
+            glowEffect = false; // Désactivez le glow effect après une seconde
+          });
+        });
+
+        _checkTopScore();
+        break;
+      case PongEvent.enemyHit:
+        // Son de contact paddle ennemi
+        _hitballSound.play();
+        break;
+      case PongEvent.enemyMissed:
+        _checkTopScore();
+        break;
+      case PongEvent.playerDead:
+        _ticker.stop();
+        _playTimeStopwatch.stop();
+        _saveStats();
+        // Une partie terminée à 0 point n'entre pas au classement
+        if (_engine.playerScore > 0) {
+          _addToLeaderboard(widget.playerName, _engine.playerScore);
+        }
+        _gameoverSound.play();
+        _showdialog();
+        break;
+    }
+  }
+
+  void _checkTopScore() {
+    // Vérifier et mettre à jour le meilleur score
+    if (_engine.playerScore > topscore) {
+      topscore = _engine.playerScore;
+      saveTopScore(topscore);
+    }
+    // Jouer le son win quand le joueur dépasse son ancien meilleur score
+    if (!_hasPlayedWinSound && _engine.playerScore > _initialTopScore && _initialTopScore > 0) {
+      _hasPlayedWinSound = true;
+      _winSound.play();
     }
   }
 
   void togglePause() {
-    if (!hastarted) return;
+    // Pas de pause avant le démarrage ni après la défaite
+    if (!hastarted || _engine.isPlayerDead) return;
     setState(() {
       isPaused = !isPaused;
     });
     if (isPaused) {
+      // Ticker arrêté : le temps de jeu ne s'accumule pas pendant la pause
+      _ticker.stop();
       _playTimeStopwatch.stop();
       // Son de pause + musique de fond en boucle
-      _pausePlayer.play(AssetSource('sounds/pause.mp3'));
-      _backgroundPlayer.setReleaseMode(ReleaseMode.loop);
-      _backgroundPlayer.play(AssetSource('sounds/background.mp3'));
+      _pauseSound.play();
+      _backgroundSound.play();
     } else {
+      _startTicker();
       _playTimeStopwatch.start();
       // Arrêter la musique de fond quand on reprend
-      _backgroundPlayer.stop();
+      _backgroundSound.stop();
     }
   }
- 
+
 
 void _showdialog() {
   showDialog(
     context: context,
     builder: (BuildContext context) {
-      return PopScope(
-        onPopInvoked: (popMode) {
-          resetgame();
-          return  ; // Ferme la boîte de dialogue
-        },
-        child: AlertDialog(
-          backgroundColor: Colors.grey.shade100,
-           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(5.0),
-          ),
-          actionsAlignment: MainAxisAlignment.center,
-          title: Center(
-            child: Text("Vous avez eu ${playerScore}" , style: TextStyle(color: Colors.black , fontSize: 14, fontWeight:FontWeight.w700),),
-          ),
-          actions: <Widget>[
-            GestureDetector(
-              onTap: (){
-                Navigator.of(context).pop();
-                resetgame();
-              } ,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Container(
-                  padding: EdgeInsets.all(10),
-                  color: Colors.blueAccent.shade700,
-                  child: Text("Rejouer" , style: TextStyle(color: Colors.white , fontSize: 14, fontWeight:FontWeight.w700),),
-                ),
-              ),
-            ),
-            SizedBox(height: 8),
-            GestureDetector(
-              onTap: (){
-                Navigator.of(context).pop();
-                resetgame();
-                Navigator.push(
-                  this.context,
-                  MaterialPageRoute(
-                    builder: (context) => const LeaderboardPage(),
-                  ),
-                );
-              } ,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Container(
-                  padding: EdgeInsets.all(10),
-                  color: Colors.pink,
-                  child: Text("Classement" , style: TextStyle(color: Colors.white , fontSize: 14, fontWeight:FontWeight.w700),),
-                ),
-              ),
-            ),
-            SizedBox(height: 8),
-            GestureDetector(
-              onTap: (){
-                Navigator.of(context).pop();
-                resetgame();
-                Navigator.push(
-                  this.context,
-                  MaterialPageRoute(
-                    builder: (context) => const StatisticsPage(),
-                  ),
-                );
-              } ,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Container(
-                  padding: EdgeInsets.all(10),
-                  color: Colors.deepPurple,
-                  child: Text("Statistiques" , style: TextStyle(color: Colors.white , fontSize: 14, fontWeight:FontWeight.w700),),
-                ),
-              ),
-            ),
-          ],
+      return AlertDialog(
+        backgroundColor: Colors.grey.shade100,
+         shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(5.0),
         ),
+        actionsAlignment: MainAxisAlignment.center,
+        title: Center(
+          child: Text("Vous avez eu ${_engine.playerScore}" , style: const TextStyle(color: Colors.black , fontSize: 14, fontWeight:FontWeight.w700),),
+        ),
+        actions: <Widget>[
+          GestureDetector(
+            onTap: (){
+              Navigator.of(context).pop();
+            } ,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                color: Colors.blueAccent.shade700,
+                child: const Text("Rejouer" , style: TextStyle(color: Colors.white , fontSize: 14, fontWeight:FontWeight.w700),),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: (){
+              Navigator.of(context).pop();
+              Navigator.push(
+                this.context,
+                MaterialPageRoute(
+                  builder: (context) => const LeaderboardPage(),
+                ),
+              );
+            } ,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                color: Colors.pink,
+                child: const Text("Classement" , style: TextStyle(color: Colors.white , fontSize: 14, fontWeight:FontWeight.w700),),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: (){
+              Navigator.of(context).pop();
+              Navigator.push(
+                this.context,
+                MaterialPageRoute(
+                  builder: (context) => const StatisticsPage(),
+                ),
+              );
+            } ,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                color: Colors.deepPurple,
+                child: const Text("Statistiques" , style: TextStyle(color: Colors.white , fontSize: 14, fontWeight:FontWeight.w700),),
+              ),
+            ),
+          ),
+        ],
       );
     },
-  );
+  ).then((_) {
+    // Réinitialisation unique, quel que soit le moyen de fermer le dialogue
+    // (bouton, retour Android, tap à l'extérieur)
+    if (mounted) {
+      resetgame();
+    }
+  });
 }
-  bool isplayerdead() {
-     if (ballY >=1){
-      return true ;
-     }
-     
-     return false;
-  }
-
-
-
-
-
-  void moveEnemy() {
-    setState(() {
-      double targetX = ballX + _enemyOffset;
-
-      if (widget.difficulty == 'Facile') {
-        // Slow speed, large random offset that changes occasionally
-        double maxSpeed = 0.01;
-        if (_random.nextInt(60) == 0) {
-          _enemyOffset = (_random.nextDouble() - 0.5) * 0.6;
-        }
-        double diff = targetX - enemyX;
-        if (diff.abs() > maxSpeed) {
-          enemyX += diff > 0 ? maxSpeed : -maxSpeed;
-        } else {
-          enemyX = targetX;
-        }
-      } else if (widget.difficulty == 'Normal') {
-        // Medium speed, small random offset
-        double maxSpeed = 0.03;
-        if (_random.nextInt(40) == 0) {
-          _enemyOffset = (_random.nextDouble() - 0.5) * 0.3;
-        }
-        double diff = targetX - enemyX;
-        if (diff.abs() > maxSpeed) {
-          enemyX += diff > 0 ? maxSpeed : -maxSpeed;
-        } else {
-          enemyX = targetX;
-        }
-      } else {
-        // Difficile: near-perfect tracking with tiny offset
-        double maxSpeed = 0.05;
-        if (_random.nextInt(100) == 0) {
-          _enemyOffset = (_random.nextDouble() - 0.5) * 0.08;
-        }
-        double diff = targetX - enemyX;
-        if (diff.abs() > maxSpeed) {
-          enemyX += diff > 0 ? maxSpeed : -maxSpeed;
-        } else {
-          enemyX = targetX;
-        }
-      }
-
-      enemyX = enemyX.clamp(-1.0, 1.0);
-    });
-  }
 
 
    void resetgame(){
-    _gameTimer?.cancel();
-    _gameTimer = null;
-    _backgroundPlayer.stop();
+    _ticker.stop();
+    _pendingSteps = 0;
+    _backgroundSound.stop();
     _playTimeStopwatch.stop();
     _playTimeStopwatch.reset();
     setState(() {
     hastarted = false;
     isPaused = false;
-    ballX = 0.0;
-    ballY = 0.0;
-    playerScore = 0 ;
-    hitsCounter = 0 ;
-    ballXDirection = direction.LEFT ;
-    ballSpeedX = 0.002;
-    ballSpeedY = 0.002;
-    playerX= 0 ;
-    _enemyOffset = 0.0;
+    _engine.reset();
     _hasPlayedWinSound = false;
     _initialTopScore = topscore;
-    _currentStreak = 0;
     });
    }
-void updateDirection() {
-    setState(() {
-      double paddleHalfWidth = playerWidth / MediaQuery.of(context).size.width + 0.10;
-      double x1 = playerX - paddleHalfWidth;
-      double x2 = playerX + paddleHalfWidth;
-
-      // update vertical direction — use wider zone to prevent ball skipping past paddle at high speed
-      if (ballY >= 0.85 && ballYDirection == direction.DOWN && ballX >= x1 && ballX <= x2) {
-        if (!ballChangedDirection) {
-          ballYDirection = direction.UP;
-          playerScore += 50; // Incrémenter le score du joueur de 50
-          ballChangedDirection = true;
-
-          // Vibration haptique
-          HapticFeedback.lightImpact();
-
-          // Rebond angulaire basé sur la position de l'impact
-          double hitOffset = (ballX - playerX) / paddleHalfWidth; // -1 à 1
-          ballSpeedX = hitOffset.abs() * ballSpeedY * 1.5;
-          if (hitOffset > 0) {
-            ballXDirection = direction.RIGHT;
-          } else if (hitOffset < 0) {
-            ballXDirection = direction.LEFT;
-          }
-
-          // Son de contact paddle
-          _hitballPlayer.stop();
-          _hitballPlayer.play(AssetSource('sounds/hitball.mp3'));
-
-          glowEffect = true; // Activez le glow effect lorsque le score change
-          Future.delayed(Duration(seconds: 1), () {
-            setState(() {
-              glowEffect = false; // Désactivez le glow effect après une seconde
-            });
-          });
-
-          _currentStreak++;
-          hitsCounter++ ;
-          if (hitsCounter > 3){
-            ballSpeedY += 0.0005; // Augmenter la vitesse de la balle
-            hitsCounter = 0; // Reset le compteur de renvois
-          }
-
-
-          // Vérifier et mettre à jour le meilleur score
-          if (playerScore > topscore) {
-            topscore = playerScore;
-            saveTopScore(topscore);
-          }
-          // Jouer le son win quand le joueur dépasse son ancien meilleur score
-          if (!_hasPlayedWinSound && playerScore > _initialTopScore && _initialTopScore > 0) {
-            _hasPlayedWinSound = true;
-            _winPlayer.play(AssetSource('sounds/win.mp3'));
-          }
-        }
-      } else if (ballY <= -0.85 && ballYDirection == direction.UP) {
-        // Check if enemy paddle is aligned with ball
-        double enemyHalfWidth = playerWidth / MediaQuery.of(context).size.width + 0.10;
-        double enemyX1 = enemyX - enemyHalfWidth;
-        double enemyX2 = enemyX + enemyHalfWidth;
-
-        if (ballX >= enemyX1 && ballX <= enemyX2) {
-          // Enemy catches it, ball bounces back down
-          ballYDirection = direction.DOWN;
-
-          // Rebond angulaire pour le paddle ennemi
-          double hitOffset = (ballX - enemyX) / enemyHalfWidth;
-          ballSpeedX = hitOffset.abs() * ballSpeedY * 1.5;
-          if (hitOffset > 0) {
-            ballXDirection = direction.RIGHT;
-          } else if (hitOffset < 0) {
-            ballXDirection = direction.LEFT;
-          }
-
-          // Son de contact paddle ennemi
-          _hitballPlayer.stop();
-          _hitballPlayer.play(AssetSource('sounds/hitball.mp3'));
-        } else {
-          // Enemy missed! Player scores, reset ball
-          playerScore += 100;
-          if (playerScore > topscore) {
-            topscore = playerScore;
-            saveTopScore(topscore);
-          }
-          // Jouer le son win quand le joueur dépasse son ancien meilleur score
-          if (!_hasPlayedWinSound && playerScore > _initialTopScore && _initialTopScore > 0) {
-            _hasPlayedWinSound = true;
-            _winPlayer.play(AssetSource('sounds/win.mp3'));
-          }
-          ballX = 0.0;
-          ballY = 0.0;
-          ballSpeedX = 0.002;
-          ballYDirection = direction.DOWN;
-          _enemyOffset = 0.0;
-        }
-      } else {
-        ballChangedDirection = false; // Reset when the ball is not hitting the player's paddle
-      }
-
-      // update horizontal direction
-      if (ballX >= 1) {
-        ballXDirection = direction.LEFT;
-      } else if (ballX <= -1) {
-        ballXDirection = direction.RIGHT;
-      }
-    });
-  }
-
-  void moveBall(){
-     setState(() {
-      // update vertical move
-      if(ballYDirection == direction.DOWN){
-        ballY += ballSpeedY;
-      }else if (ballYDirection == direction.UP){
-        ballY -= ballSpeedY;
-      }
-
-      // update horizontal move
-      if(ballXDirection == direction.RIGHT){
-        ballX += ballSpeedX;
-      }else if (ballXDirection == direction.LEFT){
-        ballX -= ballSpeedX;
-      }
-
-      // Clamp ball position to prevent skipping past paddles
-      ballY = ballY.clamp(-1.0, 1.0);
-      ballX = ballX.clamp(-1.0, 1.0);
-     });
-  }
 
 
   @override
   void initState() {
     super.initState();
+    _ticker = createTicker(_onFrame);
     loadTopScore();
 
-  _accelSubscription = accelerometerEvents.listen((AccelerometerEvent event) {
-    setState(() {
-      double tilt = -event.x;
-
-      // Zone morte : ignorer les micro-vibrations
-      if (tilt.abs() < deadZone) {
-        return;
-      }
-
-      // Mouvement proportionnel à l'inclinaison
-      double movement = tilt * sensitivity;
-      playerX += movement;
-      playerX = playerX.clamp(-1.0, 1.0);
-      });
-    });
+  // Le capteur ne déplace rien : il mémorise la dernière inclinaison, que la
+  // boucle de jeu lit à chaque image
+  _accelSubscription = accelerometerEventStream(samplingPeriod: sensorPeriod).listen(
+    (AccelerometerEvent event) {
+      _tilt.setAcceleration(event.x, event.y, event.z);
+    },
+    onError: (Object e) {
+      debugPrint('Accéléromètre indisponible : $e');
+    },
+  );
   }
 
   @override
   void dispose() {
     _accelSubscription?.cancel();
-    _hitballPlayer.dispose();
-    _pausePlayer.dispose();
-    _backgroundPlayer.dispose();
-    _winPlayer.dispose();
-    _losePlayer.dispose();
-    _gameoverPlayer.dispose();
-    _gameTimer?.cancel();
+    _hitballSound.dispose();
+    _pauseSound.dispose();
+    _backgroundSound.dispose();
+    _winSound.dispose();
+    _gameoverSound.dispose();
+    _ticker.dispose();
     super.dispose();
   }
 
   @override
 
   Widget build(BuildContext context) {
-   
+
     return GestureDetector(
       onTap: isPaused ? null : startGame,
       child: Scaffold(
@@ -509,7 +417,7 @@ void updateDirection() {
             // ScoreGlow(score: , glowEffect: glowEffect) ,
               Scoreplayer(
                 hastarted: hastarted,
-                playerScore: playerScore,
+                playerScore: _engine.playerScore,
                 playerName: widget.playerName,
 
               ) ,
@@ -517,23 +425,23 @@ void updateDirection() {
                 hastarted: hastarted,
                 topscore: topscore,
               ) ,
-              
+
               myBricks(
-                x: enemyX,
+                x: _engine.enemyX,
                 y: -0.9,
                 iscomputer: true,
                 playerWidth :playerWidth ,
               ),
-               myBricks( 
-                x: playerX,
+               myBricks(
+                x: _engine.playerX,
                 y: 0.9,
                 iscomputer: false,
                 playerWidth :playerWidth ,
 
               ) ,
-            
-      
-              myBall(x: ballX, y: ballY , hastarted: false,),
+
+
+              myBall(x: _engine.ballX, y: _engine.ballY , hastarted: hastarted,),
 
               // Bouton pause
               if (hastarted)
@@ -543,7 +451,7 @@ void updateDirection() {
                   child: GestureDetector(
                     onTap: togglePause,
                     child: Container(
-                      padding: EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: Colors.grey.shade900.withOpacity(0.7),
                         borderRadius: BorderRadius.circular(8),
@@ -565,7 +473,7 @@ void updateDirection() {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
+                        const Text(
                           "PAUSE",
                           style: TextStyle(
                             color: Colors.white,
@@ -573,11 +481,11 @@ void updateDirection() {
                             fontWeight: FontWeight.w800,
                           ),
                         ),
-                        SizedBox(height: 30),
+                        const SizedBox(height: 30),
                         GestureDetector(
                           onTap: togglePause,
                           child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(8),
                               color: Colors.pink,
@@ -586,11 +494,11 @@ void updateDirection() {
                                   color: Colors.pink.withOpacity(0.6),
                                   spreadRadius: 4,
                                   blurRadius: 50,
-                                  offset: Offset(0, 3),
+                                  offset: const Offset(0, 3),
                                 ),
                               ],
                             ),
-                            child: Text(
+                            child: const Text(
                               "R E P R E N D R E",
                               style: TextStyle(
                                 color: Colors.white,
@@ -604,12 +512,12 @@ void updateDirection() {
                     ),
                   ),
                 ),
-        
-              
+
+
             ],
-          ) 
+          )
         )
-        
+
       ),
     );
   }

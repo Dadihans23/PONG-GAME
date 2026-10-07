@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,1,0&display=block" rel="stylesheet">
+<style>body{margin:0;background:#050507;color:#F2F2F5;font-family:Archivo,sans-serif;-webkit-font-smoothing:antialiased}a{color:#FF5C93;text-decoration:none}a:hover{color:#FF8AB1}</style>
+</helmet>
+<div style="padding:64px;display:flex;flex-direction:column;gap:72px">
+  <header style="display:flex;flex-direction:column;gap:16px">
+    <div style="display:flex;gap:20px;font-size:13px;font-weight:600;letter-spacing:.06em">
+      <a href="Pong%20Design%20System.dc.html">1 · Système de design</a>
+      <a href="Pong%20Ecrans%20Solo.dc.html" style="color:#F2F2F5">2 · Écrans solo</a>
+      <a href="Pong%20Multijoueur.dc.html">3 · Multijoueur</a>
+      <a href="Pong%20Parcours.dc.html">4 · Parcours &amp; futur</a>
+    </div>
+    <div style="font-size:32px;font-weight:900;letter-spacing:.3em">ÉCRANS EXISTANTS</div>
+    <p style="margin:0;max-width:720px;font-size:15px;line-height:1.6;color:#9E9EAB">Les 8 écrans actuels, redessinés avec le système. Format 360 × 800, Android.</p>
+  </header>
+
+  <section style="display:flex;flex-direction:column;gap:28px">
+    <div style="font-size:11px;font-weight:800;letter-spacing:.24em;color:#6B6B7A">CHARGEMENT &amp; ACCUEIL</div>
+    <div style="display:flex;gap:48px;flex-wrap:wrap;align-items:flex-start">
+
+      <div id="S1" style="width:360px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#E91E63;color:#fff">S1</span><span style="font-size:14px;font-weight:700">Chargement</span></div>
+        <div style="width:360px;height:800px;background:#000;border-radius:28px;overflow:hidden;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.6)">
+          <div style="width:20px;height:20px;border-radius:10px;background:#fff;box-shadow:0 0 12px rgba(255,255,255,.8),0 0 40px rgba(255,255,255,.3);margin-bottom:40px"></div>
+          <div style="font-size:48px;font-weight:900;letter-spacing:.5em;padding-left:.5em;text-shadow:0 0 28px rgba(233,30,99,.6)">PONG</div>
+          <div style="width:200px;display:flex;flex-direction:column;gap:12px;margin-top:56px">
+            <div style="height:4px;border-radius:2px;background:#1A1A22;overflow:hidden"><div style="width:64%;height:4px;border-radius:2px;background:#E91E63;box-shadow:0 0 12px rgba(233,30,99,.9)"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;color:#9E9EAB"><span>Chargement…</span><span style="color:#F2F2F5;font-weight:700;font-variant-numeric:tabular-nums">64 %</span></div>
+          </div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#9E9EAB;text-wrap:pretty">Contenu inchangé ; la balle qui pulse au-dessus du logo annonce déjà le jeu pendant les 6 secondes, et la barre fine rose porte le seul halo de l'écran.</p>
+      </div>
+
+      <div id="H1" style="width:360px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#E91E63;color:#fff">H1</span><span style="font-size:14px;font-weight:700">Accueil · premier lancement, pseudo vide</span></div>
+        <div style="width:360px;height:800px;background:#0B0B10;border-radius:28px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.6)">
+          <div style="height:28px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:12px;font-weight:600;color:#C8C8D2;flex:none"><span>9:41</span><span style="display:flex;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">wifi</span><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">battery_full</span></span></div>
+          <div style="height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;flex:none"><div style="width:48px"></div><div style="font-size:32px;font-weight:900;letter-spacing:.45em;padding-left:.45em;text-shadow:0 0 24px rgba(233,30,99,.55)">PONG</div><div style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;color:#9E9EAB"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">settings</span></div></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:16px;padding:8px 20px 20px">
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="font-size:13px;color:#9E9EAB">Ton pseudo</div>
+              <div style="height:56px;border-radius:14px;background:#15151C;border:1.5px solid #FF5252;box-shadow:0 0 0 4px rgba(255,82,82,.12);display:flex;align-items:center;padding:0 16px;font-size:16px;color:#6B6B7A">Entre ton pseudo</div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:#FF6B6B"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">error</span>Choisis un pseudo pour jouer</div>
+            </div>
+            <div style="font-size:11px;font-weight:800;letter-spacing:.22em;color:#6B6B7A;margin-top:4px">MODE DE JEU</div>
+            <div style="background:rgba(233,30,99,.08);border:1.5px solid #E91E63;border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:14px;box-shadow:0 0 24px rgba(233,30,99,.18)">
+              <div style="display:flex;align-items:center;gap:14px"><div style="width:44px;height:44px;border-radius:12px;background:rgba(233,30,99,.18);color:#FF5C93;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">person</span></div><div style="flex:1;display:flex;flex-direction:column;gap:2px"><div style="font-size:17px;font-weight:700">Solo</div><div style="font-size:13px;color:#9E9EAB">Contre l'ordinateur</div></div><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1;color:#FF5C93">check_circle</span></div>
+              <div style="display:flex;gap:8px"><div style="flex:1;height:48px;border-radius:12px;background:#1E1E28;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#9E9EAB">Facile</div><div style="flex:1;height:48px;border-radius:12px;background:rgba(233,30,99,.16);border:1.5px solid #E91E63;box-shadow:0 0 14px rgba(233,30,99,.3);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800">Normal</div><div style="flex:1;height:48px;border-radius:12px;background:#1E1E28;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#9E9EAB">Difficile</div></div>
+            </div>
+            <div style="background:#15151C;border:1px solid #23232D;border-radius:18px;padding:16px;display:flex;align-items:center;gap:14px"><div style="width:44px;height:44px;border-radius:12px;background:#1E1E28;color:#9E9EAB;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">group</span></div><div style="flex:1;display:flex;flex-direction:column;gap:2px"><div style="font-size:17px;font-weight:700">Multijoueur</div><div style="font-size:13px;color:#9E9EAB">À deux, même Wi-Fi</div></div><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1;color:#55556A">radio_button_unchecked</span></div>
+            <div style="flex:1"></div>
+            <div style="height:56px;border-radius:16px;background:#E91E63;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;letter-spacing:.3em;padding-left:.3em;box-shadow:0 0 24px rgba(233,30,99,.5),0 8px 28px rgba(233,30,99,.3)">JOUER</div>
+            <div style="display:flex;gap:8px">
+              <div style="flex:1;height:64px;border-radius:14px;background:#15151C;border:1px solid #23232D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#C8C8D2"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">leaderboard</span><span style="font-size:12px;font-weight:600">Classement</span></div>
+              <div style="flex:1;height:64px;border-radius:14px;background:#15151C;border:1px solid #23232D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#C8C8D2"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">bar_chart</span><span style="font-size:12px;font-weight:600">Statistiques</span></div>
+              <div style="flex:1;height:64px;border-radius:14px;background:#15151C;border:1px solid #23232D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#C8C8D2"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">help</span><span style="font-size:12px;font-weight:600">Aide</span></div>
+            </div>
+          </div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#9E9EAB;text-wrap:pretty">Le champ garde son tremblement et ajoute un message en clair ; « Jouer » reste actif pour déclencher cette erreur plutôt que d'être grisé sans explication.</p>
+      </div>
+
+      <div id="H2" style="width:360px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#E91E63;color:#fff">H2</span><span style="font-size:14px;font-weight:700">Accueil · Solo sélectionné</span></div>
+        <div style="width:360px;height:800px;background:#0B0B10;border-radius:28px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.6)">
+          <div style="height:28px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:12px;font-weight:600;color:#C8C8D2;flex:none"><span>9:41</span><span style="display:flex;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">wifi</span><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">battery_full</span></span></div>
+          <div style="height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;flex:none"><div style="width:48px"></div><div style="font-size:32px;font-weight:900;letter-spacing:.45em;padding-left:.45em;text-shadow:0 0 24px rgba(233,30,99,.55)">PONG</div><div style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;color:#9E9EAB"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">settings</span></div></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:16px;padding:8px 20px 20px">
+            <div style="display:flex;align-items:center;justify-content:space-between;height:48px"><div style="font-size:22px;font-weight:700">Bonjour, Léa</div><div style="display:flex;align-items:center;gap:6px;height:48px;font-size:14px;font-weight:700;color:#FF5C93"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">edit</span>Modifier</div></div>
+            <div style="font-size:11px;font-weight:800;letter-spacing:.22em;color:#6B6B7A;margin-top:4px">MODE DE JEU</div>
+            <div style="background:rgba(233,30,99,.08);border:1.5px solid #E91E63;border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:14px;box-shadow:0 0 24px rgba(233,30,99,.18)">
+              <div style="display:flex;align-items:center;gap:14px"><div style="width:44px;height:44px;border-radius:12px;background:rgba(233,30,99,.18);color:#FF5C93;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">person</span></div><div style="flex:1;display:flex;flex-direction:column;gap:2px"><div style="font-size:17px;font-weight:700">Solo</div><div style="font-size:13px;color:#9E9EAB">Contre l'ordinateur</div></div><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1;color:#FF5C93">check_circle</span></div>
+              <div style="font-size:13px;color:#9E9EAB">Choisis la difficulté</div>
+              <div style="display:flex;gap:8px;margin-top:-6px"><div style="flex:1;height:48px;border-radius:12px;background:#1E1E28;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#9E9EAB">Facile</div><div style="flex:1;height:48px;border-radius:12px;background:rgba(233,30,99,.16);border:1.5px solid #E91E63;box-shadow:0 0 14px rgba(233,30,99,.3);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800">Normal</div><div style="flex:1;height:48px;border-radius:12px;background:#1E1E28;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#9E9EAB">Difficile</div></div>
+              <div style="display:flex;align-items:center;gap:8px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06)"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:#FFC93C">emoji_events</span><span style="font-size:13px;color:#9E9EAB;flex:1">Meilleur score</span><span style="font-size:16px;font-weight:800;color:#FFC93C;font-variant-numeric:tabular-nums">2 400</span></div>
+            </div>
+            <div style="background:#15151C;border:1px solid #23232D;border-radius:18px;padding:16px;display:flex;align-items:center;gap:14px"><div style="width:44px;height:44px;border-radius:12px;background:#1E1E28;color:#9E9EAB;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">group</span></div><div style="flex:1;display:flex;flex-direction:column;gap:2px"><div style="font-size:17px;font-weight:700">Multijoueur</div><div style="font-size:13px;color:#9E9EAB">À deux, même Wi-Fi</div></div><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1;color:#55556A">radio_button_unchecked</span></div>
+            <div style="flex:1"></div>
+            <div style="height:56px;border-radius:16px;background:#E91E63;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;letter-spacing:.3em;padding-left:.3em;box-shadow:0 0 24px rgba(233,30,99,.5),0 8px 28px rgba(233,30,99,.3)">JOUER</div>
+            <div style="display:flex;gap:8px">
+              <div style="flex:1;height:64px;border-radius:14px;background:#15151C;border:1px solid #23232D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#C8C8D2"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">leaderboard</span><span style="font-size:12px;font-weight:600">Classement</span></div>
+              <div style="flex:1;height:64px;border-radius:14px;background:#15151C;border:1px solid #23232D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#C8C8D2"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">bar_chart</span><span style="font-size:12px;font-weight:600">Statistiques</span></div>
+              <div style="flex:1;height:64px;border-radius:14px;background:#15151C;border:1px solid #23232D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#C8C8D2"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">help</span><span style="font-size:12px;font-weight:600">Aide</span></div>
+            </div>
+          </div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#9E9EAB;text-wrap:pretty">Structure en 3 étages : qui joue → à quoi (cartes de mode, la difficulté vit dans la carte Solo) → « Jouer ». Classement, Statistiques et Aide deviennent des raccourcis neutres en bas, accessibles sans perdre.</p>
+      </div>
+
+      <div id="H3" style="width:360px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#E91E63;color:#fff">H3</span><span style="font-size:14px;font-weight:700">Accueil · Multijoueur sélectionné</span></div>
+        <div style="width:360px;height:800px;background:#0B0B10;border-radius:28px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.6)">
+          <div style="height:28px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:12px;font-weight:600;color:#C8C8D2;flex:none"><span>9:41</span><span style="display:flex;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">wifi</span><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">battery_full</span></span></div>
+          <div style="height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;flex:none"><div style="width:48px"></div><div style="font-size:32px;font-weight:900;letter-spacing:.45em;padding-left:.45em;text-shadow:0 0 24px rgba(233,30,99,.55)">PONG</div><div style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;color:#9E9EAB"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">settings</span></div></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:16px;padding:8px 20px 20px">
+            <div style="display:flex;align-items:center;justify-content:space-between;height:48px"><div style="font-size:22px;font-weight:700">Bonjour, Léa</div><div style="display:flex;align-items:center;gap:6px;height:48px;font-size:14px;font-weight:700;color:#FF5C93"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">edit</span>Modifier</div></div>
+            <div style="font-size:11px;font-weight:800;letter-spacing:.22em;color:#6B6B7A;margin-top:4px">MODE DE JEU</div>
+            <div style="background:#15151C;border:1px solid #23232D;border-radius:18px;padding:16px;display:flex;align-items:center;gap:14px"><div style="width:44px;height:44px;border-radius:12px;background:#1E1E28;color:#9E9EAB;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">person</span></div><div style="flex:1;display:flex;flex-direction:column;gap:2px"><div style="font-size:17px;font-weight:700">Solo</div><div style="font-size:13px;color:#9E9EAB">Contre l'ordinateur · Normal</div></div><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1;color:#55556A">radio_button_unchecked</span></div>
+            <div style="background:rgba(233,30,99,.08);border:1.5px solid #E91E63;border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:14px;box-shadow:0 0 24px rgba(233,30,99,.18)">
+              <div style="display:flex;align-items:center;gap:14px"><div style="width:44px;height:44px;border-radius:12px;background:rgba(233,30,99,.18);color:#FF5C93;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">group</span></div><div style="flex:1;display:flex;flex-direction:column;gap:2px"><div style="font-size:17px;font-weight:700">Multijoueur</div><div style="font-size:13px;color:#9E9EAB">À deux, même Wi-Fi</div></div><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1;color:#FF5C93">check_circle</span></div>
+              <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.5;color:#9E9EAB"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1.2;color:#C8C8D2">wifi</span>Duel en 5 points, chacun sur son téléphone. Pas besoin d'Internet.</div>
+              <div style="display:flex;align-items:center;gap:8px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06)"><span style="font-size:13px;color:#9E9EAB;flex:1">Victoires / défaites</span><span style="font-size:16px;font-weight:800;font-variant-numeric:tabular-nums"><span style="color:#66BB6A">12</span><span style="color:#55556A"> / </span><span style="color:#C8C8D2">7</span></span></div>
+            </div>
+            <div style="flex:1"></div>
+            <div style="height:56px;border-radius:16px;background:#E91E63;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;letter-spacing:.3em;padding-left:.3em;box-shadow:0 0 24px rgba(233,30,99,.5),0 8px 28px rgba(233,30,99,.3)">JOUER</div>
+            <div style="display:flex;gap:8px">
+              <div style="flex:1;height:64px;border-radius:14px;background:#15151C;border:1px solid #23232D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#C8C8D2"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">leaderboard</span><span style="font-size:12px;font-weight:600">Classement</span></div>
+              <div style="flex:1;height:64px;border-radius:14px;background:#15151C;border:1px solid #23232D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#C8C8D2"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">bar_chart</span><span style="font-size:12px;font-weight:600">Statistiques</span></div>
+              <div style="flex:1;height:64px;border-radius:14px;background:#15151C;border:1px solid #23232D;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#C8C8D2"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">help</span><span style="font-size:12px;font-weight:600">Aide</span></div>
+            </div>
+          </div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#9E9EAB;text-wrap:pretty">Une liste de cartes de mode plutôt que deux onglets : un 3ᵉ mode (« En ligne ») s'ajoute comme une carte de plus, sans redessiner l'écran (voir <a href="Pong%20Parcours.dc.html#F2">F2</a>).</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:28px">
+    <div style="font-size:11px;font-weight:800;letter-spacing:.24em;color:#6B6B7A">JEU SOLO, PAUSE, FIN DE PARTIE</div>
+    <div style="display:flex;gap:48px;flex-wrap:wrap;align-items:flex-start">
+
+      <div id="G1" style="width:360px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#E91E63;color:#fff">G1</span><span style="font-size:14px;font-weight:700">Jeu · avant le début</span></div>
+        <div style="width:360px;height:800px;background:#0B0B10;border-radius:28px;overflow:hidden;position:relative;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.6)">
+          <div style="position:absolute;left:0;right:0;top:0;height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 20px"><span style="font-size:11px;font-weight:800;letter-spacing:.22em;color:#6B6B7A">SOLO · NORMAL</span><div style="width:48px;height:48px;border-radius:14px;background:rgba(30,30,40,.75);display:flex;align-items:center;justify-content:center;color:#C8C8D2"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">pause</span></div></div>
+          <div style="position:absolute;left:12px;right:12px;top:72px;bottom:16px;border:1px solid rgba(255,255,255,.07);border-radius:16px"></div>
+          <div style="position:absolute;left:12px;right:12px;top:443px;height:2px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.12) 0 12px,transparent 12px 24px)"></div>
+          <div style="position:absolute;left:140px;top:100px;width:80px;height:15px;border-radius:8px;background:#4CAF50;box-shadow:0 0 16px rgba(76,175,80,.55)"></div>
+          <div style="position:absolute;left:140px;top:740px;width:80px;height:15px;border-radius:8px;background:#2196F3;box-shadow:0 0 16px rgba(33,150,243,.6)"></div>
+          <div style="position:absolute;left:100px;top:244px;width:160px;height:160px;border-radius:80px;border:1px solid rgba(255,255,255,.06)"></div>
+          <div style="position:absolute;left:130px;top:274px;width:100px;height:100px;border-radius:50px;border:1px solid rgba(255,255,255,.14);box-shadow:0 0 30px rgba(255,255,255,.08)"></div>
+          <div style="position:absolute;left:170px;top:314px;width:20px;height:20px;border-radius:10px;background:#fff;box-shadow:0 0 14px rgba(255,255,255,.9),0 0 40px rgba(255,255,255,.4)"></div>
+          <div style="position:absolute;left:0;right:0;top:488px;display:flex;flex-direction:column;align-items:center;gap:14px">
+            <div style="font-size:20px;font-weight:800;letter-spacing:.4em;padding-left:.4em">TAPE L'ÉCRAN</div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#9E9EAB"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">screen_rotation</span>Incline le téléphone pour bouger</div>
+          </div>
+          <div style="position:absolute;left:0;right:0;top:612px;text-align:center;font-size:11px;font-weight:800;letter-spacing:.3em;color:#6B6B7A">RECORD 2 400</div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#9E9EAB;text-wrap:pretty">Le terrain gagne un cadre et une ligne médiane très discrets pour situer la balle ; le rappel « incline le téléphone » n'apparaît qu'ici, jamais en jeu. Le HUD vit dans une bande de 72 px au-dessus du terrain : le bouton pause ne peut plus masquer la raquette adverse.</p>
+      </div>
+
+      <div id="G2" style="width:360px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#E91E63;color:#fff">G2</span><span style="font-size:14px;font-weight:700">Jeu · en partie, au renvoi</span></div>
+        <div style="width:360px;height:800px;background:#0B0B10;border-radius:28px;overflow:hidden;position:relative;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.6)">
+          <div style="position:absolute;left:0;right:0;top:0;height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 20px"><div style="display:flex;gap:6px;align-items:center"><div style="width:8px;height:8px;border-radius:4px;background:#FF9800"></div><div style="width:8px;height:8px;border-radius:4px;background:#FF9800"></div><div style="width:8px;height:8px;border-radius:4px;background:#2A2A36"></div><div style="width:8px;height:8px;border-radius:4px;background:#2A2A36"></div><span style="font-size:11px;font-weight:800;letter-spacing:.2em;color:#6B6B7A;margin-left:6px">VITESSE 3</span></div><div style="width:48px;height:48px;border-radius:14px;background:rgba(30,30,40,.75);display:flex;align-items:center;justify-content:center;color:#C8C8D2"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">pause</span></div></div>
+          <div style="position:absolute;left:12px;right:12px;top:72px;bottom:16px;border:1px solid rgba(255,255,255,.07);border-radius:16px"></div>
+          <div style="position:absolute;left:12px;right:12px;top:443px;height:2px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.12) 0 12px,transparent 12px 24px)"></div>
+          <div style="position:absolute;left:0;right:0;top:404px;text-align:center;font-size:11px;font-weight:800;letter-spacing:.3em;color:#6B6B7A">RECORD 2 400</div>
+          <div style="position:absolute;left:0;right:0;top:462px;display:flex;flex-direction:column;align-items:center;gap:6px"><div style="font-size:64px;font-weight:900;color:rgba(255,255,255,.22);font-variant-numeric:tabular-nums;line-height:1">1 250</div><div style="font-size:11px;font-weight:800;letter-spacing:.3em;color:#6B6B7A">LÉA</div></div>
+          <div style="position:absolute;left:196px;top:100px;width:80px;height:15px;border-radius:8px;background:#4CAF50;box-shadow:0 0 16px rgba(76,175,80,.55)"></div>
+          <div style="position:absolute;left:92px;top:740px;width:80px;height:15px;border-radius:8px;background:#2196F3;box-shadow:0 0 22px rgba(33,150,243,.95),0 0 4px #90CAF9"></div>
+          <div style="position:absolute;left:150px;top:680px;width:20px;height:20px;border-radius:10px;background:#fff;box-shadow:0 0 12px rgba(255,255,255,.8),0 0 32px rgba(255,255,255,.3)"></div>
+          <div style="position:absolute;left:96px;top:706px;font-size:14px;font-weight:800;color:#64B5F6;font-variant-numeric:tabular-nums">+50</div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#9E9EAB;text-wrap:pretty">Score « fantôme » à 22 % sous la ligne médiane : grand, lisible, mais jamais plus lumineux que la balle. Au renvoi, la raquette flashe et un « +50 » bleu monte, en synchro avec son et vibration. La jauge en haut annonce la prochaine accélération (tous les 4 renvois).</p>
+      </div>
+
+      <div id="G3" style="width:360px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#E91E63;color:#fff">G3</span><span style="font-size:14px;font-weight:700">Jeu · nouveau record battu</span></div>
+        <div style="width:360px;height:800px;background:#0B0B10;border-radius:28px;overflow:hidden;position:relative;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.6)">
+          <div style="position:absolute;left:0;right:0;top:0;height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 20px"><div style="display:flex;gap:6px;align-items:center"><div style="width:8px;height:8px;border-radius:4px;background:#FF9800"></div><div style="width:8px;height:8px;border-radius:4px;background:#2A2A36"></div><div style="width:8px;height:8px;border-radius:4px;background:#2A2A36"></div><div style="width:8px;height:8px;border-radius:4px;background:#2A2A36"></div><span style="font-size:11px;font-weight:800;letter-spacing:.2em;color:#6B6B7A;margin-left:6px">VITESSE 6</span></div><div style="width:48px;height:48px;border-radius:14px;background:rgba(30,30,40,.75);display:flex;align-items:center;justify-content:center;color:#C8C8D2"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">pause</span></div></div>
+          <div style="position:absolute;left:12px;right:12px;top:72px;bottom:16px;border:1px solid rgba(255,201,60,.3);border-radius:16px;box-shadow:inset 0 0 40px rgba(255,201,60,.06)"></div>
+          <div style="position:absolute;left:12px;right:12px;top:443px;height:2px;background:repeating-linear-gradient(90deg,rgba(255,201,60,.35) 0 12px,transparent 12px 24px)"></div>
+          <div style="position:absolute;left:0;right:0;top:396px;display:flex;justify-content:center"><div style="display:flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:14px;background:rgba(255,201,60,.12);border:1px solid rgba(255,201,60,.5);color:#FFC93C;font-size:11px;font-weight:800;letter-spacing:.18em"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">star</span>NOUVEAU RECORD</div></div>
+          <div style="position:absolute;left:0;right:0;top:462px;display:flex;flex-direction:column;align-items:center;gap:6px"><div style="font-size:64px;font-weight:900;color:rgba(255,201,60,.5);text-shadow:0 0 24px rgba(255,201,60,.3);font-variant-numeric:tabular-nums;line-height:1">2 450</div><div style="font-size:11px;font-weight:800;letter-spacing:.3em;color:#6B6B7A">LÉA</div></div>
+          <div style="position:absolute;left:60px;top:100px;width:80px;height:15px;border-radius:8px;background:#4CAF50;box-shadow:0 0 16px rgba(76,175,80,.55)"></div>
+          <div style="position:absolute;left:210px;top:740px;width:80px;height:15px;border-radius:8px;background:#2196F3;box-shadow:0 0 16px rgba(33,150,243,.6)"></div>
+          <div style="position:absolute;left:96px;top:190px;width:20px;height:20px;border-radius:10px;background:#fff;box-shadow:0 0 12px rgba(255,255,255,.8),0 0 32px rgba(255,255,255,.3)"></div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#9E9EAB;text-wrap:pretty">Au moment où le record tombe : le terrain et le score virent à l'or pendant ~1,5 s avec une vibration longue, puis la pastille « Nouveau record » reste. Aucun texte n'apparaît au-dessus de la zone de jeu adverse.</p>
+      </div>
+
+      <div id="P1" style="width:360px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#E91E63;color:#fff">P1</span><span style="font-size:14px;font-weight:700">Pause</span></div>
+        <div style="width:360px;height:800px;background:#0B0B10;border-radius:28px;overflow:hidden;position:relative;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.6)">
+          <div style="position:absolute;left:12px;right:12px;top:72px;bottom:16px;border:1px solid rgba(255,255,255,.07);border-radius:16px"></div>
+          <div style="position:absolute;left:12px;right:12px;top:443px;height:2px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.12) 0 12px,transparent 12px 24px)"></div>
+          <div style="position:absolute;left:196px;top:100px;width:80px;height:15px;border-radius:8px;background:#4CAF50"></div>
+          <div style="position:absolute;left:92px;top:740px;width:80px;height:15px;border-radius:8px;background:#2196F3"></div>
+          <div style="position:absolute;left:220px;top:560px;width:20px;height:20px;border-radius:10px;background:#fff"></div>
+          <div style="position:absolute;inset:0;background:rgba(5,5,8,.8);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:0 40px">
+            <div style="font-size:32px;font-weight:900;letter-spacing:.45em;padding-left:.45em">PAUSE</div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:#9E9EAB"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">music_note</span>Score 1 250 · Record 2 400</div>
+            <div style="align-self:stretch;display:flex;flex-direction:column;gap:12px;margin-top:36px">
+              <div style="height:56px;border-radius:16px;background:#E91E63;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:800;letter-spacing:.3em;box-shadow:0 0 24px rgba(233,30,99,.5),0 8px 28px rgba(233,30,99,.3)"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1;letter-spacing:0">play_arrow</span>REPRENDRE</div>
+              <div style="height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#C8C8D2">Quitter la partie</div>
+            </div>
+          </div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#9E9EAB;text-wrap:pretty">Voile opaque à 80 % (pas de flou, coûteux sur entrée de gamme). Le terrain figé reste visible en dessous pour retrouver ses repères avant de reprendre ; « Quitter » est un simple lien, loin du pouce.</p>
+      </div>
+
+      <div id="E1" style="width:360px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#E91E63;color:#fff">E1</span><span style="font-size:14px;font-weight:700">Fin de partie</span></div>
+        <div style="width:360px;height:800px;background:#0B0B10;border-radius:28px;overflow:hidden;position:relative;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.6)">
+          <div style="position:absolute;left:12px;right:12px;top:72px;bottom:16px;border:1px solid rgba(255,255,255,.07);border-radius:16px"></div>
+          <div style="position:absolute;left:140px;top:100px;width:80px;height:15px;border-radius:8px;background:#4CAF50"></div>
+          <div style="position:absolute;left:220px;top:740px;width:80px;height:15px;border-radius:8px;background:#2196F3"></div>
+          <div style="position:absolute;inset:0;background:rgba(5,5,8,.8);display:flex;align-items:center;justify-content:center;padding:0 20px">
+            <div style="width:100%;background:#15151C;border:1px solid #2A2A36;border-radius:24px;padding:28px 20px 12px;display:flex;flex-direction:column;align-items:center;gap:6px;box-shadow:0 24px 60px rgba(0,0,0,.6)">
+              <div style="font-size:12px;font-weight:800;letter-spacing:.3em;color:#9E9EAB">PARTIE TERMINÉE</div>
+              <div style="font-size:64px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.1;margin-top:8px">1 250</div>
+              <div style="font-size:13px;color:#9E9EAB">points · record 2 400</div>
+              <div style="align-self:stretch;display:flex;gap:8px;margin:18px 0 20px">
+                <div style="flex:1;background:#1E1E28;border-radius:12px;padding:10px 0;display:flex;flex-direction:column;align-items:center;gap:2px"><span style="font-size:17px;font-weight:800;font-variant-numeric:tabular-nums">18</span><span style="font-size:11px;color:#9E9EAB">renvois</span></div>
+                <div style="flex:1;background:#1E1E28;border-radius:12px;padding:10px 0;display:flex;flex-direction:column;align-items:center;gap:2px"><span style="font-size:17px;font-weight:800;font-variant-numeric:tabular-nums">1m 12s</span><span style="font-size:11px;color:#9E9EAB">durée</span></div>
+                <div style="flex:1;background:#1E1E28;border-radius:12px;padding:10px 0;display:flex;flex-direction:column;align-items:center;gap:2px"><span style="font-size:17px;font-weight:800;font-variant-numeric:tabular-nums">5</span><span style="font-size:11px;color:#9E9EAB">vitesse max</span></div>
+              </div>
+              <div style="align-self:stretch;height:56px;border-radius:16px;background:#E91E63;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:800;letter-spacing:.3em;box-shadow:0 0 24px rgba(233,30,99,.5),0 8px 28px rgba(233,30,99,.3)"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1;letter-spacing:0">replay</span>REJOUER</div>
+              <div style="align-self:stretch;display:flex;gap:8px;margin-top:10px">
+                <div style="flex:1;height:48px;border-radius:14px;background:#1E1E28;border:1px solid #2A2A36;display:flex;align-items:center;justify-content:center;gap:6px;font-size:14px;font-weight:700"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">leaderboard</span>Classement</div>
+                <div style="flex:1;height:48px;border-radius:14px;background:#1E1E28;border:1px solid #2A2A36;display:flex;align-items:center;justify-content:center;gap:6px;font-size:14px;font-weight:700"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">bar_chart</span>Statistiques</div>
+              </div>
+              <div style="height:48px;display:flex;align-items:center;font-size:14px;font-weight:700;color:#C8C8D2">Retour à l'accueil</div>
+            </div>
+          </div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#9E9EAB;text-wrap:pretty">Le dialogue clair devient une carte sombre. Le score est l'élément le plus gros ; Rejouer est la seule action rose, Classement et Statistiques passent en neutre côte à côte.</p>
+      </div>
+
+      <div id="E2" style="width:360px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#E91E63;color:#fff">E2</span><span style="font-size:14px;font-weight:700">Fin de partie · nouveau record</span></div>
+        <div style="width:360px;height:800px;background:#0B0B10;border-radius:28px;overflow:hidden;position:relative;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.6)">
+          <div style="position:absolute;left:12px;right:12px;top:72px;bottom:16px;border:1px solid rgba(255,201,60,.2);border-radius:16px"></div>
+          <div style="position:absolute;left:140px;top:100px;width:80px;height:15px;border-radius:8px;background:#4CAF50"></div>
+          <div style="position:absolute;left:40px;top:740px;width:80px;height:15px;border-radius:8px;background:#2196F3"></div>
+          <div style="position:absolute;inset:0;background:rgba(5,5,8,.8);display:flex;align-items:center;justify-content:center;padding:0 20px">
+            <div style="width:100%;background:#15151C;border:1px solid rgba(255,201,60,.45);border-radius:24px;padding:28px 20px 12px;display:flex;flex-direction:column;align-items:center;gap:6px;box-shadow:0 0 48px rgba(255,201,60,.14),0 24px 60px rgba(0,0,0,.6)">
+              <div style="display:flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:14px;background:rgba(255,201,60,.12);border:1px solid rgba(255,201,60,.5);color:#FFC93C;font-size:11px;font-weight:800;letter-spacing:.18em"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">star</span>NOUVEAU RECORD !</div>
+              <div style="font-size:64px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.1;margin-top:8px;color:#FFC93C;text-shadow:0 0 28px rgba(255,201,60,.4)">2 650</div>
+              <div style="font-size:13px;color:#9E9EAB">points · <span style="color:#FFC93C">+250</span> sur l'ancien record</div>
+              <div style="align-self:stretch;display:flex;gap:8px;margin:18px 0 20px">
+                <div style="flex:1;background:#1E1E28;border-radius:12px;padding:10px 0;display:flex;flex-direction:column;align-items:center;gap:2px"><span style="font-size:17px;font-weight:800;font-variant-numeric:tabular-nums">31</span><span style="font-size:11px;color:#9E9EAB">renvois</span></div>
+                <div style="flex:1;background:#1E1E28;border-radius:12px;padding:10px 0;display:flex;flex-direction:column;align-items:center;gap:2px"><span style="font-size:17px;font-weight:800;font-variant-numeric:tabular-nums">2m 40s</span><span style="font-size:11px;color:#9E9EAB">durée</span></div>
+                <div style="flex:1;background:#1E1E28;border-radius:12px;padding:10px 0;display:flex;flex-direction:column;align-items:center;gap:2px"><span style="font-size:17px;font-weight:800;font-variant-numeric:tabular-nums;color:#FFD700">1ᵉʳ</span><span style="font-size:11px;color:#9E9EAB">classement</span></div>
+              </div>
+              <div style="align-self:stretch;height:56px;border-radius:16px;background:#E91E63;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:800;letter-spacing:.3em;box-shadow:0 0 24px rgba(233,30,99,.5),0 8px 28px rgba(233,30,99,.3)"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1;letter-spacing:0">replay</span>REJOUER</div>
+              <div style="align-self:stretch;display:flex;gap:8px;margin-top:10px">
+                <div style="flex:1;height:48px;border-radius:14px;background:#1E1E28;border:1px solid #2A2A36;display:flex;align-items:center;justify-content:center;gap:6px;font-size:14px;font-weight:700"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">leaderboard</span>Classement</div>
+                <div style="flex:1;height:48px;border-radius:14px;background:#1E1E28;border:1px solid #2A2A36;display:flex;align-items:center;justify-content:center;gap:6px;font-size:14px;font-weight:700"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">bar_chart</span>Statistiques</div>
+              </div>
+              <div style="height:48px;display:flex;align-items:center;font-size:14px;font-weight:700;color:#C8C8D2">Retour à l'accueil</div>
+            </div>
+          </div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#9E9EAB;text-wrap:pretty">Même carte, passée à l'or : on reconnaît d'un coup d'œil une partie record. La position au classement remplace la vitesse pour donner envie d'aller le voir.</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:28px">
+    <div style="font-size:11px;font-weight:800;letter-spacing:.24em;color:#6B6B7A">CLASSEMENT, STATISTIQUES, AIDE</div>
+    <div style="display:flex;gap:48px;flex-wrap:wrap;align-items:flex-start">
+
+      <div id="C1" style="width:360px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#E91E63;color:#fff">C1</span><span style="font-size:14px;font-weight:700">Classement</span></div>
+        <div style="width:360px;height:800px;background:#0B0B10;border-radius:28px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.6)">
+          <div style="height:28px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:12px;font-weight:600;color:#C8C8D2;flex:none"><span>9:41</span><span style="display:flex;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">wifi</span><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">battery_full</span></span></div>
+          <div style="height:64px;display:flex;align-items:center;padding:0 8px;flex:none"><div style="width:48px;height:48px;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">arrow_back</span></div><div style="flex:1;text-align:center;font-size:16px;font-weight:800;letter-spacing:.42em;padding-left:.42em;color:#B8B8C4">CLASSEMENT</div><div style="width:48px"></div></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px;padding:4px 20px 20px">
+            <div style="background:#15151C;border:1.5px solid #FFD700;box-shadow:0 0 16px rgba(255,215,0,.12);border-radius:16px;height:64px;padding:0 16px;display:flex;align-items:center;gap:14px;flex:none"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1;color:#FFD700;width:28px;text-align:center">emoji_events</span><div style="flex:1;display:flex;flex-direction:column;gap:2px"><div style="font-size:16px;font-weight:700">Léa</div><div style="font-size:12px;color:#9E9EAB">12/09/2026</div></div><div style="font-size:20px;font-weight:800;font-variant-numeric:tabular-nums">2 650</div></div>
+            <div style="background:#15151C;border:1.5px solid #C0C0C0;border-radius:16px;height:64px;padding:0 16px;display:flex;align-items:center;gap:14px;flex:none"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1;color:#C0C0C0;width:28px;text-align:center">emoji_events</span><div style="flex:1;display:flex;flex-direction:column;gap:2px"><div style="font-size:16px;font-weight:700">Tom</div><div style="font-size:12px;color:#9E9EAB">03/09/2026</div></div><div style="font-size:20px;font-weight:800;font-variant-numeric:tabular-nums">2 400</div></div>
+            <div style="background:#15151C;border:1.5px solid #CD7F32;border-radius:16px;height:64px;padding:0 16px;display:flex;align-items:center;gap:14px;flex:none"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1;color:#CD7F32;width:28px;text-align:center">emoji_events</span><div style="flex:1;display:flex;flex-direction:column;gap:2px"><div style="font-size:16px;font-weight:700">Léa</div><div style="font-size:12px;color:#9E9EAB">28/08/2026</div></div><div style="font-size:20px;font-weight:800;font-variant-numeric:tabular-nums">1 950</div></div>
+            <div style="background:#15151C;border:1px solid #23232D;border-radius:14px;height:56px;padding:0 16px;display:flex;align-items:center;gap:14px;flex:none"><span style="width:28px;text-align:center;font-size:15px;font-weight:800;color:#6B6B7A">4</span><div style="flex:1;font-size:15px;font-weight:600">Inès <span style="font-size:12px;color:#6B6B7A;font-weight:500">· 21/08/2026</span></div><div style="font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;color:#C8C8D2">1 700</div></div>
+            <div style="background:#15151C;border:1px solid #23232D;border-radius:14px;height:56px;padding:0 16px;display:flex;align-items:center;gap:14px;flex:none"><span style="width:28px;text-align:center;font-size:15px;font-weight:800;color:#6B6B7A">5</span><div style="flex:1;font-size:15px;font-weight:600">Léa <span style="font-size:12px;color:#6B6B7A;font-weight:500">· 20/08/2026</span></div><div style="font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;color:#C8C8D2">1 450</div></div>
+            <div style="background:#15151C;border:1px solid #23232D;border-radius:14px;height:56px;padding:0 16px;display:flex;align-items:center;gap:14px;flex:none"><span style="width:28px;text-align:center;font-size:15px;font-weight:800;color:#6B6B7A">6</span><div style="flex:1;font-size:15px;font-weight:600">Tom <span style="font-size:12px;color:#6B6B7A;font-weight:500">· 18/08/2026</span></div><div style="font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;color:#C8C8D2">1 300</div></div>
+            <div style="background:#15151C;border:1px solid #23232D;border-radius:14px;height:56px;padding:0 16px;display:flex;align-items:center;gap:14px;flex:none"><span style="width:28px;text-align:center;font-size:15px;font-weight:800;color:#6B6B7A">7</span><div style="flex:1;font-size:15px;font-weight:600">Malik <span style="font-size:12px;color:#6B6B7A;font-weight:500">· 14/08/2026</span></div><div style="font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;color:#C8C8D2">1 150</div></div>
+            <div style="background:#15151C;border:1px solid #23232D;border-radius:14px;height:56px;padding:0 16px;display:flex;align-items:center;gap:14px;flex:none"><span style="width:28px;text-align:center;font-size:15px;font-weight:800;color:#6B6B7A">8</span><div style="flex:1;font-size:15px;font-weight:600">Léa <span style="font-size:12px;color:#6B6B7A;font-weight:500">· 10/08/2026</span></div><div style="font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;color:#C8C8D2">900</div></div>
+            <div style="background:#15151C;border:1px solid #23232D;border-radius:14px;height:56px;padding:0 16px;display:flex;align-items:center;gap:14px;flex:none"><span style="width:28px;text-align:center;font-size:15px;font-weight:800;color:#6B6B7A">9</span><div style="flex:1;font-size:15px;font-weight:600">Inès <span style="font-size:12px;color:#6B6B7A;font-weight:500">· 02/08/2026</span></div><div style="font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;color:#C8C8D2">750</div></div>
+          </div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#9E9EAB;text-wrap:pretty">Deux tailles de ligne : le podium (64 px, trophée, bordure de métal) se détache du reste (56 px, date sur la même ligne) sans ajouter de couleur. La liste défile jusqu'au 10ᵉ.</p>
+      </div>
+
+      <div id="C2" style="width:360px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#E91E63;color:#fff">C2</span><span style="font-size:14px;font-weight:700">Classement · vide</span></div>
+        <div style="width:360px;height:800px;background:#0B0B10;border-radius:28px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.6)">
+          <div style="height:28px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:12px;font-weight:600;color:#C8C8D2;flex:none"><span>9:41</span><span style="display:flex;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">wifi</span><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">battery_full</span></span></div>
+          <div style="height:64px;display:flex;align-items:center;padding:0 8px;flex:none"><div style="width:48px;height:48px;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">arrow_back</span></div><div style="flex:1;text-align:center;font-size:16px;font-weight:800;letter-spacing:.42em;padding-left:.42em;color:#B8B8C4">CLASSEMENT</div><div style="width:48px"></div></div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:0 40px;text-align:center">
+            <div style="width:88px;height:88px;border-radius:44px;background:#15151C;border:1px dashed #2A2A36;display:flex;align-items:center;justify-content:center;color:#55556A"><span style="font-family:'Material Symbols Rounded';font-size:40px;line-height:1">emoji_events</span></div>
+            <div style="font-size:20px;font-weight:700;margin-top:8px">Aucun score enregistré</div>
+            <div style="font-size:14px;line-height:1.5;color:#9E9EAB">Joue une partie solo : tes 10 meilleurs scores apparaîtront ici.</div>
+          </div>
+          <div style="padding:0 20px 20px"><div style="height:56px;border-radius:16px;background:#E91E63;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;letter-spacing:.3em;padding-left:.3em;box-shadow:0 0 24px rgba(233,30,99,.5),0 8px 28px rgba(233,30,99,.3)">JOUER</div></div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#9E9EAB;text-wrap:pretty">Maintenant que le classement est accessible depuis l'accueil, l'état vide a besoin d'une sortie : il propose directement de jouer.</p>
+      </div>
+
+      <div id="ST1" style="width:360px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#E91E63;color:#fff">ST1</span><span style="font-size:14px;font-weight:700">Statistiques</span></div>
+        <div style="width:360px;height:800px;background:#0B0B10;border-radius:28px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.6)">
+          <div style="height:28px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:12px;font-weight:600;color:#C8C8D2;flex:none"><span>9:41</span><span style="display:flex;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">wifi</span><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">battery_full</span></span></div>
+          <div style="height:64px;display:flex;align-items:center;padding:0 8px;flex:none"><div style="width:48px;height:48px;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">arrow_back</span></div><div style="flex:1;text-align:center;font-size:16px;font-weight:800;letter-spacing:.42em;padding-left:.42em;color:#B8B8C4">STATISTIQUES</div><div style="width:48px"></div></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:12px;padding:4px 20px 20px">
+            <div style="font-size:11px;font-weight:800;letter-spacing:.22em;color:#6B6B7A">SOLO</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <div style="background:#15151C;border:1px solid #23232D;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1;color:#448AFF">sports_esports</span><div style="font-size:13px;color:#9E9EAB">Parties jouées</div><div style="font-size:30px;font-weight:800;color:#448AFF;font-variant-numeric:tabular-nums">148</div></div>
+              <div style="background:#15151C;border:1px solid #23232D;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1;color:#FFC93C">emoji_events</span><div style="font-size:13px;color:#9E9EAB">Meilleur score</div><div style="font-size:30px;font-weight:800;color:#FFC93C;font-variant-numeric:tabular-nums">2 650</div></div>
+              <div style="grid-column:span 2;background:#15151C;border:1px solid #23232D;border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1;color:#FF5C93">timer</span><div style="flex:1;font-size:13px;color:#9E9EAB">Temps total de jeu</div><div style="font-size:24px;font-weight:800;color:#FF5C93;font-variant-numeric:tabular-nums">1h 12m 5s</div></div>
+              <div style="grid-column:span 2;background:#15151C;border:1px solid #23232D;border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1;color:#FF9800">local_fire_department</span><div style="flex:1;font-size:13px;color:#9E9EAB">Meilleure série</div><div style="font-size:24px;font-weight:800;color:#FF9800;font-variant-numeric:tabular-nums">23 renvois</div></div>
+            </div>
+            <div style="font-size:11px;font-weight:800;letter-spacing:.22em;color:#6B6B7A;margin-top:12px">MULTIJOUEUR</div>
+            <div style="background:#15151C;border:1px solid #23232D;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:14px">
+              <div style="display:flex;align-items:flex-end;justify-content:space-between"><div style="display:flex;flex-direction:column;gap:4px"><div style="font-size:13px;color:#9E9EAB">Victoires</div><div style="font-size:30px;font-weight:800;color:#66BB6A;font-variant-numeric:tabular-nums">12</div></div><div style="font-size:13px;color:#9E9EAB;padding-bottom:6px">19 duels</div><div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end"><div style="font-size:13px;color:#9E9EAB">Défaites</div><div style="font-size:30px;font-weight:800;color:#C8C8D2;font-variant-numeric:tabular-nums">7</div></div></div>
+              <div style="display:flex;height:8px;border-radius:4px;overflow:hidden;gap:2px"><div style="flex:12;background:#66BB6A"></div><div style="flex:7;background:#3A3A48"></div></div>
+            </div>
+          </div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#9E9EAB;text-wrap:pretty">Grille 2 colonnes pour les chiffres courts, pleine largeur pour les longs : on ajoute une statistique sans casser la page. Le multijoueur a sa propre section, avec une barre victoires/défaites.</p>
+      </div>
+
+      <div id="A1" style="width:360px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:#E91E63;color:#fff">A1</span><span style="font-size:14px;font-weight:700">Aide</span></div>
+        <div style="width:360px;height:800px;background:#0B0B10;border-radius:28px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.6)">
+          <div style="height:28px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:12px;font-weight:600;color:#C8C8D2;flex:none"><span>9:41</span><span style="display:flex;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">wifi</span><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">battery_full</span></span></div>
+          <div style="height:64px;display:flex;align-items:center;padding:0 8px;flex:none"><div style="width:48px;height:48px;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">arrow_back</span></div><div style="flex:1;text-align:center;font-size:16px;font-weight:800;letter-spacing:.42em;padding-left:.42em;color:#B8B8C4">AIDE</div><div style="width:48px"></div></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px;padding:4px 20px 20px">
+            <div style="background:#15151C;border:1px solid #23232D;border-radius:16px;padding:14px;display:flex;gap:14px"><div style="width:40px;height:40px;border-radius:12px;background:rgba(33,150,243,.14);color:#64B5F6;display:flex;align-items:center;justify-content:center;flex:none"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">screen_rotation</span></div><div style="display:flex;flex-direction:column;gap:3px"><div style="font-size:15px;font-weight:700">Contrôles</div><div style="font-size:13px;line-height:1.45;color:#9E9EAB">Incline le téléphone à gauche ou à droite pour déplacer ta raquette.</div></div></div>
+            <div style="background:#15151C;border:1px solid #23232D;border-radius:16px;padding:14px;display:flex;gap:14px"><div style="width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.08);color:#F2F2F5;display:flex;align-items:center;justify-content:center;flex:none"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">sports_tennis</span></div><div style="display:flex;flex-direction:column;gap:3px"><div style="font-size:15px;font-weight:700">Objectif</div><div style="font-size:13px;line-height:1.45;color:#9E9EAB">Renvoie la balle le plus longtemps possible. Si elle passe derrière toi, c'est fini.</div></div></div>
+            <div style="background:#15151C;border:1px solid #23232D;border-radius:16px;padding:14px;display:flex;gap:14px"><div style="width:40px;height:40px;border-radius:12px;background:rgba(255,201,60,.12);color:#FFC93C;display:flex;align-items:center;justify-content:center;flex:none"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">star</span></div><div style="display:flex;flex-direction:column;gap:3px"><div style="font-size:15px;font-weight:700">Points</div><div style="font-size:13px;line-height:1.45;color:#9E9EAB">+50 par renvoi, +100 quand l'adversaire rate.</div></div></div>
+            <div style="background:#15151C;border:1px solid #23232D;border-radius:16px;padding:14px;display:flex;gap:14px"><div style="width:40px;height:40px;border-radius:12px;background:rgba(255,152,0,.12);color:#FF9800;display:flex;align-items:center;justify-content:center;flex:none"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">speed</span></div><div style="display:flex;flex-direction:column;gap:3px"><div style="font-size:15px;font-weight:700">Vitesse</div><div style="font-size:13px;line-height:1.45;color:#9E9EAB">La balle accélère tous les 4 renvois.</div></div></div>
+            <div style="background:#15151C;border:1px solid #23232D;border-radius:16px;padding:14px;display:flex;gap:14px"><div style="width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.08);color:#C8C8D2;display:flex;align-items:center;justify-content:center;flex:none"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">pause</span></div><div style="display:flex;flex-direction:column;gap:3px"><div style="font-size:15px;font-weight:700">Pause</div><div style="font-size:13px;line-height:1.45;color:#9E9EAB">Touche le bouton en haut à droite. Pas de pause en multijoueur.</div></div></div>
+            <div style="background:#15151C;border:1px solid #23232D;border-radius:16px;padding:14px;display:flex;gap:14px"><div style="width:40px;height:40px;border-radius:12px;background:rgba(233,30,99,.14);color:#FF5C93;display:flex;align-items:center;justify-content:center;flex:none"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">group</span></div><div style="display:flex;flex-direction:column;gap:3px"><div style="font-size:15px;font-weight:700">Multijoueur</div><div style="font-size:13px;line-height:1.45;color:#9E9EAB">Connectez-vous au même Wi-Fi (ou au partage de connexion de l'un de vous). L'un crée la partie, l'autre la rejoint. Premier à 5 points.</div></div></div>
+          </div>
+        </div>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#9E9EAB;text-wrap:pretty">Les icônes reprennent les couleurs de sens du système (bleu = ta raquette, or = points, orange = vitesse) : l'aide enseigne aussi le code couleur du jeu.</p>
+      </div>
+    </div>
+  </section>
+</div>
+</x-dc>
+</body>
+</html>
