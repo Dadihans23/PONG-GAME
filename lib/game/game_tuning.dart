@@ -36,12 +36,14 @@ abstract final class GameTuning {
   /// Environ deux fois plus vive à 30° que l'ancien réglage « Normale ».
   static const int paddleSensitivityDefault = 50;
 
-  /// Vitesse maximale à la sensibilité 0 : lente mais jouable.
-  static const double paddleMaxSpeedAtMin = 1.2;
+  /// Vitesse maximale à la sensibilité 0 : lente mais jouable. Les deux
+  /// bornes ont été multipliées par 1,5 à la demande du propriétaire
+  /// (raquette encore plus rapide) : 1,2 → 1,8 et 3,0 → 4,5.
+  static const double paddleMaxSpeedAtMin = 1.8;
 
   /// Vitesse maximale à la sensibilité 100. C'est aussi le plafond commun du
   /// duel ([paddleSpeedCap]).
-  static const double paddleMaxSpeedAtMax = 3.0;
+  static const double paddleMaxSpeedAtMax = 4.5;
 
   /// Inclinaison (en degrés) qui donne la vitesse maximale à la sensibilité 0.
   static const double tiltDegreesForMaxSpeedAtMin = 60;
