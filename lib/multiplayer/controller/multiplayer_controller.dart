@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../game/duel_engine.dart';
 import '../../game/game_tuning.dart';
+import '../../game/paddle_sensitivity.dart';
 import '../../net/net.dart';
 import '../duel_view.dart';
 import '../model/duel_phase.dart';
@@ -48,13 +49,15 @@ class MultiplayerController extends ChangeNotifier {
     Random? random,
     MonotonicClock? clock,
     this.stepsPerSecond = GameTuning.stepsPerSecond,
-    this.paddleMaxSpeed = GameTuning.paddleMaxSpeed,
+    int paddleSensitivity = PaddleSensitivity.defaultValue,
+    this.paddleMaxSpeed = GameTuning.paddleSpeedCap,
     this.maxStepsPerFrame = GameTuning.maxStepsPerFrame,
     this.countdownSeconds = 3,
     this.searchTimeout = const Duration(seconds: 5),
     this.degradedAfter = const Duration(seconds: 1),
   })  : assert(
             countdownSeconds >= 0 && countdownSeconds <= maxCountdownSeconds),
+        paddleSensitivity = PaddleSensitivity.clamp(paddleSensitivity),
         _playerName = cleanPlayerName(playerName),
         _network = network,
         _stats = stats ?? HiveDuelStats(),
@@ -64,10 +67,21 @@ class MultiplayerController extends ChangeNotifier {
   /// Pas de moteur par seconde (le même que le solo).
   final int stepsPerSecond;
 
-  /// Vitesse maximale d'une raquette, en unités de terrain par seconde. La
-  /// même pour les deux joueurs : le moteur l'impose à l'hôte, et l'invité
-  /// borne sa raquette affichée en local à cette vitesse.
+  /// Sensibilité de raquette de ce joueur (0 à 100), lue à l'entrée du
+  /// multijoueur et fixe pendant tout le parcours. L'invité l'annonce dans
+  /// `join` ; l'hôte l'applique à sa propre raquette.
+  final int paddleSensitivity;
+
+  /// Plafond commun des raquettes, en unités de terrain par seconde (celui
+  /// de la sensibilité 100). Chaque joueur garde sa propre vitesse maximale
+  /// ([myPaddleMaxSpeed]), jamais au-delà de ce plafond.
   final double paddleMaxSpeed;
+
+  /// Vitesse maximale de ma raquette, en unités de terrain par seconde :
+  /// celle de ma sensibilité, bornée au plafond commun. L'hôte l'impose au
+  /// moteur ; l'invité borne sa raquette affichée en local à cette vitesse.
+  double get myPaddleMaxSpeed =>
+      min(PaddleSensitivity.maxSpeed(paddleSensitivity), paddleMaxSpeed);
 
   /// Rattrapage plafonné, comme en solo.
   final int maxStepsPerFrame;
@@ -119,6 +133,7 @@ class MultiplayerController extends ChangeNotifier {
 
   // Hôte
   HostSession? _host;
+  int? _guestSensitivity; // sensibilité annoncée par l'invité
   GameAdvertiser? _advertiser;
   DuelEngine? _engine;
   int _pendingSteps = 0;
@@ -202,6 +217,10 @@ class MultiplayerController extends ChangeNotifier {
   /// Moi et l'autre joueur, d'après le salon.
   Player? get me => _slotPlayer(mySlot);
   Player? get opponent => _slotPlayer(mySlot?.opponent);
+
+  /// Hôte : sensibilité de raquette de l'invité (annoncée, ou la valeur par
+  /// défaut s'il ne l'a pas annoncée), `null` sans invité. Invité : `null`.
+  int? get opponentPaddleSensitivity => _guestSensitivity;
 
   Player? _slotPlayer(PlayerSlot? slot) =>
       slot == null ? null : _room?.playerIn(slot);
@@ -355,8 +374,8 @@ class MultiplayerController extends ChangeNotifier {
   void _onHostEvent(SessionEvent event) {
     if (_disposed) return;
     switch (event) {
-      case PeerConnected(:final name):
-        _hostGuestJoined(name);
+      case PeerConnected(:final name, :final sensitivity):
+        _hostGuestJoined(name, sensitivity);
       case PeerDisconnected(:final reason):
         _hostGuestLeft(reason);
       case MessageReceived(:final message):
@@ -365,7 +384,7 @@ class MultiplayerController extends ChangeNotifier {
     }
   }
 
-  void _hostGuestJoined(String rawName) {
+  void _hostGuestJoined(String rawName, int? sensitivity) {
     final room = _room;
     if (room == null) return;
     // Un joueur arrive pendant l'écran X1 : retour au salon avec lui
@@ -378,6 +397,9 @@ class MultiplayerController extends ChangeNotifier {
     }
     final name = cleanPlayerName(rawName);
     room.join(Player(id: _guestId, name: name));
+    // Invité sans sensibilité annoncée (app plus ancienne) : valeur par défaut
+    _guestSensitivity =
+        PaddleSensitivity.clamp(sensitivity ?? PaddleSensitivity.defaultValue);
     _advertiser?.update(players: 2);
     _clearIncident();
     _setStage(MultiplayerStage.lobby, notify: false);
@@ -390,6 +412,7 @@ class MultiplayerController extends ChangeNotifier {
     final guest = room?.guest;
     _advertiser?.update(players: 1);
     if (room == null || guest == null) return;
+    _guestSensitivity = null;
     final wasLobby = room.phase.isLobby;
     room.guestLeft();
     _stopCountdown();
@@ -438,6 +461,12 @@ class MultiplayerController extends ChangeNotifier {
         stepsPerSecond: stepsPerSecond,
         paddleMaxSpeed: paddleMaxSpeed,
         random: _random);
+    // Chacun sa vitesse maximale, sous le plafond commun du moteur
+    engine.setPaddleMaxSpeed(PlayerSlot.player1, myPaddleMaxSpeed);
+    engine.setPaddleMaxSpeed(
+        PlayerSlot.player2,
+        PaddleSensitivity.maxSpeed(
+            _guestSensitivity ?? PaddleSensitivity.defaultValue));
     engine.reset();
     _host?.sendStart(countdownSeconds);
     _resetDuel();
@@ -540,7 +569,8 @@ class MultiplayerController extends ChangeNotifier {
     _clearIncident();
     _setStage(MultiplayerStage.connecting);
 
-    final session = _network.createClientSession(_playerName);
+    final session = _network.createClientSession(_playerName,
+        paddleSensitivity: paddleSensitivity);
     _client = session;
     _sessionSubscription =
         session.events.listen((event) => _onGuestEvent(session, event));
@@ -977,8 +1007,8 @@ class MultiplayerController extends ChangeNotifier {
   /// pendant le compte à rebours), avec le temps écoulé depuis l'image
   /// précédente et la vitesse voulue de ma raquette en unités de terrain par
   /// seconde, dans le repère de l'écran (positive vers la droite) : celle de
-  /// `TiltControl.update(dt)` multipliée par le réglage de sensibilité, comme
-  /// en solo. Elle est bornée à [paddleMaxSpeed].
+  /// `TiltControl.update(dt)` réglée sur ma sensibilité, comme en solo. Elle
+  /// est bornée à [myPaddleMaxSpeed].
   ///
   /// Hôte : joue `stepsPerSecond` pas de moteur par seconde écoulée (au plus
   /// [maxStepsPerFrame] par image) et envoie l'état à 30 Hz.
@@ -989,8 +1019,9 @@ class MultiplayerController extends ChangeNotifier {
     if (_stage == MultiplayerStage.countdown) _pollCountdown();
     if (_stage != MultiplayerStage.playing) return;
     final now = _clock();
+    final double maxSpeed = myPaddleMaxSpeed;
     final double speed = localPaddleSpeed.isFinite
-        ? localPaddleSpeed.clamp(-paddleMaxSpeed, paddleMaxSpeed).toDouble()
+        ? localPaddleSpeed.clamp(-maxSpeed, maxSpeed).toDouble()
         : 0.0;
     final int micros = dt.isNegative ? 0 : dt.inMicroseconds;
     if (isHost) {
@@ -1183,6 +1214,7 @@ class MultiplayerController extends ChangeNotifier {
     _client = null;
     _advertiser = null;
     _engine = null;
+    _guestSensitivity = null;
     _room = null;
     _gameName = null;
     _target = null;

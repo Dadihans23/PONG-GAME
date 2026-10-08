@@ -43,6 +43,7 @@ class JoinFailed extends JoinResult {
 class ClientSession {
   ClientSession({
     required this.playerName,
+    this.paddleSensitivity,
     NetTransport? transport,
     this.heartbeat = const HeartbeatConfig(),
     this.connectTimeout = const Duration(seconds: 5),
@@ -51,6 +52,10 @@ class ClientSession {
   }) : _transport = transport ?? WebSocketTransport(log: log);
 
   final String playerName;
+
+  /// Sensibilité de raquette du joueur (0 à 100), annoncée dans `join`.
+  /// `null` : non annoncée (le Host applique sa valeur par défaut).
+  final int? paddleSensitivity;
   final HeartbeatConfig heartbeat;
   final Duration connectTimeout;
 
@@ -111,7 +116,7 @@ class ClientSession {
       onClosed: _onClosed,
     );
     link.start();
-    link.send(JoinMessage(name: playerName));
+    link.send(JoinMessage(name: playerName, sensitivity: paddleSensitivity));
     _welcomeTimer = Timer(welcomeTimeout, () {
       if (!joining.isCompleted) {
         _completeJoin(const JoinFailed('le Host ne répond pas'));

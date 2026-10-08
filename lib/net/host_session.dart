@@ -46,6 +46,7 @@ class HostSession {
   final Map<PeerLink, Timer> _pending = {};
   PeerLink? _client;
   String? _clientName;
+  int? _clientSensitivity;
   int _stateSeq = 0;
   int _lastPaddleSeq = -1;
   double? _clientPaddleX;
@@ -64,6 +65,10 @@ class HostSession {
 
   /// Pseudo du Client connecté, ou `null`.
   String? get clientName => _clientName;
+
+  /// Sensibilité de raquette annoncée par le Client (0 à 100), ou `null`
+  /// s'il ne l'a pas annoncée.
+  int? get clientSensitivity => _clientSensitivity;
 
   /// Nombre de joueurs dans la partie, Host compris (1 ou 2).
   int get playerCount => hasClient ? 2 : 1;
@@ -138,11 +143,12 @@ class HostSession {
     _pending.remove(link)?.cancel();
     _client = link;
     _clientName = message.name;
+    _clientSensitivity = message.sensitivity;
     _lastPaddleSeq = -1;
     _clientPaddleX = null;
     link.send(WelcomeMessage(hostName: hostName));
     log('${message.name} a rejoint depuis ${link.remoteDescription}');
-    _emit(PeerConnected(message.name));
+    _emit(PeerConnected(message.name, sensitivity: message.sensitivity));
   }
 
   void _onClientMessage(NetMessage message) {
@@ -167,6 +173,7 @@ class HostSession {
     log('$_clientName parti ($reason)');
     _client = null;
     _clientName = null;
+    _clientSensitivity = null;
     _clientPaddleX = null;
     _emit(PeerDisconnected(reason));
   }

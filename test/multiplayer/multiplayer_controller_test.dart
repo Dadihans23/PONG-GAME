@@ -12,6 +12,8 @@ import 'dart:math';
 import 'dart:ui' show AppLifecycleState;
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pong_game/game/game_tuning.dart';
+import 'package:pong_game/game/paddle_sensitivity.dart';
 import 'package:pong_game/multiplayer/controller/controller.dart';
 import 'package:pong_game/net/net.dart';
 
@@ -67,10 +69,12 @@ void main() {
     DuelStatsStore? stats,
     HeartbeatConfig heartbeat = const HeartbeatConfig(),
     int seed = 1,
+    int sensitivity = PaddleSensitivity.defaultValue,
     MultiplayerNetwork? network,
   }) {
     final controller = MultiplayerController(
       playerName: name,
+      paddleSensitivity: sensitivity,
       network: network ??
           MultiplayerNetwork.memory(transport: transport, discovery: discovery, heartbeat: heartbeat, log: logs.add),
       stats: stats ?? MemoryDuelStats(),
@@ -104,9 +108,13 @@ void main() {
     DuelStatsStore? hostStats,
     DuelStatsStore? guestStats,
     HeartbeatConfig heartbeat = const HeartbeatConfig(),
+    int hostSensitivity = PaddleSensitivity.defaultValue,
+    int guestSensitivity = PaddleSensitivity.defaultValue,
   }) async {
-    final host = Side(newController(hostName, stats: hostStats, heartbeat: heartbeat, seed: 11));
-    final guest = Side(newController(guestName, stats: guestStats, heartbeat: heartbeat, seed: 22));
+    final host = Side(newController(hostName,
+        stats: hostStats, heartbeat: heartbeat, seed: 11, sensitivity: hostSensitivity));
+    final guest = Side(newController(guestName,
+        stats: guestStats, heartbeat: heartbeat, seed: 22, sensitivity: guestSensitivity));
     await host.controller.createGame();
     await guest.controller.startBrowsing();
     await until(() => guest.controller.games.isNotEmpty, reason: 'partie trouvée');
@@ -403,16 +411,19 @@ void main() {
       final g = guest.controller;
 
       // L'invité incline à droite : sa raquette bouge aussitôt à l'écran,
-      // bornée à la vitesse maximale (1,42 unité/s)
+      // bornée à la vitesse maximale de sa sensibilité (2,1 unités/s à 50)
+      final double vmax = PaddleSensitivity.maxSpeed(PaddleSensitivity.defaultValue);
+      expect(g.myPaddleMaxSpeed, vmax);
       g.onFrame(frame, 1.0);
       expect(g.view!.myPaddleX, closeTo(0.1, 1e-9));
       g.onFrame(frame, 100.0);
-      expect(g.view!.myPaddleX, closeTo(0.1 + 0.142, 1e-9));
+      final double afterMax = 0.1 + vmax * 0.1;
+      expect(g.view!.myPaddleX, closeTo(afterMax, 1e-9));
       g.onFrame(frame, double.nan);
-      expect(g.view!.myPaddleX, closeTo(0.242, 1e-9));
+      expect(g.view!.myPaddleX, closeTo(afterMax, 1e-9));
       // Image très longue : plafonnée comme en solo (50 pas = 0,111 s)
-      g.onFrame(const Duration(seconds: 5), -1.42);
-      expect(g.view!.myPaddleX, closeTo(0.242 - 1.42 * 50 / 450, 1e-9));
+      g.onFrame(const Duration(seconds: 5), -vmax);
+      expect(g.view!.myPaddleX, closeTo(afterMax - vmax * 50 / 450, 1e-9));
       final guestScreenX = g.view!.myPaddleX;
 
       // L'hôte joue : il reçoit la position (inversée sur le terrain) et sa
@@ -441,6 +452,66 @@ void main() {
       expect(gv.ballX, closeTo(-hv.ballX, 1e-9));
       expect(gv.ballY, closeTo(-hv.ballY, 1e-9));
       expect(g.ballVisible, isTrue);
+    });
+  });
+
+  group('Sensibilité de la raquette', () {
+    test("l'invité annonce sa sensibilité : l'hôte la reçoit", () async {
+      final (host, guest) = await joined(hostSensitivity: 20, guestSensitivity: 85);
+      expect(host.controller.opponentPaddleSensitivity, 85);
+      expect(guest.controller.opponentPaddleSensitivity, isNull);
+      expect(host.controller.paddleSensitivity, 20);
+      expect(guest.controller.paddleSensitivity, 85);
+    });
+
+    test('chacun sa vitesse, comme au tennis, sous le plafond commun', () async {
+      final (host, guest) = await joined(hostSensitivity: 0, guestSensitivity: 100);
+      await readyAndCountdown(host, guest);
+      final h = host.controller;
+      final g = guest.controller;
+      final double hostMax = PaddleSensitivity.maxSpeed(0);
+      final double guestMax = PaddleSensitivity.maxSpeed(100);
+      expect(h.myPaddleMaxSpeed, hostMax);
+      expect(g.myPaddleMaxSpeed, guestMax);
+      expect(guestMax, GameTuning.paddleSpeedCap);
+
+      // Hôte : demande 10 unités/s, n'avance qu'à sa propre vitesse
+      final double before = h.view!.myPaddleX;
+      h.onFrame(frame, 10.0);
+      // 45 pas de moteur en 100 ms
+      expect(h.view!.myPaddleX - before, closeTo(hostMax * 45 / 450, 1e-9));
+
+      // Invité : sa raquette locale va à sa vitesse, plus vite que l'hôte
+      g.onFrame(frame, 10.0);
+      g.onFrame(frame, 10.0);
+      expect(g.view!.myPaddleX, closeTo(guestMax * 0.2, 1e-9));
+
+      // L'hôte fait rejoindre la position reçue à la vitesse de l'invité :
+      // ni plus vite, ni bridé à la vitesse de l'hôte
+      clock.advance(frame);
+      g.onFrame(Duration.zero, 0); // envoi de la position
+      await flush();
+      final double start = h.view!.opponentPaddleX;
+      h.onFrame(frame, 0);
+      final double moved = (h.view!.opponentPaddleX - start).abs();
+      expect(moved, closeTo(guestMax * 45 / 450, 1e-9));
+      expect(moved, greaterThan(hostMax * 45 / 450));
+    });
+
+    test('invité sans sensibilité annoncée (app plus ancienne) : valeur par défaut', () async {
+      final host = newController('Léa', sensitivity: 30);
+      await host.createGame();
+      final finder = newController('Tom');
+      await finder.startBrowsing();
+      await until(() => finder.games.isNotEmpty, reason: 'partie trouvée');
+      final game = finder.games.first;
+      // Client brut, comme une version qui n'annonce pas le champ
+      final old = ClientSession(playerName: 'Ancien', transport: transport, log: logs.add);
+      addTearDown(old.close);
+      final result = await old.connect(game.address, game.port);
+      expect(result, isA<JoinAccepted>());
+      await until(() => host.opponent != null, reason: 'ancien client arrivé');
+      expect(host.opponentPaddleSensitivity, PaddleSensitivity.defaultValue);
     });
   });
 

@@ -51,6 +51,7 @@ Autres règles :
 | Accès secondaires en tuiles | `PongTileButton(icon, label, onPressed)` dans `Row` + `Expanded` |
 | Choisir parmi 2–4 valeurs | `PongSegmentedControl<T>(values, selected, onChanged, labelOf?)` |
 | Réglage activé / désactivé | `PongSwitchRow(icon, title, subtitle?, value, onChanged)` dans `PongCard(padding: EdgeInsets.zero)`, lignes séparées par `PongCardDivider()` ; `PongSwitch` seul si besoin |
+| Valeur continue (sensibilité 0–100) | `PongSlider(value, onChanged, onChangeEnd?, min?, max?, semanticLabel?)` : piste rose, bouton rose clair, zone tactile 48 px |
 | Un bouton de choix isolé | `PongSelectableButton(label, selected, onPressed)` |
 | Grand choix (mode de jeu) | `PongChoiceCard(icon, title, subtitle?, selected, onTap, child?, trailing?)` — `onTap: null` + `trailing: PongPill.status(label: 'Bientôt')` pour un mode indisponible |
 | Conteneur | `PongCard(child, padding?, borderColor?, onTap?, borderRadius?)` |

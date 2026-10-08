@@ -14,6 +14,7 @@ void main() {
   group('aller-retour encodage / décodage', () {
     final messages = <NetMessage>[
       const JoinMessage(name: 'Hans'),
+      const JoinMessage(name: 'Hans', sensitivity: 65),
       const WelcomeMessage(hostName: 'Awa'),
       const RejectMessage(RejectReason.full),
       const RejectMessage(RejectReason.version),
@@ -56,6 +57,45 @@ void main() {
     final m = decode({'v': 99, 'type': 'join', 'name': 'Futur'});
     expect(m, isA<JoinMessage>());
     expect((m as JoinMessage).version, 99);
+  });
+
+  group('join : sensibilité facultative', () {
+    test('sans le champ : null, message valide (Client plus ancien)', () {
+      final m = decode({'v': 1, 'type': 'join', 'name': 'Hans'}) as JoinMessage;
+      expect(m.sensitivity, isNull);
+      expect(const JoinMessage(name: 'Hans').toJson().containsKey('sensitivity'), isFalse);
+    });
+
+    test('avec le champ : lu tel quel, même version du protocole', () {
+      final m = decode({'v': protocolVersion, 'type': 'join', 'name': 'Hans', 'sensitivity': 65}) as JoinMessage;
+      expect(m.sensitivity, 65);
+      expect(m.version, protocolVersion);
+      final json = jsonDecode(const JoinMessage(name: 'Hans', sensitivity: 65).encode()) as Map<String, dynamic>;
+      expect(json['sensitivity'], 65);
+      expect(json['v'], 1);
+    });
+
+    test('hors bornes : bornée à 0..100, le join reste accepté', () {
+      JoinMessage join(Object? value) =>
+          decode({'v': 1, 'type': 'join', 'name': 'Hans', 'sensitivity': value}) as JoinMessage;
+      expect(join(250).sensitivity, maxPaddleSensitivity);
+      expect(join(-7).sensitivity, minPaddleSensitivity);
+      expect(join(1e300).sensitivity, 100);
+      expect(join(42.6).sensitivity, 43);
+    });
+
+    test('valeur illisible : ignorée (null), le join reste accepté', () {
+      for (final value in ['vive', true, <int>[], null]) {
+        final m = decode({'v': 1, 'type': 'join', 'name': 'Hans', 'sensitivity': value});
+        expect(m, isA<JoinMessage>(), reason: '$value');
+        expect((m as JoinMessage).sensitivity, isNull, reason: '$value');
+      }
+    });
+
+    test("à l'envoi, une valeur hors bornes est bornée", () {
+      final json = const JoinMessage(name: 'Hans', sensitivity: 400).toJson();
+      expect(json['sensitivity'], 100);
+    });
   });
 
   test('le pseudo est nettoyé des espaces', () {

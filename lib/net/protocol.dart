@@ -27,6 +27,10 @@ const int maxNameLength = 24;
 /// Durée maximale d'un compte à rebours, en secondes.
 const int maxCountdownSeconds = 10;
 
+/// Bornes de la sensibilité de raquette annoncée dans `join` (0 à 100).
+const int minPaddleSensitivity = 0;
+const int maxPaddleSensitivity = 100;
+
 /// Raison d'un refus de connexion par le Host.
 enum RejectReason {
   /// Deux joueurs sont déjà dans la partie.
@@ -132,7 +136,7 @@ sealed class NetMessage {
     // `join` est décodé quelle que soit la version, pour que le Host puisse
     // répondre « version incompatible » au lieu d'ignorer le joueur.
     if (type == JoinMessage.wireType) {
-      return JoinMessage(name: f.name('name'), version: version);
+      return JoinMessage(name: f.name('name'), version: version, sensitivity: f.sensitivity('sensitivity'));
     }
     if (version != protocolVersion) {
       throw _Invalid('$type : version $version, attendue $protocolVersion');
@@ -169,11 +173,16 @@ sealed class NetMessage {
 
 /// Le Client demande à rejoindre la partie. Premier message du Client.
 class JoinMessage extends NetMessage {
-  const JoinMessage({required this.name, this.version = protocolVersion});
+  const JoinMessage({required this.name, this.version = protocolVersion, this.sensitivity});
 
   static const wireType = 'join';
 
   final String name;
+
+  /// Sensibilité de raquette du Client (0 à 100), facultative : `null` si
+  /// le Client ne l'annonce pas (app plus ancienne). Le Host applique alors
+  /// la valeur par défaut. Bornée à [minPaddleSensitivity]..[maxPaddleSensitivity].
+  final int? sensitivity;
 
   /// Version du protocole du Client (champ `v` de l'enveloppe).
   final int version;
@@ -185,7 +194,10 @@ class JoinMessage extends NetMessage {
   Map<String, Object?> toJson() => {'v': version, 'type': type, ...fieldsToJson()};
 
   @override
-  Map<String, Object?> fieldsToJson() => {'name': name};
+  Map<String, Object?> fieldsToJson() => {
+        'name': name,
+        if (sensitivity != null) 'sensitivity': sensitivity!.clamp(minPaddleSensitivity, maxPaddleSensitivity),
+      };
 }
 
 /// Le Host accepte le Client.
@@ -428,6 +440,15 @@ class _Fields {
     final d = value.toDouble();
     if (!d.isFinite || d < -1 || d > 1) _fail(key, 'hors bornes ($value)');
     return d;
+  }
+
+  /// Sensibilité facultative : absente, non numérique ou non finie →
+  /// `null` (le message reste valide) ; sinon arrondie et bornée à
+  /// [minPaddleSensitivity]..[maxPaddleSensitivity].
+  int? sensitivity(String key) {
+    final value = raw[key];
+    if (value is! num || !value.isFinite) return null;
+    return value.clamp(minPaddleSensitivity, maxPaddleSensitivity).round();
   }
 
   Map<String, dynamic> object(String key) {

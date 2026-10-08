@@ -35,7 +35,7 @@ Chaque trame texte est un objet JSON :
 
 | type | Sens | Champs | Contraintes |
 |---|---|---|---|
-| `join` | Client → Host | `name` | pseudo non vide après `trim`, ≤ 24 caractères. Décodé quelle que soit `v`, pour que le Host puisse refuser une version différente |
+| `join` | Client → Host | `name`, `sensitivity`? | `name` : pseudo non vide après `trim`, ≤ 24 caractères. `sensitivity` : sensibilité de raquette du Client, entier de 0 à 100, **facultatif** (voir plus bas). Décodé quelle que soit `v`, pour que le Host puisse refuser une version différente |
 | `welcome` | Host → Client | `hostName` | pseudo du Host, mêmes contraintes |
 | `reject` | Host → Client | `reason` | `full`, `version`, `bad_request`, `closing` ; toute autre valeur est lue `unknown`. Le Host ferme ensuite la connexion |
 | `ready` | les deux | `ready` | booléen ; chaque joueur annonce son propre statut |
@@ -52,6 +52,7 @@ Exemples :
 
 ```json
 {"v":1,"type":"join","name":"Hans"}
+{"v":1,"type":"join","name":"Hans","sensitivity":65}
 {"v":1,"type":"welcome","hostName":"Awa"}
 {"v":1,"type":"reject","reason":"full"}
 {"v":1,"type":"ready","ready":true}
@@ -65,12 +66,33 @@ Exemples :
 {"v":1,"type":"pong","t":120034}
 ```
 
+### Sensibilité de la raquette (`join.sensitivity`)
+
+Chaque joueur garde sa propre vitesse de raquette, comme au tennis : le Client
+annonce sa sensibilité (0 à 100, réglage de l'écran Réglages) dans `join`, le
+Host applique la sienne à sa propre raquette. Le moteur du Host plafonne chaque
+raquette à **sa** vitesse maximale (la convergence vers la position `paddle`
+reçue suit la vitesse annoncée par le Client), jamais au-delà du plafond commun
+(vitesse de la sensibilité 100, `GameTuning.paddleSpeedCap`). La sensibilité ne
+change pas pendant la session.
+
+- Absent, `null`, non numérique ou non fini : ignoré (`null`), le `join` reste
+  valide ; le Host applique la sensibilité par défaut.
+- Hors bornes ou non entier : arrondi et borné à 0..100, le `join` reste valide.
+  À l'envoi, la valeur est aussi bornée.
+
+**Pas de changement de version (`v` reste 1)** : le champ est facultatif et
+les champs inconnus sont ignorés. Un ancien Client (sans le champ) chez un
+nouveau Host joue avec la sensibilité par défaut ; un nouveau Client chez un
+ancien Host voit son champ ignoré (l'ancien Host plafonne les deux raquettes à
+sa vitesse commune d'avant). Les deux apps restent compatibles.
+
 ### Déroulement
 
 ```text
 Client                                  Host
   │ ── connexion WebSocket ─────────────▶ │  (3e connexion : reject full, fermeture)
-  │ ── join {name} ─────────────────────▶ │  (pas de join en 3 s : reject bad_request)
+  │ ── join {name, sensitivity?} ───────▶ │  (pas de join en 3 s : reject bad_request)
   │ ◀──────────────── welcome {hostName}  │  (ou reject version / full)
   │ ── ready {true} ────────────────────▶ │
   │ ◀──────────────────── ready {true} ── │

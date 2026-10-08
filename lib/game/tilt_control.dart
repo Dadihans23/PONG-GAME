@@ -12,6 +12,7 @@ class TiltControl {
     required this.deadZone,
     required this.fullTilt,
     required this.smoothingTime,
+    this.exponent = 1.0,
   });
 
   /// Vitesse de la raquette à pleine inclinaison, en unités de terrain par seconde.
@@ -25,6 +26,10 @@ class TiltControl {
 
   /// Constante de temps du lissage, en secondes (0 : pas de lissage).
   final double smoothingTime;
+
+  /// Exposant de la courbe de réponse entre la zone morte et [fullTilt] :
+  /// 1 = linéaire, au-dessus de 1 les petites inclinaisons sont plus douces.
+  final double exponent;
 
   double _tilt = 0.0; // Dernière inclinaison reçue du capteur, de -1 à 1
   double _smoothedTilt = 0.0; // Inclinaison lissée, de -1 à 1
@@ -68,13 +73,15 @@ class TiltControl {
   }
 
   /// Vitesse pour une inclinaison normalisée [tilt] : nulle dans la zone
-  /// morte, puis linéaire de 0 (au seuil) à [maxSpeed] (à [fullTilt]).
+  /// morte, puis de 0 (au seuil) à [maxSpeed] (à [fullTilt]) selon
+  /// `ratio ^ exponent`.
   double speedFor(double tilt) {
     final double amount = tilt.abs();
     if (amount <= deadZone) {
       return 0.0;
     }
     final double ratio = ((amount - deadZone) / (fullTilt - deadZone)).clamp(0.0, 1.0);
-    return tilt > 0 ? maxSpeed * ratio : -maxSpeed * ratio;
+    final double speed = maxSpeed * (exponent == 1.0 ? ratio : pow(ratio, exponent).toDouble());
+    return tilt > 0 ? speed : -speed;
   }
 }

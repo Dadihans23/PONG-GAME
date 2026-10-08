@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:pong_game/game/game_tuning.dart';
+import 'package:pong_game/game/paddle_sensitivity.dart';
 import 'package:pong_game/game/tilt_control.dart';
 import 'package:pong_game/game_sound.dart';
 import 'package:pong_game/multiplayer/controller/controller.dart';
@@ -63,24 +64,24 @@ class _MultiplayerFlowState extends State<MultiplayerFlow>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late final MultiplayerController _controller =
       widget.createController?.call(widget.playerName) ??
-          MultiplayerController(playerName: widget.playerName);
+          MultiplayerController(
+            playerName: widget.playerName,
+            paddleSensitivity: _paddleSensitivity,
+          );
   StreamSubscription<MultiplayerEvent>? _eventSubscription;
 
-  // Réglages du joueur, lus une fois à l'entrée du multijoueur
+  // Réglages du joueur, lus une fois à l'entrée du multijoueur : la
+  // sensibilité ne change pas pendant un duel
   final PongSettings _settings = PongSettings();
   late final bool _vibrate = _settings.vibrationEnabled;
-  late final double _paddleSpeedMultiplier = _settings.paddleSpeedMultiplier;
+  late final int _paddleSensitivity = _settings.paddleSensitivity;
 
   // Boucle d'affichage du duel et raquette, comme en solo
   late final Ticker _ticker;
   Duration _lastElapsed = Duration.zero;
   StreamSubscription<AccelerometerEvent>? _accelSubscription;
-  final TiltControl _tilt = TiltControl(
-    maxSpeed: GameTuning.paddleMaxSpeed,
-    deadZone: GameTuning.tiltDeadZone,
-    fullTilt: GameTuning.tiltForMaxSpeed,
-    smoothingTime: GameTuning.tiltSmoothingTime,
-  );
+  late final TiltControl _tilt =
+      PaddleSensitivity.tiltControl(_paddleSensitivity);
 
   // Sons : un lecteur par son, chargé une fois, libéré à la sortie
   final GameSound _countdownSound = GameSound('sounds/shoot.mp3');
@@ -170,8 +171,7 @@ class _MultiplayerFlowState extends State<MultiplayerFlow>
     _lastElapsed = elapsed;
     // Vitesse voulue en unités de terrain par seconde, comme en solo ; le
     // contrôleur rafraîchit l'écran par son notifyListeners
-    final double speed =
-        _tilt.update(dt.inMicroseconds / 1000000) * _paddleSpeedMultiplier;
+    final double speed = _tilt.update(dt.inMicroseconds / 1000000);
     _controller.onFrame(dt, speed);
   }
 

@@ -536,4 +536,67 @@ void main() {
       expect(historyA.expand((e) => e).where((e) => e.type == DuelEventType.paddleHit), isNotEmpty);
     });
   });
+
+  group('Vitesse propre à chaque raquette (sensibilités différentes)', () {
+    // Plafond commun 3 unités/s ; joueur 1 à 1,2, joueur 2 à 2,4
+    DuelEngine twoSpeeds() {
+      final engine = DuelEngine(stepsPerSecond: stepsPerSecond, paddleMaxSpeed: 3.0, random: Random(42))
+        ..setPaddleMaxSpeed(p1, 1.2)
+        ..setPaddleMaxSpeed(p2, 2.4)
+        ..serveTicksRemaining = 1000; // balle immobile
+      return engine;
+    }
+
+    test('sans réglage : chaque raquette peut atteindre le plafond commun', () {
+      final engine = DuelEngine(stepsPerSecond: stepsPerSecond, paddleMaxSpeed: 3.0, random: Random(1));
+      expect(engine.maxStepOf(p1), closeTo(3.0 / stepsPerSecond, 1e-15));
+      expect(engine.maxStepOf(p2), closeTo(3.0 / stepsPerSecond, 1e-15));
+    });
+
+    test('le joueur 1 est plafonné à sa propre vitesse', () {
+      final engine = twoSpeeds()..player1Speed = 1.0;
+      for (int i = 0; i < 45; i++) {
+        engine.tick();
+      }
+      expect(engine.player1X, closeTo(1.2 * 45 / stepsPerSecond, 1e-12));
+    });
+
+    test('le joueur 2 rejoint sa cible à sa propre vitesse, plus vite que le joueur 1', () {
+      final engine = twoSpeeds()..setPlayer2Target(1.0);
+      engine.player1Speed = 1.0;
+      for (int i = 0; i < 45; i++) {
+        engine.tick();
+      }
+      expect(engine.player2X, closeTo(2.4 * 45 / stepsPerSecond, 1e-12));
+      expect(engine.player1X, closeTo(1.2 * 45 / stepsPerSecond, 1e-12));
+    });
+
+    test('jamais au-delà du plafond commun', () {
+      final engine = twoSpeeds()
+        ..setPaddleMaxSpeed(p1, 50.0)
+        ..setPaddleMaxSpeed(p2, 9.0);
+      expect(engine.maxStepOf(p1), closeTo(3.0 / stepsPerSecond, 1e-15));
+      expect(engine.maxStepOf(p2), closeTo(3.0 / stepsPerSecond, 1e-15));
+      engine.player1Speed = 1.0;
+      engine.setPlayer2Target(-1.0);
+      engine.tick();
+      expect(engine.player1X, closeTo(3.0 / stepsPerSecond, 1e-15));
+      expect(engine.player2X, closeTo(-3.0 / stepsPerSecond, 1e-15));
+    });
+
+    test('valeur non finie ou nulle : ignorée', () {
+      final engine = twoSpeeds()
+        ..setPaddleMaxSpeed(p1, double.nan)
+        ..setPaddleMaxSpeed(p2, 0)
+        ..setPaddleMaxSpeed(p2, -1);
+      expect(engine.maxStepOf(p1), closeTo(1.2 / stepsPerSecond, 1e-15));
+      expect(engine.maxStepOf(p2), closeTo(2.4 / stepsPerSecond, 1e-15));
+    });
+
+    test('les vitesses survivent à reset (revanche)', () {
+      final engine = twoSpeeds()..reset();
+      expect(engine.maxStepOf(p1), closeTo(1.2 / stepsPerSecond, 1e-15));
+      expect(engine.maxStepOf(p2), closeTo(2.4 / stepsPerSecond, 1e-15));
+    });
+  });
 }

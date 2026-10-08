@@ -21,7 +21,7 @@ Map<String, dynamic> baseJson() => roundTrip({
     });
 
 DuelEngine newDuel() => DuelEngine(
-    stepsPerSecond: GameTuning.stepsPerSecond, paddleMaxSpeed: GameTuning.paddleMaxSpeed, random: Random(7));
+    stepsPerSecond: GameTuning.stepsPerSecond, paddleMaxSpeed: GameTuning.paddleSpeedCap, random: Random(7));
 
 void main() {
   group('GameState : nouveaux champs', () {

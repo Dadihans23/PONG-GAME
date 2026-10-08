@@ -89,6 +89,37 @@ void main() {
     });
   });
 
+  group('Courbe de réponse (exposant)', () {
+    TiltControl curved(double exponent) => TiltControl(
+          maxSpeed: 2.0,
+          deadZone: 0.05,
+          fullTilt: 0.55,
+          smoothingTime: 0,
+          exponent: exponent,
+        );
+
+    test('exposant 1 : linéaire, comme avant', () {
+      expect(curved(1).speedFor(0.3), closeTo(2.0 * 0.5, 1e-12));
+    });
+
+    test('exposant 1,5 : ratio ^ 1,5 entre le seuil et la pleine inclinaison', () {
+      final control = curved(1.5);
+      expect(control.speedFor(0.3), closeTo(2.0 * pow(0.5, 1.5), 1e-12));
+      expect(control.speedFor(-0.3), closeTo(-2.0 * pow(0.5, 1.5), 1e-12));
+    });
+
+    test('petites inclinaisons plus douces, mêmes bornes', () {
+      final linear = curved(1);
+      final soft = curved(1.5);
+      expect(soft.speedFor(0.05), 0.0);
+      expect(soft.speedFor(0.55), closeTo(2.0, 1e-12));
+      expect(soft.speedFor(0.9), closeTo(2.0, 1e-12));
+      for (final tilt in [0.06, 0.1, 0.2, 0.3, 0.5]) {
+        expect(soft.speedFor(tilt), lessThan(linear.speedFor(tilt)), reason: 'inclinaison $tilt');
+      }
+    });
+  });
+
   group('Lissage', () {
     test('sans mesure du capteur : vitesse nulle', () {
       final control = newControl();

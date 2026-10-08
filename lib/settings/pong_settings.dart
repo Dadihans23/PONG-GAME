@@ -1,17 +1,17 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:pong_game/game/paddle_sensitivity.dart';
 
 /// Réglages du joueur, enregistrés dans la boîte Hive `settings` (ouverte
 /// dans `main()`).
 ///
-/// Les valeurs par défaut reproduisent le comportement d'origine : son et
-/// vibration activés, sensibilité de la raquette au cran du milieu
-/// (multiplicateur 1). Une valeur absente ou illisible retombe sur sa
-/// valeur par défaut.
+/// Valeurs par défaut : son et vibration activés, sensibilité de la
+/// raquette à [PaddleSensitivity.defaultValue]. Une valeur absente ou
+/// illisible retombe sur sa valeur par défaut.
 ///
 /// ```dart
 /// final settings = PongSettings();
 /// if (settings.vibrationEnabled) HapticFeedback.lightImpact();
-/// final speed = baseSpeed * settings.paddleSpeedMultiplier;
+/// final tilt = PaddleSensitivity.tiltControl(settings.paddleSensitivity);
 /// ```
 class PongSettings {
   /// [box] sert aux tests ; par défaut, la boîte `settings` déjà ouverte.
@@ -27,7 +27,12 @@ class PongSettings {
   static const String musicKey = 'musicEnabled';
   static const String effectsKey = 'soundEffectsEnabled';
   static const String vibrationKey = 'vibrationEnabled';
-  static const String sensitivityKey = 'paddleSensitivity';
+  /// Sensibilité de 0 à 100.
+  static const String sensitivityKey = 'paddleSensitivity100';
+
+  /// Ancien cran de sensibilité (0 à 4), lu seulement si [sensitivityKey]
+  /// est absente.
+  static const String legacySensitivityKey = 'paddleSensitivity';
 
   // --- Pseudo ---------------------------------------------------------------
   /// Longueur maximale d'un pseudo : il tient sur une ligne du classement.
@@ -71,40 +76,22 @@ class PongSettings {
   set vibrationEnabled(bool value) => _box.put(vibrationKey, value);
 
   // --- Sensibilité de la raquette -----------------------------------------
-  /// Multiplicateur de la vitesse de la raquette, par cran, de « Très
-  /// douce » à « Très vive ». Le cran du milieu (1,0) est le réglage
-  /// d'origine.
-  static const List<double> paddleSpeedMultipliers = [0.6, 0.8, 1.0, 1.25, 1.5];
-
-  /// Nom de chaque cran, dans le même ordre.
-  static const List<String> paddleSensitivityLabels = [
-    'Très douce',
-    'Douce',
-    'Normale',
-    'Vive',
-    'Très vive',
-  ];
-
-  /// Cran par défaut : le milieu, comportement d'origine.
-  static const int defaultPaddleSensitivity = 2;
-
-  /// Cran choisi, de 0 à 4.
+  /// Sensibilité choisie, de 0 (douce) à 100 (vive). Sans valeur 0-100
+  /// enregistrée, l'ancien cran (0 à 4) est converti
+  /// ([PaddleSensitivity.fromLegacyNotch]) ; sinon, la valeur par défaut.
   int get paddleSensitivity {
     final value = _box.get(sensitivityKey);
-    if (value is int &&
-        value >= 0 &&
-        value < paddleSpeedMultipliers.length) {
-      return value;
+    if (value is int) return PaddleSensitivity.clamp(value);
+    final legacy = _box.get(legacySensitivityKey);
+    if (legacy is int) {
+      final converted = PaddleSensitivity.fromLegacyNotch(legacy);
+      if (converted != null) return converted;
     }
-    return defaultPaddleSensitivity;
+    return PaddleSensitivity.defaultValue;
   }
 
-  set paddleSensitivity(int value) => _box.put(sensitivityKey,
-      value.clamp(0, paddleSpeedMultipliers.length - 1).toInt());
-
-  /// Multiplicateur du cran choisi, à appliquer à la vitesse de la raquette.
-  double get paddleSpeedMultiplier =>
-      paddleSpeedMultipliers[paddleSensitivity];
+  set paddleSensitivity(int value) =>
+      _box.put(sensitivityKey, PaddleSensitivity.clamp(value));
 
   bool _readBool(String key) {
     final value = _box.get(key);

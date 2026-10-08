@@ -1,8 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:pong_game/game/game_tuning.dart';
+import 'package:pong_game/game/paddle_sensitivity.dart';
+import 'package:pong_game/game/tilt_control.dart';
 import 'package:pong_game/game_sound.dart';
 import 'package:pong_game/settings/pong_settings.dart';
 import 'package:pong_game/ui/pong_ui.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 
 /// Réglages, ouverts par l'icône ⚙ de l'accueil.
 ///
@@ -10,10 +17,14 @@ import 'package:pong_game/ui/pong_ui.dart';
 /// « Enregistrer », donc pas de rose plein sur l'écran. Ordre : ce qu'on
 /// change le plus souvent d'abord (son), puis le jeu, puis le profil.
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({super.key, this.settings});
+  const SettingsPage({super.key, this.settings, this.accelerometer});
 
   /// Réglages à afficher (tests) ; par défaut ceux de la boîte Hive.
   final PongSettings? settings;
+
+  /// Mesures de l'accéléromètre pour la zone d'essai (tests) ; par défaut
+  /// le capteur du téléphone.
+  final Stream<AccelerometerEvent>? accelerometer;
 
   /// Version affichée en bas : la même que `version:` dans pubspec.yaml
   /// (vérifié par test/settings_test.dart).
@@ -62,11 +73,18 @@ class _SettingsPageState extends State<SettingsPage> {
     if (value) HapticFeedback.lightImpact();
   }
 
+  // Pendant le glissement : affichage et zone d'essai seulement, petit
+  // retour haptique toutes les 10 unités
   void _setSensitivity(int value) {
     if (value == _sensitivity) return;
     setState(() => _sensitivity = value);
+    if (_vibration && value % 10 == 0) HapticFeedback.selectionClick();
+  }
+
+  // Au relâchement : une seule écriture dans Hive
+  void _saveSensitivity(int value) {
+    if (value != _sensitivity) setState(() => _sensitivity = value);
     _settings.paddleSensitivity = value;
-    if (_vibration) HapticFeedback.selectionClick();
   }
 
   Future<void> _editPseudo() async {
@@ -127,8 +145,10 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           const SizedBox(height: PongSpacing.sm),
           _SensitivityCard(
-            selected: _sensitivity,
+            value: _sensitivity,
             onChanged: _setSensitivity,
+            onChangeEnd: _saveSensitivity,
+            accelerometer: widget.accelerometer,
           ),
           const SizedBox(height: PongSpacing.lg),
           const PongOverline('Profil'),
@@ -147,17 +167,23 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 }
 
-/// Sensibilité de la raquette : 5 crans en barres croissantes (plus haut =
-/// plus vif), le cran choisi encadré de rose, son nom en haut à droite.
+/// Sensibilité de la raquette : curseur de 0 (« Douce ») à 100 (« Vive »),
+/// valeur en haut à droite, puis la zone d'essai.
 class _SensitivityCard extends StatelessWidget {
-  const _SensitivityCard({required this.selected, required this.onChanged});
+  const _SensitivityCard({
+    required this.value,
+    required this.onChanged,
+    required this.onChangeEnd,
+    this.accelerometer,
+  });
 
-  final int selected;
+  final int value;
   final ValueChanged<int> onChanged;
+  final ValueChanged<int> onChangeEnd;
+  final Stream<AccelerometerEvent>? accelerometer;
 
   @override
   Widget build(BuildContext context) {
-    const labels = PongSettings.paddleSensitivityLabels;
     final edgeStyle =
         PongText.caption.copyWith(fontSize: 12, color: PongColors.textTertiary);
     return PongCard(
@@ -179,103 +205,207 @@ class _SensitivityCard extends StatelessWidget {
                     style: PongText.cardTitle.copyWith(fontSize: 16)),
               ),
               Text(
-                labels[selected],
-                style: PongText.caption.copyWith(
-                    fontWeight: FontWeight.w700, color: PongColors.pinkLight),
+                '$value',
+                key: const ValueKey('sensibilite-valeur'),
+                style: PongText.listValue.copyWith(color: PongColors.pinkLight),
               ),
             ],
           ),
           const SizedBox(height: PongSpacing.sm),
           Text(
-            'Plus vive : la raquette va plus vite pour la même inclinaison.',
+            'Plus vive : la raquette va plus vite et demande moins '
+            "d'inclinaison.",
             style: PongText.caption
                 .copyWith(fontSize: 12, fontWeight: FontWeight.w400),
           ),
-          const SizedBox(height: PongSpacing.sm),
-          Row(
-            children: [
-              for (var i = 0; i < labels.length; i++) ...[
-                if (i > 0) const SizedBox(width: 6),
-                Expanded(
-                  child: _SensitivityStep(
-                    index: i,
-                    count: labels.length,
-                    label: labels[i],
-                    lit: i <= selected,
-                    selected: i == selected,
-                    onTap: () => onChanged(i),
-                  ),
-                ),
-              ],
-            ],
-          ),
           const SizedBox(height: PongSpacing.xs),
+          PongSlider(
+            value: value,
+            min: PaddleSensitivity.min,
+            max: PaddleSensitivity.max,
+            semanticLabel: 'Sensibilité',
+            onChanged: onChanged,
+            onChangeEnd: onChangeEnd,
+          ),
           ExcludeSemantics(
-            child: Row(
-              children: [
-                Text('Douce', style: edgeStyle),
-                const Spacer(),
-                Text('Vive', style: edgeStyle),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: PongSpacing.xs),
+              child: Row(
+                children: [
+                  Text('Douce', style: edgeStyle),
+                  const Spacer(),
+                  Text('Vive', style: edgeStyle),
+                ],
+              ),
             ),
           ),
+          const SizedBox(height: PongSpacing.md),
+          _TiltTrial(sensitivity: value, accelerometer: accelerometer),
         ],
       ),
     );
   }
 }
 
-/// Un cran : barre verticale dont la hauteur grandit avec le cran.
-class _SensitivityStep extends StatelessWidget {
-  const _SensitivityStep({
-    required this.index,
-    required this.count,
-    required this.label,
-    required this.lit,
-    required this.selected,
-    required this.onTap,
-  });
+/// Zone d'essai : une mini-raquette bleue, comme celle du jeu, qui suit
+/// l'inclinaison du téléphone avec la sensibilité affichée.
+///
+/// L'accéléromètre n'est écouté que tant que cette zone est affichée (donc
+/// l'écran Réglages ouvert) et que l'app est au premier plan ; il est libéré
+/// en sortie. La raquette avance à chaque image, comme en partie, et ne
+/// bouge qu'après la première mesure du capteur.
+class _TiltTrial extends StatefulWidget {
+  const _TiltTrial({required this.sensitivity, this.accelerometer});
 
-  final int index;
-  final int count;
-  final String label;
+  final int sensitivity;
+  final Stream<AccelerometerEvent>? accelerometer;
 
-  /// Barre allumée : crans jusqu'au cran choisi.
-  final bool lit;
-  final bool selected;
-  final VoidCallback onTap;
+  /// Hauteur de la piste d'essai.
+  static const double height = 56;
 
-  static const double _minBar = 8;
-  static const double _maxBar = 28;
+  @override
+  State<_TiltTrial> createState() => _TiltTrialState();
+}
+
+class _TiltTrialState extends State<_TiltTrial>
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+  late TiltControl _tilt = PaddleSensitivity.tiltControl(widget.sensitivity);
+  late final Ticker _ticker;
+  StreamSubscription<AccelerometerEvent>? _subscription;
+  Duration _lastElapsed = Duration.zero;
+  AccelerometerEvent? _lastEvent; // Dernière mesure, pour changer de réglage
+  double _x = 0; // Position de la raquette, de -1 à 1
+
+  @override
+  void initState() {
+    super.initState();
+    _ticker = createTicker(_onFrame);
+    WidgetsBinding.instance.addObserver(this);
+    _listen();
+  }
+
+  @override
+  void didUpdateWidget(_TiltTrial oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.sensitivity != widget.sensitivity) {
+      // Nouveau réglage : même inclinaison, nouvelle courbe
+      _tilt = PaddleSensitivity.tiltControl(widget.sensitivity);
+      final event = _lastEvent;
+      if (event != null) {
+        _tilt.setAcceleration(event.x, event.y, event.z);
+        _tilt.reset();
+      }
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _listen();
+    } else if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden) {
+      _stop();
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _stop();
+    _ticker.dispose();
+    super.dispose();
+  }
+
+  void _listen() {
+    _subscription ??= (widget.accelerometer ??
+            accelerometerEventStream(samplingPeriod: GameTuning.sensorPeriod))
+        .listen(
+      _onSensor,
+      onError: (Object e) => debugPrint('Accéléromètre indisponible : $e'),
+    );
+  }
+
+  void _stop() {
+    _subscription?.cancel();
+    _subscription = null;
+    if (_ticker.isActive) _ticker.stop();
+  }
+
+  void _onSensor(AccelerometerEvent event) {
+    _lastEvent = event;
+    _tilt.setAcceleration(event.x, event.y, event.z);
+    if (!_ticker.isActive) {
+      _lastElapsed = Duration.zero;
+      _tilt.reset();
+      _ticker.start();
+    }
+  }
+
+  void _onFrame(Duration elapsed) {
+    // Image très longue : plafonnée comme le rattrapage du jeu
+    final double dt = ((elapsed - _lastElapsed).inMicroseconds / 1000000)
+        .clamp(0.0, GameTuning.maxStepsPerFrame / GameTuning.stepsPerSecond);
+    _lastElapsed = elapsed;
+    final double x = (_x + _tilt.update(dt) * dt).clamp(-1.0, 1.0);
+    if (x != _x && mounted) setState(() => _x = x);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final barHeight = _minBar + (_maxBar - _minBar) * index / (count - 1);
-    return PongPressable(
-      onTap: onTap,
-      selected: selected,
-      semanticLabel: 'Sensibilité $label',
-      height: PongSizes.touchTarget,
-      width: double.infinity,
-      minWidth: 0,
-      borderRadius: PongRadii.segmentAll,
-      decoration: BoxDecoration(
-        color: selected ? PongColors.pinkTintSolid : PongColors.surfaceHigh,
-        border: Border.all(
-          color: selected ? PongColors.pink : Colors.transparent,
-          width: 1.5,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          "Zone d'essai · penche ton téléphone",
+          style: PongText.caption
+              .copyWith(fontSize: 12, fontWeight: FontWeight.w400),
         ),
-        boxShadow: selected ? PongShadows.selected : null,
-      ),
-      child: AnimatedContainer(
-        duration: PongDurations.normal,
-        width: 6,
-        height: barHeight,
-        decoration: BoxDecoration(
-          color: lit ? PongColors.pinkLight : PongColors.textDisabled,
-          borderRadius: const BorderRadius.all(Radius.circular(3)),
+        const SizedBox(height: PongSpacing.xs),
+        Container(
+          key: const ValueKey('zone-essai'),
+          height: _TiltTrial.height,
+          decoration: const BoxDecoration(
+            color: PongColors.background,
+            borderRadius: PongRadii.segmentAll,
+            border: Border.fromBorderSide(
+                BorderSide(color: PongColors.borderSubtle)),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: PongSpacing.xs),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final double travel = (constraints.maxWidth - PongSizes.paddleWidth)
+                  .clamp(0.0, double.infinity);
+              return Stack(
+                children: [
+                  // Repère du centre
+                  const Center(
+                    child: SizedBox(
+                      width: 1,
+                      height: 20,
+                      child: ColoredBox(color: PongColors.courtMidline),
+                    ),
+                  ),
+                  Positioned(
+                    key: const ValueKey('raquette-essai'),
+                    left: (_x + 1) / 2 * travel,
+                    top: (_TiltTrial.height - PongSizes.paddleHeight) / 2 - 1,
+                    child: Container(
+                      width: PongSizes.paddleWidth,
+                      height: PongSizes.paddleHeight,
+                      decoration: BoxDecoration(
+                        color: PongColors.player,
+                        borderRadius:
+                            BorderRadius.circular(PongSizes.paddleHeight / 2),
+                        boxShadow: PongShadows.playerPaddle,
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
         ),
-      ),
+      ],
     );
   }
 }

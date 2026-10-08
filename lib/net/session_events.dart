@@ -11,10 +11,14 @@ sealed class SessionEvent {
 /// Host : un Client a envoyé un `join` valide. Client : le Host a répondu
 /// `welcome`.
 class PeerConnected extends SessionEvent {
-  const PeerConnected(this.name);
+  const PeerConnected(this.name, {this.sensitivity});
 
   /// Pseudo du pair.
   final String name;
+
+  /// Host : sensibilité de raquette annoncée par le Client dans `join` (0 à
+  /// 100), ou `null` s'il ne l'a pas annoncée. Toujours `null` côté Client.
+  final int? sensitivity;
 }
 
 /// Le pair est parti ou la connexion est perdue.

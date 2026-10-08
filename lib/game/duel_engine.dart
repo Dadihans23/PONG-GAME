@@ -53,17 +53,22 @@ class DuelEvent {
 /// - joueur 1 : vitesse par pas [player1Speed], comme `playerSpeed` en solo ;
 /// - joueur 2 : position cible reçue du réseau ([setPlayer2Target]), rejointe
 ///   à vitesse plafonnée.
-/// Les deux raquettes sont plafonnées à la même vitesse [maxPaddleStep].
+/// Chaque raquette a sa propre vitesse maximale, celle de la sensibilité de
+/// son joueur ([setPaddleMaxSpeed]), comme au tennis : chacun garde son
+/// réglage. Aucune ne dépasse le plafond commun [maxPaddleStep].
 class DuelEngine extends PongPhysics {
   /// [stepsPerSecond] : pas de moteur par seconde, le même que le solo.
-  /// [paddleMaxSpeed] : vitesse maximale d'une raquette en unités de terrain
-  /// par seconde (celle du solo, `paddleMaxSpeed` de l'écran de jeu).
+  /// [paddleMaxSpeed] : plafond commun des deux raquettes, en unités de
+  /// terrain par seconde (`GameTuning.paddleSpeedCap`). Tant que
+  /// [setPaddleMaxSpeed] n'est pas appelée, chaque raquette peut l'atteindre.
   DuelEngine({required this.stepsPerSecond, required double paddleMaxSpeed, Random? random})
       : assert(stepsPerSecond > 0),
         assert(paddleMaxSpeed > 0),
         serveDelayTicks = (stepsPerSecond * serveDelaySeconds).round(),
         maxPaddleStep = paddleMaxSpeed / stepsPerSecond,
         _random = random ?? Random() {
+    _player1MaxStep = maxPaddleStep;
+    _player2MaxStep = maxPaddleStep;
     reset();
   }
 
@@ -97,8 +102,12 @@ class DuelEngine extends PongPhysics {
   /// Durée de la pause avant service, en pas de moteur.
   final int serveDelayTicks;
 
-  /// Déplacement maximal d'une raquette par pas.
+  /// Plafond commun : déplacement maximal d'une raquette par pas.
   final double maxPaddleStep;
+
+  // Déplacement maximal par pas propre à chaque raquette (≤ maxPaddleStep)
+  late double _player1MaxStep;
+  late double _player2MaxStep;
 
   final Random _random;
 
@@ -106,7 +115,7 @@ class DuelEngine extends PongPhysics {
   double player2X = 0;
 
   /// Déplacement voulu de la raquette du joueur 1 à chaque pas (négatif vers
-  /// la gauche), plafonné à [maxPaddleStep].
+  /// la gauche), plafonné à sa vitesse maximale ([maxStepOf]).
   double player1Speed = 0.0;
   double _player2Target = 0;
 
@@ -155,6 +164,23 @@ class DuelEngine extends PongPhysics {
   int scoreOf(PlayerSlot player) => player == PlayerSlot.player1 ? score1 : score2;
 
   double paddleOf(PlayerSlot player) => player == PlayerSlot.player1 ? player1X : player2X;
+
+  /// Déplacement maximal par pas de la raquette de [player].
+  double maxStepOf(PlayerSlot player) => player == PlayerSlot.player1 ? _player1MaxStep : _player2MaxStep;
+
+  /// Vitesse maximale de la raquette de [player], en unités de terrain par
+  /// seconde (celle de la sensibilité du joueur). Bornée au plafond commun ;
+  /// une valeur non finie ou ≤ 0 est ignorée. Gardée par [reset] : elle vaut
+  /// pour toute la session, revanches comprises.
+  void setPaddleMaxSpeed(PlayerSlot player, double unitsPerSecond) {
+    if (!unitsPerSecond.isFinite || unitsPerSecond <= 0) return;
+    final double step = min(unitsPerSecond / stepsPerSecond, maxPaddleStep);
+    if (player == PlayerSlot.player1) {
+      _player1MaxStep = step;
+    } else {
+      _player2MaxStep = step;
+    }
+  }
 
   /// Position de la raquette du joueur 2 reçue du réseau, en coordonnées du
   /// terrain. Bornée à -1..1 ; une valeur non finie est ignorée.
@@ -231,14 +257,14 @@ class DuelEngine extends PongPhysics {
   PlayerSlot get _receiver => ballYDirection == BallDirection.down ? PlayerSlot.player1 : PlayerSlot.player2;
 
   void _movePaddles() {
-    final double step = player1Speed.clamp(-maxPaddleStep, maxPaddleStep);
+    final double step = player1Speed.clamp(-_player1MaxStep, _player1MaxStep);
     player1X = (player1X + step).clamp(-1.0, 1.0);
 
-    // Le joueur 2 rejoint sa position reçue sans dépasser la vitesse maximale :
+    // Le joueur 2 rejoint sa position reçue sans dépasser sa vitesse maximale :
     // pas de téléportation, mouvement continu entre deux messages
     final double diff = _player2Target - player2X;
-    if (diff.abs() > maxPaddleStep) {
-      player2X += diff > 0 ? maxPaddleStep : -maxPaddleStep;
+    if (diff.abs() > _player2MaxStep) {
+      player2X += diff > 0 ? _player2MaxStep : -_player2MaxStep;
     } else {
       player2X = _player2Target;
     }

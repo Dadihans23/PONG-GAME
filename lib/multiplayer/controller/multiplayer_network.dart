@@ -67,8 +67,12 @@ class MultiplayerNetwork {
         log: log,
       );
 
-  ClientSession createClientSession(String playerName) => ClientSession(
+  /// [paddleSensitivity] : réglage du joueur (0 à 100), annoncé au Host.
+  ClientSession createClientSession(String playerName,
+          {int? paddleSensitivity}) =>
+      ClientSession(
         playerName: playerName,
+        paddleSensitivity: paddleSensitivity,
         transport: transport,
         heartbeat: heartbeat,
         log: log,

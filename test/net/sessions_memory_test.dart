@@ -30,8 +30,9 @@ void main() {
   late List<SessionEvent> hostEvents;
   final logs = <String>[];
 
-  ClientSession newClient(String name) => ClientSession(
+  ClientSession newClient(String name, {int? sensitivity}) => ClientSession(
         playerName: name,
+        paddleSensitivity: sensitivity,
         transport: network,
         heartbeat: fastHeartbeat,
         welcomeTimeout: const Duration(seconds: 1),
@@ -70,6 +71,26 @@ void main() {
     expect(host.clientName, 'Hans');
     expect(host.playerCount, 2);
     expect(client.isConnected, isTrue);
+    await client.close();
+  });
+
+  test('sensibilité annoncée dans join : reçue par le Host', () async {
+    final client = newClient('Hans', sensitivity: 72);
+    final hostConnected = nextEvent<PeerConnected>(host.events);
+    await client.connect('local', host.port);
+    expect((await hostConnected).sensitivity, 72);
+    expect(host.clientSensitivity, 72);
+    await client.close();
+    await settle();
+    expect(host.clientSensitivity, isNull);
+  });
+
+  test('sensibilité non annoncée : null chez le Host', () async {
+    final client = newClient('Hans');
+    final hostConnected = nextEvent<PeerConnected>(host.events);
+    await client.connect('local', host.port);
+    expect((await hostConnected).sensitivity, isNull);
+    expect(host.clientSensitivity, isNull);
     await client.close();
   });
 

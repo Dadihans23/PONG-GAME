@@ -5,6 +5,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:pong_game/game/game_tuning.dart';
 import 'package:pong_game/game/leaderboard_rules.dart';
+import 'package:pong_game/game/paddle_sensitivity.dart';
 import 'package:pong_game/game/pong_engine.dart';
 import 'package:pong_game/game/tilt_control.dart';
 import 'package:pong_game/game_sound.dart';
@@ -52,19 +53,15 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
   // Réglages du joueur, lus une fois : ils ne changent pas pendant une partie
   final PongSettings _settings = PongSettings();
-  late final double _paddleSpeedMultiplier = _settings.paddleSpeedMultiplier;
 
   bool hastarted = false;
   bool isPaused = false;
   StreamSubscription<AccelerometerEvent>? _accelSubscription;
 
-  // Inclinaison du téléphone → vitesse de la raquette
-  final TiltControl _tilt = TiltControl(
-    maxSpeed: GameTuning.paddleMaxSpeed,
-    deadZone: GameTuning.tiltDeadZone,
-    fullTilt: GameTuning.tiltForMaxSpeed,
-    smoothingTime: GameTuning.tiltSmoothingTime,
-  );
+  // Inclinaison du téléphone → vitesse de la raquette, selon la sensibilité
+  // du joueur (0 à 100)
+  late final TiltControl _tilt =
+      PaddleSensitivity.tiltControl(_settings.paddleSensitivity);
 
   // Boucle de jeu : GameTuning.stepsPerSecond pas de moteur par seconde écoulée
   late final Ticker _ticker;
@@ -181,7 +178,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     // que le moteur applique à chaque pas. Le ticker ne tourne que pendant une
     // partie en cours : la raquette ne bouge donc ni avant le premier tap, ni
     // en pause, ni après la défaite
-    _engine.playerSpeed = _tilt.update(frameMicroseconds / 1000000) * _paddleSpeedMultiplier / GameTuning.stepsPerSecond;
+    _engine.playerSpeed = _tilt.update(frameMicroseconds / 1000000) / GameTuning.stepsPerSecond;
 
     for (int i = 0; i < steps; i++) {
       final events = _engine.tick();
