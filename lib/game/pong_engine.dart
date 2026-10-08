@@ -1,28 +1,25 @@
 import 'dart:math';
 
-enum BallDirection { up, down, left, right }
+import 'pong_physics.dart';
+
+export 'pong_physics.dart' show BallDirection;
 
 enum PongEvent { playerHit, enemyHit, enemyMissed, playerDead }
 
 /// Logique du Pong, sans dépendance à Flutter.
 /// Terrain vertical en coordonnées normalisées (-1 à 1) : joueur en bas, ennemi en haut.
-class PongEngine {
+/// La physique de la balle (déplacement, murs, rebond angulaire, accélération)
+/// est partagée avec le duel dans [PongPhysics].
+class PongEngine extends PongPhysics {
   PongEngine({required this.difficulty, Random? random}) : _random = random ?? Random();
 
-  static const double initialBallSpeed = 0.002;
-  static const double paddleHitZone = 0.85;
+  static const double initialBallSpeed = PongPhysics.initialBallSpeed;
+  static const double paddleHitZone = PongPhysics.paddleHitZone;
   // Nombre de renvois du joueur entre deux accélérations de la balle
   static const int hitsPerSpeedUp = 4;
 
   final String difficulty;
   final Random _random;
-
-  double ballX = 0.0;
-  double ballY = 0.0;
-  double ballSpeedX = initialBallSpeed;
-  double ballSpeedY = initialBallSpeed;
-  BallDirection ballYDirection = BallDirection.down;
-  BallDirection ballXDirection = BallDirection.left;
 
   double playerX = 0;
   // Déplacement de la raquette du joueur à chaque pas (négatif vers la gauche),
@@ -30,27 +27,16 @@ class PongEngine {
   double playerSpeed = 0.0;
   double enemyX = 0;
   // Demi-largeur de la zone de contact des paddles, fournie par l'appelant
+  @override
   double paddleHalfWidth = 0.3;
 
   int playerScore = 0;
   int currentStreak = 0;
-  // Nombre d'accélérations de la balle depuis le début de la partie
-  int speedUps = 0;
 
-  int _hitsCounter = 0; // Compteur pour le nombre de fois que le joueur renvoie la balle
   double _enemyOffset = 0.0;
   bool _ballChangedDirection = false;
 
   bool get isPlayerDead => ballY >= 1;
-
-  /// Niveau de vitesse affiché (« VITESSE n ») : 1 au service, +1 à chaque
-  /// accélération. La vitesse ne redescend jamais pendant une partie : c'est
-  /// aussi la vitesse maximale atteinte.
-  int get speedLevel => speedUps + 1;
-
-  /// Renvois depuis la dernière accélération (0 à [hitsPerSpeedUp] - 1) :
-  /// la balle accélère au renvoi qui atteindrait [hitsPerSpeedUp].
-  int get hitsSinceSpeedUp => _hitsCounter;
 
   void movePlayer(double movement) {
     playerX = (playerX + movement).clamp(-1.0, 1.0);
@@ -64,7 +50,7 @@ class PongEngine {
     }
     _moveEnemy();
     _updateDirection(events);
-    _moveBall();
+    moveBall();
     if (isPlayerDead) {
       events.add(PongEvent.playerDead);
     }
@@ -75,15 +61,12 @@ class PongEngine {
     ballX = 0.0;
     ballY = 0.0;
     playerScore = 0;
-    _hitsCounter = 0;
     ballXDirection = BallDirection.left;
-    ballSpeedX = initialBallSpeed;
-    ballSpeedY = initialBallSpeed;
+    resetSpeed();
     playerX = 0;
     playerSpeed = 0.0;
     _enemyOffset = 0.0;
     currentStreak = 0;
-    speedUps = 0;
   }
 
   void _moveEnemy() {
@@ -116,37 +99,26 @@ class PongEngine {
   }
 
   void _updateDirection(List<PongEvent> events) {
-    double x1 = playerX - paddleHalfWidth;
-    double x2 = playerX + paddleHalfWidth;
-
     // update vertical direction — use wider zone to prevent ball skipping past paddle at high speed
-    if (ballY >= paddleHitZone && ballYDirection == BallDirection.down && ballX >= x1 && ballX <= x2) {
+    if (ballY >= paddleHitZone && ballYDirection == BallDirection.down && isOnPaddle(playerX)) {
       if (!_ballChangedDirection) {
         ballYDirection = BallDirection.up;
         playerScore += 50; // Incrémenter le score du joueur de 50
         _ballChangedDirection = true;
 
-        _applyAngularBounce(playerX);
+        bounceOffPaddle(playerX);
 
         currentStreak++;
-        _hitsCounter++;
-        if (_hitsCounter >= hitsPerSpeedUp) {
-          ballSpeedY += 0.0005; // Augmenter la vitesse de la balle
-          _hitsCounter = 0; // Reset le compteur de renvois
-          speedUps++;
-        }
+        countHit(hitsPerSpeedUp);
 
         events.add(PongEvent.playerHit);
       }
     } else if (ballY <= -paddleHitZone && ballYDirection == BallDirection.up) {
       // Check if enemy paddle is aligned with ball
-      double enemyX1 = enemyX - paddleHalfWidth;
-      double enemyX2 = enemyX + paddleHalfWidth;
-
-      if (ballX >= enemyX1 && ballX <= enemyX2) {
+      if (isOnPaddle(enemyX)) {
         // Enemy catches it, ball bounces back down
         ballYDirection = BallDirection.down;
-        _applyAngularBounce(enemyX);
+        bounceOffPaddle(enemyX);
         events.add(PongEvent.enemyHit);
       } else {
         // Enemy missed! Player scores, reset ball
@@ -163,41 +135,6 @@ class PongEngine {
     }
 
     // update horizontal direction
-    if (ballX >= 1) {
-      ballXDirection = BallDirection.left;
-    } else if (ballX <= -1) {
-      ballXDirection = BallDirection.right;
-    }
-  }
-
-  // Rebond angulaire basé sur la position de l'impact
-  void _applyAngularBounce(double paddleX) {
-    double hitOffset = (ballX - paddleX) / paddleHalfWidth; // -1 à 1
-    ballSpeedX = hitOffset.abs() * ballSpeedY * 1.5;
-    if (hitOffset > 0) {
-      ballXDirection = BallDirection.right;
-    } else if (hitOffset < 0) {
-      ballXDirection = BallDirection.left;
-    }
-  }
-
-  void _moveBall() {
-    // update vertical move
-    if (ballYDirection == BallDirection.down) {
-      ballY += ballSpeedY;
-    } else if (ballYDirection == BallDirection.up) {
-      ballY -= ballSpeedY;
-    }
-
-    // update horizontal move
-    if (ballXDirection == BallDirection.right) {
-      ballX += ballSpeedX;
-    } else if (ballXDirection == BallDirection.left) {
-      ballX -= ballSpeedX;
-    }
-
-    // Clamp ball position to prevent skipping past paddles
-    ballY = ballY.clamp(-1.0, 1.0);
-    ballX = ballX.clamp(-1.0, 1.0);
+    bounceOffWalls();
   }
 }

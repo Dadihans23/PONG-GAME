@@ -1,4 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Multijoueur local (lib/net/) : WebSocket entre les deux téléphones et
+         découverte des parties par broadcast UDP. Permissions "normales",
+         accordées à l'installation, sans demande à l'utilisateur.
+         INTERNET était seulement dans les manifestes debug/profile : sans
+         elle, la version release n'a aucun accès au réseau. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <!-- WifiManager.MulticastLock (MainActivity.kt) : empêche la puce Wi-Fi
+         de filtrer les broadcasts de découverte. -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
     <application
         android:label="pong_game"
         android:name="${applicationName}"

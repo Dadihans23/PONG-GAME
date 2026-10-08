@@ -96,30 +96,34 @@ Référence : `pong_multiplayer_spec.md`. Deux téléphones sur le même Wi-Fi o
 
 ### 2.1 Modèles et règles du duel
 
-- [ ] Modèles `GameState`, `Player`, `GameRoom`
-- [ ] États de partie : attente, joueur connecté, prêt, en jeu, terminé
-- [ ] Mode duel dans le moteur : la raquette du haut est pilotée par le joueur 2
-- [ ] Largeur de raquette indépendante de la taille de l'écran (identique sur les deux téléphones)
-- [ ] Score par manche, victoire à 5 points, remise en jeu après chaque point
-- [ ] Tests unitaires du mode duel
+- [x] Modèles `GameState`, `Player`, `GameRoom` (`lib/multiplayer/model/`), JSON validant
+- [x] États de partie : attente, joueur connecté, prêt, compte à rebours, en jeu, terminé, déconnecté
+- [x] Moteur du duel (`lib/game/duel_engine.dart`), physique commune avec le solo (`pong_physics.dart`) ; raquette du joueur 2 pilotée en position, vitesse plafonnée
+- [x] Largeur de raquette indépendante de la taille de l'écran (demi-largeur de contact 0,37)
+- [x] Victoire à 5 points, remise en jeu vers le perdant après 1 s, accélération tous les 8 renvois (4 par joueur)
+- [x] Tests unitaires du mode duel, des modèles et de la vue inversée
 
 ### 2.2 Couche réseau
 
 Isolée du moteur, pour pouvoir la remplacer plus tard par un serveur en ligne.
 
-- [ ] Interface de transport commune (envoyer, recevoir, connexion, déconnexion)
-- [ ] Format des messages JSON : `join`, `ready`, `start`, `paddle`, `game_state`, `game_over`, `leave`
-- [ ] Serveur WebSocket côté Host (`dart:io`)
-- [ ] Client WebSocket côté joueur 2
-- [ ] Permissions Android : `INTERNET` dans le manifeste principal, état et multicast Wi-Fi
+- [x] Interface de transport commune (`lib/net/transport.dart`), WebSocket et mémoire
+- [x] Protocole JSON versionné (`lib/net/PROTOCOL.md`), décodage défensif, battement de cœur
+- [x] Serveur WebSocket côté Host (`dart:io`), refus d'un 3ᵉ joueur
+- [x] Client WebSocket côté joueur 2
+- [x] Permissions Android dans le manifeste principal (le release n'avait pas `INTERNET`) et verrou multicast
 - [ ] Test de connexion entre deux téléphones
 
 ### 2.3 Découverte des parties
 
-- [ ] Annonce de la partie par broadcast UDP côté Host
-- [ ] Écoute et liste des parties côté Client
-- [ ] Retrait d'une partie qui n'est plus annoncée
+- [x] Annonce de la partie par broadcast UDP côté Host, sur chaque interface, plus réponse aux sondes
+- [x] Écoute et liste des parties côté Client
+- [x] Retrait d'une partie qui n'est plus annoncée
 - [ ] Test sur Wi-Fi classique et sur hotspot
+
+- [ ] Contrôleur de session multijoueur qui vit plus longtemps que les écrans
+- [ ] Fermer la session quand l'app passe en arrière-plan (`AppLifecycleState.paused`)
+- [ ] Saisie manuelle de l'adresse du Host en secours (plus tard)
 
 ### 2.4 Écrans et parcours
 
