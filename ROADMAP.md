@@ -76,7 +76,7 @@ Maquettes : `maquette/Redesign app PONG mobile/` (système de design, écrans so
 - [x] Chargement, accueil, classement, statistiques, aide, conformes aux maquettes (vérifiés sur téléphone)
 - [x] Écran de jeu, pause, fin de partie, conformes aux maquettes (vérifiés sur téléphone)
 - [x] Écran Réglages : musique, effets sonores, vibration, sensibilité de la raquette (5 crans), pseudo
-- [ ] Installer la version finale sur le téléphone (bloqué : disque C: plein) et vérifier l'écran Réglages sur l'appareil
+- [x] Version finale installée sur le téléphone, écran Réglages vérifié sur l'appareil
 - [ ] **Test du mode solo redessiné par le propriétaire — en attente**
 
 ### 1.4 Améliorations du solo
