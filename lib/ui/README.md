@@ -24,6 +24,9 @@ Autres règles :
 - **Textes** : tutoiement, phrases courtes qui disent quoi faire, en français.
 - **Zones tactiles** ≥ 48 px : tous les composants les respectent.
 - `onPressed: null` / `onTap: null` = désactivé, sur tous les composants tactiles.
+- **Fond sélectionné opaque** (`pinkTintSolid`, `pinkTintSoftSolid`) : Flutter peint le halo
+  sous l'élément (CSS, non) ; un fond translucide le laisserait transparaître.
+- Les titres d'écran rétrécissent au lieu d'être tronqués (« STATISTIQUES » à 320 dp).
 
 ## Jetons
 
@@ -33,6 +36,7 @@ Autres règles :
 | `pong_text.dart` | `PongText` : logo, screenTitle, buttonLabel, buttonLabelPlain, overline, cardTitle, dialogTitle, headline, body, caption, gameScore, hudLabel, keyFigure, listValue, figure, pillLabel, statusLabel, segmentLabel, tileLabel. |
 | `pong_tokens.dart` | `PongSpacing` (4·8·12·16·24·32, marge écran 20), `PongRadii` (12·14·16·18·24), `PongSizes` (48, 56, 64…), `PongShadows` (halos), `PongDurations`. |
 | `pong_theme.dart` | `PongTheme.dark()` : `ThemeData` sombre branché dans `MaterialApp`. |
+| `pong_format.dart` | `PongFormat` : `number` (« 2 400 »), `date` (jj/mm/aaaa), `duration` (« 1h 12m 5s »), `count` (« 23 renvois »). |
 
 ## Quel composant pour quel usage
 
@@ -45,11 +49,14 @@ Autres règles :
 | Action d'une ligne de liste | `PongCompactButton(label, onPressed)` |
 | Accès secondaires en tuiles | `PongTileButton(icon, label, onPressed)` dans `Row` + `Expanded` |
 | Choisir parmi 2–4 valeurs | `PongSegmentedControl<T>(values, selected, onChanged, labelOf?)` |
+| Réglage activé / désactivé | `PongSwitchRow(icon, title, subtitle?, value, onChanged)` dans `PongCard(padding: EdgeInsets.zero)`, lignes séparées par `PongCardDivider()` ; `PongSwitch` seul si besoin |
 | Un bouton de choix isolé | `PongSelectableButton(label, selected, onPressed)` |
-| Grand choix (mode de jeu) | `PongChoiceCard(icon, title, subtitle?, selected, onTap, child?)` |
+| Grand choix (mode de jeu) | `PongChoiceCard(icon, title, subtitle?, selected, onTap, child?, trailing?)` — `onTap: null` + `trailing: PongPill.status(label: 'Bientôt')` pour un mode indisponible |
 | Conteneur | `PongCard(child, padding?, borderColor?, onTap?, borderRadius?)` |
 | Ligne de classement / de liste | `PongListRow(title, leading?, subtitle?, value?, trailing?, borderColor?, onTap?)` |
-| Statistique | `PongStatCard(icon, label, value, color?)` |
+| Statistique (chiffre court, grille 2 colonnes) | `PongStatCard(icon, label, value, color?)` |
+| Statistique (valeur longue, pleine largeur) | `PongStatRow(icon, label, value, color?)` |
+| Écran vide | `PongEmptyState(icon, title, message?)` (l'action va dans `bottomAction`) |
 | Petit chiffre + libellé | `PongFigureTile(value, label)` |
 | Icône dans une pastille | `PongIconBadge(icon, color?, background?, size?, iconSize?, circular?)` |
 | Saisie | `PongTextField(controller?, label?, hintText?, errorText?, shakeTrigger?, …)` |

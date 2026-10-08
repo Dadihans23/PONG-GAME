@@ -4,6 +4,7 @@
 //   Bordure colorée (`borderColor`) réservée au podium.
 // - `PongListRow` : ligne de liste (classement, parties trouvées).
 // - `PongStatCard` : carte statistique icône + libellé + chiffre clé.
+// - `PongStatRow` : statistique sur toute la largeur, pour les valeurs longues.
 // - `PongFigureTile` : petite tuile chiffre + libellé (récap fin de partie).
 // - `PongIconBadge` : icône dans une pastille teintée (cartes, dialogues).
 import 'package:flutter/material.dart';
@@ -205,13 +206,80 @@ class PongStatCard extends StatelessWidget {
   }
 }
 
+/// Statistique sur une ligne, pleine largeur : icône · libellé · valeur.
+/// Pour les valeurs longues (« 1h 12m 5s », « 23 renvois ») ; les chiffres
+/// courts vont dans des `PongStatCard` côte à côte.
+class PongStatRow extends StatelessWidget {
+  const PongStatRow({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.color = PongColors.textPrimary,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+
+  /// Couleur de donnée de l'icône et de la valeur.
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return PongCard(
+      child: Semantics(
+        container: true,
+        label: '$label : $value',
+        excludeSemantics: true,
+        child: LayoutBuilder(
+          builder: (context, constraints) => Row(
+            children: [
+              Icon(icon, size: 22, color: color),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(label,
+                    style:
+                        PongText.caption.copyWith(fontWeight: FontWeight.w400)),
+              ),
+              const SizedBox(width: PongSpacing.xs),
+              // La valeur prend sa largeur naturelle, et rétrécit au-delà
+              // de 60 % de la carte plutôt que de déborder
+              ConstrainedBox(
+                constraints:
+                    BoxConstraints(maxWidth: constraints.maxWidth * 0.6),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerRight,
+                  child: Text(value,
+                      maxLines: 1,
+                      style: PongText.keyFigure
+                          .copyWith(fontSize: 24, color: color)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// Petite tuile chiffre + libellé, fond surface haute, rayon 12.
 /// Se place dans une `Row`, chaque tuile dans un `Expanded`.
 class PongFigureTile extends StatelessWidget {
-  const PongFigureTile({super.key, required this.value, required this.label});
+  const PongFigureTile({
+    super.key,
+    required this.value,
+    required this.label,
+    this.valueColor = PongColors.textPrimary,
+  });
 
   final String value;
   final String label;
+
+  /// Couleur du chiffre (ex. `PongColors.podium(rang)` pour un rang).
+  final Color valueColor;
 
   @override
   Widget build(BuildContext context) {
@@ -229,7 +297,9 @@ class PongFigureTile extends StatelessWidget {
           children: [
             FittedBox(
               fit: BoxFit.scaleDown,
-              child: Text(value, maxLines: 1, style: PongText.figure),
+              child: Text(value,
+                  maxLines: 1,
+                  style: PongText.figure.copyWith(color: valueColor)),
             ),
             const SizedBox(height: 2),
             Text(label,

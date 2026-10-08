@@ -1,369 +1,419 @@
 import 'package:flutter/material.dart';
-import 'package:pong_game/hompage.dart';
-import 'package:pong_game/game_sound.dart';
-import 'package:pong_game/aide.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:pong_game/aide.dart';
+import 'package:pong_game/game_sound.dart';
+import 'package:pong_game/hompage.dart';
+import 'package:pong_game/leaderboard.dart';
+import 'package:pong_game/settings/pong_settings.dart';
+import 'package:pong_game/settings/settings_page.dart';
+import 'package:pong_game/statistics.dart';
+import 'package:pong_game/ui/pong_ui.dart';
 
+/// Accueil (maquette H1 / H2), en trois étages : qui joue (pseudo) → à quoi
+/// (cartes de mode, la difficulté vit dans la carte Solo) → « Jouer ».
+/// Classement, Statistiques et Aide sont des raccourcis neutres en bas.
 class NamePage extends StatefulWidget {
+  const NamePage({super.key, this.savedPseudo});
+
   final String? savedPseudo;
 
-  const NamePage({super.key, this.savedPseudo});
+  /// Difficultés transmises au jeu, telles quelles (`MyHomePage.difficulty`).
+  static const List<String> difficulties = ['Facile', 'Normal', 'Difficile'];
+
+  /// Longueur maximale d'un pseudo : il tient sur une ligne du classement.
+  static const int pseudoMaxLength = PongSettings.pseudoMaxLength;
 
   @override
   State<NamePage> createState() => _NamePageState();
 }
 
-class _NamePageState extends State<NamePage> with SingleTickerProviderStateMixin {
+class _NamePageState extends State<NamePage> {
   final TextEditingController _nameController = TextEditingController();
-  bool _shakingInput = false;
-  late AnimationController _controller;
+  final FocusNode _nameFocus = FocusNode();
+
   // Sons : un lecteur par son, chargé une fois à l'ouverture de l'écran
-  final GameSound _winterSound = GameSound('sounds/athmopshere.mp3', loop: true);
+  final GameSound _ambientSound =
+      GameSound('sounds/athmopshere.mp3', loop: true);
   final GameSound _letsgoSound = GameSound('sounds/letsgo.mp3');
   final GameSound _shootSound = GameSound('sounds/shoot.mp3');
-  String selectedDifficulty = 'Normal';
+
+  String _difficulty = 'Normal';
 
   // Pseudo courant (celui de Hive au lancement, puis le dernier enregistré)
   String? _pseudo;
   bool _editingPseudo = false; // true quand le joueur a tapé « Modifier »
-  bool _isStarting = false; // true entre le tap sur « S U I V A N T » et le retour du jeu
+  bool _isStarting = false; // true entre le tap sur « Jouer » et le retour du jeu
+
+  // Erreur du champ pseudo, et compteur qui le refait trembler à chaque refus
+  String? _pseudoError;
+  int _pseudoShake = 0;
 
   bool get _hasSavedPseudo => _pseudo != null && _pseudo!.isNotEmpty;
+  bool get _showPseudoField => !_hasSavedPseudo || _editingPseudo;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 500),
-    );
-    _winterSound.play();
-
+    _ambientSound.play();
     _pseudo = widget.savedPseudo;
-    if (_hasSavedPseudo) {
-      _nameController.text = _pseudo!;
-    }
-  }
-
-  void startPlaying() async {
-    // Un second tap pendant le lancement n'ouvre pas une deuxième partie
-    if (_isStarting) return;
-    // Un pseudo vide ou fait d'espaces est refusé
-    final playerName = _nameController.text.trim();
-    if (playerName.isNotEmpty) {
-      _isStarting = true;
-      // Save pseudo to Hive
-      final settingsBox = Hive.box('settings');
-      settingsBox.put('pseudo', playerName);
-      _nameController.text = playerName;
-      setState(() {
-        _pseudo = playerName;
-        _editingPseudo = false;
-      });
-
-      _winterSound.stop();
-
-      // Lecteur membre : NamePage reste dans la pile sous le jeu, le son
-      // continue donc pendant la transition
-      await _letsgoSound.play();
-
-      if (!mounted) return;
-      await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MyHomePage(
-            title: 'Pong Game',
-            playerName: playerName,
-            difficulty: selectedDifficulty,
-          ),
-        ),
-      );
-
-      // Retour du jeu : rafraîchir le meilleur score et relancer la musique
-      _isStarting = false;
-      if (!mounted) return;
-      setState(() {});
-      _winterSound.play();
-    } else {
-      setState(() {
-        _shakingInput = true;
-      });
-      _controller.forward(from: 0).then((_) {
-        if (!mounted) return;
-        setState(() {
-          _shakingInput = false;
-        });
-      });
-    }
+    if (_hasSavedPseudo) _nameController.text = _pseudo!;
   }
 
   @override
   void dispose() {
-    _winterSound.dispose();
+    _ambientSound.dispose();
     _letsgoSound.dispose();
     _shootSound.dispose();
-    _controller.dispose();
     _nameController.dispose();
+    _nameFocus.dispose();
     super.dispose();
   }
 
-  Widget _buildDifficultyButton(String label) {
-    final bool isSelected = selectedDifficulty == label;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedDifficulty = label;
-        });
-        _shootSound.play();
-      },
-      child: FractionallySizedBox(
-        widthFactor: 0.9,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            color: isSelected ? Colors.pink : Colors.grey.shade900,
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: Colors.pink.withOpacity(0.6),
-                      spreadRadius: 4,
-                      blurRadius: 50,
-                      offset: const Offset(0, 3),
+  Future<void> _startPlaying() async {
+    // Un second tap pendant le lancement n'ouvre pas une deuxième partie
+    if (_isStarting) return;
+    FocusScope.of(context).unfocus();
+
+    // Un pseudo vide ou fait d'espaces est refusé
+    final playerName = _nameController.text.trim();
+    if (playerName.isEmpty) {
+      setState(() {
+        _editingPseudo = true;
+        _pseudoError = 'Choisis un pseudo pour jouer';
+        _pseudoShake++;
+      });
+      return;
+    }
+
+    _isStarting = true;
+    Hive.box('settings').put('pseudo', playerName);
+    _nameController.text = playerName;
+    setState(() {
+      _pseudo = playerName;
+      _editingPseudo = false;
+      _pseudoError = null;
+    });
+
+    _ambientSound.stop();
+    // Lecteur membre : NamePage reste dans la pile sous le jeu, le son
+    // continue donc pendant la transition
+    await _letsgoSound.play();
+
+    if (!mounted) return;
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MyHomePage(
+          title: 'Pong Game',
+          playerName: playerName,
+          difficulty: _difficulty,
+        ),
+      ),
+    );
+
+    // Retour du jeu : rafraîchir le meilleur score et relancer la musique
+    _isStarting = false;
+    if (!mounted) return;
+    setState(() {});
+    _ambientSound.play();
+  }
+
+  void _editPseudo() {
+    setState(() => _editingPseudo = true);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _nameFocus.requestFocus();
+    });
+  }
+
+  /// Ouvre les Réglages ; au retour, reprend le pseudo s'il a changé.
+  Future<void> _openSettings() async {
+    FocusScope.of(context).unfocus();
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SettingsPage()),
+    );
+    if (!mounted) return;
+    final pseudo = PongSettings().pseudo;
+    if (pseudo == null || pseudo == _pseudo) return;
+    _nameController.text = pseudo;
+    setState(() {
+      _pseudo = pseudo;
+      _editingPseudo = false;
+      _pseudoError = null;
+    });
+  }
+
+  void _selectDifficulty(String difficulty) {
+    setState(() => _difficulty = difficulty);
+    _shootSound.play();
+  }
+
+  void _open(Widget page) {
+    FocusScope.of(context).unfocus();
+    Navigator.push(context, MaterialPageRoute(builder: (context) => page));
+  }
+
+  /// En dessous de cette hauteur d'écran (dp), les espacements passent de
+  /// 16 à 12 pour que « Jouer » et les raccourcis restent visibles sans
+  /// défiler (SM-A135F : 713 dp, barre de navigation comprise).
+  static const double _compactHeight = 760;
+
+  @override
+  Widget build(BuildContext context) {
+    final topScore = Hive.box<int>('scores').get('topscore', defaultValue: 0) ?? 0;
+    final gap = MediaQuery.sizeOf(context).height < _compactHeight
+        ? PongSpacing.sm
+        : PongSpacing.md;
+    return Scaffold(
+      backgroundColor: PongColors.background,
+      // Réglages à droite ; la place de gauche (48 px) reste vide pour
+      // que le logo soit centré
+      appBar: PongHeaderBar(
+        center: const PongLogo(fontSize: 32),
+        showBack: false,
+        trailing: PongIconButton(
+          icon: Icons.settings_rounded,
+          tooltip: 'Réglages',
+          color: PongColors.textSecondary,
+          onPressed: _openSettings,
+        ),
+      ),
+      body: SafeArea(
+        top: false,
+        child: CustomScrollView(
+          slivers: [
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(PongSpacing.screen,
+                    PongSpacing.xs, PongSpacing.screen, gap + PongSpacing.xxs),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _showPseudoField ? _buildPseudoField() : _buildGreeting(),
+                    SizedBox(height: gap + PongSpacing.xxs),
+                    const PongOverline('Mode de jeu'),
+                    SizedBox(height: gap),
+                    _SoloModeCard(
+                      difficulty: _difficulty,
+                      topScore: topScore,
+                      // Comme la maquette H1 : sans consigne ni meilleur
+                      // score quand le champ pseudo occupe déjà la place
+                      showDetails: !_showPseudoField,
+                      onDifficultyChanged: _selectDifficulty,
                     ),
-                  ]
-                : [],
-          ),
-          child: Center(
-            child: Text(
-              label,
-              style: TextStyle(
-                color: isSelected ? Colors.white : Colors.grey,
-                fontSize: 17,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w400,
+                    SizedBox(height: gap),
+                    const _MultiplayerModeCard(),
+                    const Spacer(),
+                    SizedBox(height: gap),
+                    PongPrimaryButton(label: 'Jouer', onPressed: _startPlaying),
+                    SizedBox(height: gap),
+                    _Shortcuts(onOpen: _open),
+                  ],
+                ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black12,
-      body: SafeArea(
-        child: Center(
-          child: SizedBox(
-            height: MediaQuery.sizeOf(context).height * 0.75,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 50),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    "P O N G",
-                    style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 35,
-                        fontWeight: FontWeight.w800),
-                  ),
+  Widget _buildPseudoField() {
+    return PongTextField(
+      controller: _nameController,
+      focusNode: _nameFocus,
+      label: 'Ton pseudo',
+      hintText: 'Entre ton pseudo',
+      errorText: _pseudoError,
+      shakeTrigger: _pseudoShake,
+      maxLength: NamePage.pseudoMaxLength,
+      textCapitalization: TextCapitalization.words,
+      onChanged: (_) {
+        // L'erreur disparaît dès que le joueur écrit
+        if (_pseudoError != null) setState(() => _pseudoError = null);
+      },
+      onSubmitted: (_) => _nameFocus.unfocus(),
+    );
+  }
 
-                  // Pseudo section
-                  if (_hasSavedPseudo && !_editingPseudo)
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            "Bonjour $_pseudo",
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        // Action discrète : réaffiche le champ, prérempli
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _editingPseudo = true;
-                            });
-                          },
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 8),
-                            child: Text(
-                              "Modifier",
-                              style: TextStyle(
-                                color: Colors.pink,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
-                  else
-                    ShakeTransition(
-                      axis: Axis.horizontal,
-                      duration: const Duration(milliseconds: 500),
-                      offset: 10,
-                      controller: _controller,
-                      child: TextField(
-                        style: const TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.w500),
-                        decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 10),
-                          hintText: 'Entrez votre pseudo ',
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: _shakingInput ? Colors.red : Colors.grey),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: _shakingInput ? Colors.red : Colors.grey),
-                          ),
-                          hintStyle: const TextStyle(
-                              color: Colors.grey,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w100),
-                          fillColor: Colors.black,
-                        ),
-                        controller: _nameController,
-                      ),
-                    ),
-
-                  // Difficulty selection
-                  Column(
-                    children: [
-                      const Text(
-                        "Choisis le niveau de difficulté ",
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Column(
-                        children: [
-                          _buildDifficultyButton('Facile'),
-                          const SizedBox(height: 15),
-                          _buildDifficultyButton('Normal'),
-                          const SizedBox(height: 15),
-                          _buildDifficultyButton('Difficile'),
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  GestureDetector(
-                    onTap: startPlaying,
-                    child: Container(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: Colors.pink,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.pink.withOpacity(0.6),
-                              spreadRadius: 4,
-                              blurRadius: 50,
-                              offset: const Offset(0, 3),
-                            ),
-                          ]),
-                      child: const Text(
-                        "S U I V A N T",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 17,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                  Text(
-                    "Meilleur score : ${Hive.box<int>('scores').get('topscore', defaultValue: 0)}",
-                    style: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const AidePage(),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: Colors.teal,
-                      ),
-                      child: const Text(
-                        "A I D E",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+  Widget _buildGreeting() {
+    return SizedBox(
+      height: PongSizes.touchTarget,
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              'Bonjour, $_pseudo',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: PongText.headline,
             ),
           ),
+          const SizedBox(width: PongSpacing.xs),
+          PongTextButton(
+            label: 'Modifier',
+            icon: Icons.edit_rounded,
+            color: PongColors.pinkLight,
+            onPressed: _editPseudo,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Carte Solo, toujours sélectionnée (seul mode disponible) : difficulté et
+/// meilleur score.
+class _SoloModeCard extends StatelessWidget {
+  const _SoloModeCard({
+    required this.difficulty,
+    required this.topScore,
+    required this.showDetails,
+    required this.onDifficultyChanged,
+  });
+
+  final String difficulty;
+  final int topScore;
+
+  /// Affiche « Choisis la difficulté » et le meilleur score.
+  final bool showDetails;
+  final ValueChanged<String> onDifficultyChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return PongChoiceCard(
+      icon: Icons.person_rounded,
+      title: 'Solo',
+      subtitle: "Contre l'ordinateur",
+      selected: true,
+      // Déjà choisi : le toucher ne change rien, mais la carte reste active
+      onTap: () {},
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (showDetails) ...[
+            Text('Choisis la difficulté',
+                style: PongText.caption.copyWith(fontWeight: FontWeight.w400)),
+            const SizedBox(height: PongSpacing.xs),
+          ],
+          // Segments posés directement dans la carte, sans le rail de
+          // `PongSegmentedControl` : la carte joue déjà ce rôle (maquette H2)
+          Row(
+            children: [
+              for (final value in NamePage.difficulties) ...[
+                if (value != NamePage.difficulties.first)
+                  const SizedBox(width: PongSpacing.xs),
+                Expanded(
+                  child: PongSelectableButton(
+                    label: value,
+                    selected: value == difficulty,
+                    onPressed: () => onDifficultyChanged(value),
+                  ),
+                ),
+              ],
+            ],
+          ),
+          if (showDetails && topScore > 0) ...[
+            const SizedBox(height: 14),
+            _BestScoreRow(score: topScore),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Ligne « Meilleur score » sous un filet, en or record.
+class _BestScoreRow extends StatelessWidget {
+  const _BestScoreRow({required this.score});
+
+  final int score;
+
+  @override
+  Widget build(BuildContext context) {
+    final value = PongFormat.number(score);
+    return Semantics(
+      label: 'Meilleur score : $value',
+      excludeSemantics: true,
+      child: Container(
+        padding: const EdgeInsets.only(top: PongSpacing.sm),
+        decoration: const BoxDecoration(
+          border: Border(top: BorderSide(color: PongColors.borderSubtle)),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.emoji_events_rounded,
+                size: 18, color: PongColors.record),
+            const SizedBox(width: PongSpacing.xs),
+            Expanded(
+              child: Text('Meilleur score',
+                  style:
+                      PongText.caption.copyWith(fontWeight: FontWeight.w400)),
+            ),
+            Text(value,
+                style: PongText.listValue
+                    .copyWith(fontSize: 16, color: PongColors.record)),
+          ],
         ),
       ),
     );
   }
 }
 
-class ShakeTransition extends StatelessWidget {
-  final AnimationController controller;
-  final double offset;
-  final Duration duration;
-  final Axis axis;
-  final Widget child;
-
-  const ShakeTransition({
-    super.key,
-    required this.controller,
-    required this.child,
-    this.offset = 140.0,
-    this.duration = const Duration(milliseconds: 900),
-    this.axis = Axis.horizontal,
-  });
+/// Carte Multijoueur : le mode n'existe pas encore, la carte est visible
+/// mais désactivée, avec la mention « Bientôt ».
+class _MultiplayerModeCard extends StatelessWidget {
+  const _MultiplayerModeCard();
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: controller,
-      child: child,
-      builder: (BuildContext context, Widget? child) {
-        double dx = 0, dy = 0;
-        if (axis == Axis.horizontal) {
-          dx = offset * (1.0 - controller.value);
-        } else {
-          dy = offset * (100.0 - controller.value);
-        }
-        return Transform.translate(
-          offset: Offset(dx, dy),
-          child: child,
-        );
-      },
+    return const PongChoiceCard(
+      icon: Icons.group_rounded,
+      title: 'Multijoueur',
+      // ‑ : trait d'union insécable, « Wi-Fi » ne se coupe pas
+      subtitle: 'À deux, même Wi‑Fi',
+      selected: false,
+      onTap: null,
+      trailing: PongPill.status(label: 'Bientôt'),
+    );
+  }
+}
+
+/// Raccourcis neutres : Classement · Statistiques · Aide.
+class _Shortcuts extends StatelessWidget {
+  const _Shortcuts({required this.onOpen});
+
+  final ValueChanged<Widget> onOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: PongTileButton(
+            icon: Icons.leaderboard_rounded,
+            label: 'Classement',
+            onPressed: () => onOpen(const LeaderboardPage()),
+          ),
+        ),
+        const SizedBox(width: PongSpacing.xs),
+        Expanded(
+          child: PongTileButton(
+            icon: Icons.bar_chart_rounded,
+            label: 'Statistiques',
+            onPressed: () => onOpen(const StatisticsPage()),
+          ),
+        ),
+        const SizedBox(width: PongSpacing.xs),
+        Expanded(
+          child: PongTileButton(
+            icon: Icons.help_rounded,
+            label: 'Aide',
+            onPressed: () => onOpen(const AidePage()),
+          ),
+        ),
+      ],
     );
   }
 }

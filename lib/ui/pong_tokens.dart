@@ -106,6 +106,12 @@ abstract final class PongShadows {
     BoxShadow(color: Color(0x992196F3), blurRadius: 16),
   ];
 
+  /// Raquette du joueur au renvoi : halo plus fort + reflet clair.
+  static const List<BoxShadow> playerPaddleFlash = [
+    BoxShadow(color: Color(0xF22196F3), blurRadius: 22),
+    BoxShadow(color: PongColors.playerFlash, blurRadius: 4),
+  ];
+
   /// Raquette adverse (verte).
   static const List<BoxShadow> opponentPaddle = [
     BoxShadow(color: Color(0x8C4CAF50), blurRadius: 16),

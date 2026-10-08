@@ -11,6 +11,8 @@ class PongEngine {
 
   static const double initialBallSpeed = 0.002;
   static const double paddleHitZone = 0.85;
+  // Nombre de renvois du joueur entre deux accélérations de la balle
+  static const int hitsPerSpeedUp = 4;
 
   final String difficulty;
   final Random _random;
@@ -32,12 +34,23 @@ class PongEngine {
 
   int playerScore = 0;
   int currentStreak = 0;
+  // Nombre d'accélérations de la balle depuis le début de la partie
+  int speedUps = 0;
 
   int _hitsCounter = 0; // Compteur pour le nombre de fois que le joueur renvoie la balle
   double _enemyOffset = 0.0;
   bool _ballChangedDirection = false;
 
   bool get isPlayerDead => ballY >= 1;
+
+  /// Niveau de vitesse affiché (« VITESSE n ») : 1 au service, +1 à chaque
+  /// accélération. La vitesse ne redescend jamais pendant une partie : c'est
+  /// aussi la vitesse maximale atteinte.
+  int get speedLevel => speedUps + 1;
+
+  /// Renvois depuis la dernière accélération (0 à [hitsPerSpeedUp] - 1) :
+  /// la balle accélère au renvoi qui atteindrait [hitsPerSpeedUp].
+  int get hitsSinceSpeedUp => _hitsCounter;
 
   void movePlayer(double movement) {
     playerX = (playerX + movement).clamp(-1.0, 1.0);
@@ -70,6 +83,7 @@ class PongEngine {
     playerSpeed = 0.0;
     _enemyOffset = 0.0;
     currentStreak = 0;
+    speedUps = 0;
   }
 
   void _moveEnemy() {
@@ -116,9 +130,10 @@ class PongEngine {
 
         currentStreak++;
         _hitsCounter++;
-        if (_hitsCounter > 3) {
+        if (_hitsCounter >= hitsPerSpeedUp) {
           ballSpeedY += 0.0005; // Augmenter la vitesse de la balle
           _hitsCounter = 0; // Reset le compteur de renvois
+          speedUps++;
         }
 
         events.add(PongEvent.playerHit);

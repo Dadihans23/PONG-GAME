@@ -1,140 +1,198 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:pong_game/ui/pong_ui.dart';
 
+/// Classement (maquette C1 / C2) : le podium (64 px, trophée, bordure de
+/// métal) se détache du reste (56 px, date sur la même ligne). La liste
+/// défile jusqu'au 10ᵉ. Vide, l'écran propose de jouer.
 class LeaderboardPage extends StatelessWidget {
   const LeaderboardPage({super.key});
 
+  /// Nombre de lignes affichées.
+  static const int maxEntries = 10;
+
+  /// Entrées du classement, triées par score décroissant.
+  static List<LeaderboardEntry> readEntries() {
+    final raw = Hive.box('leaderboard').get('entries', defaultValue: []) ?? [];
+    final entries = [
+      for (final item in raw as List)
+        if (item is Map) LeaderboardEntry.fromMap(item),
+    ]..sort((a, b) => b.score.compareTo(a.score));
+    return entries.take(maxEntries).toList();
+  }
+
+  /// Retour à l'accueil, premier écran de la pile, que le classement soit
+  /// ouvert depuis l'accueil ou depuis la fin de partie.
+  static void _backToHome(BuildContext context) =>
+      Navigator.of(context).popUntil((route) => route.isFirst);
+
   @override
   Widget build(BuildContext context) {
-    final box = Hive.box('leaderboard');
-    final List<dynamic> entries = List<dynamic>.from(
-      box.get('entries', defaultValue: []) ?? [],
-    );
-    // Trier par score décroissant
-    entries.sort((a, b) => (b['score'] as int).compareTo(a['score'] as int));
-
-    return Scaffold(
-      backgroundColor: Colors.black12,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.grey),
-        title: const Text(
-          'C L A S S E M E N T',
-          style: TextStyle(
-            color: Colors.grey,
-            fontSize: 20,
-            fontWeight: FontWeight.w800,
-          ),
+    final entries = readEntries();
+    if (entries.isEmpty) {
+      return PongPageScaffold(
+        title: 'Classement',
+        body: const PongEmptyState(
+          icon: Icons.emoji_events_rounded,
+          title: 'Aucun score enregistré',
+          message:
+              'Joue une partie solo : tes 10 meilleurs scores apparaîtront ici.',
         ),
-        centerTitle: true,
+        bottomAction: PongPrimaryButton(
+          label: 'Jouer',
+          onPressed: () => _backToHome(context),
+        ),
+      );
+    }
+    return PongPageScaffold(
+      title: 'Classement',
+      body: ListView.separated(
+        padding: const EdgeInsets.fromLTRB(PongSpacing.screen, PongSpacing.xxs,
+            PongSpacing.screen, PongSpacing.screen),
+        itemCount: entries.length,
+        separatorBuilder: (context, index) =>
+            const SizedBox(height: PongSpacing.xs),
+        itemBuilder: (context, index) {
+          final rank = index + 1;
+          final podium = PongColors.podium(rank);
+          return podium == null
+              ? _RankRow(rank: rank, entry: entries[index])
+              : _PodiumRow(rank: rank, color: podium, entry: entries[index]);
+        },
       ),
-      body: entries.isEmpty
-          ? const Center(
-              child: Text(
-                'Aucun score enregistré',
-                style: TextStyle(color: Colors.grey, fontSize: 16),
-              ),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              itemCount: entries.length,
-              itemBuilder: (context, index) {
-                final entry = entries[index] as Map;
-                final name = entry['name'] ?? 'Inconnu';
-                final score = entry['score'] ?? 0;
-                final dateStr = entry['date'] as String?;
-                String formattedDate = '';
-                if (dateStr != null) {
-                  final date = DateTime.tryParse(dateStr);
-                  if (date != null) {
-                    formattedDate = '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
-                  }
-                }
-
-                // Couleurs podium
-                Color rankColor;
-                IconData? medalIcon;
-                if (index == 0) {
-                  rankColor = const Color(0xFFFFD700); // Or
-                  medalIcon = Icons.emoji_events;
-                } else if (index == 1) {
-                  rankColor = const Color(0xFFC0C0C0); // Argent
-                  medalIcon = Icons.emoji_events;
-                } else if (index == 2) {
-                  rankColor = const Color(0xFFCD7F32); // Bronze
-                  medalIcon = Icons.emoji_events;
-                } else {
-                  rankColor = Colors.grey;
-                  medalIcon = null;
-                }
-
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade900.withOpacity(0.6),
-                    borderRadius: BorderRadius.circular(10),
-                    border: index < 3
-                        ? Border.all(color: rankColor.withOpacity(0.5), width: 1)
-                        : null,
-                  ),
-                  child: Row(
-                    children: [
-                      // Rang
-                      SizedBox(
-                        width: 36,
-                        child: medalIcon != null
-                            ? Icon(medalIcon, color: rankColor, size: 24)
-                            : Text(
-                                '${index + 1}',
-                                style: TextStyle(
-                                  color: rankColor,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                      ),
-                      const SizedBox(width: 12),
-                      // Nom et date
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              name.toString(),
-                              style: TextStyle(
-                                color: index < 3 ? rankColor : Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            if (formattedDate.isNotEmpty)
-                              Text(
-                                formattedDate,
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                  fontSize: 12,
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                      // Score
-                      Text(
-                        '$score',
-                        style: TextStyle(
-                          color: index < 3 ? rankColor : Colors.pink,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
     );
   }
 }
+
+/// Une ligne du classement, lue dans la boîte Hive `leaderboard`.
+class LeaderboardEntry {
+  const LeaderboardEntry({required this.name, required this.score, this.date});
+
+  factory LeaderboardEntry.fromMap(Map map) {
+    final score = map['score'];
+    final date = map['date'];
+    return LeaderboardEntry(
+      name: map['name']?.toString() ?? 'Inconnu',
+      score: score is int ? score : 0,
+      date: date is String ? DateTime.tryParse(date) : null,
+    );
+  }
+
+  final String name;
+  final int score;
+  final DateTime? date;
+
+  String? get formattedDate {
+    final date = this.date;
+    return date == null ? null : PongFormat.date(date);
+  }
+}
+
+/// Rangs 1 à 3 : trophée et bordure aux couleurs du podium ; l'or a un halo.
+class _PodiumRow extends StatelessWidget {
+  const _PodiumRow({
+    required this.rank,
+    required this.color,
+    required this.entry,
+  });
+
+  final int rank;
+  final Color color;
+  final LeaderboardEntry entry;
+
+  @override
+  Widget build(BuildContext context) {
+    final row = PongListRow(
+      leading: Icon(
+        Icons.emoji_events_rounded,
+        size: 26,
+        color: color,
+        semanticLabel: _rankLabel(rank),
+      ),
+      title: entry.name,
+      subtitle: entry.formattedDate,
+      value: PongFormat.number(entry.score),
+      borderColor: color,
+    );
+    if (rank != 1) return row;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: PongRadii.cardAll,
+        boxShadow: PongShadows.glow(color, opacity: 0.12, blur: 16),
+      ),
+      child: row,
+    );
+  }
+}
+
+/// Rangs 4 à 10 : ligne plus basse, numéro gris, date à côté du nom.
+class _RankRow extends StatelessWidget {
+  const _RankRow({required this.rank, required this.entry});
+
+  final int rank;
+  final LeaderboardEntry entry;
+
+  static const double _height = 56;
+
+  @override
+  Widget build(BuildContext context) {
+    final date = entry.formattedDate;
+    final score = PongFormat.number(entry.score);
+    return Semantics(
+      label: '${_rankLabel(rank)}, ${entry.name}, $score points'
+          '${date == null ? '' : ', le $date'}',
+      excludeSemantics: true,
+      child: SizedBox(
+        height: _height,
+        child: PongCard(
+          borderRadius: PongRadii.fieldAll,
+          padding: const EdgeInsets.symmetric(horizontal: PongSpacing.md),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 32,
+                child: Text(
+                  '$rank',
+                  textAlign: TextAlign.center,
+                  style: PongText.figure
+                      .copyWith(fontSize: 15, color: PongColors.textTertiary),
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text.rich(
+                  TextSpan(
+                    text: entry.name,
+                    children: [
+                      if (date != null)
+                        TextSpan(
+                          text: ' · $date',
+                          style: PongText.caption.copyWith(
+                              fontSize: 12, color: PongColors.textTertiary),
+                        ),
+                    ],
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: PongText.cardTitle
+                      .copyWith(fontSize: 15, fontWeight: FontWeight.w600),
+                ),
+              ),
+              const SizedBox(width: PongSpacing.sm),
+              Text(
+                score,
+                style: PongText.listValue.copyWith(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: PongColors.textBody,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+String _rankLabel(int rank) => rank == 1 ? '1er' : '${rank}e';

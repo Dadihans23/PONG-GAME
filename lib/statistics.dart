@@ -1,128 +1,117 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:pong_game/ui/pong_ui.dart';
 
+/// Statistiques (maquette ST1), par section de mode. Grille de 2 colonnes
+/// pour les chiffres courts, pleine largeur pour les valeurs longues : une
+/// statistique s'ajoute sans casser la page.
+///
+/// La section Multijoueur (victoires / défaites, barre de proportion)
+/// s'ajoutera comme une deuxième `_StatSection` quand les duels
+/// enregistreront leurs résultats.
 class StatisticsPage extends StatelessWidget {
   const StatisticsPage({super.key});
 
-  String _formatDuration(int totalMs) {
-    final duration = Duration(milliseconds: totalMs);
-    final hours = duration.inHours;
-    final minutes = duration.inMinutes.remainder(60);
-    final seconds = duration.inSeconds.remainder(60);
-    if (hours > 0) {
-      return '${hours}h ${minutes}m ${seconds}s';
-    } else if (minutes > 0) {
-      return '${minutes}m ${seconds}s';
-    } else {
-      return '${seconds}s';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final box = Hive.box('stats');
-    final totalGames = box.get('totalGames', defaultValue: 0) as int;
-    final totalPlayTimeMs = box.get('totalPlayTimeMs', defaultValue: 0) as int;
-    final bestStreak = box.get('bestStreak', defaultValue: 0) as int;
+    final stats = Hive.box('stats');
+    final totalGames = stats.get('totalGames', defaultValue: 0) as int;
+    final totalPlayTimeMs = stats.get('totalPlayTimeMs', defaultValue: 0) as int;
+    final bestStreak = stats.get('bestStreak', defaultValue: 0) as int;
+    final topScore =
+        Hive.box<int>('scores').get('topscore', defaultValue: 0) ?? 0;
 
-    return Scaffold(
-      backgroundColor: Colors.black12,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.grey),
-        title: const Text(
-          'S T A T I S T I Q U E S',
-          style: TextStyle(
-            color: Colors.grey,
-            fontSize: 20,
-            fontWeight: FontWeight.w800,
+    return PongPageScaffold(
+      title: 'Statistiques',
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(PongSpacing.screen, PongSpacing.xxs,
+            PongSpacing.screen, PongSpacing.screen),
+        children: [
+          _StatSection(
+            title: 'Solo',
+            hint: totalGames == 0
+                ? 'Joue ta première partie pour remplir ces chiffres.'
+                : null,
+            children: [
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: PongStatCard(
+                        icon: Icons.sports_esports_rounded,
+                        label: 'Parties jouées',
+                        value: PongFormat.number(totalGames),
+                        color: PongColors.data,
+                      ),
+                    ),
+                    const SizedBox(width: _StatSection.gap),
+                    Expanded(
+                      child: PongStatCard(
+                        icon: Icons.emoji_events_rounded,
+                        label: 'Meilleur score',
+                        value: PongFormat.number(topScore),
+                        color: PongColors.record,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              PongStatRow(
+                icon: Icons.timer_rounded,
+                label: 'Temps total de jeu',
+                value: PongFormat.duration(totalPlayTimeMs),
+                color: PongColors.pinkLight,
+              ),
+              PongStatRow(
+                icon: Icons.local_fire_department_rounded,
+                label: 'Meilleure série',
+                value: PongFormat.count(bestStreak, 'renvoi', 'renvois'),
+                color: PongColors.streak,
+              ),
+            ],
           ),
-        ),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 40),
-        child: Column(
-          children: [
-            _StatCard(
-              icon: Icons.sports_esports,
-              label: 'Parties jouées',
-              value: '$totalGames',
-              color: Colors.blueAccent,
-            ),
-            const SizedBox(height: 20),
-            _StatCard(
-              icon: Icons.timer,
-              label: 'Temps total de jeu',
-              value: _formatDuration(totalPlayTimeMs),
-              color: Colors.pink,
-            ),
-            const SizedBox(height: 20),
-            _StatCard(
-              icon: Icons.local_fire_department,
-              label: 'Meilleure série',
-              value: '$bestStreak renvois',
-              color: Colors.orange,
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }
 }
 
-class _StatCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color color;
-
-  const _StatCard({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.color,
+/// Une section de statistiques : sur-titre, phrase d'aide facultative,
+/// cartes espacées de 10 px.
+class _StatSection extends StatelessWidget {
+  const _StatSection({
+    required this.title,
+    required this.children,
+    this.hint,
   });
+
+  final String title;
+  final List<Widget> children;
+
+  /// Phrase affichée sous le titre (ex. tant qu'aucune partie n'est jouée).
+  final String? hint;
+
+  static const double gap = 10;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade900.withOpacity(0.6),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3), width: 1),
-      ),
-      child: Row(
+    final hint = this.hint;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: PongSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Icon(icon, color: color, size: 36),
-          const SizedBox(width: 20),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: TextStyle(
-                    color: Colors.grey.shade400,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  value,
-                  style: TextStyle(
-                    color: color,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          PongOverline(title),
+          if (hint != null) ...[
+            const SizedBox(height: PongSpacing.xs),
+            Text(hint, style: PongText.caption),
+          ],
+          const SizedBox(height: PongSpacing.sm),
+          for (var i = 0; i < children.length; i++) ...[
+            if (i > 0) const SizedBox(height: gap),
+            children[i],
+          ],
         ],
       ),
     );

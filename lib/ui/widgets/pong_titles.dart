@@ -78,9 +78,14 @@ class PongScreenTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Réduit plutôt que tronqué : « STATISTIQUES » ne tient pas en entier
+    // entre les deux boutons d'en-tête sur un écran de 320 dp.
     return Semantics(
       header: true,
-      child: PongSpacedText(text.toUpperCase(), style: PongText.screenTitle),
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: PongSpacedText(text.toUpperCase(), style: PongText.screenTitle),
+      ),
     );
   }
 }

@@ -3,15 +3,17 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:pong_game/ball.dart';
-import 'package:pong_game/coverscreen.dart';
+import 'package:pong_game/game/leaderboard_rules.dart';
 import 'package:pong_game/game/pong_engine.dart';
 import 'package:pong_game/game/tilt_control.dart';
 import 'package:pong_game/game_sound.dart';
-import 'package:pong_game/scoreplayer.dart';
-import 'package:pong_game/topscore.dart';
+import 'package:pong_game/settings/pong_settings.dart';
+import 'package:pong_game/game_ui/game_court.dart';
+import 'package:pong_game/game_ui/game_hud.dart';
+import 'package:pong_game/game_ui/game_over_card.dart';
+import 'package:pong_game/game_ui/pause_overlay.dart';
+import 'package:pong_game/ui/pong_ui.dart';
 import 'package:sensors_plus/sensors_plus.dart';
-import 'package:pong_game/bricks.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:pong_game/leaderboard.dart';
 import 'package:pong_game/statistics.dart';
@@ -66,8 +68,20 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   // Période de lecture de l'accéléromètre : 20 ms = 50 mesures par seconde
   static const Duration sensorPeriod = Duration(milliseconds: 20);
 
+  // --- Effets visuels, mesurés en temps de jeu (figés pendant la pause) ---
+  // Flash de la raquette et « +50 » qui monte, au renvoi
+  static const Duration paddleFlashDuration = Duration(milliseconds: 180);
+  static const Duration scorePopupDuration = Duration(milliseconds: 700);
+  // Terrain et score à l'or quand le record tombe, puis retour au blanc
+  static const Duration recordGoldHold = Duration(milliseconds: 1200);
+  static const Duration recordGoldFade = Duration(milliseconds: 300);
+
   // Toute la logique de jeu (balle, raquettes, score, IA) vit dans le moteur
   late final PongEngine _engine = PongEngine(difficulty: widget.difficulty);
+
+  // Réglages du joueur, lus une fois : ils ne changent pas pendant une partie
+  final PongSettings _settings = PongSettings();
+  late final double _paddleSpeedMultiplier = _settings.paddleSpeedMultiplier;
 
   bool hastarted = false;
   bool isPaused = false;
@@ -86,17 +100,22 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   Duration _lastElapsed = Duration.zero; // Temps du ticker à l'image précédente
   int _pendingSteps = 0; // Temps écoulé pas encore converti en pas, en millionièmes de pas
 
+  // Horloge des effets : temps de jeu écoulé depuis le début de la partie
+  Duration _gameTime = Duration.zero;
+  Duration? _lastHitTime; // Dernier renvoi du joueur
+  double _lastHitX = 0; // Position de la raquette à ce renvoi
+  Duration? _recordTime; // Moment où le record est tombé
+
   // Sons : un lecteur par son, chargé une fois à l'ouverture de l'écran
   final GameSound _hitballSound = GameSound('sounds/hitball.mp3');
   final GameSound _pauseSound = GameSound('sounds/pause.mp3');
   final GameSound _backgroundSound = GameSound('sounds/background.mp3', loop: true);
   final GameSound _winSound = GameSound('sounds/win.mp3');
   final GameSound _gameoverSound = GameSound('sounds/gameover.mp3');
-  bool _hasPlayedWinSound = false;
-  int _initialTopScore = 0;
 
-  double playerWidth =  80 ;
-  bool glowEffect = false; // Ajoutez une variable pour le glow
+  // Le record d'avant la partie a été battu (son, or, pastille, carte de fin)
+  bool _recordBeaten = false;
+  int _initialTopScore = 0;
 
   int topscore= 0 ;
 
@@ -117,19 +136,19 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     box.put('topscore', newTopScore);
   }
 
-  void _addToLeaderboard(String name, int score) {
+  // Ajoute la partie au classement et retourne son rang (null hors du top 10)
+  int? _addToLeaderboard(String name, int score) {
     final box = Hive.box('leaderboard');
-    List<dynamic> entries = List<dynamic>.from(box.get('entries', defaultValue: []) ?? []);
-    entries.add({
-      'name': name,
-      'score': score,
-      'date': DateTime.now().toIso8601String(),
-    });
-    entries.sort((a, b) => (b['score'] as int).compareTo(a['score'] as int));
-    if (entries.length > 10) {
-      entries = entries.sublist(0, 10);
-    }
-    box.put('entries', entries);
+    final result = insertLeaderboardEntry(
+      List<dynamic>.from(box.get('entries', defaultValue: []) ?? []),
+      {
+        'name': name,
+        'score': score,
+        'date': DateTime.now().toIso8601String(),
+      },
+    );
+    box.put('entries', result.entries);
+    return result.rank;
   }
 
   void _saveStats() {
@@ -163,11 +182,20 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     _ticker.start();
   }
 
+  // Largeur du terrain en pixels : l'écran moins les marges du terrain. Les
+  // coordonnées du moteur (-1 à 1) couvrent le terrain, pas tout l'écran
+  double _courtWidth() {
+    return MediaQuery.sizeOf(context).width -
+        MediaQuery.paddingOf(context).horizontal -
+        2 * GameCourt.sideMargin;
+  }
+
   // Appelé une fois par image tant que la partie tourne
   void _onFrame(Duration elapsed) {
     final int frameMicroseconds = (elapsed - _lastElapsed).inMicroseconds;
     _pendingSteps += frameMicroseconds * stepsPerSecond;
     _lastElapsed = elapsed;
+    _gameTime += Duration(microseconds: frameMicroseconds);
 
     // Les pas entiers sont joués, le reste est gardé pour l'image suivante
     int steps = _pendingSteps ~/ 1000000;
@@ -176,13 +204,13 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       steps = maxStepsPerFrame;
     }
 
-    _engine.paddleHalfWidth = playerWidth / MediaQuery.of(context).size.width + 0.10;
+    _engine.paddleHalfWidth = PongSizes.paddleWidth / _courtWidth() + 0.10;
 
     // Raquette : l'inclinaison lissée donne une vitesse en unités par seconde,
     // que le moteur applique à chaque pas. Le ticker ne tourne que pendant une
     // partie en cours : la raquette ne bouge donc ni avant le premier tap, ni
     // en pause, ni après la défaite
-    _engine.playerSpeed = _tilt.update(frameMicroseconds / 1000000) / stepsPerSecond;
+    _engine.playerSpeed = _tilt.update(frameMicroseconds / 1000000) * _paddleSpeedMultiplier / stepsPerSecond;
 
     for (int i = 0; i < steps; i++) {
       final events = _engine.tick();
@@ -195,7 +223,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       }
     }
 
-    // Un seul rafraîchissement par image
+    // Un seul rafraîchissement par image : les effets (flash, « +50 », or)
+    // sont calculés à partir de _gameTime pendant ce même rafraîchissement
     setState(() {});
   }
 
@@ -203,18 +232,14 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     switch (event) {
       case PongEvent.playerHit:
         // Vibration haptique
-        HapticFeedback.lightImpact();
+        if (_settings.vibrationEnabled) HapticFeedback.lightImpact();
 
         // Son de contact paddle
         _hitballSound.play();
 
-        glowEffect = true; // Activez le glow effect lorsque le score change
-        Future.delayed(const Duration(seconds: 1), () {
-          if (!mounted) return;
-          setState(() {
-            glowEffect = false; // Désactivez le glow effect après une seconde
-          });
-        });
+        // Flash de la raquette et « +50 »
+        _lastHitTime = _gameTime;
+        _lastHitX = _engine.playerX;
 
         _checkTopScore();
         break;
@@ -229,26 +254,42 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
         _ticker.stop();
         _playTimeStopwatch.stop();
         _saveStats();
+        // Le record n'est enregistré qu'en fin de partie : une partie quittée
+        // ne compte pas
+        if (topscore > _initialTopScore) {
+          saveTopScore(topscore);
+        }
         // Une partie terminée à 0 point n'entre pas au classement
+        int? rank;
         if (_engine.playerScore > 0) {
-          _addToLeaderboard(widget.playerName, _engine.playerScore);
+          rank = _addToLeaderboard(widget.playerName, _engine.playerScore);
         }
         _gameoverSound.play();
-        _showdialog();
+        _showGameOver(GameSummary(
+          score: _engine.playerScore,
+          previousRecord: _initialTopScore,
+          isNewRecord: _recordBeaten,
+          hits: _engine.currentStreak,
+          duration: _playTimeStopwatch.elapsed,
+          maxSpeed: _engine.speedLevel,
+          rank: rank,
+        ));
         break;
     }
   }
 
   void _checkTopScore() {
-    // Vérifier et mettre à jour le meilleur score
+    // Meilleur score affiché, enregistré à la fin de la partie
     if (_engine.playerScore > topscore) {
       topscore = _engine.playerScore;
-      saveTopScore(topscore);
     }
-    // Jouer le son win quand le joueur dépasse son ancien meilleur score
-    if (!_hasPlayedWinSound && _engine.playerScore > _initialTopScore && _initialTopScore > 0) {
-      _hasPlayedWinSound = true;
+    // Le joueur dépasse son ancien meilleur score : son, vibration longue et
+    // passage à l'or, une seule fois par partie
+    if (!_recordBeaten && _engine.playerScore > _initialTopScore && _initialTopScore > 0) {
+      _recordBeaten = true;
+      _recordTime = _gameTime;
       _winSound.play();
+      if (_settings.vibrationEnabled) HapticFeedback.vibrate();
     }
   }
 
@@ -273,85 +314,52 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     }
   }
 
+  // « Quitter la partie » depuis la pause : retour à l'accueil. La partie est
+  // abandonnée : ni statistiques, ni classement, ni record enregistrés
+  void _quitGame() {
+    _ticker.stop();
+    _playTimeStopwatch.stop();
+    _backgroundSound.stop();
+    Navigator.of(context).pop();
+  }
 
-void _showdialog() {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        backgroundColor: Colors.grey.shade100,
-         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(5.0),
+  Future<void> _showGameOver(GameSummary summary) async {
+    final GameOverAction? action = await showPongDialog<GameOverAction>(
+      context: context,
+      builder: (dialogContext) => SingleChildScrollView(
+        child: GameOverCard(
+          summary: summary,
+          onAction: (action) => Navigator.of(dialogContext).pop(action),
         ),
-        actionsAlignment: MainAxisAlignment.center,
-        title: Center(
-          child: Text("Vous avez eu ${_engine.playerScore}" , style: const TextStyle(color: Colors.black , fontSize: 14, fontWeight:FontWeight.w700),),
-        ),
-        actions: <Widget>[
-          GestureDetector(
-            onTap: (){
-              Navigator.of(context).pop();
-            } ,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                color: Colors.blueAccent.shade700,
-                child: const Text("Rejouer" , style: TextStyle(color: Colors.white , fontSize: 14, fontWeight:FontWeight.w700),),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          GestureDetector(
-            onTap: (){
-              Navigator.of(context).pop();
-              Navigator.push(
-                this.context,
-                MaterialPageRoute(
-                  builder: (context) => const LeaderboardPage(),
-                ),
-              );
-            } ,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                color: Colors.pink,
-                child: const Text("Classement" , style: TextStyle(color: Colors.white , fontSize: 14, fontWeight:FontWeight.w700),),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          GestureDetector(
-            onTap: (){
-              Navigator.of(context).pop();
-              Navigator.push(
-                this.context,
-                MaterialPageRoute(
-                  builder: (context) => const StatisticsPage(),
-                ),
-              );
-            } ,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                color: Colors.deepPurple,
-                child: const Text("Statistiques" , style: TextStyle(color: Colors.white , fontSize: 14, fontWeight:FontWeight.w700),),
-              ),
-            ),
-          ),
-        ],
-      );
-    },
-  ).then((_) {
+      ),
+    );
+    if (!mounted) return;
+
     // Réinitialisation unique, quel que soit le moyen de fermer le dialogue
-    // (bouton, retour Android, tap à l'extérieur)
-    if (mounted) {
-      resetgame();
+    // (bouton ou retour Android)
+    resetgame();
+
+    switch (action) {
+      case GameOverAction.leaderboard:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const LeaderboardPage()),
+        );
+        break;
+      case GameOverAction.statistics:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const StatisticsPage()),
+        );
+        break;
+      case GameOverAction.home:
+        Navigator.of(context).pop();
+        break;
+      case GameOverAction.replay:
+      case null:
+        break;
     }
-  });
-}
+  }
 
 
    void resetgame(){
@@ -364,10 +372,45 @@ void _showdialog() {
     hastarted = false;
     isPaused = false;
     _engine.reset();
-    _hasPlayedWinSound = false;
+    _recordBeaten = false;
     _initialTopScore = topscore;
+    _gameTime = Duration.zero;
+    _lastHitTime = null;
+    _recordTime = null;
     });
    }
+
+  // Effets du terrain à l'instant de jeu courant
+  CourtEffects _courtEffects() {
+    double gold = 0;
+    final recordTime = _recordTime;
+    if (recordTime != null) {
+      final Duration since = _gameTime - recordTime;
+      if (since < recordGoldHold) {
+        gold = 1;
+      } else if (since < recordGoldHold + recordGoldFade) {
+        gold = 1 - (since - recordGoldHold).inMicroseconds / recordGoldFade.inMicroseconds;
+      }
+    }
+
+    bool paddleFlash = false;
+    double? popupProgress;
+    final hitTime = _lastHitTime;
+    if (hitTime != null) {
+      final Duration since = _gameTime - hitTime;
+      paddleFlash = since < paddleFlashDuration;
+      if (since < scorePopupDuration) {
+        popupProgress = since.inMicroseconds / scorePopupDuration.inMicroseconds;
+      }
+    }
+
+    return CourtEffects(
+      gold: gold,
+      paddleFlash: paddleFlash,
+      popupProgress: popupProgress,
+      popupX: _lastHitX,
+    );
+  }
 
 
   @override
@@ -403,121 +446,58 @@ void _showdialog() {
   @override
 
   Widget build(BuildContext context) {
+    final bool dead = _engine.isPlayerDead;
 
     return GestureDetector(
       onTap: isPaused ? null : startGame,
       child: Scaffold(
-        backgroundColor: Colors.black12,
-        body: Center(
-          child:Stack(
-            children: [
-              coverScreen(
-                hastarted: hastarted,
-              ),
-            // ScoreGlow(score: , glowEffect: glowEffect) ,
-              Scoreplayer(
-                hastarted: hastarted,
-                playerScore: _engine.playerScore,
-                playerName: widget.playerName,
-
-              ) ,
-               topScore(
-                hastarted: hastarted,
-                topscore: topscore,
-              ) ,
-
-              myBricks(
-                x: _engine.enemyX,
-                y: -0.9,
-                iscomputer: true,
-                playerWidth :playerWidth ,
-              ),
-               myBricks(
-                x: _engine.playerX,
-                y: 0.9,
-                iscomputer: false,
-                playerWidth :playerWidth ,
-
-              ) ,
-
-
-              myBall(x: _engine.ballX, y: _engine.ballY , hastarted: hastarted,),
-
-              // Bouton pause
-              if (hastarted)
-                Positioned(
-                  top: 40,
-                  right: 20,
-                  child: GestureDetector(
-                    onTap: togglePause,
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade900.withOpacity(0.7),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Icon(
-                        isPaused ? Icons.play_arrow : Icons.pause,
-                        color: Colors.white,
-                        size: 28,
+        backgroundColor: PongColors.background,
+        body: Stack(
+          children: [
+            SafeArea(
+              child: Column(
+                children: [
+                  // HUD au-dessus du terrain : il ne recouvre jamais le jeu
+                  GameHud(
+                    hasStarted: hastarted,
+                    difficulty: widget.difficulty,
+                    speedLevel: _engine.speedLevel,
+                    hitsSinceSpeedUp: _engine.hitsSinceSpeedUp,
+                    hitsPerSpeedUp: PongEngine.hitsPerSpeedUp,
+                    onPause: hastarted && !isPaused && !dead ? togglePause : null,
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(GameCourt.sideMargin, 0,
+                          GameCourt.sideMargin, GameCourt.bottomMargin),
+                      child: GameCourt(
+                        engine: _engine,
+                        hasStarted: hastarted,
+                        isLive: hastarted && !isPaused && !dead,
+                        playerName: widget.playerName,
+                        // Record d'avant la partie : il ne suit pas le score
+                        record: _initialTopScore,
+                        recordBeaten: _recordBeaten,
+                        effects: _courtEffects(),
                       ),
                     ),
                   ),
+                ],
+              ),
+            ),
+
+            // Voile de pause
+            if (isPaused)
+              Positioned.fill(
+                child: PauseOverlay(
+                  score: _engine.playerScore,
+                  record: topscore,
+                  onResume: togglePause,
+                  onQuit: _quitGame,
                 ),
-
-              // Overlay pause
-              if (isPaused)
-                Container(
-                  color: Colors.black.withOpacity(0.6),
-                  child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text(
-                          "PAUSE",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 36,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        const SizedBox(height: 30),
-                        GestureDetector(
-                          onTap: togglePause,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              color: Colors.pink,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.pink.withOpacity(0.6),
-                                  spreadRadius: 4,
-                                  blurRadius: 50,
-                                  offset: const Offset(0, 3),
-                                ),
-                              ],
-                            ),
-                            child: const Text(
-                              "R E P R E N D R E",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 17,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-
-            ],
-          )
-        )
-
+              ),
+          ],
+        ),
       ),
     );
   }

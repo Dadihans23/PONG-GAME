@@ -36,6 +36,7 @@ class PongDialogCard extends StatelessWidget {
     this.content,
     this.actions = const [],
     this.padding = const EdgeInsets.all(PongSpacing.lg),
+    this.accentColor,
   });
 
   /// Icône dans une pastille ronde teintée de `iconColor`.
@@ -56,20 +57,33 @@ class PongDialogCard extends StatelessWidget {
   final List<Widget> actions;
   final EdgeInsetsGeometry padding;
 
+  /// Couleur d'accent facultative (ex. `PongColors.record` pour une partie
+  /// record) : bordure à 45 % et halo à 14 % de cette couleur.
+  final Color? accentColor;
+
   @override
   Widget build(BuildContext context) {
     final icon = this.icon;
     final title = this.title;
     final message = this.message;
     final content = this.content;
+    final accentColor = this.accentColor;
     return Container(
       width: double.infinity,
       padding: padding,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: PongColors.surface,
         borderRadius: PongRadii.dialogAll,
-        border: Border.fromBorderSide(BorderSide(color: PongColors.border)),
-        boxShadow: PongShadows.dialog,
+        border: Border.fromBorderSide(BorderSide(
+            color: accentColor == null
+                ? PongColors.border
+                : PongColors.alpha(accentColor, 0.45))),
+        boxShadow: accentColor == null
+            ? PongShadows.dialog
+            : [
+                ...PongShadows.glow(accentColor, opacity: 0.14, blur: 48),
+                ...PongShadows.dialog,
+              ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -134,6 +148,9 @@ Future<T?> showPongDialog<T>({
       backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
+      // Sans bordure : la carte dessine la sienne (sinon celle du thème,
+      // peinte par-dessus, masque l'accent de `PongDialogCard`)
+      shape: const RoundedRectangleBorder(borderRadius: PongRadii.dialogAll),
       insetPadding: const EdgeInsets.symmetric(
           horizontal: PongSpacing.screen, vertical: PongSpacing.lg),
       child: builder(context),

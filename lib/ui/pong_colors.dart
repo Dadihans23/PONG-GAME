@@ -69,6 +69,15 @@ abstract final class PongColors {
   /// Teinte de fond d'une carte de choix sélectionnée (rose 8 %).
   static const Color pinkTintSoft = Color(0x14E91E63);
 
+  /// `pinkTint` déjà posé sur `background`, opaque. Fond d'un segment
+  /// sélectionné : le halo peint sous l'élément ne transparaît pas (en CSS
+  /// il reste dehors, pas en Flutter).
+  static const Color pinkTintSolid = Color(0xFF2F0E1D);
+
+  /// `pinkTintSoft` déjà posé sur `background`, opaque (#1C0C16). Fond d'une
+  /// carte de choix sélectionnée, pour la même raison.
+  static const Color pinkTintSoftSolid = Color(0xFF1C0C16);
+
   /// Fond de la pastille d'icône rose (rose 18 %).
   static const Color pinkBadge = Color(0x2EE91E63);
 
@@ -93,6 +102,12 @@ abstract final class PongColors {
 
   /// Contour du terrain : blanc 7 %.
   static const Color courtLine = Color(0x12FFFFFF);
+
+  /// Tirets de la ligne médiane du terrain : blanc 12 %.
+  static const Color courtMidline = Color(0x1FFFFFFF);
+
+  /// Reflet clair de la raquette du joueur quand elle renvoie la balle.
+  static const Color playerFlash = Color(0xFF90CAF9);
 
   /// Case vide d'une jauge.
   static const Color gaugeEmpty = Color(0xFF22222C);

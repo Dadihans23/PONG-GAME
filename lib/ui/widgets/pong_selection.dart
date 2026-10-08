@@ -47,7 +47,7 @@ class PongSelectableButton extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: PongSpacing.xs),
       decoration: BoxDecoration(
         color: selected
-            ? PongColors.pinkTint
+            ? PongColors.pinkTintSolid
             : enabled
                 ? PongColors.surfaceHigh
                 : PongColors.surfaceDisabled,
@@ -139,6 +139,7 @@ class PongChoiceCard extends StatelessWidget {
     required this.onTap,
     this.subtitle,
     this.child,
+    this.trailing,
   });
 
   final IconData icon;
@@ -152,11 +153,16 @@ class PongChoiceCard extends StatelessWidget {
   /// Contenu facultatif sous la ligne principale (affiché tel quel).
   final Widget? child;
 
+  /// Élément de droite à la place de la coche (ex. pastille « Bientôt »
+  /// sur un mode indisponible).
+  final Widget? trailing;
+
   @override
   Widget build(BuildContext context) {
     final enabled = onTap != null;
     final subtitle = this.subtitle;
     final child = this.child;
+    final trailing = this.trailing;
     return PongPressable(
       onTap: onTap,
       selected: selected,
@@ -166,7 +172,7 @@ class PongChoiceCard extends StatelessWidget {
       padding: const EdgeInsets.all(PongSpacing.md),
       alignment: Alignment.topLeft,
       decoration: BoxDecoration(
-        color: selected ? PongColors.pinkTintSoft : PongColors.surface,
+        color: selected ? PongColors.pinkTintSoftSolid : PongColors.surface,
         border: Border.all(
           color: selected ? PongColors.pink : PongColors.borderSubtle,
           width: selected ? 1.5 : 1,
@@ -181,7 +187,11 @@ class PongChoiceCard extends StatelessWidget {
             children: [
               PongIconBadge(
                 icon: icon,
-                color: selected ? PongColors.pinkLight : PongColors.textSecondary,
+                color: selected
+                    ? PongColors.pinkLight
+                    : enabled
+                        ? PongColors.textSecondary
+                        : PongColors.textDisabled,
                 background:
                     selected ? PongColors.pinkBadge : PongColors.surfaceHigh,
               ),
@@ -207,13 +217,16 @@ class PongChoiceCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: PongSpacing.xs),
-              Icon(
-                selected
-                    ? Icons.check_circle_rounded
-                    : Icons.radio_button_unchecked_rounded,
-                size: 24,
-                color: selected ? PongColors.pinkLight : PongColors.textDisabled,
-              ),
+              trailing ??
+                  Icon(
+                    selected
+                        ? Icons.check_circle_rounded
+                        : Icons.radio_button_unchecked_rounded,
+                    size: 24,
+                    color: selected
+                        ? PongColors.pinkLight
+                        : PongColors.textDisabled,
+                  ),
             ],
           ),
           if (child != null) ...[

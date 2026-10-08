@@ -1,111 +1,123 @@
 import 'package:flutter/material.dart';
+import 'package:pong_game/ui/pong_ui.dart';
 
+/// Aide (maquette A1). Les icônes reprennent les couleurs de sens du jeu
+/// (bleu = ta raquette, or = points, orange = vitesse) : l'aide enseigne
+/// aussi le code couleur.
+///
+/// La section Multijoueur de la maquette s'ajoutera à [_sections] avec le
+/// mode (et « Pas de pause en multijoueur » à la section Pause).
 class AidePage extends StatelessWidget {
   const AidePage({super.key});
 
+  static final List<_HelpSection> _sections = [
+    _HelpSection(
+      icon: Icons.screen_rotation_rounded,
+      color: PongColors.playerLight,
+      background: PongColors.alpha(PongColors.player, 0.14),
+      title: 'Contrôles',
+      text: 'Incline le téléphone à gauche ou à droite pour déplacer ta '
+          'raquette.',
+    ),
+    _HelpSection(
+      icon: Icons.sports_tennis_rounded,
+      color: PongColors.textPrimary,
+      background: PongColors.alpha(PongColors.textPrimary, 0.08),
+      title: 'Objectif',
+      text: 'Renvoie la balle le plus longtemps possible. Si elle passe '
+          "derrière toi, c'est fini.",
+    ),
+    const _HelpSection(
+      icon: Icons.star_rounded,
+      color: PongColors.record,
+      title: 'Points',
+      text: "+50 par renvoi, +100 quand l'adversaire rate.",
+    ),
+    const _HelpSection(
+      icon: Icons.speed_rounded,
+      color: PongColors.streak,
+      title: 'Vitesse',
+      text: 'La balle accélère tous les 4 renvois.',
+    ),
+    _HelpSection(
+      icon: Icons.pause_rounded,
+      color: PongColors.textBody,
+      background: PongColors.alpha(PongColors.textPrimary, 0.08),
+      title: 'Pause',
+      text: 'Touche le bouton pause en haut à droite.',
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black12,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.grey),
-        title: const Text(
-          'A I D E',
-          style: TextStyle(
-            color: Colors.grey,
-            fontSize: 20,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        children: [
-          _buildSection(
-            icon: Icons.gamepad,
-            color: Colors.blueAccent,
-            title: 'Controles',
-            items: ['Inclinez votre telephone pour deplacer le paddle'],
-          ),
-          _buildSection(
-            icon: Icons.sports_score,
-            color: Colors.pink,
-            title: 'Objectif',
-            items: ['Renvoyez la balle pour marquer des points. Ne la laissez pas passer !'],
-          ),
-          _buildSection(
-            icon: Icons.star,
-            color: Colors.orange,
-            title: 'Points',
-            items: [
-              '50 points par renvoi de paddle',
-              "100 points si l'adversaire rate la balle",
-            ],
-          ),
-          _buildSection(
-            icon: Icons.speed,
-            color: Colors.red,
-            title: 'Vitesse',
-            items: ['La balle accelere tous les 4 renvois'],
-          ),
-          _buildSection(
-            icon: Icons.pause_circle,
-            color: Colors.deepPurple,
-            title: 'Pause',
-            items: ['Appuyez sur le bouton pause en haut a droite pendant la partie'],
-          ),
-        ],
+    return PongPageScaffold(
+      title: 'Aide',
+      body: ListView.separated(
+        padding: const EdgeInsets.fromLTRB(PongSpacing.screen, PongSpacing.xxs,
+            PongSpacing.screen, PongSpacing.screen),
+        itemCount: _sections.length,
+        separatorBuilder: (context, index) =>
+            const SizedBox(height: PongSpacing.xs),
+        itemBuilder: (context, index) => _sections[index],
       ),
     );
   }
+}
 
-  Widget _buildSection({
-    required IconData icon,
-    required Color color,
-    required String title,
-    required List<String> items,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade900.withOpacity(0.6),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: color, size: 24),
-              const SizedBox(width: 10),
-              Text(
-                title,
-                style: TextStyle(
-                  color: color,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          ...items.map(
-            (item) => Padding(
-              padding: const EdgeInsets.only(left: 34, bottom: 4),
-              child: Text(
-                item,
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 14,
-                ),
+/// Une règle : pastille d'icône colorée, titre, phrase.
+class _HelpSection extends StatelessWidget {
+  const _HelpSection({
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.text,
+    this.background,
+  });
+
+  final IconData icon;
+  final Color color;
+
+  /// Fond de la pastille ; par défaut [color] à 12 %.
+  final Color? background;
+  final String title;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return PongCard(
+      padding: const EdgeInsets.all(14),
+      child: MergeSemantics(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            PongIconBadge(
+              icon: icon,
+              color: color,
+              background: background,
+              size: 40,
+              iconSize: 22,
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Semantics(
+                    header: true,
+                    child: Text(title,
+                        style: PongText.cardTitle.copyWith(fontSize: 15)),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    text,
+                    style: PongText.caption.copyWith(
+                        fontWeight: FontWeight.w400, height: 1.45),
+                  ),
+                ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

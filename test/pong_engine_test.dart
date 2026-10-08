@@ -195,6 +195,72 @@ void main() {
     });
   });
 
+  group('Niveau de vitesse', () {
+    test('vitesse 1 au service, jauge vide', () {
+      final engine = newEngine();
+      expect(engine.speedUps, 0);
+      expect(engine.speedLevel, 1);
+      expect(engine.hitsSinceSpeedUp, 0);
+    });
+
+    test('la jauge compte les renvois et repart à zéro à chaque accélération', () {
+      final engine = newEngine();
+      final gauge = <int>[];
+      final levels = <int>[];
+      for (int hit = 1; hit <= 9; hit++) {
+        hitWithPlayer(engine);
+        engine.tick();
+        gauge.add(engine.hitsSinceSpeedUp);
+        levels.add(engine.speedLevel);
+      }
+      expect(gauge, [1, 2, 3, 0, 1, 2, 3, 0, 1]);
+      expect(levels, [1, 1, 1, 2, 2, 2, 2, 3, 3]);
+      expect(engine.speedUps, 2);
+    });
+
+    test('le niveau suit exactement les accélérations de la balle', () {
+      final engine = newEngine();
+      for (int hit = 1; hit <= 12; hit++) {
+        hitWithPlayer(engine);
+        engine.tick();
+        expect(
+          engine.ballSpeedY,
+          closeTo(PongEngine.initialBallSpeed + engine.speedUps * 0.0005, 1e-12),
+          reason: 'après $hit renvois',
+        );
+      }
+      expect(engine.speedUps, 12 ~/ PongEngine.hitsPerSpeedUp);
+    });
+
+    test("un point marqué contre l'ennemi ne change ni le niveau ni la jauge", () {
+      final engine = newEngine();
+      for (int hit = 0; hit < 5; hit++) {
+        hitWithPlayer(engine);
+        engine.tick();
+      }
+      engine.ballX = 0.9;
+      engine.enemyX = -1.0;
+      engine.ballY = -0.85;
+      engine.ballYDirection = BallDirection.up;
+      expect(engine.tick(), contains(PongEvent.enemyMissed));
+      expect(engine.speedLevel, 2);
+      expect(engine.hitsSinceSpeedUp, 1);
+    });
+
+    test('reset remet le niveau et la jauge à zéro', () {
+      final engine = newEngine();
+      for (int hit = 0; hit < 6; hit++) {
+        hitWithPlayer(engine);
+        engine.tick();
+      }
+      expect(engine.speedLevel, 2);
+      engine.reset();
+      expect(engine.speedUps, 0);
+      expect(engine.speedLevel, 1);
+      expect(engine.hitsSinceSpeedUp, 0);
+    });
+  });
+
   group('Ennemi', () {
     test('l\'ennemi renvoie la balle : pas de point', () {
       final engine = newEngine();
