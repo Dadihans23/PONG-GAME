@@ -100,7 +100,7 @@ Référence : `pong_multiplayer_spec.md`. Deux téléphones sur le même Wi-Fi o
 - [x] États de partie : attente, joueur connecté, prêt, compte à rebours, en jeu, terminé, déconnecté
 - [x] Moteur du duel (`lib/game/duel_engine.dart`), physique commune avec le solo (`pong_physics.dart`) ; raquette du joueur 2 pilotée en position, vitesse plafonnée
 - [x] Largeur de raquette indépendante de la taille de l'écran (demi-largeur de contact 0,37)
-- [x] Victoire à 5 points, remise en jeu vers le perdant après 1 s, accélération tous les 8 renvois (4 par joueur)
+- [x] Victoire à 5 points, remise en jeu vers le perdant après 2 s, accélération tous les 8 renvois (4 par joueur)
 - [x] Tests unitaires du mode duel, des modèles et de la vue inversée
 
 ### 2.2 Couche réseau
@@ -121,34 +121,32 @@ Isolée du moteur, pour pouvoir la remplacer plus tard par un serveur en ligne.
 - [x] Retrait d'une partie qui n'est plus annoncée
 - [ ] Test sur Wi-Fi classique et sur hotspot
 
-- [ ] Contrôleur de session multijoueur qui vit plus longtemps que les écrans
-- [ ] Fermer la session quand l'app passe en arrière-plan (`AppLifecycleState.paused`)
 - [ ] Saisie manuelle de l'adresse du Host en secours (plus tard)
 
 ### 2.4 Écrans et parcours
 
-- [ ] Bouton « Multijoueur » sur l'écran d'accueil
-- [ ] Écran menu multijoueur (Créer / Rejoindre)
-- [ ] Écran liste des parties (Rejoindre, Actualiser)
-- [ ] Écran salon (attente, joueur connecté, Prêt, Annuler)
-- [ ] Écran de jeu duel (deux scores, pas de pause)
-- [ ] Dialogue de fin de partie (gagnant, Rejouer, Quitter)
-- [ ] Dialogue de déconnexion et messages d'erreur réseau
+- [x] Carte « Multijoueur » active sur l'accueil, avec victoires / défaites
+- [x] Écrans de présentation d'après la maquette : menu (M1), recherche (J1-J3), salon et compte à rebours (L1-L4), duel (D1-D2), fin (V1-V2), incidents (X1-X3)
+- [x] Sections Multijoueur des statistiques et de l'aide
+- [x] Contrôleur de session (`lib/multiplayer/controller/`) qui vit plus longtemps que les écrans
+- [~] Branchement des écrans sur le contrôleur, sons, vibrations, bouton retour
 
 ### 2.5 Synchronisation
 
-- [ ] Le Host fait tourner le moteur et envoie l'état 30 fois par seconde
-- [ ] Le Client envoie la position de sa raquette 30 fois par seconde
-- [ ] Vue inversée chez le Client : chacun voit sa raquette en bas
-- [ ] Sons et vibrations déclenchés par les événements du Host
-- [ ] Même score et même gagnant sur les deux téléphones
-- [ ] Rejouer sans recréer la partie
+- [x] Le Host fait tourner le moteur et envoie l'état 30 fois par seconde
+- [x] Le Client envoie la position de sa raquette 30 fois par seconde, affichée en local sans attendre le réseau
+- [x] Interpolation légère chez le Client (33 ms)
+- [x] Vue inversée chez le Client : chacun voit sa raquette en bas
+- [x] Compte à rebours 3-2-1 synchronisé
+- [x] Même score, même gagnant, même durée sur les deux téléphones (vérifié en simulation)
+- [x] Rejouer sans recréer la partie
+- [~] Sons et vibrations (branchement en cours)
 
 ### 2.6 Déconnexions
 
-- [ ] Le joueur 2 quitte : le Host retourne au salon
-- [ ] Le Host quitte : le Client voit « Partie terminée » et retourne au menu
-- [ ] Perte de Wi-Fi ou app mise en arrière-plan
+- [x] Le joueur 2 quitte : le Host retourne au salon (vérifié en simulation)
+- [x] Le Host quitte : le Client voit « Partie terminée » et retourne au menu (vérifié en simulation)
+- [x] Perte de Wi-Fi ou app mise en arrière-plan (vérifié en simulation)
 
 ### 2.7 Validation du MVP
 
