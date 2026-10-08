@@ -148,6 +148,18 @@ Isolée du moteur, pour pouvoir la remplacer plus tard par un serveur en ligne.
 - [x] Le Host quitte : le Client voit « Partie terminée » et retourne au menu (vérifié en simulation)
 - [x] Perte de Wi-Fi ou app mise en arrière-plan (vérifié en simulation)
 
+### 2.6 bis Sensibilité de la raquette de 0 à 100
+
+Décidé avec le propriétaire, à faire après son test du duel sur deux téléphones.
+
+- [ ] Curseur de 0 à 100 dans les Réglages, à la place des 5 crans (anciens crans convertis)
+- [ ] Le curseur règle ensemble la vitesse maximale et l'inclinaison nécessaire (environ 60° à 20°) ; 0 reste jouable
+- [ ] Courbe de réponse : petites inclinaisons plus douces pour garder la précision
+- [ ] Valeur par défaut plus rapide qu'aujourd'hui, réglée au ressenti avec le propriétaire
+- [ ] Zone d'essai dans les Réglages : mini-raquette qui suit l'inclinaison
+- [ ] Duel : chaque joueur garde sa propre vitesse (comme au tennis) ; le Client annonce son réglage, l'Host applique un plafond commun (valeur 100) et refuse au-delà
+- [ ] Tests (calcul, conversion, plafond en duel, protocole)
+
 ### 2.7 Validation du MVP
 
 - [ ] Les 15 critères de la section 25 de la spec passent sur deux téléphones Android
