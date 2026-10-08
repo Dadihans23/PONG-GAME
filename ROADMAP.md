@@ -68,6 +68,17 @@ Nécessaire pour tester le jeu et pour le multijoueur. Le comportement du solo n
 - [x] Première version réglée sur la vitesse actuelle de la raquette (1,18 unité/s au maximum)
 - [ ] **Test sur téléphone par le propriétaire, puis réglage de la raquette au ressenti — en attente**
 
+### 1.5 Redesign du mode solo
+
+Maquettes : `maquette/Redesign app PONG mobile/` (système de design, écrans solo, multijoueur, parcours).
+
+- [x] Système de design partagé (`lib/ui/`) : palette, police Archivo intégrée, composants
+- [x] Chargement, accueil, classement, statistiques, aide, conformes aux maquettes (vérifiés sur téléphone)
+- [x] Écran de jeu, pause, fin de partie, conformes aux maquettes (vérifiés sur téléphone)
+- [x] Écran Réglages : musique, effets sonores, vibration, sensibilité de la raquette (5 crans), pseudo
+- [ ] Installer la version finale sur le téléphone (bloqué : disque C: plein) et vérifier l'écran Réglages sur l'appareil
+- [ ] **Test du mode solo redessiné par le propriétaire — en attente**
+
 ### 1.4 Améliorations du solo
 
 - [ ] Musique de fond pendant la partie
