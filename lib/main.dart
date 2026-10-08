@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:pong_game/entername.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:pong_game/game_sound.dart';
+import 'package:pong_game/ui/pong_theme.dart';
 
 
 void main() async {
@@ -41,10 +42,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Pong Game',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
+      theme: PongTheme.dark(),
+      themeMode: ThemeMode.dark,
       home: const SplashScreen(),
     );
   }
