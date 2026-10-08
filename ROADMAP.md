@@ -32,7 +32,7 @@ Code terminé et relu ; validation sur téléphone prévue avec le test de fin d
 - [x] **Fin de partie** : `resetgame()` appelé une seule fois, `onPopInvoked` déprécié retiré
 - [x] **Orientation** : app verrouillée en portrait
 - [x] **Score nul au classement** : une partie à 0 point n'est plus enregistrée
-- [x] **Plantage audio** (`IllegalStateException` dans `MediaPlayer.getPlaybackParams`, vu une fois en release) : tous les sons passent par `GameSound` (`lib/game_sound.dart`), qui charge chaque son une fois et envoie les commandes une par une. Disparition du plantage à confirmer sur téléphone
+- [x] **Plantage audio** (`IllegalStateException` dans `MediaPlayer.getPlaybackParams`, vu une fois en release) : tous les sons passent par `GameSound` (`lib/game_sound.dart`), qui charge chaque son une fois et envoie les commandes une par une. Disparition du plantage confirmée par le propriétaire
 - [x] **Erreur du capteur au démarrage** (`MissingPluginException … setAccelerationSamplingPeriod`) : `sensors_plus` passé en 4.0.2. À confirmer dans les journaux du téléphone
 
 ### 1.2 Nettoyage
@@ -54,8 +54,8 @@ Nécessaire pour tester le jeu et pour le multijoueur. Le comportement du solo n
 - [x] Brancher `hompage.dart` sur le moteur
 - [x] Boucle de jeu à pas fixe (`stepsPerSecond` pas de moteur par seconde), un seul rafraîchissement par image. Les constantes de vitesse n'ont pas changé
 - [x] Tests unitaires du moteur : 30 tests (rebonds, score, accélération, défaite, IA)
-- [ ] **Test du solo sur un vrai téléphone par le propriétaire, dans les trois difficultés — en attente d'approbation**
-  - [~] Vitesse du jeu : réglage au ressenti avec le propriétaire, actuellement 450 pas par seconde (l'ancien code en faisait environ 700 en release sur SM-A135F, jugé trop rapide ; 500 jugé presque bon)
+- [x] Test du solo sur un vrai téléphone par le propriétaire : validé
+  - [x] Vitesse du jeu : réglée au ressenti avec le propriétaire, 450 pas par seconde (l'ancien code en faisait environ 700 en release sur SM-A135F, jugé trop rapide ; 500 jugé presque bon)
 
 ### 1.3 bis Contrôle de la raquette indépendant du téléphone
 
@@ -66,7 +66,7 @@ Nécessaire pour tester le jeu et pour le multijoueur. Le comportement du solo n
 - [x] Le capteur mémorise l'inclinaison (`lib/game/tilt_control.dart`), le moteur déplace la raquette à chaque pas (`playerSpeed`), avec tests (59 tests au total)
 - [x] Inclinaison normalisée, lissage de 50 ms, zone morte progressive d'environ 3°, vitesse maximale
 - [x] Première version réglée sur la vitesse actuelle de la raquette (1,18 unité/s au maximum)
-- [ ] **Test sur téléphone par le propriétaire, puis réglage de la raquette au ressenti — en attente**
+- [x] Testé par le propriétaire : vitesse de la raquette augmentée de 20 % (`paddleMaxSpeed` 1,18 → 1,42)
 
 ### 1.5 Redesign du mode solo
 
@@ -77,7 +77,7 @@ Maquettes : `maquette/Redesign app PONG mobile/` (système de design, écrans so
 - [x] Écran de jeu, pause, fin de partie, conformes aux maquettes (vérifiés sur téléphone)
 - [x] Écran Réglages : musique, effets sonores, vibration, sensibilité de la raquette (5 crans), pseudo
 - [x] Version finale installée sur le téléphone, écran Réglages vérifié sur l'appareil
-- [ ] **Test du mode solo redessiné par le propriétaire — en attente**
+- [x] Test du mode solo redessiné par le propriétaire : validé
 
 ### 1.4 Améliorations du solo
 

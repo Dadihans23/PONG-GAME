@@ -50,8 +50,9 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   // événement du capteur, 6 événements par seconde sur SM-A135F).
 
   // Vitesse maximale de la raquette, en unités de terrain par seconde
-  // (le terrain fait 2 unités de large)
-  static const double paddleMaxSpeed = 1.18;
+  // (le terrain fait 2 unités de large). Réglée au ressenti avec le
+  // propriétaire : 1,18 (vitesse d'origine) + 20 %
+  static const double paddleMaxSpeed = 1.42;
 
   // Inclinaison qui donne la vitesse maximale. La baisser (0,5 = 30°) rend la
   // raquette plus vive sans changer sa vitesse maximale
