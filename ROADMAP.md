@@ -150,15 +150,15 @@ Isolée du moteur, pour pouvoir la remplacer plus tard par un serveur en ligne.
 
 ### 2.6 bis Sensibilité de la raquette de 0 à 100
 
-Décidé avec le propriétaire, à faire après son test du duel sur deux téléphones.
+Décidé avec le propriétaire. Développé sur la branche `feature-sensibilite`, à tester après le duel.
 
-- [ ] Curseur de 0 à 100 dans les Réglages, à la place des 5 crans (anciens crans convertis)
-- [ ] Le curseur règle ensemble la vitesse maximale et l'inclinaison nécessaire (environ 60° à 20°) ; 0 reste jouable
-- [ ] Courbe de réponse : petites inclinaisons plus douces pour garder la précision
-- [ ] Valeur par défaut plus rapide qu'aujourd'hui, réglée au ressenti avec le propriétaire
-- [ ] Zone d'essai dans les Réglages : mini-raquette qui suit l'inclinaison
-- [ ] Duel : chaque joueur garde sa propre vitesse (comme au tennis) ; le Client annonce son réglage, l'Host applique un plafond commun (valeur 100) et refuse au-delà
-- [ ] Tests (calcul, conversion, plafond en duel, protocole)
+- [x] Curseur de 0 à 100 dans les Réglages, à la place des 5 crans (anciens crans convertis : « Normale » → 50)
+- [x] Le curseur règle ensemble la vitesse maximale (1,2 à 3,0 unités/s) et l'inclinaison nécessaire (60° à 20°) ; 0 reste jouable
+- [x] Courbe de réponse (exposant 1,5) : petites inclinaisons plus douces pour garder la précision
+- [~] Valeur par défaut 50 (environ deux fois plus vive qu'avant à 30°), à régler au ressenti avec le propriétaire
+- [x] Zone d'essai dans les Réglages : mini-raquette qui suit l'inclinaison
+- [x] Duel : chaque joueur garde sa propre vitesse (comme au tennis) ; le Client annonce son réglage dans `join`, l'Host applique un plafond commun (3,0)
+- [x] Tests (calcul, conversion, plafond en duel, protocole) : 411 tests
 
 ### 2.7 Validation du MVP
 
