@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:pong_game/game/game_tuning.dart';
 import 'package:pong_game/game/leaderboard_rules.dart';
 import 'package:pong_game/game/pong_engine.dart';
 import 'package:pong_game/game/tilt_control.dart';
@@ -34,40 +35,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin {
-  // Nombre maximum de pas de moteur par image : au-delà, le temps en trop est
-  // abandonné pour que la balle ne saute pas après un blocage
-  static const int maxStepsPerFrame = 50;
-
-  // Nombre de pas de moteur par seconde : règle la vitesse de tout le jeu
-  // (balle, adversaire, accélération), identique sur tous les téléphones.
-  // L'ancienne boucle (minuteur de 1 ms) en faisait environ 700 en release
-  // sur un Samsung SM-A135F ; valeur en cours de réglage avec le propriétaire
-  static const int stepsPerSecond = 450;
-
-  // --- Réglages de la raquette, à ajuster au ressenti ---
-  // L'inclinaison est normalisée : 0 = téléphone droit, 1 = téléphone couché
-  // sur le côté (90°). Ces valeurs reproduisent la vitesse d'avant (0,02 par
-  // événement du capteur, 6 événements par seconde sur SM-A135F).
-
-  // Vitesse maximale de la raquette, en unités de terrain par seconde
-  // (le terrain fait 2 unités de large). Réglée au ressenti avec le
-  // propriétaire : 1,18 (vitesse d'origine) + 20 %
-  static const double paddleMaxSpeed = 1.42;
-
-  // Inclinaison qui donne la vitesse maximale. La baisser (0,5 = 30°) rend la
-  // raquette plus vive sans changer sa vitesse maximale
-  static const double tiltForMaxSpeed = 1.0;
-
-  // Zone morte : sous cette inclinaison (0,05 = environ 3°) la raquette ne
-  // bouge pas ; au-delà, la vitesse part de 0 et croît linéairement
-  static const double tiltDeadZone = 0.05;
-
-  // Lissage de l'inclinaison, en secondes : plus grand = plus doux mais plus
-  // de retard, 0 = aucun lissage
-  static const double tiltSmoothingTime = 0.05;
-
-  // Période de lecture de l'accéléromètre : 20 ms = 50 mesures par seconde
-  static const Duration sensorPeriod = Duration(milliseconds: 20);
+  // Rythme du jeu (pas de moteur par seconde, rattrapage plafonné) et
+  // réglages de la raquette : `GameTuning`, communs au solo et au duel.
+  // Valeurs réglées au ressenti avec le propriétaire sur un vrai téléphone
 
   // --- Effets visuels, mesurés en temps de jeu (figés pendant la pause) ---
   // Flash de la raquette et « +50 » qui monte, au renvoi
@@ -90,13 +60,13 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
   // Inclinaison du téléphone → vitesse de la raquette
   final TiltControl _tilt = TiltControl(
-    maxSpeed: paddleMaxSpeed,
-    deadZone: tiltDeadZone,
-    fullTilt: tiltForMaxSpeed,
-    smoothingTime: tiltSmoothingTime,
+    maxSpeed: GameTuning.paddleMaxSpeed,
+    deadZone: GameTuning.tiltDeadZone,
+    fullTilt: GameTuning.tiltForMaxSpeed,
+    smoothingTime: GameTuning.tiltSmoothingTime,
   );
 
-  // Boucle de jeu : stepsPerSecond pas de moteur par seconde écoulée
+  // Boucle de jeu : GameTuning.stepsPerSecond pas de moteur par seconde écoulée
   late final Ticker _ticker;
   Duration _lastElapsed = Duration.zero; // Temps du ticker à l'image précédente
   int _pendingSteps = 0; // Temps écoulé pas encore converti en pas, en millionièmes de pas
@@ -194,15 +164,15 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   // Appelé une fois par image tant que la partie tourne
   void _onFrame(Duration elapsed) {
     final int frameMicroseconds = (elapsed - _lastElapsed).inMicroseconds;
-    _pendingSteps += frameMicroseconds * stepsPerSecond;
+    _pendingSteps += frameMicroseconds * GameTuning.stepsPerSecond;
     _lastElapsed = elapsed;
     _gameTime += Duration(microseconds: frameMicroseconds);
 
     // Les pas entiers sont joués, le reste est gardé pour l'image suivante
     int steps = _pendingSteps ~/ 1000000;
     _pendingSteps = _pendingSteps % 1000000;
-    if (steps > maxStepsPerFrame) {
-      steps = maxStepsPerFrame;
+    if (steps > GameTuning.maxStepsPerFrame) {
+      steps = GameTuning.maxStepsPerFrame;
     }
 
     _engine.paddleHalfWidth = PongSizes.paddleWidth / _courtWidth() + 0.10;
@@ -211,7 +181,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     // que le moteur applique à chaque pas. Le ticker ne tourne que pendant une
     // partie en cours : la raquette ne bouge donc ni avant le premier tap, ni
     // en pause, ni après la défaite
-    _engine.playerSpeed = _tilt.update(frameMicroseconds / 1000000) * _paddleSpeedMultiplier / stepsPerSecond;
+    _engine.playerSpeed = _tilt.update(frameMicroseconds / 1000000) * _paddleSpeedMultiplier / GameTuning.stepsPerSecond;
 
     for (int i = 0; i < steps; i++) {
       final events = _engine.tick();
@@ -422,7 +392,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
   // Le capteur ne déplace rien : il mémorise la dernière inclinaison, que la
   // boucle de jeu lit à chaque image
-  _accelSubscription = accelerometerEventStream(samplingPeriod: sensorPeriod).listen(
+  _accelSubscription = accelerometerEventStream(samplingPeriod: GameTuning.sensorPeriod).listen(
     (AccelerometerEvent event) {
       _tilt.setAcceleration(event.x, event.y, event.z);
     },
