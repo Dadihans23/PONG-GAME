@@ -5,42 +5,19 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:pong_game/aide.dart';
 import 'package:pong_game/entername.dart';
 import 'package:pong_game/leaderboard.dart';
+import 'package:pong_game/multiplayer/screens/multiplayer_menu_screen.dart';
 import 'package:pong_game/statistics.dart';
 import 'package:pong_game/ui/pong_ui.dart';
 
-/// Écrans vérifiés : le SM-A135F (320 × 713 dp, dont 48 de barre de
-/// navigation) et la maquette (360 × 800 dp).
-const List<Size> _screens = [Size(320, 665), Size(360, 800)];
+import 'support/screen_harness.dart';
 
-Future<void> _pump(WidgetTester tester, Widget page, Size size) async {
-  tester.view.physicalSize = size;
-  tester.view.devicePixelRatio = 1;
-  addTearDown(tester.view.reset);
-  await tester.pumpWidget(MaterialApp(theme: PongTheme.dark(), home: page));
-  await tester.pump();
-}
-
-Future<void> _loadArchivo() async {
-  final loader = FontLoader(PongText.fontFamily);
-  for (final weight in [
-    'Regular',
-    'Medium',
-    'SemiBold',
-    'Bold',
-    'ExtraBold',
-    'Black',
-  ]) {
-    final bytes = File('assets/fonts/Archivo-$weight.ttf').readAsBytesSync();
-    loader.addFont(Future.value(ByteData.sublistView(bytes)));
-  }
-  await loader.load();
-}
+const List<Size> _screens = testScreens;
+const _pump = pumpScreen;
 
 Map<String, Object> _entry(String name, int score, String date) =>
     {'name': name, 'score': score, 'date': date};
@@ -49,7 +26,7 @@ void main() {
   late Directory hiveDir;
 
   setUpAll(() async {
-    await _loadArchivo();
+    await loadArchivo();
     hiveDir = await Directory.systemTemp.createTemp('pong_screens_test');
     Hive.init(hiveDir.path);
     await Hive.openBox<int>('scores');
@@ -78,7 +55,9 @@ void main() {
 
         expect(find.text('Ton pseudo'), findsOneWidget);
         expect(find.text('Solo'), findsOneWidget);
-        expect(find.text('Bientôt'), findsOneWidget);
+        // Le multijoueur est disponible : plus de « Bientôt »
+        expect(find.text('Multijoueur'), findsOneWidget);
+        expect(find.text('Bientôt'), findsNothing);
         expect(find.text('JOUER'), findsOneWidget);
         // Pas encore de score : pas de ligne « Meilleur score »
         expect(find.text('Meilleur score'), findsNothing);
@@ -86,8 +65,8 @@ void main() {
         expect(find.byTooltip('Réglages'), findsOneWidget);
 
         // « Jouer » et les raccourcis tiennent sans défiler
-        expect(tester.getBottomLeft(find.text('Aide')).dy,
-            lessThan(size.height));
+        expect(
+            tester.getBottomLeft(find.text('Aide')).dy, lessThan(size.height));
 
         // « Jouer » avec un pseudo vide : message en clair, rien d'enregistré
         await tester.tap(find.text('JOUER'));
@@ -104,13 +83,13 @@ void main() {
 
       testWidgets('pseudo enregistré, ${size.width.toInt()} dp',
           (tester) async {
-        await tester.runAsync(
-            () => Hive.box<int>('scores').put('topscore', 2400));
+        await tester
+            .runAsync(() => Hive.box<int>('scores').put('topscore', 2400));
         await _pump(tester, const NamePage(savedPseudo: 'Léa'), size);
 
         expect(find.text('Bonjour, Léa'), findsOneWidget);
-        expect(tester.getBottomLeft(find.text('Aide')).dy,
-            lessThan(size.height));
+        expect(
+            tester.getBottomLeft(find.text('Aide')).dy, lessThan(size.height));
         expect(find.byType(TextField), findsNothing);
         expect(find.text('Meilleur score'), findsOneWidget);
         expect(find.text('2${PongFormat.nbsp}400'), findsOneWidget);
@@ -127,14 +106,13 @@ void main() {
         await tester.pump();
         expect(find.text('Choisis un pseudo pour jouer'), findsOneWidget);
         expect(Hive.box('settings').get('pseudo'), isNull);
-        expect(tester.getBottomLeft(find.text('Aide')).dy,
-            lessThan(size.height));
+        expect(
+            tester.getBottomLeft(find.text('Aide')).dy, lessThan(size.height));
         await tester.pump(const Duration(seconds: 1));
       });
     }
 
-    testWidgets('la difficulté se choisit, le multijoueur est désactivé',
-        (tester) async {
+    testWidgets('la difficulté se choisit', (tester) async {
       await _pump(tester, const NamePage(savedPseudo: 'Léa'), _screens.first);
 
       bool selected(String label) => tester
@@ -146,11 +124,98 @@ void main() {
       await tester.pump();
       expect(selected('Difficile'), isTrue);
       expect(selected('Normal'), isFalse);
-
-      final multi = tester.widget<PongChoiceCard>(
-          find.widgetWithText(PongChoiceCard, 'Multijoueur'));
-      expect(multi.onTap, isNull);
       await tester.pump(const Duration(seconds: 1));
+    });
+
+    for (final size in _screens) {
+      testWidgets('multijoueur sélectionné, ${size.width.toInt()} dp',
+          (tester) async {
+        await tester.runAsync(() async {
+          await Hive.box('stats').put('duelWins', 12);
+          await Hive.box('stats').put('duelLosses', 7);
+          await Hive.box<int>('scores').put('topscore', 2400);
+        });
+        await _pump(tester, const NamePage(savedPseudo: 'Léa'), size);
+
+        bool modeSelected(String title) => tester
+            .widget<PongChoiceCard>(find.widgetWithText(PongChoiceCard, title))
+            .selected;
+        expect(modeSelected('Solo'), isTrue);
+        expect(modeSelected('Multijoueur'), isFalse);
+        expect(find.textContaining('Duel en 5 points'), findsNothing);
+
+        // Maquette H3 : la carte Multijoueur s'ouvre, Solo se replie en
+        // rappelant la difficulté
+        await tester.tap(find.text('Multijoueur'));
+        await tester.pump(const Duration(milliseconds: 300));
+        expect(modeSelected('Multijoueur'), isTrue);
+        expect(modeSelected('Solo'), isFalse);
+        expect(find.text("Contre l'ordinateur · Normal"), findsOneWidget);
+        expect(find.byType(PongSelectableButton), findsNothing);
+        expect(find.text('Meilleur score'), findsNothing);
+        expect(
+            find.text("Duel en 5 points, chacun sur son téléphone. Pas besoin "
+                "d'Internet."),
+            findsOneWidget);
+        expect(find.text('Victoires / défaites'), findsOneWidget);
+        expect(find.text('12 / 7'), findsOneWidget);
+        // Tout tient sans défiler
+        expect(
+            tester.getBottomLeft(find.text('Aide')).dy, lessThan(size.height));
+
+        // Retour au solo : la difficulté réapparaît
+        await tester.tap(find.text('Solo'));
+        await tester.pump(const Duration(milliseconds: 300));
+        expect(modeSelected('Solo'), isTrue);
+        expect(find.byType(PongSelectableButton), findsNWidgets(3));
+        await tester.pump(const Duration(seconds: 1));
+      });
+    }
+
+    testWidgets('sans duel joué, pas de bilan', (tester) async {
+      await _pump(tester, const NamePage(savedPseudo: 'Léa'), _screens.first);
+      await tester.tap(find.text('Multijoueur'));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.textContaining('Duel en 5 points'), findsOneWidget);
+      expect(find.text('Victoires / défaites'), findsNothing);
+      await tester.pump(const Duration(seconds: 1));
+    });
+
+    testWidgets('« Jouer » en multijoueur ouvre le menu multijoueur',
+        (tester) async {
+      await _pump(tester, const NamePage(), _screens.first);
+      await tester.tap(find.text('Multijoueur'));
+      await tester.pump();
+
+      // Le pseudo reste obligatoire : l'autre joueur le verra
+      await tester.tap(find.text('JOUER'));
+      await tester.pump();
+      expect(find.text('Choisis un pseudo pour jouer'), findsOneWidget);
+      expect(find.byType(MultiplayerMenuScreen), findsNothing);
+
+      await tester.enterText(find.byType(TextField), 'Léa');
+      // Toucher hors de la zone simulée : Hive écrit le pseudo sur le disque
+      // pour de vrai (sinon l'écriture reste en suspens après le test)
+      await tester.runAsync(() async {
+        await tester.tap(find.text('JOUER'));
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      });
+      await tester.pumpAndSettle();
+      expect(find.byType(MultiplayerMenuScreen), findsOneWidget);
+      expect(find.text('Tu joues en tant que Léa'), findsOneWidget);
+      expect(Hive.box('settings').get('pseudo'), 'Léa');
+
+      // Retour à l'accueil : le mode reste sélectionné
+      await tester.tap(find.byTooltip('Retour'));
+      await tester.pumpAndSettle();
+      expect(find.byType(MultiplayerMenuScreen), findsNothing);
+      expect(find.text('Bonjour, Léa'), findsOneWidget);
+      expect(
+          tester
+              .widget<PongChoiceCard>(
+                  find.widgetWithText(PongChoiceCard, 'Multijoueur'))
+              .selected,
+          isTrue);
     });
   });
 
@@ -165,7 +230,8 @@ void main() {
       testWidgets('rempli, ${size.width.toInt()} dp', (tester) async {
         await tester.runAsync(() => Hive.box('leaderboard').put('entries', [
               for (var i = 0; i < 12; i++)
-                _entry(i == 3 ? 'Un pseudo vraiment très long' : 'Joueur $i',
+                _entry(
+                    i == 3 ? 'Un pseudo vraiment très long' : 'Joueur $i',
                     100 * (i + 1),
                     '2026-09-${(i + 1).toString().padLeft(2, '0')}'),
             ]));
@@ -195,16 +261,35 @@ void main() {
           await stats.put('totalGames', 148);
           await stats.put('totalPlayTimeMs', 4325000);
           await stats.put('bestStreak', 23);
+          await stats.put('duelWins', 12);
+          await stats.put('duelLosses', 7);
           await Hive.box<int>('scores').put('topscore', 2650);
         });
         await _pump(tester, const StatisticsPage(), size);
 
         expect(find.text('SOLO'), findsOneWidget);
-        expect(find.text('MULTIJOUEUR'), findsNothing);
         expect(find.text('148'), findsOneWidget);
         expect(find.text('2${PongFormat.nbsp}650'), findsOneWidget);
         expect(find.text('1h 12m 5s'), findsOneWidget);
         expect(find.text('23${PongFormat.nbsp}renvois'), findsOneWidget);
+
+        // Section Multijoueur (maquette ST1) : victoires, défaites, duels
+        await tester.scrollUntilVisible(find.text('Défaites'), 100);
+        expect(find.text('MULTIJOUEUR'), findsOneWidget);
+        expect(find.text('Victoires'), findsOneWidget);
+        expect(find.text('12'), findsOneWidget);
+        expect(find.text('7'), findsOneWidget);
+        expect(find.text('19${PongFormat.nbsp}duels'), findsOneWidget);
+        // Barre victoires / défaites : 12 parts vertes pour 7 grises
+        final winsBar = find.byWidgetPredicate(
+            (w) => w is Container && w.color == PongColors.success);
+        final lossesBar = find.byWidgetPredicate(
+            (w) => w is Container && w.color == PongColors.faint);
+        expect(tester.getSize(winsBar).height, 8);
+        expect(tester.getSize(winsBar).width / tester.getSize(lossesBar).width,
+            closeTo(12 / 7, 0.05));
+        expect(find.text('Joue ton premier duel pour remplir ces chiffres.'),
+            findsNothing);
       });
 
       testWidgets('statistiques vides, ${size.width.toInt()} dp',
@@ -213,6 +298,10 @@ void main() {
         expect(find.text('Joue ta première partie pour remplir ces chiffres.'),
             findsOneWidget);
         expect(find.text('0${PongFormat.nbsp}renvoi'), findsOneWidget);
+        await tester.scrollUntilVisible(find.text('Défaites'), 100);
+        expect(find.text('Joue ton premier duel pour remplir ces chiffres.'),
+            findsOneWidget);
+        expect(find.text('0${PongFormat.nbsp}duel'), findsOneWidget);
       });
 
       testWidgets('aide, ${size.width.toInt()} dp', (tester) async {
@@ -223,11 +312,15 @@ void main() {
           'Points',
           'Vitesse',
           'Pause',
+          'Multijoueur',
         ]) {
           await tester.scrollUntilVisible(find.text(title), 100);
           expect(find.text(title), findsOneWidget);
         }
-        expect(find.text('Multijoueur'), findsNothing);
+        expect(find.textContaining('Pas de pause en multijoueur.'),
+            findsOneWidget);
+        expect(find.textContaining("L'un crée la partie, l'autre la rejoint."),
+            findsOneWidget);
       });
     }
   });
@@ -242,6 +335,7 @@ void main() {
     expect(PongFormat.duration(200000), '3m 20s');
     expect(PongFormat.duration(4325000), '1h 12m 5s');
     expect(PongFormat.date(DateTime(2026, 9, 3)), '03/09/2026');
-    expect(PongFormat.count(1, 'renvoi', 'renvois'), '1${PongFormat.nbsp}renvoi');
+    expect(
+        PongFormat.count(1, 'renvoi', 'renvois'), '1${PongFormat.nbsp}renvoi');
   });
 }

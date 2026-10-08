@@ -94,6 +94,10 @@ abstract final class PongColors {
   /// Vert adversaire : IA ou autre joueur.
   static const Color opponent = Color(0xFF4CAF50);
 
+  /// Vert adversaire éclairci, pour du texte (score, initiale) sur fond
+  /// sombre ou teinté.
+  static const Color opponentLight = Color(0xFF81C784);
+
   /// Balle : seul blanc pur du terrain.
   static const Color ball = Color(0xFFFFFFFF);
 
@@ -111,6 +115,10 @@ abstract final class PongColors {
 
   /// Case vide d'une jauge.
   static const Color gaugeEmpty = Color(0xFF22222C);
+
+  /// Trait très discret : tiret entre deux scores, part « défaites » d'une
+  /// barre, contour d'une place vide.
+  static const Color faint = Color(0xFF3A3A48);
 
   // --- Signaux & données -------------------------------------------------
   /// Or record : nouveau record, meilleur score.

@@ -4,13 +4,15 @@ import 'package:pong_game/aide.dart';
 import 'package:pong_game/game_sound.dart';
 import 'package:pong_game/hompage.dart';
 import 'package:pong_game/leaderboard.dart';
+import 'package:pong_game/multiplayer/screens/multiplayer_route.dart';
 import 'package:pong_game/settings/pong_settings.dart';
 import 'package:pong_game/settings/settings_page.dart';
 import 'package:pong_game/statistics.dart';
 import 'package:pong_game/ui/pong_ui.dart';
 
-/// Accueil (maquette H1 / H2), en trois étages : qui joue (pseudo) → à quoi
-/// (cartes de mode, la difficulté vit dans la carte Solo) → « Jouer ».
+/// Accueil (maquettes H1, H2, H3), en trois étages : qui joue (pseudo) → à
+/// quoi (cartes de mode : la difficulté vit dans la carte Solo, le bilan des
+/// duels dans la carte Multijoueur) → « Jouer », qui lance le mode choisi.
 /// Classement, Statistiques et Aide sont des raccourcis neutres en bas.
 class NamePage extends StatefulWidget {
   const NamePage({super.key, this.savedPseudo});
@@ -38,11 +40,13 @@ class _NamePageState extends State<NamePage> {
   final GameSound _shootSound = GameSound('sounds/shoot.mp3');
 
   String _difficulty = 'Normal';
+  _GameMode _mode = _GameMode.solo;
 
   // Pseudo courant (celui de Hive au lancement, puis le dernier enregistré)
   String? _pseudo;
   bool _editingPseudo = false; // true quand le joueur a tapé « Modifier »
-  bool _isStarting = false; // true entre le tap sur « Jouer » et le retour du jeu
+  bool _isStarting =
+      false; // true entre le tap sur « Jouer » et le retour du jeu
 
   // Erreur du champ pseudo, et compteur qui le refait trembler à chaque refus
   String? _pseudoError;
@@ -95,23 +99,30 @@ class _NamePageState extends State<NamePage> {
     });
 
     _ambientSound.stop();
-    // Lecteur membre : NamePage reste dans la pile sous le jeu, le son
-    // continue donc pendant la transition
-    await _letsgoSound.play();
+    if (_mode == _GameMode.multiplayer) {
+      // Menus du duel sans musique d'accueil : elle couvrirait le duel
+      await Navigator.push(
+          context, multiplayerMenuRoute(playerName: playerName));
+    } else {
+      // Lecteur membre : NamePage reste dans la pile sous le jeu, le son
+      // continue donc pendant la transition
+      await _letsgoSound.play();
 
-    if (!mounted) return;
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MyHomePage(
-          title: 'Pong Game',
-          playerName: playerName,
-          difficulty: _difficulty,
+      if (!mounted) return;
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MyHomePage(
+            title: 'Pong Game',
+            playerName: playerName,
+            difficulty: _difficulty,
+          ),
         ),
-      ),
-    );
+      );
+    }
 
-    // Retour du jeu : rafraîchir le meilleur score et relancer la musique
+    // Retour : rafraîchir le meilleur score et le bilan des duels, relancer
+    // la musique
     _isStarting = false;
     if (!mounted) return;
     setState(() {});
@@ -148,6 +159,12 @@ class _NamePageState extends State<NamePage> {
     _shootSound.play();
   }
 
+  void _selectMode(_GameMode mode) {
+    if (mode == _mode) return;
+    setState(() => _mode = mode);
+    _shootSound.play();
+  }
+
   void _open(Widget page) {
     FocusScope.of(context).unfocus();
     Navigator.push(context, MaterialPageRoute(builder: (context) => page));
@@ -160,7 +177,11 @@ class _NamePageState extends State<NamePage> {
 
   @override
   Widget build(BuildContext context) {
-    final topScore = Hive.box<int>('scores').get('topscore', defaultValue: 0) ?? 0;
+    final topScore =
+        Hive.box<int>('scores').get('topscore', defaultValue: 0) ?? 0;
+    final stats = Hive.box('stats');
+    final duelWins = stats.get('duelWins', defaultValue: 0) as int;
+    final duelLosses = stats.get('duelLosses', defaultValue: 0) as int;
     final gap = MediaQuery.sizeOf(context).height < _compactHeight
         ? PongSpacing.sm
         : PongSpacing.md;
@@ -185,8 +206,8 @@ class _NamePageState extends State<NamePage> {
             SliverFillRemaining(
               hasScrollBody: false,
               child: Padding(
-                padding: EdgeInsets.fromLTRB(PongSpacing.screen,
-                    PongSpacing.xs, PongSpacing.screen, gap + PongSpacing.xxs),
+                padding: EdgeInsets.fromLTRB(PongSpacing.screen, PongSpacing.xs,
+                    PongSpacing.screen, gap + PongSpacing.xxs),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -195,15 +216,23 @@ class _NamePageState extends State<NamePage> {
                     const PongOverline('Mode de jeu'),
                     SizedBox(height: gap),
                     _SoloModeCard(
+                      selected: _mode == _GameMode.solo,
                       difficulty: _difficulty,
                       topScore: topScore,
                       // Comme la maquette H1 : sans consigne ni meilleur
                       // score quand le champ pseudo occupe déjà la place
                       showDetails: !_showPseudoField,
+                      onSelect: () => _selectMode(_GameMode.solo),
                       onDifficultyChanged: _selectDifficulty,
                     ),
                     SizedBox(height: gap),
-                    const _MultiplayerModeCard(),
+                    _MultiplayerModeCard(
+                      selected: _mode == _GameMode.multiplayer,
+                      wins: duelWins,
+                      losses: duelLosses,
+                      showRecord: !_showPseudoField,
+                      onSelect: () => _selectMode(_GameMode.multiplayer),
+                    ),
                     const Spacer(),
                     SizedBox(height: gap),
                     PongPrimaryButton(label: 'Jouer', onPressed: _startPlaying),
@@ -263,16 +292,23 @@ class _NamePageState extends State<NamePage> {
   }
 }
 
-/// Carte Solo, toujours sélectionnée (seul mode disponible) : difficulté et
-/// meilleur score.
+/// Mode de jeu lancé par « Jouer ».
+enum _GameMode { solo, multiplayer }
+
+/// Carte Solo. Sélectionnée : difficulté et meilleur score ; sinon, une
+/// ligne qui rappelle la difficulté choisie (maquette H3).
 class _SoloModeCard extends StatelessWidget {
   const _SoloModeCard({
+    required this.selected,
     required this.difficulty,
     required this.topScore,
     required this.showDetails,
+    required this.onSelect,
     required this.onDifficultyChanged,
   });
 
+  final bool selected;
+  final VoidCallback onSelect;
   final String difficulty;
   final int topScore;
 
@@ -282,13 +318,21 @@ class _SoloModeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!selected) {
+      return PongChoiceCard(
+        icon: Icons.person_rounded,
+        title: 'Solo',
+        subtitle: "Contre l'ordinateur · $difficulty",
+        selected: false,
+        onTap: onSelect,
+      );
+    }
     return PongChoiceCard(
       icon: Icons.person_rounded,
       title: 'Solo',
       subtitle: "Contre l'ordinateur",
       selected: true,
-      // Déjà choisi : le toucher ne change rien, mais la carte reste active
-      onTap: () {},
+      onTap: onSelect,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -361,21 +405,109 @@ class _BestScoreRow extends StatelessWidget {
   }
 }
 
-/// Carte Multijoueur : le mode n'existe pas encore, la carte est visible
-/// mais désactivée, avec la mention « Bientôt ».
+/// Carte Multijoueur. Sélectionnée : le format du duel et, dès le premier
+/// duel joué, le bilan victoires / défaites (maquette H3).
 class _MultiplayerModeCard extends StatelessWidget {
-  const _MultiplayerModeCard();
+  const _MultiplayerModeCard({
+    required this.selected,
+    required this.wins,
+    required this.losses,
+    required this.showRecord,
+    required this.onSelect,
+  });
+
+  final bool selected;
+  final int wins;
+  final int losses;
+
+  /// Affiche le bilan (masqué quand le champ pseudo occupe la place).
+  final bool showRecord;
+  final VoidCallback onSelect;
 
   @override
   Widget build(BuildContext context) {
-    return const PongChoiceCard(
+    return PongChoiceCard(
       icon: Icons.group_rounded,
       title: 'Multijoueur',
       // ‑ : trait d'union insécable, « Wi-Fi » ne se coupe pas
       subtitle: 'À deux, même Wi‑Fi',
-      selected: false,
-      onTap: null,
-      trailing: PongPill.status(label: 'Bientôt'),
+      selected: selected,
+      onTap: onSelect,
+      child: !selected
+          ? null
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(top: 1),
+                      child: Icon(Icons.wifi_rounded,
+                          size: 18, color: PongColors.textBody),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'Duel en 5 points, chacun sur son téléphone. Pas '
+                        "besoin d'Internet.",
+                        style: PongText.caption
+                            .copyWith(fontWeight: FontWeight.w400, height: 1.5),
+                      ),
+                    ),
+                  ],
+                ),
+                if (showRecord && wins + losses > 0) ...[
+                  const SizedBox(height: 14),
+                  _DuelRecordRow(wins: wins, losses: losses),
+                ],
+              ],
+            ),
+    );
+  }
+}
+
+/// Ligne « Victoires / défaites » sous un filet : victoires en vert.
+class _DuelRecordRow extends StatelessWidget {
+  const _DuelRecordRow({required this.wins, required this.losses});
+
+  final int wins;
+  final int losses;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: 'Victoires : $wins, défaites : $losses',
+      excludeSemantics: true,
+      child: Container(
+        padding: const EdgeInsets.only(top: PongSpacing.sm),
+        decoration: const BoxDecoration(
+          border: Border(top: BorderSide(color: PongColors.borderSubtle)),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text('Victoires / défaites',
+                  style:
+                      PongText.caption.copyWith(fontWeight: FontWeight.w400)),
+            ),
+            Text.rich(
+              TextSpan(children: [
+                TextSpan(
+                    text: PongFormat.number(wins),
+                    style: const TextStyle(color: PongColors.success)),
+                const TextSpan(
+                    text: ' / ',
+                    style: TextStyle(color: PongColors.textDisabled)),
+                TextSpan(
+                    text: PongFormat.number(losses),
+                    style: const TextStyle(color: PongColors.textBody)),
+              ]),
+              style: PongText.listValue.copyWith(fontSize: 16),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

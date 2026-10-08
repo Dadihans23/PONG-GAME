@@ -30,7 +30,8 @@ class PongDotGauge extends StatelessWidget {
   Widget build(BuildContext context) {
     final label = this.label;
     return Semantics(
-      label: label == null ? '$filled sur $count' : '$label, $filled sur $count',
+      label:
+          label == null ? '$filled sur $count' : '$label, $filled sur $count',
       excludeSemantics: true,
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -66,11 +67,20 @@ class PongBarGauge extends StatelessWidget {
     required this.filled,
     this.count = 5,
     this.color = PongColors.player,
+    this.barWidth = 14,
+    this.barHeight = 6,
+    this.gap = 6,
   });
 
   final int filled;
   final int count;
   final Color color;
+
+  /// Taille d'une barre et écart entre deux barres (défaut 14 × 6, écart 6 ;
+  /// le score du duel, posé sur le terrain, utilise 12 × 5, écart 4).
+  final double barWidth;
+  final double barHeight;
+  final double gap;
 
   @override
   Widget build(BuildContext context) {
@@ -81,14 +91,14 @@ class PongBarGauge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           for (var i = 0; i < count; i++) ...[
-            if (i > 0) const SizedBox(width: 6),
+            if (i > 0) SizedBox(width: gap),
             AnimatedContainer(
               duration: const Duration(milliseconds: 150),
-              width: 14,
-              height: 6,
+              width: barWidth,
+              height: barHeight,
               decoration: BoxDecoration(
                 color: i < filled ? color : PongColors.gaugeEmpty,
-                borderRadius: BorderRadius.circular(3),
+                borderRadius: BorderRadius.circular(barHeight / 2),
               ),
             ),
           ],

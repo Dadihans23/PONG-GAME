@@ -3,10 +3,7 @@ import 'package:pong_game/ui/pong_ui.dart';
 
 /// Aide (maquette A1). Les icônes reprennent les couleurs de sens du jeu
 /// (bleu = ta raquette, or = points, orange = vitesse) : l'aide enseigne
-/// aussi le code couleur.
-///
-/// La section Multijoueur de la maquette s'ajoutera à [_sections] avec le
-/// mode (et « Pas de pause en multijoueur » à la section Pause).
+/// aussi le code couleur (rose = multijoueur, comme sa carte à l'accueil).
 class AidePage extends StatelessWidget {
   const AidePage({super.key});
 
@@ -44,7 +41,17 @@ class AidePage extends StatelessWidget {
       color: PongColors.textBody,
       background: PongColors.alpha(PongColors.textPrimary, 0.08),
       title: 'Pause',
-      text: 'Touche le bouton pause en haut à droite.',
+      text: 'Touche le bouton pause en haut à droite. Pas de pause en '
+          'multijoueur.',
+    ),
+    _HelpSection(
+      icon: Icons.group_rounded,
+      color: PongColors.pinkLight,
+      background: PongColors.alpha(PongColors.pink, 0.14),
+      title: 'Multijoueur',
+      text: 'Connectez-vous au même Wi‑Fi (ou au partage de connexion de '
+          "l'un de vous). L'un crée la partie, l'autre la rejoint. Premier "
+          'à 5 points.',
     ),
   ];
 
@@ -110,8 +117,8 @@ class _HelpSection extends StatelessWidget {
                   const SizedBox(height: 3),
                   Text(
                     text,
-                    style: PongText.caption.copyWith(
-                        fontWeight: FontWeight.w400, height: 1.45),
+                    style: PongText.caption
+                        .copyWith(fontWeight: FontWeight.w400, height: 1.45),
                   ),
                 ],
               ),

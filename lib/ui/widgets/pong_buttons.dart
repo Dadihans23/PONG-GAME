@@ -8,6 +8,7 @@
 // | `PongIconButton`      | Icône seule 48 × 48 (retour, pause, réglages).               |
 // | `PongCompactButton`   | Action de ligne dans une liste (« Rejoindre »), rose sans halo. |
 // | `PongTileButton`      | Tuile d'accès icône + mot (rangée de 3 sous « Jouer »).      |
+// | `PongPendingButton`   | Action principale lancée, en attente de l'autre joueur.      |
 //
 // Règle d'or : le rose plein avec halo (`PongPrimaryButton`) est réservé à
 // l'action principale, une seule par écran. Une sélection utilise le contour
@@ -308,8 +309,8 @@ class PongTileButton extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: PongSpacing.xxs),
       decoration: const BoxDecoration(
         color: PongColors.surface,
-        border: Border.fromBorderSide(
-            BorderSide(color: PongColors.borderSubtle)),
+        border:
+            Border.fromBorderSide(BorderSide(color: PongColors.borderSubtle)),
       ),
       child: FittedBox(
         fit: BoxFit.scaleDown,
@@ -320,6 +321,62 @@ class PongTileButton extends StatelessWidget {
             const SizedBox(height: PongSpacing.xxs),
             Text(label,
                 maxLines: 1, style: PongText.tileLabel.copyWith(color: color)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Bouton principal « en attente » (maquette V2) : la place du bouton rose
+/// une fois l'action lancée, quand la suite dépend de l'autre joueur
+/// (« En attente de Tom… »). Contour rose 1,5 px, fond rose 10 %, roue qui
+/// tourne, sans halo : il n'y a plus rien à faire qu'attendre.
+///
+/// Avec `onPressed`, le toucher annule l'attente ; sans, il est inerte.
+class PongPendingButton extends StatelessWidget {
+  const PongPendingButton({
+    super.key,
+    required this.label,
+    this.onPressed,
+  });
+
+  final String label;
+
+  /// Annule l'action en attente ; `null` = le bouton ne fait rien.
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return PongPressable(
+      // Un bouton sans action reste lisible (pas grisé) : c'est un état
+      onTap: onPressed,
+      height: PongSizes.primaryButton,
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: PongSpacing.lg),
+      decoration: BoxDecoration(
+        color: PongColors.alpha(PongColors.pink, 0.1),
+        border: Border.all(
+            color: PongColors.alpha(PongColors.pink, 0.6), width: 1.5),
+      ),
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox.square(
+              dimension: 18,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: PongColors.pinkLight,
+                backgroundColor: PongColors.alpha(PongColors.pinkLight, 0.3),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Text(label,
+                maxLines: 1,
+                style: PongText.buttonLabelPlain
+                    .copyWith(color: PongColors.pinkLight)),
           ],
         ),
       ),

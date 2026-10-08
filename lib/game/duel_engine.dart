@@ -58,7 +58,7 @@ class DuelEngine extends PongPhysics {
   /// [stepsPerSecond] : pas de moteur par seconde, le même que le solo.
   /// [paddleMaxSpeed] : vitesse maximale d'une raquette en unités de terrain
   /// par seconde (celle du solo, `paddleMaxSpeed` de l'écran de jeu).
-  DuelEngine({required int stepsPerSecond, required double paddleMaxSpeed, Random? random})
+  DuelEngine({required this.stepsPerSecond, required double paddleMaxSpeed, Random? random})
       : assert(stepsPerSecond > 0),
         assert(paddleMaxSpeed > 0),
         serveDelayTicks = (stepsPerSecond * serveDelaySeconds).round(),
@@ -87,8 +87,12 @@ class DuelEngine extends PongPhysics {
   /// (4 renvois du joueur, autant de l'IA).
   static const int hitsPerSpeedUp = 8;
 
-  /// Pause avant chaque service qui suit un point.
-  static const double serveDelaySeconds = 1.0;
+  /// Pause avant chaque service qui suit un point : le temps d'afficher
+  /// « Point pour X » et « Reprise dans 2… » (maquette D2).
+  static const double serveDelaySeconds = 2.0;
+
+  /// Pas de moteur par seconde.
+  final int stepsPerSecond;
 
   /// Durée de la pause avant service, en pas de moteur.
   final int serveDelayTicks;
@@ -115,6 +119,18 @@ class DuelEngine extends PongPhysics {
   /// Pas restants avant que la balle reparte ; 0 pendant le jeu.
   int serveTicksRemaining = 0;
 
+  /// Renvois de l'échange en cours, remis à zéro à chaque service.
+  int rally = 0;
+
+  /// Plus long échange de la partie, en renvois.
+  int longestRally = 0;
+
+  /// Renvois des deux joueurs depuis [reset].
+  int totalHits = 0;
+
+  /// Auteur du dernier point, `null` avant le premier.
+  PlayerSlot? lastScorer;
+
   PlayerSlot? _winner;
 
   @override
@@ -124,6 +140,14 @@ class DuelEngine extends PongPhysics {
   PlayerSlot? get winner => _winner;
   bool get isFinished => _winner != null;
   bool get isServing => serveTicksRemaining > 0;
+
+  /// Temps de jeu depuis [reset], en temps de moteur (pauses de service
+  /// comprises).
+  Duration get elapsed => Duration(microseconds: tickCount * 1000000 ~/ stepsPerSecond);
+
+  /// Temps restant de la pause avant service, en millisecondes (arrondi au
+  /// supérieur : 0 seulement quand la balle est en jeu).
+  int get serveRemainingMs => (serveTicksRemaining * 1000 + stepsPerSecond - 1) ~/ stepsPerSecond;
 
   /// Dernière position reçue pour la raquette du joueur 2.
   double get player2Target => _player2Target;
@@ -146,6 +170,10 @@ class DuelEngine extends PongPhysics {
     score2 = 0;
     _winner = null;
     tickCount = 0;
+    rally = 0;
+    longestRally = 0;
+    totalHits = 0;
+    lastScorer = null;
     player1X = 0;
     player2X = 0;
     player1Speed = 0.0;
@@ -191,6 +219,12 @@ class DuelEngine extends PongPhysics {
         paddle2X: player2X,
         score1: score1,
         score2: score2,
+        serveMs: serveRemainingMs,
+        lastScorer: lastScorer,
+        rally: rally,
+        longestRally: longestRally,
+        hits: totalHits,
+        timeMs: elapsed.inMilliseconds,
       );
 
   // Joueur vers qui la balle se dirige
@@ -214,15 +248,24 @@ class DuelEngine extends PongPhysics {
     if (ballY >= PongPhysics.paddleHitZone && ballYDirection == BallDirection.down && isOnPaddle(player1X)) {
       ballYDirection = BallDirection.up;
       bounceOffPaddle(player1X);
-      countHit(hitsPerSpeedUp);
+      _countRally();
       events.add(const DuelEvent.paddleHit(PlayerSlot.player1));
     } else if (ballY <= -PongPhysics.paddleHitZone && ballYDirection == BallDirection.up && isOnPaddle(player2X)) {
       ballYDirection = BallDirection.down;
       bounceOffPaddle(player2X);
-      countHit(hitsPerSpeedUp);
+      _countRally();
       events.add(const DuelEvent.paddleHit(PlayerSlot.player2));
     }
     bounceOffWalls();
+  }
+
+  void _countRally() {
+    countHit(hitsPerSpeedUp);
+    rally++;
+    totalHits++;
+    if (rally > longestRally) {
+      longestRally = rally;
+    }
   }
 
   // La balle a passé une raquette : point pour l'adversaire
@@ -241,6 +284,7 @@ class DuelEngine extends PongPhysics {
     } else {
       score2++;
     }
+    lastScorer = scorer;
     events.add(DuelEvent.pointScored(scorer));
 
     if (scoreOf(scorer) >= pointsToWin) {
@@ -258,6 +302,7 @@ class DuelEngine extends PongPhysics {
     ballX = 0.0;
     ballY = 0.0;
     resetSpeed();
+    rally = 0;
     ballYDirection = receiver == PlayerSlot.player1 ? BallDirection.down : BallDirection.up;
     ballXDirection = _random.nextBool() ? BallDirection.left : BallDirection.right;
     serveTicksRemaining = serveDelayTicks;

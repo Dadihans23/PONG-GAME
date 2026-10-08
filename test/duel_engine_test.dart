@@ -79,7 +79,7 @@ void main() {
 
     test('pause de service et vitesse maximale déduites du rythme du moteur', () {
       final engine = newDuel();
-      expect(engine.serveDelayTicks, 450);
+      expect(engine.serveDelayTicks, 900);
       expect(engine.maxPaddleStep, closeTo(1.42 / 450, 1e-15));
     });
 
@@ -154,18 +154,20 @@ void main() {
       expect(engine.ballYDirection, BallDirection.down);
     });
 
-    test('pause d\'une seconde avant le service : balle immobile puis « served »', () {
+    test('pause de deux secondes avant le service : balle immobile puis « served »', () {
       final engine = newDuel();
       scorePoint(engine, p2);
       expect(engine.isServing, isTrue);
-      expect(engine.serveTicksRemaining, 450);
+      expect(engine.serveTicksRemaining, 900);
+      expect(engine.serveRemainingMs, 2000);
 
-      for (int i = 0; i < 449; i++) {
+      for (int i = 0; i < 899; i++) {
         expect(engine.tick(), isEmpty);
         expect(engine.ballX, 0.0);
         expect(engine.ballY, 0.0);
       }
-      // 450e pas : fin de la pause, la balle part vers le joueur 1 qui a perdu
+      expect(engine.serveRemainingMs, 3); // 1 pas = 2,2 ms, arrondi au supérieur
+      // 900e pas : fin de la pause, la balle part vers le joueur 1 qui a perdu
       expect(engine.tick(), [const DuelEvent.served(p1)]);
       expect(engine.isServing, isFalse);
       expect(engine.ballY, 0.0);

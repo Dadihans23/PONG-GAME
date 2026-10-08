@@ -14,7 +14,7 @@ Une sélection utilise le contour rose (`PongSelectableButton`, `PongChoiceCard`
 remplissage. `PongCompactButton` (rose sans halo) est réservé à l'action d'une ligne de liste.
 
 Autres règles :
-- **Couleur = sens.** Bleu = toi (`player`), vert = l'adversaire (`opponent`), or = record
+- **Couleur = sens.** Bleu = toi (`player`, `playerLight`), vert = l'adversaire (`opponent`, `opponentLight`), or = record
   (`record`), rouge = erreur (`error`), podium (`gold`/`silver`/`bronze`) = classement seulement.
 - **Le jeu d'abord.** En partie, seules la balle et les raquettes sont pleinement lumineuses ;
   le HUD utilise `PongText.gameScore` (blanc 22 %) et `PongText.hudLabel`.
@@ -47,6 +47,7 @@ Autres règles :
 | Sortie, lien discret | `PongTextButton(label, onPressed, icon?, color?)` |
 | Icône seule (retour, pause, réglages) | `PongIconButton(icon, onPressed, tooltip, filled?, color?)` |
 | Action d'une ligne de liste | `PongCompactButton(label, onPressed)` |
+| Action lancée, en attente de l'autre joueur | `PongPendingButton(label, onPressed?)` (contour rose + roue ; `onPressed` annule) |
 | Accès secondaires en tuiles | `PongTileButton(icon, label, onPressed)` dans `Row` + `Expanded` |
 | Choisir parmi 2–4 valeurs | `PongSegmentedControl<T>(values, selected, onChanged, labelOf?)` |
 | Réglage activé / désactivé | `PongSwitchRow(icon, title, subtitle?, value, onChanged)` dans `PongCard(padding: EdgeInsets.zero)`, lignes séparées par `PongCardDivider()` ; `PongSwitch` seul si besoin |
@@ -69,7 +70,7 @@ Autres règles :
 | Dialogue | `showPongDialog(context, builder)` + `PongDialogCard(icon?, iconColor?, title?, message?, content?, actions)` |
 | Annonce (record, point) | `PongPill.signal(label, color, textColor?, icon?)` |
 | État (prêt, en attente) | `PongPill.status(label, color?, textColor?, icon?)` |
-| Jauges de jeu | `PongDotGauge(filled, count?, color?, label?)`, `PongBarGauge(filled, count?, color?)` |
+| Jauges de jeu | `PongDotGauge(filled, count?, color?, label?)`, `PongBarGauge(filled, count?, color?, barWidth?, barHeight?, gap?)` |
 | Élément tactile hors kit | `PongPressable` (base de tous les boutons) |
 
 ## Icônes

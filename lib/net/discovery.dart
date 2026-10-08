@@ -20,6 +20,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'game_discovery.dart';
 import 'multicast_lock.dart';
 import 'net_constants.dart';
 import 'net_log.dart';
@@ -37,58 +38,6 @@ const int maxGameNameLength = 40;
 
 /// Fournit les adresses vers lesquelles envoyer les broadcasts.
 typedef BroadcastTargets = Future<List<InternetAddress>> Function();
-
-/// Une partie trouvée sur le réseau.
-class DiscoveredGame {
-  const DiscoveredGame({
-    required this.id,
-    required this.name,
-    required this.address,
-    required this.port,
-    required this.players,
-    required this.maxPlayers,
-    required this.version,
-  });
-
-  /// Identifiant aléatoire de l'annonce (une partie = un id).
-  final String id;
-
-  /// « Partie de <pseudo> ».
-  final String name;
-
-  /// Adresse IP du Host, lue sur le paquet reçu (pas dans son contenu).
-  final String address;
-
-  /// Port WebSocket du Host.
-  final int port;
-  final int players;
-  final int maxPlayers;
-
-  /// Version du protocole du Host.
-  final int version;
-
-  bool get isFull => players >= maxPlayers;
-
-  /// Faux si le Host a une autre version de l'app : le rejoindre sera refusé.
-  bool get isCompatible => version == protocolVersion;
-
-  @override
-  bool operator ==(Object other) =>
-      other is DiscoveredGame &&
-      other.id == id &&
-      other.name == name &&
-      other.address == address &&
-      other.port == port &&
-      other.players == players &&
-      other.maxPlayers == maxPlayers &&
-      other.version == version;
-
-  @override
-  int get hashCode => Object.hash(id, name, address, port, players, maxPlayers, version);
-
-  @override
-  String toString() => 'DiscoveredGame($name, $address:$port, $players/$maxPlayers, v$version)';
-}
 
 /// Adresses de broadcast : 255.255.255.255 plus a.b.c.255 pour chaque
 /// interface IPv4 (hors boucle locale et données mobiles).
@@ -160,7 +109,7 @@ Map<String, dynamic>? _decodePacket(Datagram datagram) {
 }
 
 /// Côté Host : annonce la partie et répond aux sondes.
-class DiscoveryAnnouncer {
+class DiscoveryAnnouncer implements GameAdvertiser {
   DiscoveryAnnouncer({
     required String gameName,
     required this.gamePort,
@@ -209,6 +158,7 @@ class DiscoveryAnnouncer {
   /// Port UDP réellement ouvert (où arrivent les sondes).
   int get port => _socket?.port ?? 0;
 
+  @override
   Future<void> start() async {
     if (_socket != null || _stopped) throw StateError('DiscoveryAnnouncer déjà démarré ou arrêté');
     RawDatagramSocket socket;
@@ -243,6 +193,7 @@ class DiscoveryAnnouncer {
   }
 
   /// Met à jour le nombre de joueurs et l'annonce aussitôt.
+  @override
   void update({int? players, String? gameName}) {
     if (players != null) _players = players;
     if (gameName != null) _gameName = _clip(gameName);
@@ -283,6 +234,7 @@ class DiscoveryAnnouncer {
   }
 
   /// Arrête les annonces et ferme le socket. Idempotent.
+  @override
   Future<void> stop() async {
     if (_stopped) return;
     _stopped = true;
@@ -296,7 +248,7 @@ class DiscoveryAnnouncer {
 
 /// Côté Client : écoute les annonces, sonde le réseau, tient la liste des
 /// parties et retire celles qui ne sont plus annoncées.
-class DiscoveryBrowser {
+class DiscoveryBrowser implements GameFinder {
   DiscoveryBrowser({
     this.listenPort = discoveryPort,
     this.probePort = discoveryPort,
@@ -333,9 +285,11 @@ class DiscoveryBrowser {
 
   /// Liste des parties, émise à chaque changement (ajout, retrait, nombre
   /// de joueurs).
+  @override
   Stream<List<DiscoveredGame>> get games => _games.stream;
 
   /// Liste actuelle, triée par nom.
+  @override
   List<DiscoveredGame> get current {
     final list = [for (final e in _entries.values) e.game];
     list.sort((a, b) => a.name.compareTo(b.name));
@@ -345,6 +299,7 @@ class DiscoveryBrowser {
   /// Port UDP réellement ouvert.
   int get port => _socket?.port ?? 0;
 
+  @override
   Future<void> start() async {
     if (_socket != null || _stopped) throw StateError('DiscoveryBrowser déjà démarré ou arrêté');
     RawDatagramSocket socket;
@@ -378,6 +333,7 @@ class DiscoveryBrowser {
   }
 
   /// Vide la liste et sonde aussitôt (bouton « Actualiser »).
+  @override
   void refresh() {
     if (_entries.isNotEmpty) {
       _entries.clear();
@@ -448,6 +404,7 @@ class DiscoveryBrowser {
   }
 
   /// Arrête l'écoute et ferme le socket. Idempotent.
+  @override
   Future<void> stop() async {
     if (_stopped) return;
     _stopped = true;

@@ -32,7 +32,8 @@ class GameRoom {
   int get playerCount => _guest == null ? 1 : 2;
 
   /// Joueur à la place [slot] (le joueur 2 peut être absent).
-  Player? playerIn(PlayerSlot slot) => slot == PlayerSlot.player1 ? _host : _guest;
+  Player? playerIn(PlayerSlot slot) =>
+      slot == PlayerSlot.player1 ? _host : _guest;
 
   /// Place du joueur [playerId], ou `null` s'il n'est pas dans le salon.
   PlayerSlot? slotOf(String playerId) {
@@ -145,7 +146,8 @@ class GameRoom {
     final Object? guestJson = map['guest'];
     final Player? guest = guestJson == null ? null : Player.fromJson(guestJson);
 
-    final bool needsGuest = phase != DuelPhase.waiting && phase != DuelPhase.disconnected;
+    final bool needsGuest =
+        phase != DuelPhase.waiting && phase != DuelPhase.disconnected;
     if (needsGuest && guest == null) {
       throw FormatException('Salon en phase ${phase.name} sans joueur 2');
     }
@@ -156,7 +158,8 @@ class GameRoom {
       throw const FormatException('Les deux joueurs ont le même identifiant');
     }
     if (phase == DuelPhase.ready && !(host.ready && guest!.ready)) {
-      throw const FormatException('Salon en phase ready sans deux joueurs prêts');
+      throw const FormatException(
+          'Salon en phase ready sans deux joueurs prêts');
     }
     return GameRoom._(id, host, guest, phase);
   }

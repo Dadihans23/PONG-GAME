@@ -7,7 +7,9 @@ library;
 
 export 'client_session.dart';
 export 'discovery.dart';
+export 'game_discovery.dart';
 export 'host_session.dart';
+export 'memory_discovery.dart';
 export 'memory_transport.dart';
 export 'multicast_lock.dart';
 export 'net_constants.dart';
