@@ -9,12 +9,12 @@
   <meta name="theme-color" content="#0B0B10" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#F6F6F9" media="(prefers-color-scheme: light)">
   {# Sans defer : pose le thème mémorisé avant le premier rendu (même mécanisme que le site). #}
-  <script src="/static/js/theme.js"></script>
+  <script src="{{ static_url('js/theme.js') }}"></script>
   <title>{% block title %}{% if page_title %}{{ page_title }} · {% endif %}Administration · {{ game_name or "Tilto" }}{% endblock %}</title>
   <link rel="icon" href="/static/img/favicon.ico" sizes="16x16 32x32 48x48">
   <link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="/static/css/admin.css">
-  <script src="/static/js/admin.js" defer></script>
+  <link rel="stylesheet" href="{{ static_url('css/admin.css') }}">
+  <script src="{{ static_url('js/admin.js') }}" defer></script>
 </head>
 <body class="admin">
 {% block body %}

@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 
-{% block scripts %}<script src="/static/js/site.js" defer></script>{% endblock %}
+{% block title %}{{ site.game_name }} : {{ home_title_suffix }}{% endblock %}
+{% block description %}{{ home_description }}{% endblock %}
+{% block scripts %}<script src="{{ static_url('js/site.js') }}" defer></script>
+  {# Données structurées (schema.org, voir app/seo.py). Bloc de données : le
+     navigateur ne l'exécute pas et la CSP « script-src 'self' » ne le bloque pas.
+     tojson échappe <, > et & : un texte de la base ne peut pas fermer la balise. #}
+  <script type="application/ld+json">{{ ld|tojson }}</script>{% endblock %}
 {% block body_class %}home{% endblock %}
 
 {# Boutons de téléchargement : héros (côte à côte) et bloc final (empilés).

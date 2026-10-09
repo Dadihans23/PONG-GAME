@@ -52,6 +52,49 @@ def sniff_image(head: bytes) -> str | None:
     return None
 
 
+def image_size(path: Path) -> tuple[int, int] | None:
+    """Largeur et hauteur en pixels d'une image PNG, GIF, JPEG ou WebP, lues
+    dans l'en-tête du fichier (None si inconnues : SVG, fichier abîmé…)."""
+    try:
+        with open(path, "rb") as f:
+            head = f.read(64)
+            kind = sniff_image(head)
+            if kind == "png" and head[12:16] == b"IHDR":
+                return int.from_bytes(head[16:20], "big"), int.from_bytes(head[20:24], "big")
+            if kind == "gif":
+                return int.from_bytes(head[6:8], "little"), int.from_bytes(head[8:10], "little")
+            if kind == "webp":
+                chunk = head[12:16]
+                if chunk == b"VP8 ":
+                    return (int.from_bytes(head[26:28], "little") & 0x3FFF,
+                            int.from_bytes(head[28:30], "little") & 0x3FFF)
+                if chunk == b"VP8L":
+                    b = head[21:25]
+                    return (1 + (((b[1] & 0x3F) << 8) | b[0]),
+                            1 + (((b[3] & 0xF) << 10) | (b[2] << 2) | ((b[1] & 0xC0) >> 6)))
+                if chunk == b"VP8X":
+                    return (1 + int.from_bytes(head[24:27], "little"),
+                            1 + int.from_bytes(head[27:30], "little"))
+                return None
+            if kind == "jpg":
+                f.seek(2)
+                while True:
+                    marker = f.read(2)
+                    if len(marker) < 2 or marker[0] != 0xFF:
+                        return None
+                    if marker[1] in (0xD8, 0x01) or 0xD0 <= marker[1] <= 0xD7:
+                        continue
+                    length = int.from_bytes(f.read(2), "big")
+                    if marker[1] in (0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7,
+                                     0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF):
+                        data = f.read(5)
+                        return int.from_bytes(data[3:5], "big"), int.from_bytes(data[1:3], "big")
+                    f.seek(length - 2, 1)
+    except OSError:
+        return None
+    return None
+
+
 def _is_safe_svg(data: bytes) -> bool:
     try:
         text = data.decode("utf-8")

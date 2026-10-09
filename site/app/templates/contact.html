@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block title %}Contact · {{ site.game_name }}{% endblock %}
-{% block description %}Écrire à l'équipe de {{ site.game_name }}.{% endblock %}
+{% block description %}Une question, un souci ou une idée sur {{ site.game_name }}, le Pong qu'on joue en inclinant son téléphone ? Écris à l'équipe de {{ site.studio_name }} : on te répond par e-mail.{% endblock %}
 {% block body_class %}page-contact{% endblock %}
-{% block scripts %}<script src="/static/js/contact.js" defer></script>{% endblock %}
+{% block scripts %}<script src="{{ static_url('js/contact.js') }}" defer></script>{% endblock %}
 {% block content %}
 {# Les erreurs arrivent en liste (contact.py) : on rattache chacune à son champ
    d'après son texte ; celles qui ne visent aucun champ (formulaire expiré,

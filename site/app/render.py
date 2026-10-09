@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import re
 from datetime import datetime, timezone
 from pathlib import Path
@@ -89,8 +90,33 @@ def rich_text(text: str) -> Markup:
     return Markup("\n".join(html))
 
 
-def make_templates(directory: Path) -> Jinja2Templates:
+def make_static_url(static_dir: Path):
+    """Fonction `static_url("css/site.css")` des gabarits : « /static/css/site.css?v=<empreinte> ».
+
+    L'empreinte (10 caractères du SHA-256 du fichier) est calculée une fois par
+    fichier et par démarrage : une nouvelle version du fichier change l'URL, ce
+    qui permettra un cache long côté Nginx. Les polices, appelées depuis les CSS,
+    ne sont pas versionnées (le préchargement doit garder la même URL).
+    """
+    cache: dict[str, str] = {}
+
+    def static_url(path: str) -> str:
+        if path not in cache:
+            file = static_dir / path
+            cache[path] = (hashlib.sha256(file.read_bytes()).hexdigest()[:10]
+                           if file.is_file() else "")
+        version = cache[path]
+        return f"/static/{path}?v={version}" if version else f"/static/{path}"
+
+    return static_url
+
+
+def make_templates(directory: Path, static_dir: Path | None = None,
+                   site_url: str = "") -> Jinja2Templates:
     templates = Jinja2Templates(directory=str(directory))  # échappement HTML actif
+    templates.env.globals["static_url"] = make_static_url(
+        static_dir or directory.parent / "static")
+    templates.env.globals["SITE_URL"] = site_url
     templates.env.filters["filesize"] = filesize
     templates.env.filters["date_fr"] = date_fr
     templates.env.filters["date_short"] = date_short

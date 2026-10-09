@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Message envoyé · {{ site.game_name }}{% endblock %}
+{# Page de confirmation : noindex (pas de canonical_path), pas de description. #}
+{% block description %}{% endblock %}
 {% block body_class %}page-contact{% endblock %}
 {% block content %}
 <section class="done">

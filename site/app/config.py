@@ -7,6 +7,7 @@ sans SECRET_KEY ni ADMIN_PASSWORD_HASH.
 from __future__ import annotations
 
 import os
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -31,6 +32,13 @@ def _int(name: str, value: str | None, default: int) -> int:
     if number <= 0:
         raise ConfigError(f"{name} doit être positif")
     return number
+
+
+def _site_url(value: str | None) -> str:
+    url = (value or "").strip().rstrip("/") or "https://tilto.fun"
+    if not re.fullmatch(r"https?://[A-Za-z0-9.-]+(:[0-9]+)?", url):
+        raise ConfigError("SITE_URL doit être une adresse comme https://tilto.fun (sans chemin)")
+    return url
 
 
 @dataclass(frozen=True)
@@ -80,6 +88,9 @@ class Settings:
     contact_global_per_hour: int = 30   # tous visiteurs confondus
     contact_min_seconds: int = 3        # délai minimal entre affichage et envoi
     smtp: SmtpConfig | None = None
+    # Adresse publique du site, sans « / » final : URL canoniques, sitemap,
+    # Open Graph, données structurées. Jamais déduite de l'en-tête Host.
+    site_url: str = "https://tilto.fun"
 
     @property
     def db_path(self) -> Path:
@@ -135,4 +146,5 @@ class Settings:
             contact_min_seconds=_int(
                 "CONTACT_MIN_SECONDS", env.get("CONTACT_MIN_SECONDS"), 3),
             smtp=SmtpConfig.from_env(env),
+            site_url=_site_url(env.get("SITE_URL")),
         )

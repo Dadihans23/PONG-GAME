@@ -37,7 +37,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app = FastAPI(debug=False, docs_url=None, redoc_url=None, openapi_url=None)
     app.state.settings = settings
-    app.state.templates = render.make_templates(APP_DIR / "templates")
+    app.state.templates = render.make_templates(
+        APP_DIR / "templates", APP_DIR / "static", settings.site_url)
     app.state.login_limiter = LoginLimiter(
         settings.login_max_attempts, settings.login_window_seconds
     )

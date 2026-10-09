@@ -7,16 +7,41 @@
   <meta name="theme-color" content="#0B0B10" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#F6F6F9" media="(prefers-color-scheme: light)">
   {# Sans defer : pose data-theme sur <html> avant le premier rendu (pas de flash). #}
-  <script src="/static/js/theme.js"></script>
+  <script src="{{ static_url('js/theme.js') }}"></script>
   <title>{% block title %}{{ site.game_name if site else "Tilto" }}{% endblock %}</title>
-  <meta name="description" content="{% block description %}{{ site.tagline if site else "" }}{% endblock %}">
+  {# Référencement. Une page indexable reçoit canonical_path de sa route
+     (routes_public.site_context) : URL canonique sur SITE_URL (jamais l'hôte de
+     la requête, jamais de paramètres), Open Graph et Twitter. Sans canonical_path
+     (message envoyé, pages d'erreur) : noindex. Une page au bloc description
+     vide (404, message envoyé) n'a pas de meta description. #}
+  {% set page_description %}{% block description %}{{ site.tagline if site else "" }}{% endblock %}{% endset %}
+  {% set page_description = page_description|trim %}
+  {% if page_description %}<meta name="description" content="{{ page_description }}">{% endif %}
+  {% if canonical_path %}
+  {% set page_url = SITE_URL ~ canonical_path %}
+  <link rel="canonical" href="{{ page_url }}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="{{ site.game_name }}">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:url" content="{{ page_url }}">
+  <meta property="og:title" content="{{ self.title()|trim }}">
+  {% if page_description %}<meta property="og:description" content="{{ page_description }}">{% endif %}
+  <meta property="og:image" content="{{ SITE_URL ~ static_url('img/og-tilto.png') }}">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="{{ site.game_name|upper }}, le Pong qu'on joue en inclinant son téléphone : terrain vertical, raquette bleue en bas, balle blanche, raquette verte en haut.">
+  <meta name="twitter:card" content="summary_large_image">
+  {% else %}
+  <meta name="robots" content="noindex">
+  {% endif %}
   <link rel="icon" href="/static/img/favicon.ico" sizes="16x16 32x32 48x48">
   <link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/static/img/apple-touch-icon.png">
   {# Seule la graisse du titre (900, h1 de l'accueil) est préchargée ; même URL que dans site.css. #}
   <link rel="preload" href="/static/fonts/Archivo-Black.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="/static/css/site.css">
-  <script src="/static/js/nav.js" defer></script>
+  <link rel="stylesheet" href="{{ static_url('css/site.css') }}">
+  <script src="{{ static_url('js/nav.js') }}" defer></script>
   {% block scripts %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
@@ -96,7 +121,7 @@
         <div class="footer__brand-row">
           <a class="footer__name" href="/">{{ game|upper }}</a>
           {% if site and site.studio_logo_url %}
-          <img src="{{ site.studio_logo_url }}" alt="{{ site.studio_name }}" class="studio-logo" height="28">
+          <img src="{{ site.studio_logo_url }}" alt="{{ site.studio_name }}" class="studio-logo"{% if site.studio_logo_size %} width="{{ site.studio_logo_size[0] }}" height="{{ site.studio_logo_size[1] }}"{% else %} height="24"{% endif %}>
           {% endif %}
         </div>
         {% if site and site.footer_text %}<p class="footer__about">{{ site.footer_text }}</p>{% endif %}

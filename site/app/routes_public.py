@@ -10,11 +10,12 @@ from collections.abc import Iterator
 from datetime import datetime
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
-from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
+from fastapi.responses import (FileResponse, JSONResponse, PlainTextResponse,
+                               RedirectResponse, Response)
 
-from . import contact, db, render
+from . import contact, db, render, seo
 from .mailer import notify_contact
-from .uploads import IMAGE_TYPES, STORED_NAME
+from .uploads import IMAGE_TYPES, STORED_NAME, image_size
 
 router = APIRouter()
 log = logging.getLogger("tilto.contact")
@@ -89,11 +90,25 @@ def footer_columns(site: dict, apk: dict | None, faq: list) -> list[dict]:
     return columns
 
 
-def site_context(conn: sqlite3.Connection) -> dict:
-    """Variables communes à toutes les pages publiques (en-tête et pied de page)."""
+# Hauteur d'affichage du logo du studio dans le pied de page (CSS .studio-logo).
+LOGO_HEIGHT = 24
+
+
+def site_context(request: Request, conn: sqlite3.Connection,
+                 canonical_path: str | None = None) -> dict:
+    """Variables communes à toutes les pages publiques (en-tête et pied de page).
+
+    canonical_path : chemin de la page indexable (« / », « /contact »…), pour
+    l'URL canonique et Open Graph ; None pour une page à ne pas indexer.
+    """
     site = db.get_settings(conn)
     logo = site.get("studio_logo", "")
     site["studio_logo_url"] = f"/media/{logo}" if logo else ""
+    # Dimensions du logo (attributs width/height : pas de décalage au chargement).
+    size = image_size(request.app.state.settings.images_dir / logo) if logo else None
+    site["studio_logo_size"] = (
+        (max(1, round(LOGO_HEIGHT * size[0] / size[1])), LOGO_HEIGHT)
+        if size and size[1] else None)
     apk = release_info(db.current_apk(conn), site.get("game_name", "Tilto"))
     faq = db.list_faq(conn)
     return {
@@ -104,12 +119,13 @@ def site_context(conn: sqlite3.Connection) -> dict:
         "apk": apk,
         "faq": faq,
         "footer_columns": footer_columns(site, apk, faq),
+        "canonical_path": canonical_path,
     }
 
 
 @router.api_route("/", methods=["GET", "HEAD"])
 def home(request: Request, conn: sqlite3.Connection = Depends(get_conn)):
-    context = site_context(conn)
+    context = site_context(request, conn, "/")
     specs = db.rows_by_item(conn, "feature_spec")
     features = []
     for item in db.list_items(conn, "feature"):
@@ -125,12 +141,16 @@ def home(request: Request, conn: sqlite3.Connection = Depends(get_conn)):
         screenshots=db.list_screenshots(conn),
         install_steps=db.list_rows(conn, "install"),
     )
+    context["home_title_suffix"] = seo.HOME_TITLE_SUFFIX
+    context["home_description"] = seo.HOME_DESCRIPTION
+    context["ld"] = seo.home_json_ld(request.app.state.settings.site_url, context)
     return render.page(request, "index.html", context)
 
 
 @router.api_route("/confidentialite", methods=["GET", "HEAD"])
 def privacy(request: Request, conn: sqlite3.Connection = Depends(get_conn)):
-    return render.page(request, "privacy.html", site_context(conn))
+    return render.page(request, "privacy.html",
+                       site_context(request, conn, "/confidentialite"))
 
 
 # --- Mentions légales ----------------------------------------------------------
@@ -156,7 +176,7 @@ def legal_sections(site: dict) -> list[dict]:
 
 @router.api_route("/mentions-legales", methods=["GET", "HEAD"])
 def legal(request: Request, conn: sqlite3.Connection = Depends(get_conn)):
-    context = site_context(conn)
+    context = site_context(request, conn, "/mentions-legales")
     context["legal_sections"] = legal_sections(context["site"])
     return render.page(request, "legal.html", context)
 
@@ -170,7 +190,7 @@ def _clock(request: Request) -> float:
 def _contact_page(request: Request, conn: sqlite3.Connection, form: contact.ContactForm,
                   nonce: str, status_code: int = 200):
     settings = request.app.state.settings
-    context = site_context(conn)
+    context = site_context(request, conn, "/contact")
     context.update(
         form=form,
         subjects=contact.SUBJECTS,
@@ -258,7 +278,7 @@ async def contact_send(request: Request, background: BackgroundTasks,
 
 @router.api_route("/contact/merci", methods=["GET", "HEAD"])
 def contact_thanks(request: Request, conn: sqlite3.Connection = Depends(get_conn)):
-    return render.page(request, "contact_sent.html", site_context(conn))
+    return render.page(request, "contact_sent.html", site_context(request, conn))
 
 
 # --- Fichiers ----------------------------------------------------------------------
@@ -306,3 +326,26 @@ def health(request: Request):
     except sqlite3.Error:
         return JSONResponse({"status": "erreur"}, status_code=503)
     return {"status": "ok"}
+
+
+# --- Référencement : robots.txt, sitemap.xml, security.txt -------------------------
+
+@router.api_route("/robots.txt", methods=["GET", "HEAD"])
+def robots(request: Request):
+    return PlainTextResponse(seo.robots_txt(request.app.state.settings.site_url),
+                             headers={"Cache-Control": "public, max-age=86400"})
+
+
+@router.api_route("/sitemap.xml", methods=["GET", "HEAD"])
+def sitemap(request: Request, conn: sqlite3.Connection = Depends(get_conn)):
+    site = db.get_settings(conn)
+    apk = release_info(db.current_apk(conn), site.get("game_name", "Tilto"))
+    body = seo.sitemap_xml(request.app.state.settings.site_url, site, apk)
+    return Response(body, media_type="application/xml",
+                    headers={"Cache-Control": "public, max-age=3600"})
+
+
+@router.api_route("/.well-known/security.txt", methods=["GET", "HEAD"])
+def security_txt(request: Request):
+    return PlainTextResponse(seo.security_txt(request.app.state.settings.site_url),
+                             headers={"Cache-Control": "public, max-age=86400"})

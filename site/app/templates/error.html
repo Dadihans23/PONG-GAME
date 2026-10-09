@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Erreur {{ status }}{% endblock %}
+{# Ni meta description ni URL canonique ; noindex posé par base.html. #}
+{% block description %}{% endblock %}
 {% block body_class %}page-error{% endblock %}
 {% block content %}
 <section class="oops">
