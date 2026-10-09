@@ -61,33 +61,22 @@ def release_info(row: sqlite3.Row | None, game_name: str) -> dict | None:
     return info
 
 
-def footer_columns(site: dict, apk: dict | None, faq: list) -> list[dict]:
-    """Colonnes de liens du pied de page : [{title, links: [{label, href, external}]}]."""
+def footer_links(site: dict, apk: dict | None) -> list[dict]:
+    """Liens du pied de page : seulement de vraies destinations, jamais d'ancre
+    de l'accueil (la navigation du haut s'en charge). Téléchargements d'abord,
+    s'ils existent, puis les pages du studio. [{label, href, external}]."""
     def link(label: str, href: str, external: bool = False) -> dict:
         return {"label": label, "href": href, "external": external}
 
-    game = [link("Solo et Duel", "/#solo-duel"), link("Comment jouer", "/#comment-jouer"),
-            link("Captures", "/#captures")]
-    if apk and apk["notes"]:
-        game.append(link(f"Nouveautés {apk['version']}", "/#nouveautes"))
-    help_links = [link("Questions fréquentes", "/#faq")]
-    if apk:
-        help_links.append(link("Installer l'APK", "/#installer-apk"))
-    help_links += [link(f["footer_label"], f"/#{f['anchor']}") for f in faq if f["footer_label"]]
-    downloads = []
+    links = []
     if site.get("play_store_url"):
-        downloads.append(link("Google Play", site["play_store_url"], external=True))
+        links.append(link("Google Play", site["play_store_url"], external=True))
     if apk:
-        downloads.append(link(f"APK v{apk['version']} · {render.filesize(apk['size_bytes'])}",
-                              "/telecharger"))
-    studio = [link("Contact", "/contact"),
+        links.append(link(f"Télécharger l'APK v{apk['version']}", "/telecharger"))
+    links += [link("Contact", "/contact"),
               link("Politique de confidentialité", "/confidentialite"),
               link("Mentions légales", "/mentions-legales")]
-    columns = [{"title": "Le jeu", "links": game}, {"title": "Aide", "links": help_links}]
-    if downloads:
-        columns.append({"title": "Télécharger", "links": downloads})
-    columns.append({"title": site.get("studio_name") or "Studio", "links": studio})
-    return columns
+    return links
 
 
 # Hauteur d'affichage du logo du studio dans le pied de page (CSS .studio-logo).
@@ -118,7 +107,7 @@ def site_context(request: Request, conn: sqlite3.Connection,
         # au pied de page.
         "apk": apk,
         "faq": faq,
-        "footer_columns": footer_columns(site, apk, faq),
+        "footer_links": footer_links(site, apk),
         "canonical_path": canonical_path,
     }
 

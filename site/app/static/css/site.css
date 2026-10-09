@@ -795,18 +795,22 @@ a.topbar__version:hover { color: var(--text-2); }
 .footer__brand-row { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4); }
 .footer__name { font-size: 16px; font-weight: 900; letter-spacing: .3em; color: var(--text); min-height: 44px; display: inline-flex; align-items: center; }
 .footer__name:hover { color: var(--text); }
-.footer__about { font-size: 14px; line-height: 1.55; color: var(--muted); max-width: 340px; }
+.footer__about { font-size: 14px; line-height: 1.55; color: var(--muted); max-width: 400px; text-wrap: pretty; }
 /* Le logo vient de l'administration (version claire, texte blanc) : en thème clair il est posé
    sur une petite plaque sombre pour rester lisible, sans remplacer l'image choisie. */
 .studio-logo {
   height: 24px; width: auto; box-sizing: content-box;
   padding: var(--logo-plate-pad); border-radius: var(--sp-2); background: var(--logo-plate);
 }
-.footer__columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-6) var(--sp-5); }
-.footer__col { display: flex; flex-direction: column; gap: var(--sp-1); min-width: 0; }
-.footer__col-title { font-size: 11px; font-weight: 800; letter-spacing: .3em; text-transform: uppercase; color: var(--faint); }
-.footer__col a { min-height: 44px; display: inline-flex; align-items: center; font-size: 14px; line-height: 1.35; color: var(--text-2); }
-.footer__col a:hover, .footer__col a[aria-current="page"] { color: var(--text); }
+/* Liens : une seule rangée qui passe à la ligne, quel que soit leur nombre (3 à 5). */
+.footer__nav { min-width: 0; }
+.footer__links { display: flex; flex-wrap: wrap; gap: 0 var(--sp-6); }
+.footer__links a {
+  min-height: 44px; display: inline-flex; align-items: center;
+  font-size: 14px; font-weight: 600; line-height: 1.35; color: var(--text-2);
+}
+.footer__links a:hover { color: var(--text); }
+.footer__links a[aria-current="page"] { color: var(--text); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 6px; }
 .footer__bottom {
   margin-top: var(--sp-6); padding-top: var(--sp-4); border-top: 1px solid var(--line);
   display: flex; flex-direction: column; gap: var(--sp-1);
@@ -1029,7 +1033,6 @@ a.topbar__version:hover { color: var(--text-2); }
   .download__main { grid-column: 1 / -1; max-width: 520px; }
 
   .footer { padding-top: var(--sp-9); }
-  .footer__columns { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
   .footer__brand-row { justify-content: flex-start; }
   .footer__bottom { flex-direction: row; flex-wrap: wrap; justify-content: space-between; gap: var(--sp-1) var(--sp-6); }
 
@@ -1087,17 +1090,14 @@ a.topbar__version:hover { color: var(--text-2); }
   .download { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--sp-9); align-items: start; }
   .download__main { grid-column: auto; max-width: none; }
 
-  .footer__top { grid-template-columns: minmax(0, 1fr) minmax(0, 3fr); gap: var(--sp-9); }
+  /* Marque à gauche, liens alignés à droite sur la ligne du nom : aucune colonne vide. */
+  .footer__top { grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: var(--sp-9); align-items: start; }
   /* Marque, texte, puis logo du studio (ordre de la maquette). */
   .footer__brand { align-items: flex-start; gap: var(--sp-3); }
   .footer__brand-row { display: contents; }
   .footer__about { order: 2; }
   .footer__brand-row .studio-logo { order: 3; margin-top: var(--sp-1); }
-  .footer__columns { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-}
-/* Souris : liens du pied de page et barre utilitaire plus serrés (les écrans tactiles gardent 44 px). */
-@media (min-width: 1024px) and (pointer: fine) {
-  .footer__col a { min-height: 30px; }
+  .footer__links { justify-content: flex-end; gap: 0 var(--sp-6); }
 }
 
 /* =================== 1280 px : maquette 3a (1440 px) =================== */

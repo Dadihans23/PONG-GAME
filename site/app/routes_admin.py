@@ -720,8 +720,7 @@ LISTS = {
         "kind": "faq", "page": "faq", "base": "/admin/faq",
         "list_title": "Questions",
         "list_help": "Chaque question a une ancre : {host}/#{anchor} ouvre directement la "
-                     "réponse, et changer une ancre casse les liens déjà partagés. Un libellé "
-                     "de pied de page ajoute la question à la rubrique Aide.",
+                     "réponse, et changer une ancre casse les liens déjà partagés.",
         "add_label": "Ajouter une question", "add_button": "Ajouter la question",
         "new_title": "Nouvelle question", "saved": "Question enregistrée.",
         "added": "Question ajoutée.", "deleted": "Question supprimée.",
@@ -738,9 +737,9 @@ LISTS = {
                     "Vide = la réponse longue s'affiche aussi sur mobile."),
                    ("anchor", "Ancre", MAX_ANCHOR, False, False,
                     "Générée depuis la question si tu la laisses vide. Lettres minuscules sans "
-                    "accent, chiffres et tirets."),
-                   ("footer_label", "Libellé dans le pied de page", 60, False, None,
-                    "Vide = la question n'apparaît pas dans la rubrique Aide du pied de page.")],
+                    "accent, chiffres et tirets.")],
+        # La colonne faq.footer_label reste en base mais n'est plus ni affichée ni
+        # modifiée : le pied de page ne mène plus qu'à de vraies pages.
         "specs": False,
     },
 }
@@ -787,8 +786,7 @@ def list_view(request: Request, conn: sqlite3.Connection, slug: str, *,
             meta = ("Illustré sur le site" if i < 4 else "Texte seul") + " · " + plural(
                 len(item_specs), "caractéristique", "caractéristiques")
         elif conf["kind"] == "faq":
-            meta = f"#{row['anchor']}" + (f" · pied de page : « {row['footer_label']} »"
-                                          if row["footer_label"] else "")
+            meta = f"#{row['anchor']}"
         name = (row["kicker"] if conf["kind"] == "feature" and row["kicker"] else row[title_key])
         items.append({
             "id": row["id"], "n": i + 1, "data": values, "specs": item_specs, "meta": meta,
@@ -1177,7 +1175,6 @@ def _faq_values(form, conn: sqlite3.Connection, faq_id: int | None) -> tuple[dic
         "question": text(form, "question", 200),
         "answer": text(form, "answer", 2000),
         "short_answer": text(form, "short_answer", 500),
-        "footer_label": text(form, "footer_label", 60),
         "anchor": text(form, "anchor", 80).lower(),
     }
     errors = {}
@@ -1221,10 +1218,10 @@ def faq_add(request: Request, form=Depends(admin_form),
                         banner=("error", LISTS["faq"]["not_added"]), status_code=400)
     with conn:
         conn.execute(
-            "INSERT INTO faq (position, anchor, question, answer, short_answer, footer_label)"
-            " VALUES (?, ?, ?, ?, ?, ?)",
+            "INSERT INTO faq (position, anchor, question, answer, short_answer)"
+            " VALUES (?, ?, ?, ?, ?)",
             (db.next_position(conn, "faq"), values["anchor"], values["question"],
-             values["answer"], values["short_answer"], values["footer_label"]))
+             values["answer"], values["short_answer"]))
     render.flash(request, LISTS["faq"]["added"])
     return back("/admin/faq")
 
@@ -1240,10 +1237,10 @@ def faq_edit(faq_id: int, request: Request, form=Depends(admin_form),
                         banner=("error", LISTS["faq"]["not_saved"]), status_code=400)
     with conn:
         conn.execute(
-            "UPDATE faq SET anchor = ?, question = ?, answer = ?, short_answer = ?,"
-            " footer_label = ? WHERE id = ?",
+            "UPDATE faq SET anchor = ?, question = ?, answer = ?, short_answer = ?"
+            " WHERE id = ?",
             (values["anchor"], values["question"], values["answer"], values["short_answer"],
-             values["footer_label"], faq_id))
+             faq_id))
     render.flash(request, LISTS["faq"]["saved"])
     return back(f"/admin/faq#item-{faq_id}")
 

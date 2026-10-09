@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS spec_row (
 CREATE INDEX IF NOT EXISTS spec_row_grp ON spec_row (grp, item_id, position);
 
 -- Questions fréquentes. anchor = identifiant HTML stable (lien /#anchor) ;
--- footer_label non vide = lien dans la colonne « Aide » du pied de page.
+-- footer_label : n'est plus utilisé (l'ancienne rubrique « Aide » du pied de page).
 CREATE TABLE IF NOT EXISTS faq (
     id           INTEGER PRIMARY KEY,
     position     INTEGER NOT NULL,

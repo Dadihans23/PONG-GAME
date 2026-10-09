@@ -258,7 +258,7 @@ Variables communes à toutes les pages publiques (`routes_public.site_context`) 
 | `year` | année en cours |
 | `apk` | APK courant ou `None` : `version`, `size_bytes` (`\|filesize`), `sha256` (empreinte complète), `uploaded_at`, `date` (date de version, ou de dépôt, AAAA-MM-JJ ; `\|date_short` → « 9 oct. 2026 », `\|date_fr` → « 9 octobre 2026 »), `notes` (liste des nouveautés, une par ligne saisie), `download_name` (ex. `Tilto-1.0.0.apk`) |
 | `faq` | questions : `anchor`, `question`, `answer`, `short_answer` (mobile, peut être vide), `footer_label` |
-| `footer_columns` | colonnes du pied de page : `[{title, links: [{label, href, external}]}]` — Le jeu (Solo et Duel, Comment jouer, Captures, Nouveautés x.y.z), Aide (Questions fréquentes, Installer l'APK, puis chaque question dont `footer_label` est rempli), Télécharger (Google Play, APK vx · taille ; colonne absente sans l'un ni l'autre), studio (Contact, Politique de confidentialité, Mentions légales) |
+| `footer_links` | liens du pied de page, seulement de vraies pages : `[{label, href, external}]` — Google Play et « Télécharger l'APK vx » s'ils existent, puis Contact, Politique de confidentialité, Mentions légales. Aucune ancre de l'accueil (la navigation du haut s'en charge) ; le champ `footer_label` des questions de la FAQ n'est plus utilisé ni proposé dans l'administration |
 
 Page d'accueil (`index.html`) :
 
@@ -278,7 +278,7 @@ Page d'accueil (`index.html`) :
 | Télécharge Tilto | `site.download_title`, `site.download_text`, `apk` |
 | Installer l'APK | `site.install_title`, `install_steps` (`label` = titre de l'étape, en gras ; `value` = précision, peut être vide), `site.install_note` (phrase Play Store), `apk.sha256` |
 | Nouveautés | `site.notes_title`, `apk.version`, `apk.date`, `apk.notes` |
-| Pied de page (`base.html`) | `site.footer_text`, `site.studio_logo_url`, `footer_columns`, « Un jeu de `site.studio_name` · © `year` · `site.game_name` `apk.version` », `site.footer_note`, `site.footer_trademark` |
+| Pied de page (`base.html`) | `site.footer_text`, `site.studio_logo_url`, `footer_links`, « Un jeu de `site.studio_name` · © `year` · `site.game_name` `apk.version` », `site.footer_note`, `site.footer_trademark` |
 
 Autres pages :
 

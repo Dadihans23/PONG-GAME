@@ -126,35 +126,19 @@
         </div>
         {% if site and site.footer_text %}<p class="footer__about">{{ site.footer_text }}</p>{% endif %}
       </div>
-      {# Colonnes générées : Le jeu, Aide (avec les questions de la FAQ marquées
-         pour le pied de page), Télécharger, studio (Contact, Confidentialité,
-         Mentions légales). Voir routes_public.footer_columns. #}
-      {% if footer_columns %}
-      <nav class="footer__columns" aria-label="Pied de page">
-        {% for col in footer_columns %}
-        <div class="footer__col">
-          <p class="footer__col-title">{{ col.title }}</p>
-          <ul>
-            {% for l in col.links %}
-            <li><a href="{{ l.href }}"{% if l.external %} rel="noopener"{% endif %}{% if l.href == request.url.path %} aria-current="page"{% endif %}>{{ l.label }}</a></li>
-            {% endfor %}
-          </ul>
-        </div>
-        {% endfor %}
+      {# Seulement de vraies destinations (routes_public.footer_links) :
+         téléchargements s'ils existent, Contact, Confidentialité, Mentions
+         légales. Les sections de l'accueil restent dans la navigation du haut. #}
+      <nav class="footer__nav" aria-label="Pied de page">
+        <ul class="footer__links">
+          {% for l in footer_links or [
+               {"label": "Contact", "href": "/contact"},
+               {"label": "Politique de confidentialité", "href": "/confidentialite"},
+               {"label": "Mentions légales", "href": "/mentions-legales"}] %}
+          <li><a href="{{ l.href }}"{% if l.external %} rel="noopener"{% endif %}{% if l.href == request.url.path %} aria-current="page"{% endif %}>{{ l.label }}</a></li>
+          {% endfor %}
+        </ul>
       </nav>
-      {% else %}
-      <nav class="footer__columns" aria-label="Pied de page">
-        <div class="footer__col">
-          <p class="footer__col-title">Liens</p>
-          <ul>
-            <li><a href="/">Accueil</a></li>
-            <li><a href="/contact">Contact</a></li>
-            <li><a href="/confidentialite">Politique de confidentialité</a></li>
-            <li><a href="/mentions-legales">Mentions légales</a></li>
-          </ul>
-        </div>
-      </nav>
-      {% endif %}
     </div>
     {% if site %}
     <div class="footer__bottom">

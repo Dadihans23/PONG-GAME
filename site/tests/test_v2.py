@@ -54,9 +54,7 @@ def test_home_v2_initial_content(client):
     for anchor in ("internet", "iphone", "duel-connexion", "petit-telephone",
                    "pubs-achats", "sensibilite"):
         assert f'id="{anchor}"' in page
-    # Pied de page généré
-    assert 'href="/#duel-connexion">Le duel ne se connecte pas</a>' in page
-    assert 'href="/#sensibilite">Régler la sensibilité</a>' in page
+    # Pied de page : de vraies pages seulement
     assert 'href="/contact">Contact</a>' in page
     assert 'href="/mentions-legales">Mentions légales</a>' in page
     assert "Android est une marque de Google LLC." in page
@@ -177,7 +175,7 @@ def test_faq_admin(admin):
         "anchor": "", "footer_label": "Batterie"})
     home = unescape(admin.get("/").text)
     assert 'id="ca-vide-la-batterie"' in home  # ancre tirée de la question
-    assert 'href="/#ca-vide-la-batterie">Batterie</a>' in home
+    assert "Batterie" not in home  # l'ancien libellé de pied de page n'est plus affiché
     for bad, message in [("Pas Valide", "Identifiant d'ancre invalide"),
                          ("faq", "déjà pris par une section"),
                          ("internet", "déjà utilisé")]:
@@ -632,3 +630,36 @@ def test_settings_contact_env(tmp_path):
     s = Settings.from_env({"SECRET_KEY": "x" * 40, "ADMIN_PASSWORD_HASH": hash_password("a", log_n=10),
                            "DATA_DIR": str(tmp_path), "CONTACT_MAX_PER_HOUR": "5"})
     assert s.contact_max_per_hour == 5 and s.contact_min_seconds == 3 and s.smtp is None
+
+
+# --- Pied de page --------------------------------------------------------------------------
+
+def footer_html(page: str) -> str:
+    return page[page.index('<footer class="footer">'):page.index("</footer>")]
+
+
+def test_footer_links_are_real_pages(client):
+    for path in ("/", "/contact", "/confidentialite", "/mentions-legales", "/nexiste-pas"):
+        footer = footer_html(unescape(client.get(path).text))
+        assert 'href="/#' not in footer, path  # aucune ancre de l'accueil
+        hrefs = re.findall(r'href="([^"]+)"', footer)
+        assert hrefs == ["/", "/contact", "/confidentialite", "/mentions-legales"], path
+        assert "/telecharger" not in footer  # pas d'APK en ligne
+
+
+def test_footer_marks_current_page(client):
+    footer = footer_html(client.get("/mentions-legales").text)
+    assert 'href="/mentions-legales" aria-current="page"' in footer
+
+
+def test_footer_download_links_when_available(admin):
+    token = admin_csrf(admin, "/admin/apk")
+    admin.post("/admin/apk/deposer", data={"csrf_token": token, "version": "1.0.0",
+                                           "make_current": "1"},
+               files={"apk": ("a.apk", make_apk(), "application/octet-stream")})
+    admin.post("/admin/textes", data={"csrf_token": token,
+                                      "play_store_url": "https://play.google.com/store/apps/details?id=x"})
+    footer = footer_html(unescape(admin.get("/").text))
+    assert 'href="/telecharger">Télécharger l\'APK v1.0.0</a>' in footer
+    assert 'href="https://play.google.com/store/apps/details?id=x" rel="noopener">Google Play</a>' in footer
+    assert 'href="/#' not in footer

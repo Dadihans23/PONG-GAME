@@ -43,7 +43,7 @@
       <div class="where__brand"><span class="where__game">{{ (game_name or "Tilto")|upper }}</span>{% if vals.studio_logo_url %}<img class="where__logo" src="{{ vals.studio_logo_url }}" alt="">{% endif %}</div>
       <p class="where__credit">Un jeu de {{ vals.studio_name }} · © {{ year }}{% if apk %} · {{ game_name }} {{ apk.version }}{% endif %}</p>
     </div>
-    <p class="where__note">Sans logo, seul le texte s'affiche. Le nom du studio apparaît aussi en haut de page (« un jeu de {{ vals.studio_name }} ») et donne son titre à la dernière colonne de liens.</p>
+    <p class="where__note">Sans logo, seul le texte s'affiche. Le nom du studio apparaît aussi en haut de page (« un jeu de {{ vals.studio_name }} »).</p>
   </div>
 
   {{ ui.savebar(ui.saved_note(saved_at)) }}
