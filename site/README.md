@@ -214,7 +214,7 @@ La commande remplace, position par position, les textes des arguments (et leurs 
 
 ## Habiller les gabarits (maquette « Tilto Site v2 »)
 
-Les données suivent les sections de la maquette `maquette/Corrections et validation des maquettes/Tilto Site v2.dc (1).html` (planches 3a ordinateur, 3b mobile). Les gabarits actuels affichent ces données avec un balisage minimal, sans habillage : l'habillage ne touche que les gabarits publics, `app/static/css/site.css` et `app/static/js/`. Routes et base ne changent pas. Toutes les valeurs sont échappées par Jinja ; `|rich_text` pour les textes longs à intertitres.
+Les données suivent les sections de la maquette `maquette/Corrections et validation des maquettes/Tilto Site v2.dc.html` (planches 3a ordinateur, 3b mobile). Les gabarits actuels affichent ces données avec un balisage minimal, sans habillage : l'habillage ne touche que les gabarits publics, `app/static/css/site.css` et `app/static/js/`. Routes et base ne changent pas. Toutes les valeurs sont échappées par Jinja ; `|rich_text` pour les textes longs à intertitres.
 
 Variables communes à toutes les pages publiques (`routes_public.site_context`) :
 

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=block" rel="stylesheet">
+<style>html{background:#050507}body{margin:0;background:#050507;color:#F2F2F5;font-family:Archivo,sans-serif;-webkit-font-smoothing:antialiased}a{color:#FF5C93;text-decoration:none}a:hover{color:#FF8AB1}@keyframes tiltoX{from{transform:translateX(0)}to{transform:translateX(var(--tx))}}@keyframes tiltoY{from{transform:translateY(0)}to{transform:translateY(var(--ty))}}</style>
+</helmet>
+<div style="padding:64px;display:flex;flex-direction:column;gap:64px">
+  <header style="display:flex;flex-direction:column;gap:16px;max-width:1240px">
+    <div style="display:flex;gap:20px;font-size:13px;font-weight:600;letter-spacing:.06em"><a href="Tilto%20Accueil.dc.html">1 · Accueil</a><a href="Tilto%20Icone.dc.html">2 · Icône</a><a href="Tilto%20Site%20v2.dc.html">3 · Site</a><a href="Tilto%20Admin.dc.html" style="color:#F2F2F5">4 · Administration</a></div>
+    <div style="font-size:32px;font-weight:900;letter-spacing:.3em">TILTO · ADMINISTRATION</div>
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 48px;max-width:1240px;font-size:14px;line-height:1.6;color:#C8C8D2">
+      <div style="text-wrap:pretty"><b style="color:#F2F2F5">Le tableau de bord montre l'état du site, pas des statistiques.</b> Il commence par une liste numérotée de ce qui manque, avec un lien direct vers chaque section. Cette liste disparaît quand tout est rempli. En dessous, une ligne par section : la valeur actuelle en clair, ou « non renseigné » en italique grisé.</div>
+      <div style="text-wrap:pretty"><b style="color:#F2F2F5">Une liste de lignes, pas des cartes.</b> Arguments, étapes et versions sont séparés par de simples filets. On modifie un élément directement dans sa ligne, qui s'ouvre en formulaire. Il n'y a que trois icônes : monter, descendre, supprimer, parce qu'un mot prendrait trop de place.</div>
+      <div style="text-wrap:pretty"><b style="color:#F2F2F5">Un seul rose plein par écran</b> (#D81B60) : Enregistrer, Déposer, Ajouter. Supprimer est rouge et n'apparaît que dans la boîte de confirmation. Les retours s'affichent toujours dans un bandeau en haut du contenu, et l'erreur est répétée sous le champ concerné.</div>
+      <div style="text-wrap:pretty"><b style="color:#F2F2F5">Des formulaires HTML classiques.</b> La page se recharge à chaque envoi. La barre de progression de l'APK est la seule partie en JavaScript, et la confirmation peut être un simple &lt;dialog&gt;. Sur mobile, la barre latérale devient un bouton « Menu », et l'aperçu de la politique de confidentialité passe dans un onglet.</div>
+    </div>
+  </header>
+
+  <section style="display:flex;flex-direction:column;gap:24px">
+    <div style="display:flex;align-items:baseline;gap:14px"><span style="font-size:12px;font-weight:800;padding:4px 9px;border-radius:6px;background:#E91E63;color:#fff">A</span><span style="font-size:24px;font-weight:800">Les 9 écrans · ordinateur · sombre</span></div>
+    <div style="display:flex;flex-wrap:wrap;gap:48px 40px;max-width:3000px">
+      <sc-for list="{{ deskDark }}" as="item" hint-placeholder-count="9">
+        <div style="display:flex;flex-direction:column;gap:10px"><div style="font-size:14px;font-weight:700;color:#9E9EAB"><span style="color:#F2F2F5">{{ item.id }}</span> · {{ item.label }}</div>
+          <div style="--bg:#0B0B10;--side:#08080C;--sf:#15151C;--sf2:#1E1E28;--in:#101016;--bd:#2A2A36;--fg:#F2F2F5;--mu:#9E9EAB;--mu2:#7A7A88;--ln:#FF5C93;--ok:#66BB6A;--okbg:rgba(102,187,106,.08);--okbd:rgba(102,187,106,.35);--err:#FF6B6B;--errbg:rgba(255,82,82,.08);--errbd:rgba(255,82,82,.45);width:1440px;border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.5)"><dc-import name="TiltoAdmin" screen="{{ item.screen }}" state="{{ item.state }}" hint-size="1440px,900px"></dc-import></div></div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:24px">
+    <div style="display:flex;align-items:baseline;gap:14px"><span style="font-size:12px;font-weight:800;padding:4px 9px;border-radius:6px;background:#E91E63;color:#fff">B</span><span style="font-size:24px;font-weight:800">États · ordinateur · sombre</span></div>
+    <div style="display:flex;flex-wrap:wrap;gap:48px 40px;max-width:3000px">
+      <sc-for list="{{ deskStates }}" as="item" hint-placeholder-count="6">
+        <div style="display:flex;flex-direction:column;gap:10px"><div style="font-size:14px;font-weight:700;color:#9E9EAB"><span style="color:#F2F2F5">{{ item.id }}</span> · {{ item.label }}</div>
+          <div style="--bg:#0B0B10;--side:#08080C;--sf:#15151C;--sf2:#1E1E28;--in:#101016;--bd:#2A2A36;--fg:#F2F2F5;--mu:#9E9EAB;--mu2:#7A7A88;--ln:#FF5C93;--ok:#66BB6A;--okbg:rgba(102,187,106,.08);--okbd:rgba(102,187,106,.35);--err:#FF6B6B;--errbg:rgba(255,82,82,.08);--errbd:rgba(255,82,82,.45);width:1440px;border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.5)"><dc-import name="TiltoAdmin" screen="{{ item.screen }}" state="{{ item.state }}" hint-size="1440px,900px"></dc-import></div></div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:24px">
+    <div style="display:flex;align-items:baseline;gap:14px"><span style="font-size:12px;font-weight:800;padding:4px 9px;border-radius:6px;background:#E91E63;color:#fff">C</span><span style="font-size:24px;font-weight:800">Mode clair · ordinateur</span></div>
+    <div style="display:flex;flex-wrap:wrap;gap:48px 40px;max-width:3000px">
+      <sc-for list="{{ deskLight }}" as="item" hint-placeholder-count="4">
+        <div style="display:flex;flex-direction:column;gap:10px"><div style="font-size:14px;font-weight:700;color:#9E9EAB"><span style="color:#F2F2F5">{{ item.id }}</span> · {{ item.label }}</div>
+          <div style="--bg:#F6F6F9;--side:#ECECF1;--sf:#FFFFFF;--sf2:#E6E6EE;--in:#FFFFFF;--bd:#D4D4DE;--fg:#14141B;--mu:#55555F;--mu2:#6E6E7A;--ln:#C2185B;--ok:#2E7D32;--okbg:rgba(46,125,50,.07);--okbd:rgba(46,125,50,.35);--err:#C62828;--errbg:rgba(198,40,40,.06);--errbd:rgba(198,40,40,.45);width:1440px;border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.5)"><dc-import name="TiltoAdmin" screen="{{ item.screen }}" state="{{ item.state }}" light="{{ true }}" hint-size="1440px,900px"></dc-import></div></div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:24px;padding-bottom:64px">
+    <div style="display:flex;align-items:baseline;gap:14px"><span style="font-size:12px;font-weight:800;padding:4px 9px;border-radius:6px;background:#E91E63;color:#fff">D</span><span style="font-size:24px;font-weight:800">Mobile · 360 px</span></div>
+    <div style="display:flex;flex-wrap:wrap;gap:40px 32px;align-items:flex-start;max-width:3000px">
+      <sc-for list="{{ mobDark }}" as="item" hint-placeholder-count="8">
+        <div style="display:flex;flex-direction:column;gap:10px;width:360px"><div style="font-size:14px;font-weight:700;color:#9E9EAB"><span style="color:#F2F2F5">{{ item.id }}</span> · {{ item.label }}</div>
+          <div style="--bg:#0B0B10;--side:#08080C;--sf:#15151C;--sf2:#1E1E28;--in:#101016;--bd:#2A2A36;--fg:#F2F2F5;--mu:#9E9EAB;--mu2:#7A7A88;--ln:#FF5C93;--ok:#66BB6A;--okbg:rgba(102,187,106,.08);--okbd:rgba(102,187,106,.35);--err:#FF6B6B;--errbg:rgba(255,82,82,.08);--errbd:rgba(255,82,82,.45);width:360px;border-radius:24px;overflow:hidden;box-shadow:0 0 0 1px #262630,0 24px 64px rgba(0,0,0,.5)"><dc-import name="TiltoAdmin" screen="{{ item.screen }}" state="{{ item.state }}" mobile="{{ true }}" hint-size="360px,760px"></dc-import></div></div>
+      </sc-for>
+      <div style="display:flex;flex-direction:column;gap:10px;width:360px"><div style="font-size:14px;font-weight:700;color:#9E9EAB"><span style="color:#F2F2F5">D9</span> · Tableau de bord · clair</div>
+        <div style="--bg:#F6F6F9;--side:#ECECF1;--sf:#FFFFFF;--sf2:#E6E6EE;--in:#FFFFFF;--bd:#D4D4DE;--fg:#14141B;--mu:#55555F;--mu2:#6E6E7A;--ln:#C2185B;--ok:#2E7D32;--okbg:rgba(46,125,50,.07);--okbd:rgba(46,125,50,.35);--err:#C62828;--errbg:rgba(198,40,40,.06);--errbd:rgba(198,40,40,.45);width:360px;border-radius:24px;overflow:hidden;box-shadow:0 0 0 1px #262630"><dc-import name="TiltoAdmin" screen="dashboard" state="" mobile="{{ true }}" light="{{ true }}" hint-size="360px,760px"></dc-import></div></div>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const L = (pfx, arr) => arr.map(([screen, state, label], i) => ({ id: pfx + (i + 1), screen, state, label }));
+    return {
+      deskDark: L('A', [['login', '', 'Connexion'], ['dashboard', '', 'Tableau de bord · site incomplet'], ['textes', '', 'Textes'], ['arguments', '', 'Arguments · un élément en cours de modification'], ['jouer', '', 'Comment jouer'], ['captures', '', 'Captures · aucune image encore (état actuel)'], ['apk', '', 'APK'], ['studio', '', 'Studio'], ['confid', '', 'Confidentialité · texte et aperçu']]),
+      deskStates: L('B', [['login', 'error', 'Connexion · mot de passe incorrect'], ['login', 'locked', 'Connexion · trop de tentatives'], ['dashboard', 'complete', 'Tableau de bord · site complet'], ['textes', 'success', 'Textes · enregistrés'], ['textes', 'error', 'Textes · e-mail invalide'], ['arguments', 'confirm', 'Arguments · confirmation de suppression'], ['arguments', 'empty', 'Arguments · liste vide'], ['jouer', 'add', "Comment jouer · ajout, titre manquant"], ['captures', 'images', 'Captures · avec images'], ['captures', 'error', 'Captures · format refusé'], ['apk', 'none', 'APK · aucune version'], ['apk', 'uploading', 'APK · envoi en cours'], ['apk', 'error', 'APK · fichier et version refusés'], ['apk', 'success', 'APK · version déposée'], ['apk', 'confirm', 'APK · confirmation de suppression'], ['studio', 'error', 'Studio · nom manquant'], ['confid', 'success', 'Confidentialité · enregistrée']]),
+      deskLight: L('C', [['dashboard', 'complete', 'Tableau de bord'], ['textes', 'success', 'Textes'], ['captures', 'images', 'Captures'], ['apk', '', 'APK']]),
+      mobDark: L('D', [['login', 'error', 'Connexion · erreur'], ['dashboard', '', 'Tableau de bord'], ['dashboard', 'menu', 'Menu ouvert'], ['textes', 'error', 'Textes · erreur de champ'], ['apk', 'uploading', 'APK · dépôt en cours'], ['captures', '', 'Captures · sans image'], ['captures', 'images', 'Captures · avec images'], ['confid', 'apercu', 'Confidentialité · onglet Aperçu']])
+    };
+  }
+}
+</script>
+</body>
+</html>

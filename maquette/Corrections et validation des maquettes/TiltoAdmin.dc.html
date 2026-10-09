@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&display=block" rel="stylesheet">
+</helmet>
+<div style="font-family:Archivo,sans-serif;background:var(--bg,#0B0B10);color:var(--fg,#F2F2F5);min-height:760px;display:flex;align-items:stretch;position:relative;-webkit-font-smoothing:antialiased">
+
+<sc-if value="{{ isLogin }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:1;min-height:760px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 20px;box-sizing:border-box;gap:40px">
+    <div style="width:100%;max-width:340px;display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;flex-direction:column;gap:6px"><div style="font-size:36px;font-weight:900;letter-spacing:.3em;line-height:1">TILTO</div><div style="font-size:14px;color:var(--mu)">Administration du site · Nexora</div></div>
+      <sc-if value="{{ loginLocked }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:12px;border:1px solid var(--errbd);background:var(--errbg);font-size:14px;line-height:1.45"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1;color:var(--err)">error</span><span>Trop de tentatives. Réessaie dans quelques minutes.</span></div></sc-if>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="font-size:14px;font-weight:700">Mot de passe</div>
+        <sc-if value="{{ loginErr }}" hint-placeholder-val="{{ false }}"><div style="height:48px;border-radius:12px;background:var(--in);border:1.5px solid var(--err);padding:0 14px;display:flex;align-items:center;font-size:18px;letter-spacing:.2em">••••••••</div><div style="font-size:13px;color:var(--err)">Mot de passe incorrect.</div></sc-if>
+        <sc-if value="{{ loginOk }}" hint-placeholder-val="{{ true }}"><div style="height:48px;border-radius:12px;background:var(--in);border:1px solid var(--bd);padding:0 14px;display:flex;align-items:center;font-size:18px;letter-spacing:.2em">••••••••</div></sc-if>
+      </div>
+      <sc-if value="{{ loginLocked }}" hint-placeholder-val="{{ false }}"><div style="height:48px;border-radius:12px;background:var(--sf2);color:var(--mu2);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800">Se connecter</div></sc-if>
+      <sc-if value="{{ loginCan }}" hint-placeholder-val="{{ true }}"><div style="height:48px;border-radius:12px;background:#D81B60;color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800">Se connecter</div></sc-if>
+      <div style="font-size:12px;line-height:1.5;color:var(--mu2)">Il n'y a qu'un compte, sans identifiant. Le mot de passe se change sur le serveur.</div>
+    </div>
+    <div style="font-size:13px;color:var(--mu)">Retour à <span style="color:var(--ln);font-weight:700">tilto.fun</span></div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ shell }}" hint-placeholder-val="{{ true }}">
+  <sc-if value="{{ desk }}" hint-placeholder-val="{{ true }}">
+    <div style="width:240px;flex:none;background:var(--side);border-right:1px solid var(--bd);display:flex;flex-direction:column;padding:22px 12px 16px;box-sizing:border-box">
+      <div style="padding:0 12px 22px;display:flex;flex-direction:column;gap:4px"><div style="font-size:18px;font-weight:900;letter-spacing:.3em">TILTO</div><div style="font-size:12px;color:var(--mu)">Administration · Nexora</div></div>
+      <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+        <sc-if value="{{ item.active }}"><div style="height:40px;padding:0 12px;border-radius:10px;background:var(--sf2);display:flex;align-items:center;font-size:14px;font-weight:700;box-shadow:inset 3px 0 0 #D81B60">{{ item.label }}</div></sc-if>
+        <sc-if value="{{ item.idle }}"><div style="height:40px;padding:0 12px;display:flex;align-items:center;font-size:14px;font-weight:500;color:var(--mu)">{{ item.label }}</div></sc-if>
+      </sc-for>
+      <div style="height:1px;background:var(--bd);margin:12px 12px"></div>
+      <div style="height:40px;padding:0 12px;display:flex;align-items:center;gap:6px;font-size:14px;color:var(--mu)">Voir le site<span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">open_in_new</span></div>
+      <div style="height:40px;padding:0 12px;display:flex;align-items:center;font-size:14px;color:var(--mu)">Se déconnecter</div>
+      <div style="flex:1"></div>
+      <div style="padding:0 12px;display:flex;flex-direction:column;gap:8px"><div style="font-size:11px;font-weight:800;letter-spacing:.2em;color:var(--mu2)">THÈME</div>
+        <div style="display:flex;padding:3px;border-radius:10px;border:1px solid var(--bd)"><sc-if value="{{ dark }}"><div style="flex:1;height:30px;border-radius:7px;background:var(--sf2);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700">Sombre</div><div style="flex:1;height:30px;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--mu)">Clair</div></sc-if><sc-if value="{{ light }}"><div style="flex:1;height:30px;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--mu)">Sombre</div><div style="flex:1;height:30px;border-radius:7px;background:var(--sf);box-shadow:0 0 0 1px var(--bd);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700">Clair</div></sc-if></div>
+      </div>
+    </div>
+  </sc-if>
+
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;container-type:inline-size;position:relative">
+    <sc-if value="{{ mob }}" hint-placeholder-val="{{ false }}">
+      <div style="height:56px;flex:none;padding:0 4px 0 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd);background:var(--side)"><div style="display:flex;align-items:baseline;gap:8px;min-width:0"><span style="font-size:15px;font-weight:900;letter-spacing:.28em">TILTO</span><span style="font-size:13px;color:var(--mu);white-space:nowrap">admin · Nexora</span></div>
+        <sc-if value="{{ menuOpen }}"><div style="height:44px;padding:0 12px;display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">close</span>Fermer</div></sc-if>
+        <sc-if value="{{ menuClosed }}"><div style="height:44px;padding:0 12px;display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">menu</span>Menu</div></sc-if>
+      </div>
+    </sc-if>
+
+    <div style="padding:clamp(16px,3cqw,40px);padding-bottom:40px;display:flex;flex-direction:column;gap:22px;max-width:1080px;box-sizing:border-box">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;gap:4px"><div style="font-size:clamp(24px,2.4cqw,30px);font-weight:800;line-height:1.1">{{ title }}</div><div style="font-size:14px;line-height:1.45;color:var(--mu)">{{ sub }}</div></div>
+        <sc-if value="{{ desk }}"><div style="font-size:13px;color:var(--mu)">tilto.fun</div></sc-if>
+      </div>
+      <sc-if value="{{ bOk }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:12px;border:1px solid var(--okbd);background:var(--okbg);font-size:14px;line-height:1.45"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1;color:var(--ok)">check_circle</span><span>{{ bText }}</span></div></sc-if>
+      <sc-if value="{{ bErr }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:12px;border:1px solid var(--errbd);background:var(--errbg);font-size:14px;line-height:1.45"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1;color:var(--err)">error</span><span>{{ bText }}</span></div></sc-if>
+
+      <sc-if value="{{ isDash }}" hint-placeholder-val="{{ true }}">
+        <sc-if value="{{ hasTodo }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column">
+            <div style="font-size:11px;font-weight:800;letter-spacing:.2em;color:var(--mu2);padding-bottom:10px">À FAIRE POUR QUE LE SITE SOIT COMPLET</div>
+            <sc-for list="{{ todo }}" as="item" hint-placeholder-count="3">
+              <div style="display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-top:1px solid var(--bd);flex-wrap:wrap"><div style="width:20px;font-size:15px;font-weight:800;color:var(--mu2)">{{ item.n }}</div><div style="flex:1 1 260px;min-width:0;display:flex;flex-direction:column;gap:3px"><div style="font-size:16px;font-weight:700">{{ item.t }}</div><div style="font-size:14px;line-height:1.45;color:var(--mu)">{{ item.d }}</div></div><div style="min-height:44px;display:flex;align-items:center;font-size:14px;font-weight:700;color:var(--ln);padding-left:34px">{{ item.a }} →</div></div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ noTodo }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:10px;align-items:center;font-size:15px;padding:4px 0"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1;color:var(--ok)">check_circle</span>Le site est complet. Rien à faire pour l'instant.</div></sc-if>
+        <div style="display:flex;flex-direction:column">
+          <div style="font-size:11px;font-weight:800;letter-spacing:.2em;color:var(--mu2);padding-bottom:10px">ÉTAT DU SITE</div>
+          <sc-for list="{{ dash }}" as="item" hint-placeholder-count="8">
+            <div style="display:flex;gap:6px 20px;align-items:center;padding:10px 0;border-top:1px solid var(--bd);flex-wrap:wrap;min-height:44px;box-sizing:border-box"><div style="flex:0 0 220px;font-size:14px;color:var(--mu)">{{ item.l }}</div><sc-if value="{{ item.full }}"><div style="flex:1 1 220px;min-width:0;font-size:15px;font-weight:600;overflow-wrap:anywhere">{{ item.v }}</div></sc-if><sc-if value="{{ item.empty }}"><div style="flex:1 1 220px;min-width:0;font-size:15px;font-style:italic;color:var(--mu2)">{{ item.v }}</div></sc-if><div style="font-size:14px;font-weight:700;color:var(--ln)">{{ item.a }}</div></div>
+          </sc-for>
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap"><div style="height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--bd);background:var(--sf);display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700">Voir le site<span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">open_in_new</span></div></div>
+      </sc-if>
+
+      <sc-if value="{{ isTextes }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:28px;max-width:760px">
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div style="font-size:11px;font-weight:800;letter-spacing:.2em;color:var(--mu2);padding-bottom:4px;border-bottom:1px solid var(--bd)">HAUT DE PAGE</div>
+            <div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;justify-content:space-between;gap:12px"><span style="font-size:14px;font-weight:700">Nom du jeu</span><span style="font-size:12px;color:var(--mu2)">5 / 60</span></div><div style="height:44px;border-radius:10px;background:var(--in);border:1px solid var(--bd);padding:0 12px;display:flex;align-items:center;font-size:15px">Tilto</div><div style="font-size:12px;color:var(--mu)">Le grand titre du haut de page.</div></div>
+            <div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;justify-content:space-between;gap:12px"><span style="font-size:14px;font-weight:700">Accroche</span><span style="font-size:12px;color:var(--mu2)">101 / 300</span></div><div style="min-height:88px;border-radius:10px;background:var(--in);border:1px solid var(--bd);padding:11px 12px;font-size:15px;line-height:1.5;box-sizing:border-box">Le Pong qu'on joue en inclinant son téléphone. Seul contre l'ordinateur, ou à deux sur le même Wi-Fi.</div></div>
+            <div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;justify-content:space-between;gap:12px"><span style="font-size:14px;font-weight:700">Mention sous les boutons</span><span style="font-size:12px;color:var(--mu2)">17 / 80</span></div><div style="height:44px;border-radius:10px;background:var(--in);border:1px solid var(--bd);padding:0 12px;display:flex;align-items:center;font-size:15px">Gratuit · Android</div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div style="font-size:11px;font-weight:800;letter-spacing:.2em;color:var(--mu2);padding-bottom:4px;border-bottom:1px solid var(--bd)">BLOC DE TÉLÉCHARGEMENT</div>
+            <div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;justify-content:space-between;gap:12px"><span style="font-size:14px;font-weight:700">Titre</span><span style="font-size:12px;color:var(--mu2)">16 / 80</span></div><div style="height:44px;border-radius:10px;background:var(--in);border:1px solid var(--bd);padding:0 12px;display:flex;align-items:center;font-size:15px">Télécharge Tilto</div></div>
+            <div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;justify-content:space-between;gap:12px"><span style="font-size:14px;font-weight:700">Phrase</span><span style="font-size:12px;color:var(--mu2)">61 / 300</span></div><div style="min-height:66px;border-radius:10px;background:var(--in);border:1px solid var(--bd);padding:11px 12px;font-size:15px;line-height:1.5;box-sizing:border-box">Pour téléphones Android. L'APK s'installe sans le Play Store.</div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div style="font-size:11px;font-weight:800;letter-spacing:.2em;color:var(--mu2);padding-bottom:4px;border-bottom:1px solid var(--bd)">LIENS</div>
+            <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:700">Lien Play Store</span><div style="height:44px;border-radius:10px;background:var(--in);border:1px solid var(--bd);padding:0 12px;display:flex;align-items:center;font-size:15px;overflow:hidden;white-space:nowrap">https://play.google.com/store/apps/details?id=fun.nexora.tilto</div><div style="font-size:12px;color:var(--mu)">Laisse vide pour masquer le bouton Google Play.</div></div>
+            <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:700">Adresse de contact</span>
+              <sc-if value="{{ textesErr }}" hint-placeholder-val="{{ false }}"><div style="height:44px;border-radius:10px;background:var(--in);border:1.5px solid var(--err);padding:0 12px;display:flex;align-items:center;font-size:15px">contact@tilto</div><div style="font-size:13px;color:var(--err)">Adresse e-mail invalide.</div></sc-if>
+              <sc-if value="{{ textesOk }}" hint-placeholder-val="{{ true }}"><div style="height:44px;border-radius:10px;background:var(--in);border:1px solid var(--bd);padding:0 12px;display:flex;align-items:center;font-size:15px">contact@tilto.fun</div></sc-if>
+              <div style="font-size:12px;color:var(--mu)">Laisse vide pour masquer le lien « Contact » du pied de page.</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-top:16px;border-top:1px solid var(--bd)"><div style="height:44px;padding:0 22px;border-radius:12px;background:#D81B60;color:#fff;display:flex;align-items:center;font-size:15px;font-weight:800">Enregistrer</div><span style="font-size:13px;color:var(--mu)">Dernier enregistrement : aujourd'hui, 14 h 32</span></div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isList }}" hint-placeholder-val="{{ false }}">
+        <div style="font-size:14px;line-height:1.5;color:var(--mu);max-width:720px">{{ listHelp }}</div>
+        <sc-if value="{{ listEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:32px 0;border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);display:flex;flex-direction:column;gap:14px;align-items:flex-start"><div style="font-size:17px;font-weight:700">{{ emptyTitle }}</div><div style="font-size:14px;line-height:1.5;color:var(--mu);max-width:560px">{{ emptyText }}</div><div style="height:44px;padding:0 20px;border-radius:12px;background:#D81B60;color:#fff;display:flex;align-items:center;font-size:15px;font-weight:800">{{ addLabel }}</div></div>
+        </sc-if>
+        <sc-if value="{{ listFull }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column">
+            <sc-for list="{{ items }}" as="item" hint-placeholder-count="4">
+              <div style="display:flex;gap:6px 16px;padding:16px 0;border-top:1px solid var(--bd);flex-wrap:wrap;align-items:flex-start">
+                <div style="width:24px;font-size:20px;font-weight:900;color:var(--mu2);line-height:1.2">{{ item.n }}</div>
+                <sc-if value="{{ item.closed }}"><div style="flex:1 1 280px;min-width:0;display:flex;flex-direction:column;gap:4px"><sc-if value="{{ item.hasSur }}"><div style="font-size:11px;font-weight:800;letter-spacing:.22em;color:var(--mu)">{{ item.sur }}</div></sc-if><div style="font-size:16px;font-weight:700;line-height:1.35">{{ item.t }}</div><div style="font-size:14px;line-height:1.5;color:var(--mu)">{{ item.x }}</div><sc-if value="{{ item.hasSur }}"><div style="font-size:12px;color:var(--mu2);padding-top:2px">{{ item.illu }}</div></sc-if></div></sc-if>
+                <sc-if value="{{ item.open }}"><div style="flex:1 1 280px;min-width:0;display:flex;flex-direction:column;gap:14px;padding:16px;border-radius:12px;border:1px solid var(--bd);background:var(--sf)">
+                  <div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;justify-content:space-between"><span style="font-size:14px;font-weight:700">Sur-titre</span><span style="font-size:12px;color:var(--mu2)">{{ item.surLen }}</span></div><div style="height:44px;border-radius:10px;background:var(--in);border:1px solid var(--bd);padding:0 12px;display:flex;align-items:center;font-size:15px">{{ item.sur }}</div></div>
+                  <div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;justify-content:space-between"><span style="font-size:14px;font-weight:700">Titre <span style="font-weight:500;color:var(--mu)">(obligatoire)</span></span><span style="font-size:12px;color:var(--mu2)">{{ item.tLen }}</span></div><div style="height:44px;border-radius:10px;background:var(--in);border:1.5px solid var(--ln);padding:0 12px;display:flex;align-items:center;font-size:15px">{{ item.t }}</div></div>
+                  <div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;justify-content:space-between"><span style="font-size:14px;font-weight:700">Texte</span><span style="font-size:12px;color:var(--mu2)">{{ item.xLen }}</span></div><div style="min-height:88px;border-radius:10px;background:var(--in);border:1px solid var(--bd);padding:11px 12px;font-size:15px;line-height:1.5;box-sizing:border-box">{{ item.x }}</div></div>
+                  <div style="display:flex;gap:10px;align-items:center"><div style="height:44px;padding:0 20px;border-radius:12px;background:#D81B60;color:#fff;display:flex;align-items:center;font-size:15px;font-weight:800">Enregistrer</div><div style="height:44px;padding:0 12px;display:flex;align-items:center;font-size:14px;font-weight:700;color:var(--mu)">Annuler</div></div>
+                </div></sc-if>
+                <div style="display:flex;gap:2px;align-items:center;margin-left:auto">
+                  <sc-if value="{{ item.closed }}"><div style="height:44px;padding:0 10px;display:flex;align-items:center;font-size:14px;font-weight:700;color:var(--ln)">Modifier</div></sc-if>
+                  <sc-if value="{{ item.canUp }}"><div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--fg)"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">arrow_upward</span></div></sc-if>
+                  <sc-if value="{{ item.noUp }}"><div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--bd)"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">arrow_upward</span></div></sc-if>
+                  <sc-if value="{{ item.canDown }}"><div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--fg)"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">arrow_downward</span></div></sc-if>
+                  <sc-if value="{{ item.noDown }}"><div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--bd)"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">arrow_downward</span></div></sc-if>
+                  <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--mu)"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">delete</span></div>
+                </div>
+              </div>
+            </sc-for>
+            <div style="border-top:1px solid var(--bd)"></div>
+          </div>
+          <sc-if value="{{ addOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:14px;padding:16px;border-radius:12px;border:1px solid var(--bd);background:var(--sf);max-width:720px">
+              <div style="font-size:16px;font-weight:700">Nouvelle étape · 4ᵉ position</div>
+              <div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;justify-content:space-between"><span style="font-size:14px;font-weight:700">Titre <span style="font-weight:500;color:var(--mu)">(obligatoire)</span></span><span style="font-size:12px;color:var(--mu2)">0 / 120</span></div><div style="height:44px;border-radius:10px;background:var(--in);border:1.5px solid var(--err);padding:0 12px;display:flex;align-items:center;font-size:15px;color:var(--mu2)">Ex. : Bats ton record.</div><div style="font-size:13px;color:var(--err)">Le titre est obligatoire.</div></div>
+              <div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;justify-content:space-between"><span style="font-size:14px;font-weight:700">Précision <span style="font-weight:500;color:var(--mu)">(facultatif)</span></span><span style="font-size:12px;color:var(--mu2)">58 / 1000</span></div><div style="min-height:66px;border-radius:10px;background:var(--in);border:1px solid var(--bd);padding:11px 12px;font-size:15px;line-height:1.5;box-sizing:border-box">Le classement garde tes 10 meilleurs scores, avec la date.</div></div>
+              <div style="display:flex;gap:10px;align-items:center"><div style="height:44px;padding:0 20px;border-radius:12px;background:#D81B60;color:#fff;display:flex;align-items:center;font-size:15px;font-weight:800">Ajouter l'étape</div><div style="height:44px;padding:0 12px;display:flex;align-items:center;font-size:14px;font-weight:700;color:var(--mu)">Annuler</div></div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ addClosed }}" hint-placeholder-val="{{ true }}"><div style="display:flex"><div style="height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--bd);background:var(--sf);display:flex;align-items:center;font-size:14px;font-weight:700">+ {{ addLabel }}</div></div></sc-if>
+        </sc-if>
+      </sc-if>
+
+      <sc-if value="{{ isCaptures }}" hint-placeholder-val="{{ false }}">
+        <div style="font-size:14px;line-height:1.5;color:var(--mu);max-width:720px">Format portrait, idéalement 1080 × 2400. PNG, JPEG, WebP ou GIF, 5 Mo maximum. Le site les affiche dans cet ordre, dans un cadre de téléphone.</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:24px 20px">
+          <sc-for list="{{ caps }}" as="item" hint-placeholder-count="3">
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;gap:12px;align-items:flex-start">
+                <sc-if value="{{ item.img }}"><div style="width:120px;height:256px;flex:none;border-radius:20px;background:#1E1E28;padding:5px;box-sizing:border-box;box-shadow:0 0 0 1px var(--bd)"><div style="width:110px;height:246px;border-radius:15px;overflow:hidden;position:relative"><div style="width:360px;height:800px;transform:scale(.3075);transform-origin:0 0"><dc-import name="TiltoEcran" screen="{{ item.scr }}" hint-size="360px,800px"></dc-import></div></div></div></sc-if>
+                <sc-if value="{{ item.noImg }}"><div style="width:120px;height:256px;flex:none;border-radius:20px;border:1.5px dashed var(--bd);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;padding:10px;box-sizing:border-box"><span style="font-size:13px;color:var(--mu)">Aucune image</span><span style="font-size:13px;font-weight:700;color:var(--ln)">Choisir…</span></div></sc-if>
+                <div style="display:flex;flex-direction:column;gap:2px">
+                  <div style="font-size:20px;font-weight:900;color:var(--mu2);padding:0 0 6px 4px">{{ item.n }}</div>
+                  <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">arrow_upward</span></div>
+                  <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">arrow_downward</span></div>
+                  <div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--mu)"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">delete</span></div>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:700">Légende</span><div style="height:44px;border-radius:10px;background:var(--in);border:1px solid var(--bd);padding:0 12px;display:flex;align-items:center;font-size:15px">{{ item.c }}</div></div>
+              <sc-if value="{{ item.img }}"><div style="font-size:13px;font-weight:700;color:var(--ln)">Remplacer l'image</div></sc-if>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;padding:16px;border-radius:12px;border:1px solid var(--bd);background:var(--sf);max-width:720px">
+          <div style="font-size:16px;font-weight:700">Ajouter une capture</div>
+          <div style="display:flex;gap:16px;flex-wrap:wrap">
+            <div style="flex:1 1 240px;display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:700">Image</span>
+              <sc-if value="{{ capErr }}" hint-placeholder-val="{{ false }}"><div style="min-height:44px;border-radius:10px;border:1.5px solid var(--err);background:var(--in);padding:0 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14px"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">capture-duel.heic</span><span style="font-weight:700;color:var(--ln);white-space:nowrap">Changer</span></div><div style="font-size:13px;color:var(--err)">Format refusé. Utilise PNG, JPEG, WebP ou GIF.</div></sc-if>
+              <sc-if value="{{ capNoErr }}" hint-placeholder-val="{{ true }}"><div style="min-height:44px;border-radius:10px;border:1.5px dashed var(--bd);padding:0 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14px;color:var(--mu)"><span>Aucun fichier</span><span style="font-weight:700;color:var(--ln)">Choisir une image</span></div></sc-if>
+            </div>
+            <div style="flex:1 1 240px;display:flex;flex-direction:column;gap:6px"><div style="display:flex;justify-content:space-between"><span style="font-size:14px;font-weight:700">Légende</span><span style="font-size:12px;color:var(--mu2)">0 / 80</span></div><div style="height:44px;border-radius:10px;background:var(--in);border:1px solid var(--bd);padding:0 12px;display:flex;align-items:center;font-size:15px;color:var(--mu2)">Ex. : Défie un ami</div></div>
+          </div>
+          <div style="display:flex"><div style="height:44px;padding:0 20px;border-radius:12px;background:#D81B60;color:#fff;display:flex;align-items:center;font-size:15px;font-weight:800">Ajouter la capture</div></div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isApk }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start">
+          <div style="flex:1 1 340px;min-width:0;display:flex;flex-direction:column;gap:12px">
+            <div style="font-size:11px;font-weight:800;letter-spacing:.2em;color:var(--mu2)">PROPOSÉE AU TÉLÉCHARGEMENT</div>
+            <sc-if value="{{ apkHas }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap"><span style="font-size:44px;font-weight:900;line-height:1">{{ curV }}</span><span style="font-size:14px;color:var(--mu)">{{ curInfo }}</span></div>
+              <div style="display:flex;flex-direction:column;font-size:14px">
+                <div style="display:flex;gap:6px 16px;align-items:center;padding:8px 0;border-top:1px solid var(--bd);flex-wrap:wrap;min-height:44px;box-sizing:border-box"><span style="flex:0 0 130px;color:var(--mu)">Lien public</span><span style="flex:1;font-weight:600">https://tilto.fun/telecharger</span><span style="display:flex;align-items:center;gap:4px;font-weight:700;color:var(--ln)"><span style="font-family:'Material Symbols Rounded';font-size:17px;line-height:1">content_copy</span>Copier</span></div>
+                <div style="display:flex;gap:6px 16px;align-items:center;padding:8px 0;border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);flex-wrap:wrap;min-height:44px;box-sizing:border-box"><span style="flex:0 0 130px;color:var(--mu)">Mention sur le site</span><span style="flex:1;font-weight:600">« {{ curMention }} »</span></div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ apkNone }}" hint-placeholder-val="{{ false }}"><div style="font-size:20px;font-weight:700">Aucune version.</div><div style="font-size:14px;line-height:1.5;color:var(--mu)">Le bouton « Télécharger l'APK » est masqué sur le site tant qu'aucune version n'est proposée. Dépose un fichier ci-contre.</div></sc-if>
+          </div>
+          <div style="flex:1 1 340px;min-width:0;display:flex;flex-direction:column;gap:14px;padding:16px;border-radius:12px;border:1px solid var(--bd);background:var(--sf)">
+            <div style="font-size:16px;font-weight:700">Déposer une nouvelle version</div>
+            <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:700">Fichier APK</span>
+              <sc-if value="{{ apkUp }}" hint-placeholder-val="{{ false }}"><div style="border-radius:10px;border:1px solid var(--bd);background:var(--in);padding:12px;display:flex;flex-direction:column;gap:8px"><div style="display:flex;justify-content:space-between;gap:10px;font-size:14px"><span style="font-weight:600">tilto-2.0.1.apk</span><span style="color:var(--mu)">24,6 Mo</span></div><div style="height:6px;border-radius:3px;background:var(--sf2);overflow:hidden"><div style="width:62%;height:6px;background:#D81B60"></div></div><div style="display:flex;justify-content:space-between;gap:10px;font-size:13px;color:var(--mu)"><span>Envoi… 15,3 sur 24,6 Mo</span><span style="font-weight:700;color:var(--ln)">Annuler l'envoi</span></div></div><div style="font-size:12px;color:var(--mu)">Garde cette page ouverte. Le fichier est vérifié une fois l'envoi terminé.</div></sc-if>
+              <sc-if value="{{ apkFileErr }}" hint-placeholder-val="{{ false }}"><div style="min-height:44px;border-radius:10px;border:1.5px solid var(--err);background:var(--in);padding:0 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14px"><span>tilto-2.0.1.zip · 24,1 Mo</span><span style="font-weight:700;color:var(--ln)">Changer</span></div><div style="font-size:13px;color:var(--err)">Ce fichier n'est pas un APK valide.</div></sc-if>
+              <sc-if value="{{ apkFileIdle }}" hint-placeholder-val="{{ true }}"><div style="min-height:72px;border-radius:10px;border:1.5px dashed var(--bd);padding:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center"><span style="font-size:14px;font-weight:700;color:var(--ln)">Choisir un fichier .apk</span><span style="font-size:12px;color:var(--mu)">200 Mo maximum · vérifié avant publication</span></div></sc-if>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:700">Numéro de version</span>
+              <sc-if value="{{ apkFileErr }}"><div style="height:44px;border-radius:10px;background:var(--in);border:1.5px solid var(--err);padding:0 12px;display:flex;align-items:center;font-size:15px">2.0.0</div><div style="font-size:13px;color:var(--err)">La version 2.0.0 existe déjà.</div></sc-if>
+              <sc-if value="{{ apkVerOk }}" hint-placeholder-val="{{ true }}"><div style="height:44px;border-radius:10px;background:var(--in);border:1px solid var(--bd);padding:0 12px;display:flex;align-items:center;font-size:15px">2.0.1</div><div style="font-size:12px;color:var(--mu)">Trois nombres séparés par des points, par exemple 1.2.0.</div></sc-if>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;min-height:44px"><div style="width:22px;height:22px;border-radius:6px;background:#D81B60;display:flex;align-items:center;justify-content:center;color:#fff"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">check</span></div><span style="font-size:14px">La proposer tout de suite au téléchargement</span></div>
+            <sc-if value="{{ apkUp }}"><div style="height:44px;border-radius:12px;background:var(--sf2);color:var(--mu2);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800">Envoi en cours…</div></sc-if>
+            <sc-if value="{{ apkCanSend }}" hint-placeholder-val="{{ true }}"><div style="height:44px;border-radius:12px;background:#D81B60;color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800">Déposer</div></sc-if>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column">
+          <div style="font-size:11px;font-weight:800;letter-spacing:.2em;color:var(--mu2);padding-bottom:10px">HISTORIQUE DES VERSIONS</div>
+          <sc-if value="{{ apkNone }}"><div style="padding:16px 0;border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);font-size:14px;color:var(--mu)">Aucune version déposée pour l'instant.</div></sc-if>
+          <sc-if value="{{ apkHistDesk }}" hint-placeholder-val="{{ true }}">
+            <div style="display:grid;grid-template-columns:90px 90px 120px minmax(0,1fr) auto;font-size:14px">
+              <div style="padding:8px 0;font-size:12px;color:var(--mu2)">Version</div><div style="padding:8px 0;font-size:12px;color:var(--mu2)">Taille</div><div style="padding:8px 0;font-size:12px;color:var(--mu2)">Déposée le</div><div style="padding:8px 0;font-size:12px;color:var(--mu2)">SHA-256</div><div style="padding:8px 0"></div>
+            </div>
+            <sc-for list="{{ vers }}" as="item" hint-placeholder-count="4">
+              <div style="display:grid;grid-template-columns:90px 90px 120px minmax(0,1fr) auto;align-items:center;font-size:14px;border-top:1px solid var(--bd);min-height:52px">
+                <div style="font-weight:800">{{ item.v }}</div><div style="color:var(--mu)">{{ item.sz }}</div><div style="color:var(--mu)">{{ item.d }}</div>
+                <div style="display:flex;align-items:center;gap:6px;font-family:ui-monospace,Menlo,monospace;font-size:13px;color:var(--mu)">{{ item.sha }}<span style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:17px;line-height:1;color:var(--fg)">content_copy</span></div>
+                <div style="display:flex;align-items:center;justify-content:flex-end;gap:4px">
+                  <sc-if value="{{ item.cur }}"><span style="font-size:13px;font-weight:700;padding-right:10px">Proposée au téléchargement</span><div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--bd)"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">delete</span></div></sc-if>
+                  <sc-if value="{{ item.other }}"><span style="height:44px;padding:0 10px;display:flex;align-items:center;font-size:14px;font-weight:700;color:var(--ln)">Proposer celle-ci</span><div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--mu)"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">delete</span></div></sc-if>
+                </div>
+              </div>
+            </sc-for>
+            <div style="border-top:1px solid var(--bd);padding-top:8px;font-size:12px;color:var(--mu2)">La version proposée ne peut pas être supprimée : propose d'abord une autre version.</div>
+          </sc-if>
+          <sc-if value="{{ apkHistMob }}" hint-placeholder-val="{{ false }}">
+            <sc-for list="{{ vers }}" as="item" hint-placeholder-count="4">
+              <div style="display:flex;flex-direction:column;gap:4px;padding:12px 0;border-top:1px solid var(--bd)">
+                <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:16px;font-weight:800">{{ item.v }}</span><span style="font-size:13px;color:var(--mu)">{{ item.sz }} · {{ item.d }}</span></div>
+                <div style="font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--mu)">SHA-256 {{ item.sha }}</div>
+                <sc-if value="{{ item.cur }}"><div style="font-size:13px;font-weight:700;min-height:32px;display:flex;align-items:center">Proposée au téléchargement</div></sc-if>
+                <sc-if value="{{ item.other }}"><div style="display:flex;justify-content:space-between"><span style="height:44px;display:flex;align-items:center;font-size:14px;font-weight:700;color:var(--ln)">Proposer celle-ci</span><span style="height:44px;display:flex;align-items:center;font-size:14px;font-weight:700;color:var(--mu)">Supprimer</span></div></sc-if>
+              </div>
+            </sc-for>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isStudio }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:24px;max-width:760px">
+          <div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;justify-content:space-between"><span style="font-size:14px;font-weight:700">Nom du studio <span style="font-weight:500;color:var(--mu)">(obligatoire)</span></span><span style="font-size:12px;color:var(--mu2)">{{ studioLen }}</span></div>
+            <sc-if value="{{ studioErr }}" hint-placeholder-val="{{ false }}"><div style="height:44px;border-radius:10px;background:var(--in);border:1.5px solid var(--err);padding:0 12px;display:flex;align-items:center;font-size:15px"></div><div style="font-size:13px;color:var(--err)">Le nom du studio est obligatoire.</div></sc-if>
+            <sc-if value="{{ studioOk }}" hint-placeholder-val="{{ true }}"><div style="height:44px;border-radius:10px;background:var(--in);border:1px solid var(--bd);padding:0 12px;display:flex;align-items:center;font-size:15px">Nexora</div></sc-if>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px"><span style="font-size:14px;font-weight:700">Logo du studio</span>
+            <div style="display:flex;gap:12px;flex-wrap:wrap">
+              <div style="flex:1 1 220px;display:flex;flex-direction:column;gap:6px"><div style="height:120px;border-radius:12px;background:#0B0B10;border:1px solid #2A2A36;display:flex;align-items:center;justify-content:center"><div style="width:150px;height:34px;border-radius:6px;background:repeating-linear-gradient(45deg,#15151C 0 6px,#1F1F2A 6px 12px);display:flex;align-items:center;justify-content:center;font-family:ui-monospace,monospace;font-size:10px;color:#9E9EAB">logo-nexora.svg</div></div><span style="font-size:12px;color:var(--mu)">Sur le thème sombre</span></div>
+              <div style="flex:1 1 220px;display:flex;flex-direction:column;gap:6px"><div style="height:120px;border-radius:12px;background:#F6F6F9;border:1px solid #D4D4DE;display:flex;align-items:center;justify-content:center"><div style="width:150px;height:34px;border-radius:6px;background:repeating-linear-gradient(45deg,#E6E6EE 0 6px,#DADAE4 6px 12px);display:flex;align-items:center;justify-content:center;font-family:ui-monospace,monospace;font-size:10px;color:#55555F">logo-nexora.svg</div></div><span style="font-size:12px;color:var(--mu)">Sur le thème clair</span></div>
+            </div>
+            <div style="font-size:13px;line-height:1.5;color:var(--mu)">Vérifie qu'il reste lisible sur les deux fonds. PNG, JPEG, WebP, GIF ou SVG, 5 Mo maximum. Le SVG est conseillé : il reste net à toutes les tailles.</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap"><div style="height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--bd);background:var(--sf);display:flex;align-items:center;font-size:14px;font-weight:700">Remplacer le logo</div><div style="height:44px;padding:0 12px;display:flex;align-items:center;font-size:14px;font-weight:700;color:var(--mu)">Retirer</div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;padding:14px 16px;border-radius:12px;border:1px solid var(--bd)"><span style="font-size:13px;font-weight:700">Où ils apparaissent</span><span style="font-size:13px;line-height:1.5;color:var(--mu)">Dans le pied de page de toutes les pages du site, sous la forme :</span><div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--mu);flex-wrap:wrap"><div style="width:84px;height:20px;border-radius:4px;background:repeating-linear-gradient(45deg,var(--sf2) 0 5px,var(--bd) 5px 10px)"></div>Un jeu de Nexora · © 2026</div><span style="font-size:12px;color:var(--mu2)">Sans logo, seul le texte s'affiche.</span></div>
+          <div style="display:flex;padding-top:16px;border-top:1px solid var(--bd)"><div style="height:44px;padding:0 22px;border-radius:12px;background:#D81B60;color:#fff;display:flex;align-items:center;font-size:15px;font-weight:800">Enregistrer</div></div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isConfid }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;gap:16px 24px;flex-wrap:wrap;align-items:flex-end">
+          <div style="display:flex;flex-direction:column;gap:6px;width:200px"><span style="font-size:14px;font-weight:700">Dernière mise à jour</span><div style="height:44px;border-radius:10px;background:var(--in);border:1px solid var(--bd);padding:0 8px 0 12px;display:flex;align-items:center;justify-content:space-between;font-size:15px">09/10/2026<span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1;color:var(--mu)">calendar_today</span></div></div>
+          <div style="flex:1 1 280px;font-size:13px;line-height:1.5;color:var(--mu);padding-bottom:4px">Un paragraphe par bloc, séparé par une ligne vide. Une ligne qui commence par <span style="font-family:ui-monospace,monospace;color:var(--fg)">##</span> devient un intertitre.</div>
+        </div>
+        <sc-if value="{{ mob }}"><div style="display:flex;border-bottom:1px solid var(--bd)"><sc-if value="{{ confEdit }}"><div style="flex:1;height:44px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;box-shadow:inset 0 -2px 0 #D81B60">Modifier</div><div style="flex:1;height:44px;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--mu)">Aperçu</div></sc-if><sc-if value="{{ confPrev }}"><div style="flex:1;height:44px;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--mu)">Modifier</div><div style="flex:1;height:44px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;box-shadow:inset 0 -2px 0 #D81B60">Aperçu</div></sc-if></div></sc-if>
+        <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:stretch">
+          <sc-if value="{{ showEditor }}" hint-placeholder-val="{{ true }}"><div style="flex:1 1 320px;min-width:0;display:flex;flex-direction:column;gap:6px"><sc-if value="{{ desk }}"><span style="font-size:14px;font-weight:700">Texte de la politique</span></sc-if><div style="min-height:420px;border-radius:10px;background:var(--in);border:1px solid var(--bd);padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:13px;line-height:1.65;white-space:pre-wrap;box-sizing:border-box">Tilto ne collecte aucune donnée personnelle. Tout ce que le jeu enregistre reste sur ton téléphone.
+
+## Ce que Tilto garde sur ton téléphone
+
+Ton pseudo, tes 10 meilleurs scores, tes statistiques et tes réglages. Ces informations ne sont jamais envoyées ailleurs.
+
+## Pendant un duel
+
+Les deux téléphones communiquent directement sur ton réseau Wi-Fi, le temps de la partie. Rien ne passe par Internet.
+
+## Effacer tes données
+
+Désinstalle Tilto, ou va dans Paramètres › Applications › Tilto › Stockage › Effacer les données.</div><span style="font-size:12px;color:var(--mu2)">2 184 caractères</span></div></sc-if>
+          <sc-if value="{{ showPreview }}" hint-placeholder-val="{{ true }}"><div style="flex:1 1 320px;min-width:0;display:flex;flex-direction:column;gap:6px"><sc-if value="{{ desk }}"><span style="font-size:14px;font-weight:700">Aperçu</span></sc-if><div style="min-height:420px;border-radius:10px;background:#0B0B10;color:#F2F2F5;border:1px solid #2A2A36;padding:22px;display:flex;flex-direction:column;gap:14px;box-sizing:border-box"><div style="font-size:11px;font-weight:800;letter-spacing:.36em;color:#B8B8C4">POLITIQUE DE CONFIDENTIALITÉ</div><div style="font-size:12px;color:#7A7A88">Dernière mise à jour : 9 octobre 2026</div><div style="font-size:19px;font-weight:700;line-height:1.35">Tilto ne collecte aucune donnée personnelle. Tout ce que le jeu enregistre reste sur ton téléphone.</div><div style="font-size:15px;font-weight:700">Ce que Tilto garde sur ton téléphone</div><div style="font-size:14px;line-height:1.6;color:#C8C8D2">Ton pseudo, tes 10 meilleurs scores, tes statistiques et tes réglages. Ces informations ne sont jamais envoyées ailleurs.</div><div style="font-size:15px;font-weight:700">Pendant un duel</div><div style="font-size:14px;line-height:1.6;color:#C8C8D2">Les deux téléphones communiquent directement sur ton réseau Wi-Fi, le temps de la partie. Rien ne passe par Internet.</div><div style="font-size:15px;font-weight:700">Effacer tes données</div><div style="font-size:14px;line-height:1.6;color:#C8C8D2">Désinstalle Tilto, ou va dans Paramètres › Applications › Tilto › Stockage › Effacer les données.</div></div><span style="font-size:12px;color:var(--mu2)">Aperçu dans le thème sombre du site</span></div></sc-if>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-top:16px;border-top:1px solid var(--bd)"><div style="height:44px;padding:0 22px;border-radius:12px;background:#D81B60;color:#fff;display:flex;align-items:center;font-size:15px;font-weight:800">Enregistrer</div><span style="font-size:13px;color:var(--mu)">Publiée sur tilto.fun/confidentialite</span></div>
+      </sc-if>
+    </div>
+
+    <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;left:0;right:0;top:56px;bottom:0;background:var(--bg);padding:8px 8px 20px;display:flex;flex-direction:column;box-sizing:border-box">
+        <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+          <sc-if value="{{ item.active }}"><div style="height:48px;padding:0 14px;border-radius:10px;background:var(--sf2);display:flex;align-items:center;font-size:16px;font-weight:700;box-shadow:inset 3px 0 0 #D81B60">{{ item.label }}</div></sc-if>
+          <sc-if value="{{ item.idle }}"><div style="height:48px;padding:0 14px;display:flex;align-items:center;font-size:16px;color:var(--fg)">{{ item.label }}</div></sc-if>
+        </sc-for>
+        <div style="height:1px;background:var(--bd);margin:8px 14px"></div>
+        <div style="height:48px;padding:0 14px;display:flex;align-items:center;gap:6px;font-size:16px;color:var(--mu)">Voir le site<span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">open_in_new</span></div>
+        <div style="height:48px;padding:0 14px;display:flex;align-items:center;font-size:16px;color:var(--mu)">Se déconnecter</div>
+        <div style="flex:1"></div>
+        <div style="padding:0 14px;display:flex;align-items:center;justify-content:space-between"><span style="font-size:14px;color:var(--mu)">Thème</span><div style="display:flex;padding:3px;border-radius:10px;border:1px solid var(--bd)"><div style="height:38px;padding:0 14px;border-radius:7px;background:var(--sf2);display:flex;align-items:center;font-size:14px;font-weight:700">Sombre</div><div style="height:38px;padding:0 14px;display:flex;align-items:center;font-size:14px;color:var(--mu)">Clair</div></div></div>
+      </div>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{ confirm }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;background:rgba(5,5,8,.62);display:flex;align-items:center;justify-content:center;padding:20px">
+      <div style="width:100%;max-width:420px;background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:12px;box-shadow:0 24px 60px rgba(0,0,0,.4)">
+        <div style="font-size:19px;font-weight:800;line-height:1.3">{{ cTitle }}</div>
+        <div style="font-size:14px;line-height:1.55;color:var(--mu)">{{ cText }}</div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;flex-wrap:wrap"><div style="height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--bd);display:flex;align-items:center;font-size:14px;font-weight:700">Annuler</div><div style="height:44px;padding:0 18px;border-radius:12px;background:var(--err);color:#fff;display:flex;align-items:center;font-size:14px;font-weight:800">Supprimer</div></div>
+      </div>
+    </div>
+  </sc-if>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;screen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;login&quot;,&quot;dashboard&quot;,&quot;textes&quot;,&quot;arguments&quot;,&quot;jouer&quot;,&quot;captures&quot;,&quot;apk&quot;,&quot;studio&quot;,&quot;confid&quot;],&quot;default&quot;:&quot;dashboard&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;state&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;mobile&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;light&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props, s = p.screen ?? 'dashboard', st = p.state ?? '', m = !!p.mobile, light = !!p.light;
+    const T = {
+      dashboard: ['Tableau de bord', "L'état de tilto.fun, et ce qu'il reste à remplir."],
+      textes: ['Textes', 'Les phrases du haut de page et du bloc de téléchargement, et les liens.'],
+      arguments: ['Arguments', 'La section « Le jeu » du site, dans l\'ordre d\'affichage.'],
+      jouer: ['Comment jouer', 'Les étapes de la section « Comment jouer », dans l\'ordre.'],
+      captures: ['Captures', "Les captures d'écran de l'app, dans l'ordre du site."],
+      apk: ['APK', 'Le fichier proposé par le bouton « Télécharger l\'APK ».'],
+      studio: ['Studio', 'Le nom et le logo affichés dans le pied de page.'],
+      confid: ['Confidentialité', 'La page tilto.fun/confidentialite.']
+    };
+    const keys = Object.keys(T);
+    const nav = keys.map(k => ({ label: T[k][0], active: k === s, idle: k !== s }));
+    const B = {
+      'textes:success': ['ok', 'Textes enregistrés.'],
+      'textes:error': ['err', "Rien n'a été enregistré : corrige le champ en rouge."],
+      'jouer:add': ['err', "L'étape n'a pas été ajoutée : il manque le titre."],
+      'arguments:deleted': ['ok', 'Argument supprimé.'],
+      'captures:error': ['err', "Ce fichier n'est pas une image acceptée (PNG, JPEG, WebP, GIF)."],
+      'captures:images': ['ok', 'Image de la capture 3 remplacée.'],
+      'apk:success': ['ok', 'Version 2.0.1 déposée. Elle est proposée au téléchargement.'],
+      'apk:error': ['err', "La version n'a pas été déposée : corrige les deux champs en rouge."],
+      'studio:error': ['err', 'Le nom du studio est obligatoire.'],
+      'confid:success': ['ok', 'Politique enregistrée. La page publique est à jour.']
+    };
+    const b = B[s + ':' + st];
+    const complete = st === 'complete';
+    const todo = complete ? [] : [
+      { n: 1, t: 'Déposer un APK', d: "Aucune version n'est proposée : le bouton « Télécharger l'APK » est masqué sur le site.", a: 'Aller à APK' },
+      { n: 2, t: 'Ajouter les images des captures', d: '0 sur 3 captures ont une image. Le site affiche des cadres vides.', a: 'Aller à Captures' },
+      { n: 3, t: "Renseigner l'adresse de contact", d: 'Sans adresse, le lien « Contact » du pied de page est masqué.', a: 'Aller à Textes' }
+    ];
+    const row = (l, v, e, a) => ({ l, v, empty: !!e, full: !e, a });
+    const dash = [
+      row('Version au téléchargement', complete ? '2.0.0 · 18 Mo · déposée le 9 oct. 2026' : 'aucune', !complete, complete ? 'Gérer' : 'Déposer'),
+      row('Lien Play Store', 'play.google.com/store/apps/details?id=fun.nexora.tilto', false, 'Modifier'),
+      row('Adresse de contact', complete ? 'contact@tilto.fun' : 'non renseignée', !complete, complete ? 'Modifier' : 'Renseigner'),
+      row("Captures d'écran", complete ? '3 sur 3 avec image' : '0 sur 3 avec image', !complete, complete ? 'Modifier' : 'Ajouter'),
+      row('Arguments', '4, tous illustrés sur le site', false, 'Modifier'),
+      row('Comment jouer', '3 étapes', false, 'Modifier'),
+      row('Studio', 'Nexora · logo présent', false, 'Modifier'),
+      row('Confidentialité', 'mise à jour le 9 oct. 2026', false, 'Modifier')
+    ];
+    const args = [
+      ['INCLINE', 'Pas de bouton. Tu penches, la raquette suit.', "Tiens ton téléphone à deux mains et incline-le à gauche ou à droite. Rien à l'écran ne cache la balle."],
+      ['À DEUX', 'Chacun son téléphone. Chacun sa raquette en bas.', "Mettez-vous sur le même Wi-Fi, ou sur le partage de connexion de l'un de vous : Tilto trouve la partie tout seul."],
+      ['SENSIBILITÉ', 'Réglée pour ta façon de tenir.', 'Douce pour la précision, vive pour les grands gestes. Le son et la vibration se règlent aussi.'],
+      ['RECORDS', 'Bats ton record. Puis celui des autres.', 'Le classement garde les 10 meilleurs scores du téléphone.']
+    ];
+    const steps = [
+      ['', 'Prends ton téléphone à deux mains.', "En portrait, l'écran face à toi."],
+      ['', "Tape l'écran.", "La balle part vers l'adversaire."],
+      ['', 'Incline pour la renvoyer.', "+50 points par renvoi, +100 quand l'adversaire rate. La balle accélère tous les 4 renvois."]
+    ];
+    const isArgs = s === 'arguments', src = isArgs ? args : steps;
+    const items = src.map(([sur, t, x], i) => {
+      const open = isArgs && i === 1 && st === '' && !m;
+      return { n: i + 1, sur, t, x, open, closed: !open, hasSur: isArgs, illu: i < 4 ? 'Illustré sur le site' : 'Texte seul sur le site',
+        canUp: i > 0, noUp: i === 0, canDown: i < src.length - 1, noDown: i === src.length - 1,
+        surLen: sur.length + ' / 40', tLen: t.length + ' / 120', xLen: x.length + ' / 1000' };
+    });
+    const caps = [['Choisis ton mode', 'accueil'], ['Renvoie, accélère', 'jeu'], ['Gagne le duel', 'fin']].map(([c, scr], i) => ({ n: i + 1, c, scr, img: st === 'images', noImg: st !== 'images' }));
+    let vers = [['2.0.0', '18,2 Mo', '09/10/2026', '4f1c8e02…9a02'], ['1.4.2', '16,9 Mo', '02/07/2026', 'b7d031aa…5c1e'], ['1.4.0', '16,7 Mo', '11/05/2026', '09ac77f3…be60'], ['1.3.0', '15,1 Mo', '20/02/2026', 'e2f95b10…318d']];
+    if (s === 'apk' && st === 'success') vers = [['2.0.1', '24,6 Mo', '09/10/2026', 'c81e40d9…2b77'], ...vers];
+    if (st === 'none') vers = [];
+    vers = vers.map(([v, sz, d, sha], i) => ({ v, sz, d, sha, cur: i === 0, other: i !== 0 }));
+    const cur = vers[0];
+    const confirms = {
+      arguments: ['Supprimer l\'argument « SENSIBILITÉ » ?', 'Il disparaît du site dès la confirmation. Les arguments suivants remontent d\'un rang. Cette action est définitive.'],
+      apk: ['Supprimer la version 1.4.0 ?', "Le fichier est effacé du serveur. Les personnes qui l'ont déjà installée la gardent. Cette action est définitive."],
+      captures: ['Supprimer la capture 2 ?', "L'image et sa légende sont effacées. Cette action est définitive."]
+    };
+    const c = confirms[s] || ['', ''];
+    const listEmpty = st === 'empty';
+    return {
+      isLogin: s === 'login', loginErr: st === 'error', loginOk: st !== 'error', loginLocked: st === 'locked', loginCan: st !== 'locked',
+      shell: s !== 'login', desk: !m, mob: m, dark: !light, light,
+      menuOpen: m && st === 'menu', menuClosed: !(m && st === 'menu'),
+      title: (T[s] || ['', ''])[0], sub: (T[s] || ['', ''])[1], nav,
+      bOk: !!b && b[0] === 'ok', bErr: !!b && b[0] === 'err', bText: b ? b[1] : '',
+      isDash: s === 'dashboard', todo, hasTodo: todo.length > 0, noTodo: todo.length === 0, dash,
+      isTextes: s === 'textes', textesErr: st === 'error', textesOk: st !== 'error',
+      isList: isArgs || s === 'jouer', items, listEmpty, listFull: !listEmpty,
+      listHelp: isArgs ? 'Les 4 premiers arguments ont une illustration dessinée sur le site. À partir du 5ᵉ, l\'argument s\'affiche en texte seul.' : 'Le site numérote les étapes dans cet ordre. Trois étapes suffisent en général.',
+      emptyTitle: isArgs ? 'Aucun argument.' : 'Aucune étape.',
+      emptyText: isArgs ? 'La section « Le jeu » est masquée sur le site tant que la liste est vide.' : 'La section « Comment jouer » est masquée sur le site tant que la liste est vide.',
+      addLabel: isArgs ? 'Ajouter un argument' : 'Ajouter une étape', addOpen: s === 'jouer' && st === 'add', addClosed: !(s === 'jouer' && st === 'add'),
+      isCaptures: s === 'captures', caps, capErr: st === 'error', capNoErr: st !== 'error',
+      isApk: s === 'apk', apkHas: !!cur, apkNone: !cur, curV: cur ? cur.v : '', curInfo: cur ? cur.sz + ' · déposée le ' + cur.d : '',
+      curMention: cur ? 'Version ' + cur.v + ' · ' + cur.sz.replace(/,\d/, '') : '',
+      apkUp: st === 'uploading', apkFileErr: st === 'error', apkFileIdle: st !== 'uploading' && st !== 'error', apkVerOk: st !== 'error', apkCanSend: st !== 'uploading',
+      vers, apkHistDesk: !!cur && !m, apkHistMob: !!cur && m,
+      isStudio: s === 'studio', studioErr: st === 'error', studioOk: st !== 'error', studioLen: st === 'error' ? '0 / 60' : '6 / 60',
+      isConfid: s === 'confid', confEdit: st !== 'apercu', confPrev: st === 'apercu',
+      showEditor: !m || st !== 'apercu', showPreview: !m || st === 'apercu',
+      confirm: st === 'confirm', cTitle: c[0], cText: c[1]
+    };
+  }
+}
+</script>
+</body>
+</html>
