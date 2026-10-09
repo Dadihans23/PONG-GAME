@@ -198,7 +198,7 @@ Décisions :
 ### Site de présentation et backend
 - [x] Page unique d'après la maquette (`site/`) : jeu en mouvement, 4 arguments, comment jouer, captures, téléchargement APK et Play Store, confidentialité, signature Nexora
 - [x] Backend FastAPI : administration (studio, logo, textes, arguments, étapes, captures, Play Store, versions de l'APK), Docker
-- [ ] Déploiement sur le VPS (port), puis nom de domaine et HTTPS avant la publication
+- [x] Déployé sur le VPS : **https://tilto.fun** (Nginx + Certbot, conteneur sur 127.0.0.1:8085) ; déploiement automatique à chaque push sur `prod`
 - [ ] Contenu à fournir : 3 captures d'écran de l'app, lien Play Store, adresse de contact, APK
 
 ### Publication sur le Play Store
