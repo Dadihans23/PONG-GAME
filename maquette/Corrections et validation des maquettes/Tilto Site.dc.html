@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,1,0&display=block" rel="stylesheet">
+<style>html{background:#050507}body{margin:0;background:#050507;color:#F2F2F5;font-family:Archivo,sans-serif;-webkit-font-smoothing:antialiased}a{color:#FF5C93;text-decoration:none}a:hover{color:#FF8AB1}@keyframes tiltoX{from{transform:translateX(0)}to{transform:translateX(var(--tx))}}@keyframes tiltoY{from{transform:translateY(0)}to{transform:translateY(var(--ty))}}</style>
+</helmet>
+<div style="padding:64px;display:flex;flex-direction:column;gap:56px">
+  <header style="display:flex;flex-direction:column;gap:16px;max-width:1100px">
+    <div style="display:flex;gap:20px;font-size:13px;font-weight:600;letter-spacing:.06em"><a href="Tilto%20Accueil.dc.html">1 · Accueil</a><a href="Tilto%20Icone.dc.html">2 · Icône</a><a href="Tilto%20Site.dc.html" style="color:#F2F2F5">3 · Site</a></div>
+    <div style="font-size:32px;font-weight:900;letter-spacing:.3em">TILTO · SITE</div>
+    <p style="margin:0;max-width:820px;font-size:15px;line-height:1.6;color:#9E9EAB;text-wrap:pretty">Une seule page, alignée sur la direction <a href="Tilto%20Accueil.dc.html#1a">1a</a> : le titre, puis une partie qui se joue toute seule, avant même qu'on fasse défiler. Les quatre arguments sont des démonstrations, pas une grille de cartes. Le seul JavaScript, c'est l'animation du terrain : trois éléments animés en CSS, sans dépendance.</p>
+  </header>
+
+  <div style="display:flex;gap:64px;align-items:flex-start">
+  <div id="3a" style="display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;font-weight:800;padding:4px 9px;border-radius:6px;background:#E91E63;color:#fff">3a</span><span style="font-size:14px;font-weight:700">Ordinateur · 1440 px</span></div>
+    <div style="width:1440px;background:#0B0B10;border-radius:16px;overflow:hidden;box-shadow:0 0 0 1px #262630,0 30px 80px rgba(0,0,0,.6)">
+      <div style="height:80px;padding:0 64px;display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:22px;font-weight:900;letter-spacing:.32em">TILTO</div>
+        <div style="display:flex;align-items:center;gap:36px;font-size:15px;font-weight:600;color:#C8C8D2"><span>Le jeu</span><span>Comment jouer</span><span>Captures</span><div style="height:44px;padding:0 20px;border-radius:12px;border:1px solid #2A2A36;display:flex;align-items:center;color:#F2F2F5;font-weight:700">Télécharger</div></div>
+      </div>
+      <div style="padding:72px 64px 0;display:flex;flex-direction:column;align-items:center;text-align:center;gap:28px">
+        <div style="font-size:168px;font-weight:900;letter-spacing:.32em;padding-left:.32em;line-height:1;text-shadow:0 0 56px rgba(233,30,99,.5)">TILTO</div>
+        <p style="margin:0;max-width:780px;font-size:26px;line-height:1.45;color:#C8C8D2;text-wrap:balance">Le Pong qu'on joue en inclinant son téléphone. Seul contre l'ordinateur, ou à deux sur le même Wi-Fi.</p>
+        <div style="display:flex;gap:16px;align-items:stretch;margin-top:8px">
+          <div style="flex:none;white-space:nowrap;height:64px;padding:0 32px;border-radius:18px;background:#E91E63;display:flex;align-items:center;font-size:17px;font-weight:800;box-shadow:0 0 28px rgba(233,30,99,.5),0 10px 32px rgba(233,30,99,.3)">Télécharger sur Google Play</div>
+          <div style="flex:none;white-space:nowrap;height:64px;padding:0 28px;border-radius:18px;background:#15151C;border:1px solid #2A2A36;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:2px"><span style="font-size:16px;font-weight:700">Télécharger l'APK</span><span style="font-size:12px;color:#9E9EAB">Version 2.0.0 · 18 Mo</span></div>
+        </div>
+        <div style="font-size:13px;color:#6B6B7A">Gratuit · Android</div>
+      </div>
+      <div style="position:relative;height:360px;margin-top:64px;overflow:hidden">
+        <div style="position:absolute;left:0;right:0;top:179px;height:2px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.1) 0 14px,transparent 14px 28px)"></div>
+        {{ heroD }}
+        <div style="position:absolute;inset:0;background:linear-gradient(90deg,#0B0B10 0%,rgba(11,11,16,0) 12%,rgba(11,11,16,0) 88%,#0B0B10 100%)"></div>
+      </div>
+
+      <div style="padding:160px 120px;display:flex;flex-direction:column;gap:160px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:96px;align-items:center">
+          <div style="height:560px;display:flex;align-items:center;justify-content:center"><div style="transform:rotate(-10deg)"><div style="width:236px;height:500px;border-radius:36px;background:#1E1E28;padding:10px;box-sizing:border-box;box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 1px #2A2A36"><div style="width:216px;height:480px;border-radius:28px;overflow:hidden;position:relative"><div style="width:360px;height:800px;transform:scale(.6);transform-origin:0 0"><dc-import name="TiltoEcran" screen="jeu" hint-size="360px,800px"></dc-import></div></div></div></div></div>
+          <div style="display:flex;flex-direction:column;gap:20px"><div style="font-size:12px;font-weight:800;letter-spacing:.3em;color:#64B5F6">INCLINE</div><div style="font-size:48px;font-weight:800;line-height:1.08;text-wrap:balance">Pas de bouton. Tu penches, la raquette suit.</div><p style="margin:0;font-size:19px;line-height:1.6;color:#9E9EAB;max-width:480px">Tiens ton téléphone à deux mains et incline-le à gauche ou à droite. Rien à l'écran ne cache la balle.</p></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:96px;align-items:center">
+          <div style="display:flex;flex-direction:column;gap:20px"><div style="font-size:12px;font-weight:800;letter-spacing:.3em;color:#81C784">À DEUX</div><div style="font-size:48px;font-weight:800;line-height:1.08;text-wrap:balance">Chacun son téléphone. Chacun sa raquette en bas.</div><p style="margin:0;font-size:19px;line-height:1.6;color:#9E9EAB;max-width:480px">Mettez-vous sur le même Wi-Fi, ou sur le partage de connexion de l'un de vous : Tilto trouve la partie tout seul. Pas besoin d'Internet. Le premier à 5 points gagne.</p></div>
+          <div style="display:flex;gap:40px;justify-content:center">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:16px"><div style="width:200px;height:420px;border-radius:32px;background:#1E1E28;padding:10px;box-sizing:border-box;box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 1px #2A2A36"><div style="width:180px;height:400px;border-radius:24px;overflow:hidden;position:relative"><div style="width:360px;height:800px;transform:scale(.5);transform-origin:0 0"><dc-import name="TiltoEcran" screen="duel" hint-size="360px,800px"></dc-import></div></div></div><span style="font-size:14px;color:#9E9EAB">Le téléphone de Léa</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:16px;margin-top:48px"><div style="width:200px;height:420px;border-radius:32px;background:#1E1E28;padding:10px;box-sizing:border-box;box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 1px #2A2A36"><div style="width:180px;height:400px;border-radius:24px;overflow:hidden;position:relative"><div style="width:360px;height:800px;transform:scale(.5);transform-origin:0 0"><dc-import name="TiltoEcran" screen="duelb" hint-size="360px,800px"></dc-import></div></div></div><span style="font-size:14px;color:#9E9EAB">Le téléphone de Tom</span></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:96px;align-items:center">
+          <div style="display:flex;justify-content:center"><div style="width:480px;display:flex;flex-direction:column;gap:32px">
+            <div style="position:relative;height:15px"><div style="position:absolute;left:0;top:0;width:80px;height:15px;border-radius:8px;border:1.5px dashed rgba(33,150,243,.4);box-sizing:border-box"></div><div style="position:absolute;right:0;top:0;width:80px;height:15px;border-radius:8px;border:1.5px dashed rgba(33,150,243,.4);box-sizing:border-box"></div><div style="position:absolute;left:258px;top:0;width:80px;height:15px;border-radius:8px;background:#2196F3;box-shadow:0 0 18px rgba(33,150,243,.6)"></div></div>
+            <div style="position:relative;height:28px"><div style="position:absolute;left:0;right:0;top:11px;height:6px;border-radius:3px;background:#1E1E28"></div><div style="position:absolute;left:0;width:62%;top:11px;height:6px;border-radius:3px;background:#2196F3"></div><div style="position:absolute;left:calc(62% - 14px);top:0;width:28px;height:28px;border-radius:14px;background:#F2F2F5;box-shadow:0 0 0 6px rgba(33,150,243,.2)"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700;color:#9E9EAB"><span>Douce</span><span>Vive</span></div>
+          </div></div>
+          <div style="display:flex;flex-direction:column;gap:20px"><div style="font-size:12px;font-weight:800;letter-spacing:.3em;color:#9E9EAB">SENSIBILITÉ</div><div style="font-size:48px;font-weight:800;line-height:1.08;text-wrap:balance">Réglée pour ta façon de tenir.</div><p style="margin:0;font-size:19px;line-height:1.6;color:#9E9EAB;max-width:480px">Douce pour la précision, vive pour les grands gestes. Le son et la vibration se règlent aussi, dans les Réglages.</p></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:96px;align-items:center">
+          <div style="display:flex;flex-direction:column;gap:20px"><div style="font-size:12px;font-weight:800;letter-spacing:.3em;color:#FFC93C">RECORDS</div><div style="font-size:48px;font-weight:800;line-height:1.08;text-wrap:balance">Bats ton record. Puis celui des autres.</div><p style="margin:0;font-size:19px;line-height:1.6;color:#9E9EAB;max-width:480px">Le classement garde les 10 meilleurs scores du téléphone. Les statistiques suivent tes parties, ton temps de jeu, ta meilleure série et tes victoires en duel.</p></div>
+          <div style="display:flex;justify-content:center"><div style="width:440px;display:flex;flex-direction:column;gap:8px">
+            <div style="font-size:12px;font-weight:800;letter-spacing:.3em;color:#6B6B7A">TON RECORD</div>
+            <div style="font-size:128px;font-weight:900;line-height:1;color:#FFC93C;font-variant-numeric:tabular-nums;text-shadow:0 0 40px rgba(255,201,60,.25)">2 650</div>
+            <div style="margin-top:28px;display:flex;flex-direction:column">
+              <div style="display:flex;align-items:center;gap:20px;height:56px;border-top:1px solid #1E1E28;font-size:18px"><span style="width:20px;color:#FFD700;font-weight:800">1</span><span style="flex:1;font-weight:600">Léa</span><span style="font-weight:800;font-variant-numeric:tabular-nums">2 650</span></div>
+              <div style="display:flex;align-items:center;gap:20px;height:56px;border-top:1px solid #1E1E28;font-size:18px"><span style="width:20px;color:#C0C0C0;font-weight:800">2</span><span style="flex:1;font-weight:600">Tom</span><span style="font-weight:800;font-variant-numeric:tabular-nums">2 400</span></div>
+              <div style="display:flex;align-items:center;gap:20px;height:56px;border-top:1px solid #1E1E28;border-bottom:1px solid #1E1E28;font-size:18px"><span style="width:20px;color:#CD7F32;font-weight:800">3</span><span style="flex:1;font-weight:600">Inès</span><span style="font-weight:800;font-variant-numeric:tabular-nums">1 950</span></div>
+            </div>
+          </div></div>
+        </div>
+      </div>
+
+      <div style="background:#0E0E14;padding:120px 120px;display:flex;flex-direction:column;gap:64px">
+        <div style="font-size:16px;font-weight:800;letter-spacing:.42em;color:#B8B8C4;text-align:center">COMMENT JOUER</div>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0">
+          <div style="padding:0 40px;display:flex;flex-direction:column;gap:16px"><div style="font-size:112px;font-weight:900;line-height:.9;color:#2A2A36">1</div><div style="font-size:24px;font-weight:700">Prends ton téléphone à deux mains.</div><div style="font-size:17px;line-height:1.6;color:#9E9EAB">En portrait, l'écran face à toi.</div></div>
+          <div style="padding:0 40px;border-left:1px solid #1E1E28;display:flex;flex-direction:column;gap:16px"><div style="font-size:112px;font-weight:900;line-height:.9;color:#2A2A36">2</div><div style="font-size:24px;font-weight:700">Tape l'écran.</div><div style="font-size:17px;line-height:1.6;color:#9E9EAB">La balle part vers l'adversaire.</div></div>
+          <div style="padding:0 40px;border-left:1px solid #1E1E28;display:flex;flex-direction:column;gap:16px"><div style="font-size:112px;font-weight:900;line-height:.9;color:#2A2A36">3</div><div style="font-size:24px;font-weight:700">Incline pour la renvoyer.</div><div style="font-size:17px;line-height:1.6;color:#9E9EAB">+50 points par renvoi, +100 quand l'adversaire rate. La balle accélère tous les 4 renvois.</div></div>
+        </div>
+      </div>
+
+      <div style="padding:140px 120px;display:flex;flex-direction:column;gap:64px;align-items:center">
+        <div style="font-size:16px;font-weight:800;letter-spacing:.42em;color:#B8B8C4">CAPTURES</div>
+        <div style="display:flex;gap:56px;align-items:flex-start">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:18px"><div style="width:258px;height:548px;border-radius:38px;background:#1E1E28;padding:10px;box-sizing:border-box;box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 1px #2A2A36"><div style="width:238px;height:528px;border-radius:30px;overflow:hidden;position:relative"><div style="width:360px;height:800px;transform:scale(.66);transform-origin:0 0"><dc-import name="TiltoEcran" screen="accueil" hint-size="360px,800px"></dc-import></div></div></div><span style="font-size:15px;color:#C8C8D2">Choisis ton mode</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:18px"><div style="width:258px;height:548px;border-radius:38px;background:#1E1E28;padding:10px;box-sizing:border-box;box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 1px #2A2A36"><div style="width:238px;height:528px;border-radius:30px;overflow:hidden;position:relative"><div style="width:360px;height:800px;transform:scale(.66);transform-origin:0 0"><dc-import name="TiltoEcran" screen="jeu" hint-size="360px,800px"></dc-import></div></div></div><span style="font-size:15px;color:#C8C8D2">Renvoie, accélère</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:18px"><div style="width:258px;height:548px;border-radius:38px;background:#1E1E28;padding:10px;box-sizing:border-box;box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 1px #2A2A36"><div style="width:238px;height:528px;border-radius:30px;overflow:hidden;position:relative"><div style="width:360px;height:800px;transform:scale(.66);transform-origin:0 0"><dc-import name="TiltoEcran" screen="fin" hint-size="360px,800px"></dc-import></div></div></div><span style="font-size:15px;color:#C8C8D2">Gagne le duel</span></div>
+        </div>
+      </div>
+
+      <div style="padding:40px 120px 140px;display:flex;flex-direction:column;align-items:center;gap:28px;text-align:center">
+        <div style="font-size:56px;font-weight:800">Télécharge Tilto</div>
+        <div style="display:flex;gap:16px">
+          <div style="flex:none;white-space:nowrap;height:64px;padding:0 32px;border-radius:18px;background:#E91E63;display:flex;align-items:center;font-size:17px;font-weight:800;box-shadow:0 0 28px rgba(233,30,99,.5),0 10px 32px rgba(233,30,99,.3)">Télécharger sur Google Play</div>
+          <div style="flex:none;white-space:nowrap;height:64px;padding:0 28px;border-radius:18px;background:#15151C;border:1px solid #2A2A36;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:2px"><span style="font-size:16px;font-weight:700">Télécharger l'APK</span><span style="font-size:12px;color:#9E9EAB">Version 2.0.0 · 18 Mo</span></div>
+        </div>
+        <div style="font-size:14px;color:#6B6B7A">Pour téléphones Android. L'APK s'installe sans le Play Store.</div>
+      </div>
+
+      <div style="border-top:1px solid #1E1E28;padding:40px 64px;display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:16px"><div style="width:132px;height:28px;border-radius:6px;background:repeating-linear-gradient(45deg,#15151C 0 6px,#1C1C26 6px 12px);display:flex;align-items:center;justify-content:center;font-family:ui-monospace,monospace;font-size:10px;color:#9E9EAB">logo Nexora blanc</div><span style="font-size:14px;color:#9E9EAB">Un jeu de Nexora · © 2026</span></div>
+        <div style="display:flex;gap:32px;font-size:14px;font-weight:600"><a href="#3c" style="color:#C8C8D2">Politique de confidentialité</a><span style="color:#C8C8D2">Contact</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="3b" style="display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;font-weight:800;padding:4px 9px;border-radius:6px;background:#E91E63;color:#fff">3b</span><span style="font-size:14px;font-weight:700">Mobile · 360 px</span></div>
+    <div style="width:360px;background:#0B0B10;border-radius:28px;overflow:hidden;box-shadow:0 0 0 1px #262630,0 30px 80px rgba(0,0,0,.6)">
+      <div style="height:56px;padding:0 8px 0 20px;display:flex;align-items:center;justify-content:space-between"><div style="font-size:18px;font-weight:900;letter-spacing:.32em">TILTO</div><div style="height:48px;padding:0 12px;display:flex;align-items:center;font-size:14px;font-weight:700;color:#FF5C93">Télécharger</div></div>
+      <div style="padding:40px 20px 0;display:flex;flex-direction:column;align-items:center;text-align:center;gap:20px">
+        <div style="font-size:64px;font-weight:900;letter-spacing:.3em;padding-left:.3em;line-height:1;text-shadow:0 0 36px rgba(233,30,99,.5)">TILTO</div>
+        <p style="margin:0;font-size:17px;line-height:1.5;color:#C8C8D2;text-wrap:balance">Le Pong qu'on joue en inclinant son téléphone. Seul contre l'ordinateur, ou à deux sur le même Wi-Fi.</p>
+        <div style="align-self:stretch;display:flex;flex-direction:column;gap:10px;margin-top:4px">
+          <div style="height:60px;border-radius:18px;background:#E91E63;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;box-shadow:0 0 28px rgba(233,30,99,.5),0 10px 32px rgba(233,30,99,.3)">Télécharger sur Google Play</div>
+          <div style="height:60px;border-radius:18px;background:#15151C;border:1px solid #2A2A36;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px"><span style="font-size:15px;font-weight:700">Télécharger l'APK</span><span style="font-size:12px;color:#9E9EAB">Version 2.0.0 · 18 Mo</span></div>
+        </div>
+      </div>
+      <div style="position:relative;height:250px;margin-top:36px;overflow:hidden">
+        <div style="position:absolute;left:0;right:0;top:124px;height:2px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.1) 0 12px,transparent 12px 24px)"></div>
+        {{ heroM }}
+      </div>
+
+      <div style="padding:80px 20px;display:flex;flex-direction:column;gap:88px">
+        <div style="display:flex;flex-direction:column;gap:28px">
+          <div style="height:440px;display:flex;align-items:center;justify-content:center"><div style="transform:rotate(-8deg)"><div style="width:196px;height:416px;border-radius:30px;background:#1E1E28;padding:8px;box-sizing:border-box;box-shadow:0 24px 60px rgba(0,0,0,.6),0 0 0 1px #2A2A36"><div style="width:180px;height:400px;border-radius:24px;overflow:hidden;position:relative"><div style="width:360px;height:800px;transform:scale(.5);transform-origin:0 0"><dc-import name="TiltoEcran" screen="jeu" hint-size="360px,800px"></dc-import></div></div></div></div></div>
+          <div style="display:flex;flex-direction:column;gap:12px"><div style="font-size:11px;font-weight:800;letter-spacing:.3em;color:#64B5F6">INCLINE</div><div style="font-size:30px;font-weight:800;line-height:1.12">Pas de bouton. Tu penches, la raquette suit.</div><p style="margin:0;font-size:16px;line-height:1.6;color:#9E9EAB">Tiens ton téléphone à deux mains et incline-le à gauche ou à droite. Rien à l'écran ne cache la balle.</p></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:28px">
+          <div style="display:flex;gap:16px;justify-content:center">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:10px"><div style="width:142px;height:300px;border-radius:22px;background:#1E1E28;padding:6px;box-sizing:border-box;box-shadow:0 0 0 1px #2A2A36"><div style="width:130px;height:288px;border-radius:17px;overflow:hidden;position:relative"><div style="width:360px;height:800px;transform:scale(.36);transform-origin:0 0"><dc-import name="TiltoEcran" screen="duel" hint-size="360px,800px"></dc-import></div></div></div><span style="font-size:12px;color:#9E9EAB">Léa</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:32px"><div style="width:142px;height:300px;border-radius:22px;background:#1E1E28;padding:6px;box-sizing:border-box;box-shadow:0 0 0 1px #2A2A36"><div style="width:130px;height:288px;border-radius:17px;overflow:hidden;position:relative"><div style="width:360px;height:800px;transform:scale(.36);transform-origin:0 0"><dc-import name="TiltoEcran" screen="duelb" hint-size="360px,800px"></dc-import></div></div></div><span style="font-size:12px;color:#9E9EAB">Tom</span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px"><div style="font-size:11px;font-weight:800;letter-spacing:.3em;color:#81C784">À DEUX</div><div style="font-size:30px;font-weight:800;line-height:1.12">Chacun son téléphone. Chacun sa raquette en bas.</div><p style="margin:0;font-size:16px;line-height:1.6;color:#9E9EAB">Même Wi-Fi ou partage de connexion : Tilto trouve la partie tout seul, sans Internet. Le premier à 5 points gagne.</p></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:28px">
+          <div style="display:flex;flex-direction:column;gap:24px;padding:12px 0">
+            <div style="position:relative;height:15px"><div style="position:absolute;left:0;top:0;width:72px;height:15px;border-radius:8px;border:1.5px dashed rgba(33,150,243,.4);box-sizing:border-box"></div><div style="position:absolute;right:0;top:0;width:72px;height:15px;border-radius:8px;border:1.5px dashed rgba(33,150,243,.4);box-sizing:border-box"></div><div style="position:absolute;left:170px;top:0;width:72px;height:15px;border-radius:8px;background:#2196F3;box-shadow:0 0 18px rgba(33,150,243,.6)"></div></div>
+            <div style="position:relative;height:28px"><div style="position:absolute;left:0;right:0;top:11px;height:6px;border-radius:3px;background:#1E1E28"></div><div style="position:absolute;left:0;width:62%;top:11px;height:6px;border-radius:3px;background:#2196F3"></div><div style="position:absolute;left:calc(62% - 14px);top:0;width:28px;height:28px;border-radius:14px;background:#F2F2F5;box-shadow:0 0 0 6px rgba(33,150,243,.2)"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700;color:#9E9EAB"><span>Douce</span><span>Vive</span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px"><div style="font-size:11px;font-weight:800;letter-spacing:.3em;color:#9E9EAB">SENSIBILITÉ</div><div style="font-size:30px;font-weight:800;line-height:1.12">Réglée pour ta façon de tenir.</div><p style="margin:0;font-size:16px;line-height:1.6;color:#9E9EAB">Douce pour la précision, vive pour les grands gestes. Le son et la vibration se règlent aussi.</p></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:28px">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="font-size:11px;font-weight:800;letter-spacing:.3em;color:#6B6B7A">TON RECORD</div>
+            <div style="font-size:80px;font-weight:900;line-height:1;color:#FFC93C;font-variant-numeric:tabular-nums;text-shadow:0 0 32px rgba(255,201,60,.25)">2 650</div>
+            <div style="margin-top:16px;display:flex;flex-direction:column">
+              <div style="display:flex;align-items:center;gap:16px;height:48px;border-top:1px solid #1E1E28;font-size:16px"><span style="width:16px;color:#FFD700;font-weight:800">1</span><span style="flex:1;font-weight:600">Léa</span><span style="font-weight:800">2 650</span></div>
+              <div style="display:flex;align-items:center;gap:16px;height:48px;border-top:1px solid #1E1E28;font-size:16px"><span style="width:16px;color:#C0C0C0;font-weight:800">2</span><span style="flex:1;font-weight:600">Tom</span><span style="font-weight:800">2 400</span></div>
+              <div style="display:flex;align-items:center;gap:16px;height:48px;border-top:1px solid #1E1E28;border-bottom:1px solid #1E1E28;font-size:16px"><span style="width:16px;color:#CD7F32;font-weight:800">3</span><span style="flex:1;font-weight:600">Inès</span><span style="font-weight:800">1 950</span></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px"><div style="font-size:11px;font-weight:800;letter-spacing:.3em;color:#FFC93C">RECORDS</div><div style="font-size:30px;font-weight:800;line-height:1.12">Bats ton record. Puis celui des autres.</div><p style="margin:0;font-size:16px;line-height:1.6;color:#9E9EAB">Les 10 meilleurs scores du téléphone, et tes statistiques : parties, temps de jeu, meilleure série, victoires en duel.</p></div>
+        </div>
+      </div>
+
+      <div style="background:#0E0E14;padding:64px 20px;display:flex;flex-direction:column;gap:36px">
+        <div style="font-size:14px;font-weight:800;letter-spacing:.42em;color:#B8B8C4">COMMENT JOUER</div>
+        <div style="display:grid;grid-template-columns:56px minmax(0,1fr);gap:8px 12px;align-items:start"><div style="font-size:64px;font-weight:900;line-height:.85;color:#2A2A36">1</div><div style="display:flex;flex-direction:column;gap:6px"><div style="font-size:19px;font-weight:700">Prends ton téléphone à deux mains.</div><div style="font-size:15px;line-height:1.55;color:#9E9EAB">En portrait, l'écran face à toi.</div></div></div>
+        <div style="display:grid;grid-template-columns:56px minmax(0,1fr);gap:8px 12px;align-items:start"><div style="font-size:64px;font-weight:900;line-height:.85;color:#2A2A36">2</div><div style="display:flex;flex-direction:column;gap:6px"><div style="font-size:19px;font-weight:700">Tape l'écran.</div><div style="font-size:15px;line-height:1.55;color:#9E9EAB">La balle part vers l'adversaire.</div></div></div>
+        <div style="display:grid;grid-template-columns:56px minmax(0,1fr);gap:8px 12px;align-items:start"><div style="font-size:64px;font-weight:900;line-height:.85;color:#2A2A36">3</div><div style="display:flex;flex-direction:column;gap:6px"><div style="font-size:19px;font-weight:700">Incline pour la renvoyer.</div><div style="font-size:15px;line-height:1.55;color:#9E9EAB">+50 par renvoi, +100 quand l'adversaire rate. La balle accélère tous les 4 renvois.</div></div></div>
+      </div>
+
+      <div style="padding:72px 0 40px;display:flex;flex-direction:column;gap:28px">
+        <div style="padding:0 20px;font-size:14px;font-weight:800;letter-spacing:.42em;color:#B8B8C4">CAPTURES</div>
+        <div style="display:flex;gap:16px;overflow-x:auto;padding:0 20px 8px;scroll-snap-type:x mandatory">
+          <div style="flex:none;display:flex;flex-direction:column;gap:12px;scroll-snap-align:start"><div style="width:214px;height:456px;border-radius:32px;background:#1E1E28;padding:8px;box-sizing:border-box;box-shadow:0 0 0 1px #2A2A36"><div style="width:198px;height:440px;border-radius:25px;overflow:hidden;position:relative"><div style="width:360px;height:800px;transform:scale(.55);transform-origin:0 0"><dc-import name="TiltoEcran" screen="accueil" hint-size="360px,800px"></dc-import></div></div></div><span style="font-size:13px;color:#C8C8D2">Choisis ton mode</span></div>
+          <div style="flex:none;display:flex;flex-direction:column;gap:12px;scroll-snap-align:start"><div style="width:214px;height:456px;border-radius:32px;background:#1E1E28;padding:8px;box-sizing:border-box;box-shadow:0 0 0 1px #2A2A36"><div style="width:198px;height:440px;border-radius:25px;overflow:hidden;position:relative"><div style="width:360px;height:800px;transform:scale(.55);transform-origin:0 0"><dc-import name="TiltoEcran" screen="fin" hint-size="360px,800px"></dc-import></div></div></div><span style="font-size:13px;color:#C8C8D2">Gagne le duel</span></div>
+        </div>
+      </div>
+
+      <div style="padding:48px 20px 72px;display:flex;flex-direction:column;gap:20px">
+        <div style="font-size:34px;font-weight:800">Télécharge Tilto</div>
+        <div style="height:60px;border-radius:18px;background:#E91E63;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;box-shadow:0 0 28px rgba(233,30,99,.5),0 10px 32px rgba(233,30,99,.3)">Télécharger sur Google Play</div>
+        <div style="height:60px;border-radius:18px;background:#15151C;border:1px solid #2A2A36;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px"><span style="font-size:15px;font-weight:700">Télécharger l'APK</span><span style="font-size:12px;color:#9E9EAB">Version 2.0.0 · 18 Mo</span></div>
+        <div style="font-size:13px;line-height:1.5;color:#6B6B7A">Pour téléphones Android. L'APK s'installe sans le Play Store.</div>
+      </div>
+
+      <div style="border-top:1px solid #1E1E28;padding:32px 20px 40px;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;align-items:center;gap:12px"><div style="width:120px;height:26px;border-radius:6px;background:repeating-linear-gradient(45deg,#15151C 0 6px,#1C1C26 6px 12px);display:flex;align-items:center;justify-content:center;font-family:ui-monospace,monospace;font-size:10px;color:#9E9EAB">logo Nexora blanc</div></div>
+        <div style="font-size:14px;color:#9E9EAB">Un jeu de Nexora · © 2026</div>
+        <div style="display:flex;flex-direction:column"><a href="#3c" style="height:48px;display:flex;align-items:center;font-size:15px;font-weight:600;color:#C8C8D2">Politique de confidentialité</a><span style="height:48px;display:flex;align-items:center;font-size:15px;font-weight:600;color:#C8C8D2">Contact</span></div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <div id="3c" style="display:flex;flex-direction:column;gap:14px;padding-bottom:64px">
+    <div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;font-weight:800;padding:4px 9px;border-radius:6px;background:#E91E63;color:#fff">3c</span><span style="font-size:14px;font-weight:700">Politique de confidentialité · 1440 px (colonne unique, se replie telle quelle sur mobile)</span></div>
+    <div style="width:1440px;background:#0B0B10;border-radius:16px;overflow:hidden;box-shadow:0 0 0 1px #262630,0 30px 80px rgba(0,0,0,.6)">
+      <div style="height:80px;padding:0 64px;display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:22px;font-weight:900;letter-spacing:.32em">TILTO</div>
+        <div style="height:44px;padding:0 20px;border-radius:12px;border:1px solid #2A2A36;display:flex;align-items:center;font-size:15px;font-weight:700">Télécharger</div>
+      </div>
+      <div style="max-width:680px;margin:0 auto;padding:96px 0 140px;display:flex;flex-direction:column;gap:40px">
+        <div style="display:flex;flex-direction:column;gap:16px"><div style="font-size:13px;font-weight:800;letter-spacing:.42em;color:#B8B8C4">POLITIQUE DE CONFIDENTIALITÉ</div><div style="font-size:14px;color:#6B6B7A">Dernière mise à jour : 9 octobre 2026</div></div>
+        <p style="margin:0;font-size:30px;line-height:1.35;font-weight:700;text-wrap:pretty">Tilto ne collecte aucune donnée personnelle. Tout ce que le jeu enregistre reste sur ton téléphone.</p>
+        <div style="display:flex;flex-direction:column;gap:14px"><div style="font-size:22px;font-weight:700">Ce que Tilto garde sur ton téléphone</div><p style="margin:0;font-size:18px;line-height:1.7;color:#C8C8D2">Ton pseudo, tes 10 meilleurs scores, tes statistiques (parties jouées, temps de jeu, meilleure série, victoires et défaites en duel) et tes réglages (sensibilité, son, vibration). Ces informations ne sont jamais envoyées ailleurs.</p></div>
+        <div style="display:flex;flex-direction:column;gap:14px"><div style="font-size:22px;font-weight:700">Pendant un duel</div><p style="margin:0;font-size:18px;line-height:1.7;color:#C8C8D2">Les deux téléphones communiquent directement sur votre réseau Wi-Fi local, le temps de la partie : pseudos, position des raquettes et de la balle, score. Rien ne passe par Internet ni par nos serveurs. Nous n'en avons pas.</p></div>
+        <div style="display:flex;flex-direction:column;gap:14px"><div style="font-size:22px;font-weight:700">Ce que Tilto n'utilise pas</div><p style="margin:0;font-size:18px;line-height:1.7;color:#C8C8D2">Pas de compte, pas de publicité, pas d'outil de mesure d'audience, pas de localisation.</p></div>
+        <div style="display:flex;flex-direction:column;gap:14px"><div style="font-size:22px;font-weight:700">Autorisations demandées</div><p style="margin:0;font-size:18px;line-height:1.7;color:#C8C8D2">L'accès au réseau Wi-Fi, pour trouver et rejoindre une partie en duel. La vibration, pour les renvois. Le capteur de mouvement qui sert à déplacer la raquette ne demande pas d'autorisation.</p></div>
+        <div style="display:flex;flex-direction:column;gap:14px"><div style="font-size:22px;font-weight:700">Effacer tes données</div><p style="margin:0;font-size:18px;line-height:1.7;color:#C8C8D2">Désinstalle Tilto, ou va dans Paramètres Android › Applications › Tilto › Stockage › Effacer les données.</p></div>
+        <div style="display:flex;flex-direction:column;gap:14px"><div style="font-size:22px;font-weight:700">Une question ?</div><p style="margin:0;font-size:18px;line-height:1.7;color:#C8C8D2">Écris-nous depuis la page <a href="#3a">Contact</a>. Tilto est un jeu de Nexora.</p></div>
+      </div>
+      <div style="border-top:1px solid #1E1E28;padding:40px 64px;display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:16px"><div style="width:132px;height:28px;border-radius:6px;background:repeating-linear-gradient(45deg,#15151C 0 6px,#1C1C26 6px 12px);display:flex;align-items:center;justify-content:center;font-family:ui-monospace,monospace;font-size:10px;color:#9E9EAB">logo Nexora blanc</div><span style="font-size:14px;color:#9E9EAB">Un jeu de Nexora · © 2026</span></div>
+        <div style="display:flex;gap:32px;font-size:14px;font-weight:600"><span style="color:#F2F2F5">Politique de confidentialité</span><span style="color:#C8C8D2">Contact</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  field(w, top, bottom, pw) {
+    const h = React.createElement, tx = (w - pw) + 'px';
+    const pad = (y, c, g) => h('div', { key: 'p' + y, style: { position: 'absolute', left: 0, top: y, width: pw, height: 14, borderRadius: 7, background: c, boxShadow: '0 0 16px ' + g, '--tx': tx, animation: 'tiltoX 2.35s linear -0.2s infinite alternate', willChange: 'transform' } });
+    return h('div', { style: { position: 'absolute', inset: 0, pointerEvents: 'none' } },
+      pad(top, '#4CAF50', 'rgba(76,175,80,.55)'), pad(bottom, '#2196F3', 'rgba(33,150,243,.6)'),
+      h('div', { key: 'b', style: { position: 'absolute', left: pw / 2 - 10, top: top + 14, width: 20, '--tx': tx, animation: 'tiltoX 2.35s linear infinite alternate', willChange: 'transform' } },
+        h('div', { style: { width: 20, height: 20, borderRadius: 10, background: '#fff', boxShadow: '0 0 12px rgba(255,255,255,.8),0 0 32px rgba(255,255,255,.3)', '--ty': (bottom - top - 34) + 'px', animation: 'tiltoY 1.5s linear infinite alternate', willChange: 'transform' } })));
+  }
+  renderVals() {
+    if (!this._f) this._f = { heroD: this.field(1440, 24, 322, 160), heroM: this.field(360, 16, 220, 72) };
+    return this._f;
+  }
+}
+</script>
+</body>
+</html>

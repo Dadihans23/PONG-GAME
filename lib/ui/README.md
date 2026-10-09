@@ -1,6 +1,6 @@
 # Système de design Pong (v2)
 
-Code Flutter de la planche `maquette/Redesign app PONG mobile/Pong Design System.dc.html`.
+Code Flutter de la planche `maquette/Corrections et validation des maquettes/Pong Design System.dc.html`.
 Un seul import :
 
 ```dart

@@ -70,7 +70,7 @@ Nécessaire pour tester le jeu et pour le multijoueur. Le comportement du solo n
 
 ### 1.5 Redesign du mode solo
 
-Maquettes : `maquette/Redesign app PONG mobile/` (système de design, écrans solo, multijoueur, parcours).
+Maquettes : `maquette/Corrections et validation des maquettes/` (système de design, écrans solo, multijoueur, parcours).
 
 - [x] Système de design partagé (`lib/ui/`) : palette, police Archivo intégrée, composants
 - [x] Chargement, accueil, classement, statistiques, aide, conformes aux maquettes (vérifiés sur téléphone)
@@ -193,7 +193,7 @@ Décisions :
 
 ### Nouvel écran d'accueil
 - [x] Prompt Claude Design (`design_prompt_accueil.md`) : directions d'accueil, icône et site — maquettes en attente
-- [ ] Choix d'une direction par le propriétaire, puis développement (les autres écrans ne changent pas)
+- [x] Directions proposées par Claude Design écartées par le propriétaire : **l'accueil actuel est conservé**, pas de nouvelle demande
 
 ### Site de présentation et backend
 - [ ] Page unique : jeu en mouvement, points forts, comment jouer, captures, téléchargement APK et lien Play Store, politique de confidentialité, signature Nexora
