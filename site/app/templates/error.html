@@ -1,9 +1,15 @@
 {% extends "base.html" %}
 {% block title %}Erreur {{ status }}{% endblock %}
+{% block body_class %}page-error{% endblock %}
 {% block content %}
-<section class="prose">
-  <h1>Erreur {{ status }}</h1>
-  <p>{{ message }}</p>
-  <p><a href="/">Retour à l'accueil</a></p>
+<section class="oops">
+  <div class="oops__court" aria-hidden="true">
+    <i class="oops__line"></i>
+    <i class="oops__pad"></i>
+    <i class="oops__ball"></i>
+  </div>
+  <p class="kicker">Erreur {{ status }}</p>
+  <h1>{{ message }}</h1>
+  <a class="btn btn--primary" href="/">Retour à l'accueil</a>
 </section>
 {% endblock %}

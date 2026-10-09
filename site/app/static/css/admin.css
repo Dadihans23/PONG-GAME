@@ -1,0 +1,52 @@
+/* Administration (gabarits admin/). Chargée par site.css via @import tant que
+   admin/base.html ne référence que site.css. Toutes les règles sont préfixées
+   par .admin : elles n'ont aucun effet sur les pages publiques. */
+
+.admin main { max-width: 56rem; margin: 0 auto; padding: 1rem 1rem 3rem; }
+.admin h1, .admin h2, .admin h3 { line-height: 1.2; }
+.admin h1 { font-weight: 900; }
+.admin a { color: var(--link); }
+.admin img { max-width: 100%; height: auto; }
+
+.admin .site-header { max-width: 56rem; margin: 0 auto; padding: 1rem; display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between; }
+.admin .brand { color: var(--text); font-weight: 900; text-decoration: none; letter-spacing: .1em; text-transform: uppercase; }
+.admin nav { display: flex; flex-wrap: wrap; gap: .4rem 1rem; align-items: center; }
+.admin .site-header nav a { color: var(--text); text-decoration: none; }
+
+.admin .button, .admin button {
+  display: inline-block; padding: .7rem 1.4rem; border: 0; border-radius: 10px;
+  background: var(--accent); color: #fff; font: 700 1rem "Archivo", sans-serif;
+  text-decoration: none; cursor: pointer;
+}
+.admin .button.secondary, .admin button.secondary { background: var(--surface-2); color: var(--text); }
+.admin button.danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
+.admin button.link { background: none; color: var(--link); padding: 0; font-weight: 400; text-decoration: underline; }
+
+.admin .stack { display: flex; flex-direction: column; gap: .8rem; align-items: flex-start; }
+.admin .stack label { display: flex; flex-direction: column; gap: .3rem; width: 100%; }
+.admin .row { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.admin form.inline { display: inline; }
+.admin label.check { flex-direction: row; align-items: center; gap: .5rem; }
+.admin input[type=text], .admin input[type=url], .admin input[type=email],
+.admin input[type=password], .admin textarea {
+  width: 100%; padding: .6rem; border-radius: 6px; border: 1px solid #33333F;
+  background: var(--surface-2); color: var(--text); font: inherit;
+}
+.admin .card { background: var(--surface-2); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; }
+.admin .card input[type=text], .admin .card textarea { background: var(--bg); }
+.admin .shot { display: grid; grid-template-columns: 8rem 1fr; gap: 1rem; }
+.admin .shot-placeholder { aspect-ratio: 9 / 19.5; background: var(--bg); border-radius: 10px; display: grid; place-items: center; color: var(--muted); }
+.admin .logo-preview img { max-height: 4rem; background: #000; padding: .5rem; }
+.admin .flash { padding: .6rem 1rem; border-radius: 6px; background: var(--surface-2); border-left: 4px solid var(--ok); }
+.admin .flash.error { border-left-color: var(--danger); }
+.admin .hint { color: var(--muted); font-size: .9rem; }
+.admin table { width: 100%; border-collapse: collapse; }
+.admin th, .admin td { text-align: left; padding: .5rem; border-bottom: 1px solid var(--surface-2); vertical-align: middle; }
+
+/* site.css remet les marges à zéro : on rend aux pages d'administration un rythme lisible. */
+.admin h1 { margin: 1.5rem 0 .5rem; }
+.admin h2 { margin: 1.5rem 0 .75rem; }
+.admin h3 { margin: 1rem 0 .5rem; }
+.admin main p { margin: 0 0 1rem; }
+.admin main .stack p, .admin main .card p { margin: 0; }
+.admin main ul, .admin main ol { padding-left: 1.5rem; margin: 0 0 1rem; list-style: revert; }

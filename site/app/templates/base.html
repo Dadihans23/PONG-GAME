@@ -3,32 +3,42 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0B0B10">
   <title>{% block title %}{{ site.game_name if site else "Tilto" }}{% endblock %}</title>
   <meta name="description" content="{% block description %}{{ site.tagline if site else "" }}{% endblock %}">
+  <link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/static/fonts/Archivo-Black.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="stylesheet" href="/static/css/site.css">
+  {% block scripts %}{% endblock %}
 </head>
-<body>
-  <header class="site-header">
-    <a class="brand" href="/">{{ site.game_name if site else "Tilto" }}</a>
-    <nav aria-label="Navigation principale">
-      <a href="/#le-jeu">Le jeu</a>
-      <a href="/#comment-jouer">Comment jouer</a>
-      <a href="/#captures">Captures</a>
-      <a href="/#telecharger">Télécharger</a>
+<body class="{% block body_class %}{% endblock %}">
+  <a class="skip-link" href="#contenu">Aller au contenu</a>
+  <header class="topbar">
+    <a class="topbar__brand" href="/" aria-label="{{ site.game_name if site else 'Tilto' }}, accueil">{{ (site.game_name if site else "Tilto")|upper }}</a>
+    <nav class="topbar__nav" aria-label="Navigation principale">
+      {% block nav_links %}
+      <a class="topbar__link" href="/#le-jeu">Le jeu</a>
+      <a class="topbar__link" href="/#comment-jouer">Comment jouer</a>
+      <a class="topbar__link" href="/#captures">Captures</a>
+      {% endblock %}
+      <a class="topbar__cta" href="/#telecharger">Télécharger</a>
     </nav>
   </header>
-  <main>
+  <main id="contenu" tabindex="-1">
     {% block content %}{% endblock %}
   </main>
-  <footer class="site-footer">
+  <footer class="footer">
     {% if site %}
-    {% if site.studio_logo_url %}
-    <img src="{{ site.studio_logo_url }}" alt="{{ site.studio_name }}" class="studio-logo">
+    <div class="footer__studio">
+      {% if site.studio_logo_url %}
+      <img src="{{ site.studio_logo_url }}" alt="{{ site.studio_name }}" class="studio-logo" height="28">
+      {% endif %}
+      <p class="footer__credit">Un jeu de {{ site.studio_name }} · © {{ year }}</p>
+    </div>
     {% endif %}
-    <p>Un jeu de {{ site.studio_name }} · © {{ year }}</p>
-    {% endif %}
-    <p class="footer-links">
-      <a href="/confidentialite">Politique de confidentialité</a>
+    <p class="footer__links">
+      <a href="/confidentialite"{% block privacy_current %}{% endblock %}>Politique de confidentialité</a>
       {% if site and site.contact_email %}
       <a href="mailto:{{ site.contact_email }}">Contact</a>
       {% endif %}

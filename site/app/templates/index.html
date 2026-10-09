@@ -1,64 +1,170 @@
 {% extends "base.html" %}
 
-{# Boutons de téléchargement : héros et bloc final. #}
+{% block scripts %}<script src="/static/js/site.js" defer></script>{% endblock %}
+{% block body_class %}home{% endblock %}
+
+{# Boutons de téléchargement : héros et bloc final.
+   Le bouton principal (rose) est Google Play s'il existe, sinon l'APK. #}
 {% macro download_buttons() %}
-  {% if site.play_store_url %}
-  <a class="button" href="{{ site.play_store_url }}" rel="noopener">Télécharger sur Google Play</a>
+  {% if site.play_store_url or apk %}
+  <div class="downloads">
+    {% if site.play_store_url %}
+    <a class="btn btn--primary" href="{{ site.play_store_url }}" rel="noopener">Télécharger sur Google Play</a>
+    {% endif %}
+    {% if apk %}
+    <a class="btn btn--apk{% if not site.play_store_url %} btn--primary{% endif %}" href="/telecharger" download>
+      <span class="btn__label">Télécharger l'APK</span>
+      <span class="btn__meta apk-meta">Version {{ apk.version }} · {{ apk.size_bytes|filesize }}</span>
+    </a>
+    {% endif %}
+  </div>
+  {% else %}
+  <p class="soon">Bientôt disponible sur Android.</p>
   {% endif %}
-  {% if apk %}
-  <a class="button secondary" href="/telecharger">Télécharger l'APK</a>
-  <p class="apk-meta">Version {{ apk.version }} · {{ apk.size_bytes|filesize }}</p>
-  {% endif %}
-  {% if not apk and not site.play_store_url %}
-  <p class="apk-meta">Bientôt disponible.</p>
+{% endmacro %}
+
+{# Écrans dessinés dans les téléphones décoratifs (360 × 800, mis à l'échelle en CSS). #}
+{% macro screen_game() %}
+<div class="scr scr--game">
+  <div class="scr__bar">
+    <span class="scr__speed"><i class="on"></i><i class="on"></i><i></i><i></i><b>VITESSE 3</b></span>
+    <span class="scr__pause"><i></i><i></i></span>
+  </div>
+  <div class="scr__frame"></div>
+  <div class="scr__mid"></div>
+  <div class="scr__record">RECORD 2 400</div>
+  <div class="scr__score"><b>1 250</b><span>LÉA</span></div>
+  <div class="scr__pad scr__pad--top"></div>
+  <div class="scr__pad scr__pad--me scr__pad--hit"></div>
+  <div class="scr__ball"></div>
+  <div class="scr__plus">+50</div>
+</div>
+{% endmacro %}
+
+{% macro pips(count, side) %}<span class="scr__pips scr__pips--{{ side }}">{% for i in range(5) %}<i{% if i < count %} class="on"{% endif %}></i>{% endfor %}</span>{% endmacro %}
+
+{% macro screen_duel(me, other, mine, theirs, variant) %}
+<div class="scr scr--duel scr--{{ variant }}">
+  <div class="scr__bar"><span class="scr__label">DUEL · PREMIER À 5</span></div>
+  <div class="scr__frame"></div>
+  <div class="scr__mid"></div>
+  <div class="scr__duel scr__duel--them"><span class="scr__who">{{ other }}{{ pips(theirs, 'them') }}</span><b>{{ theirs }}</b></div>
+  <div class="scr__duel scr__duel--me"><b>{{ mine }}</b><span class="scr__who">{{ me }}{{ pips(mine, 'me') }}</span></div>
+  <div class="scr__pad scr__pad--top"></div>
+  <div class="scr__pad scr__pad--me"></div>
+  <div class="scr__ball"></div>
+</div>
+{% endmacro %}
+
+{# Démonstrations des quatre arguments, dans l'ordre de la maquette. #}
+{% macro demo(n) %}
+  {% if n == 1 %}
+  <div class="demo demo--tilt" aria-hidden="true">
+    <div class="phone phone--tilt"><div class="phone__screen">{{ screen_game() }}</div></div>
+  </div>
+  {% elif n == 2 %}
+  <div class="demo demo--duo" aria-hidden="true">
+    <div class="duo">
+      <div class="phone phone--duo"><div class="phone__screen">{{ screen_duel('LÉA', 'TOM', 2, 3, 'a') }}</div></div>
+      <span class="duo__name"><span class="wide-only">Le téléphone de </span>Léa</span>
+    </div>
+    <div class="duo duo--low">
+      <div class="phone phone--duo"><div class="phone__screen">{{ screen_duel('TOM', 'LÉA', 3, 2, 'b') }}</div></div>
+      <span class="duo__name"><span class="wide-only">Le téléphone de </span>Tom</span>
+    </div>
+  </div>
+  {% elif n == 3 %}
+  <div class="demo demo--sense" aria-hidden="true">
+    <div class="sense">
+      <div class="sense__pads"><i class="sense__ghost sense__ghost--l"></i><i class="sense__ghost sense__ghost--r"></i><i class="sense__pad"></i></div>
+      <div class="sense__track"><i class="sense__fill"></i><i class="sense__thumb"></i></div>
+      <div class="sense__ends"><span>Douce</span><span>Vive</span></div>
+    </div>
+  </div>
+  {% elif n == 4 %}
+  <div class="demo demo--records" aria-hidden="true">
+    <div class="records">
+      <p class="records__label">TON RECORD</p>
+      <p class="records__best">2 650</p>
+      <ol class="records__list">
+        <li><span class="records__rank">1</span><span class="records__name">Léa</span><span class="records__pts">2 650</span></li>
+        <li><span class="records__rank">2</span><span class="records__name">Tom</span><span class="records__pts">2 400</span></li>
+        <li><span class="records__rank">3</span><span class="records__name">Inès</span><span class="records__pts">1 950</span></li>
+      </ol>
+    </div>
+  </div>
   {% endif %}
 {% endmacro %}
 
 {% block content %}
 <section class="hero">
-  <h1>{{ site.game_name|upper }}</h1>
-  {% if site.tagline %}<p class="tagline">{{ site.tagline }}</p>{% endif %}
-  <div class="actions">
+  <div class="hero__text">
+    <h1>{{ site.game_name|upper }}</h1>
+    {% if site.tagline %}<p class="hero__tagline">{{ site.tagline }}</p>{% endif %}
     {{ download_buttons() }}
-    {% if site.hero_note %}<p class="hero-note">{{ site.hero_note }}</p>{% endif %}
+    {% if site.hero_note %}<p class="hero__note">{{ site.hero_note }}</p>{% endif %}
+  </div>
+  <div class="court" aria-hidden="true">
+    <div class="court__line"></div>
+    <div class="court__pad court__pad--top"></div>
+    <div class="court__pad court__pad--bottom"></div>
+    <div class="court__ballx"><div class="court__ball"></div></div>
   </div>
 </section>
 
 {% if features %}
-<section class="features" id="le-jeu">
+<div class="features" id="le-jeu">
   {% for f in features %}
-  <article class="feature">
-    {% if f.kicker %}<p class="kicker">{{ f.kicker }}</p>{% endif %}
-    <h2>{{ f.title }}</h2>
-    {% if f.body %}<p>{{ f.body }}</p>{% endif %}
-  </article>
+  <section class="feature feature--{{ loop.index }}{% if loop.index > 4 %} feature--plain{% endif %}">
+    {{ demo(loop.index) }}
+    <div class="feature__text">
+      {% if f.kicker %}<p class="kicker">{{ f.kicker }}</p>{% endif %}
+      <h2>{{ f.title }}</h2>
+      {% if f.body %}<p class="feature__body">{{ f.body }}</p>{% endif %}
+    </div>
+  </section>
   {% endfor %}
-</section>
+</div>
 {% endif %}
 
 {% if steps %}
-<section class="steps" id="comment-jouer">
-  <h2 class="kicker">Comment jouer</h2>
-  <ol>
+<section class="steps" id="comment-jouer" aria-labelledby="titre-comment-jouer">
+  <h2 class="section-title" id="titre-comment-jouer">Comment jouer</h2>
+  <ol class="steps__list">
     {% for s in steps %}
-    <li><h3>{{ s.title }}</h3>{% if s.body %}<p>{{ s.body }}</p>{% endif %}</li>
+    <li class="step">
+      <span class="step__num" aria-hidden="true">{{ loop.index }}</span>
+      <div class="step__text">
+        <h3>{{ s.title }}</h3>
+        {% if s.body %}<p>{{ s.body }}</p>{% endif %}
+      </div>
+    </li>
     {% endfor %}
   </ol>
 </section>
 {% endif %}
 
 {% if screenshots %}
-<section class="screenshots" id="captures">
-  <h2 class="kicker">Captures</h2>
-  <ul>
+<section class="shots" id="captures" aria-labelledby="titre-captures">
+  <h2 class="section-title" id="titre-captures">Captures</h2>
+  <ul class="shots__list" aria-label="Captures d'écran">
     {% for shot in screenshots %}
     <li>
-      <figure>
-        {% if shot.filename %}
-        <img src="/media/{{ shot.filename }}" alt="{{ shot.caption or ('Capture de ' ~ site.game_name) }}" loading="lazy">
-        {% else %}
-        <div class="shot-placeholder" aria-hidden="true"></div>
-        {% endif %}
+      <figure class="capture">
+        <div class="phone phone--shot">
+          <div class="phone__screen">
+            {% if shot.filename %}
+            <img src="/media/{{ shot.filename }}" alt="{{ shot.caption or ('Capture de ' ~ site.game_name) }}" loading="lazy" width="360" height="800">
+            {% else %}
+            <div class="shot-placeholder" aria-hidden="true">
+              <i class="capture__empty-pad capture__empty-pad--top"></i>
+              <i class="capture__empty-mid"></i>
+              <i class="capture__empty-ball"></i>
+              <i class="capture__empty-pad capture__empty-pad--bottom"></i>
+            </div>
+            {% endif %}
+          </div>
+        </div>
         {% if shot.caption %}<figcaption>{{ shot.caption }}</figcaption>{% endif %}
       </figure>
     </li>
@@ -67,11 +173,9 @@
 </section>
 {% endif %}
 
-<section class="download" id="telecharger">
-  <h2>{{ site.download_title }}</h2>
-  <div class="actions">
-    {{ download_buttons() }}
-  </div>
-  {% if site.download_text %}<p class="download-text">{{ site.download_text }}</p>{% endif %}
+<section class="download" id="telecharger" aria-labelledby="titre-telecharger">
+  <h2 id="titre-telecharger">{{ site.download_title }}</h2>
+  {{ download_buttons() }}
+  {% if site.download_text %}<p class="download__text">{{ site.download_text }}</p>{% endif %}
 </section>
 {% endblock %}
