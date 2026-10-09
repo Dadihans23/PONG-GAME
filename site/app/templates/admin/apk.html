@@ -1,0 +1,50 @@
+{% extends "admin/base.html" %}
+{% block title %}APK · Administration{% endblock %}
+{% block content %}
+<h1>Versions de l'application</h1>
+
+<h2>Déposer une nouvelle version</h2>
+<form method="post" action="/admin/apk/deposer" enctype="multipart/form-data" class="stack card">
+  <input type="hidden" name="csrf_token" value="{{ csrf }}">
+  <label>Numéro de version
+    <input type="text" name="version" placeholder="1.0.0" maxlength="32" required>
+  </label>
+  <label>Fichier APK ({{ max_mb }} Mo maximum)
+    <input type="file" name="apk" accept=".apk,application/vnd.android.package-archive" required>
+  </label>
+  <label class="check"><input type="checkbox" name="make_current" value="1" checked>
+    Proposer cette version au téléchargement</label>
+  <button type="submit">Déposer</button>
+</form>
+
+<h2>Historique</h2>
+{% if apks %}
+<table>
+  <thead><tr><th>Version</th><th>Taille</th><th>Date</th><th>SHA-256</th><th>Actions</th></tr></thead>
+  <tbody>
+    {% for a in apks %}
+    <tr>
+      <td>{{ a.version }}{% if a.is_current %} <strong>(courante)</strong>{% endif %}</td>
+      <td>{{ a.size_bytes|filesize }}</td>
+      <td>{{ a.uploaded_at|date_fr }}</td>
+      <td><code title="{{ a.sha256 }}">{{ a.sha256[:12] }}…</code></td>
+      <td class="row">
+        {% if not a.is_current %}
+        <form method="post" action="/admin/apk/{{ a.id }}/courante" class="inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf }}">
+          <button type="submit" class="secondary">Rendre courante</button>
+        </form>
+        <form method="post" action="/admin/apk/{{ a.id }}/supprimer" class="inline" data-confirm="Supprimer la version {{ a.version }} ?">
+          <input type="hidden" name="csrf_token" value="{{ csrf }}">
+          <button type="submit" class="danger">Supprimer</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>Aucune version déposée.</p>
+{% endif %}
+{% endblock %}

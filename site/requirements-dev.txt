@@ -1,0 +1,4 @@
+# Outils de test (non installés dans l'image Docker).
+-r requirements.txt
+pytest==9.1.1
+httpx2==2.13.1

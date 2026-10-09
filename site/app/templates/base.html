@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ site.game_name if site else "Tilto" }}{% endblock %}</title>
+  <meta name="description" content="{% block description %}{{ site.tagline if site else "" }}{% endblock %}">
+  <link rel="stylesheet" href="/static/css/site.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/">{{ site.game_name if site else "Tilto" }}</a>
+    <nav aria-label="Navigation principale">
+      <a href="/#le-jeu">Le jeu</a>
+      <a href="/#comment-jouer">Comment jouer</a>
+      <a href="/#captures">Captures</a>
+      <a href="/#telecharger">Télécharger</a>
+    </nav>
+  </header>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="site-footer">
+    {% if site %}
+    {% if site.studio_logo_url %}
+    <img src="{{ site.studio_logo_url }}" alt="{{ site.studio_name }}" class="studio-logo">
+    {% endif %}
+    <p>Un jeu de {{ site.studio_name }} · © {{ year }}</p>
+    {% endif %}
+    <p class="footer-links">
+      <a href="/confidentialite">Politique de confidentialité</a>
+      {% if site and site.contact_email %}
+      <a href="mailto:{{ site.contact_email }}">Contact</a>
+      {% endif %}
+    </p>
+  </footer>
+</body>
+</html>

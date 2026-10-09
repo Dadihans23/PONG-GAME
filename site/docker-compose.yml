@@ -1,0 +1,33 @@
+# Site de présentation de Tilto.
+# Lancement : docker compose up -d   (variables lues dans .env)
+services:
+  tilto-site:
+    build: .
+    image: tilto-site:latest
+    container_name: tilto-site
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATA_DIR: /data
+    ports:
+      # HOST_BIND=127.0.0.1 une fois derrière Nginx, pour ne plus exposer le port.
+      - "${HOST_BIND:-0.0.0.0}:${HOST_PORT:-8085}:8000"
+    volumes:
+      - tilto-data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/sante', timeout=4).status == 200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  tilto-data:
+    name: tilto-data

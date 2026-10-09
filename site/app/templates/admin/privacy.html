@@ -1,0 +1,17 @@
+{% extends "admin/base.html" %}
+{% block title %}Confidentialité · Administration{% endblock %}
+{% block content %}
+<h1>Politique de confidentialité</h1>
+<p class="hint">Une ligne vide sépare les paragraphes. « ## Titre » crée un intertitre, « - texte » un élément de liste.</p>
+<form method="post" action="/admin/confidentialite" class="stack">
+  <input type="hidden" name="csrf_token" value="{{ csrf }}">
+  <label>Date de dernière mise à jour
+    <input type="date" name="privacy_updated" value="{{ site.privacy_updated }}" required>
+  </label>
+  <label>Texte
+    <textarea name="privacy_policy" rows="30">{{ site.privacy_policy }}</textarea>
+  </label>
+  <button type="submit">Enregistrer</button>
+</form>
+<p><a href="/confidentialite" target="_blank" rel="noopener">Voir la page publique</a></p>
+{% endblock %}

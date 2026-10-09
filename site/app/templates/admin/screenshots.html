@@ -1,0 +1,54 @@
+{% extends "admin/base.html" %}
+{% block title %}Captures · Administration{% endblock %}
+{% block content %}
+<h1>Captures d'écran</h1>
+<p class="hint">Une capture sans image s'affiche comme un emplacement vide avec sa légende. Images acceptées : PNG, JPEG, WebP ou GIF.</p>
+{% for shot in screenshots %}
+<div class="card shot">
+  {% if shot.filename %}
+  <img src="/media/{{ shot.filename }}" alt="{{ shot.caption }}">
+  {% else %}
+  <div class="shot-placeholder">Pas d'image</div>
+  {% endif %}
+  <div class="stack">
+    <form method="post" action="/admin/captures/{{ shot.id }}/modifier" enctype="multipart/form-data" class="stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf }}">
+      <label>Légende
+        <input type="text" name="caption" value="{{ shot.caption }}" maxlength="120">
+      </label>
+      <label>{{ "Remplacer l'image" if shot.filename else "Ajouter l'image" }}
+        <input type="file" name="image" accept="image/png,image/jpeg,image/webp,image/gif">
+      </label>
+      <button type="submit">Enregistrer</button>
+    </form>
+    <div class="row">
+      {% for dir, label in [("up", "Monter"), ("down", "Descendre")] %}
+      <form method="post" action="/admin/captures/{{ shot.id }}/deplacer" class="inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf }}">
+        <input type="hidden" name="direction" value="{{ dir }}">
+        <button type="submit" class="secondary">{{ label }}</button>
+      </form>
+      {% endfor %}
+      <form method="post" action="/admin/captures/{{ shot.id }}/supprimer" class="inline" data-confirm="Supprimer cette capture ?">
+        <input type="hidden" name="csrf_token" value="{{ csrf }}">
+        <button type="submit" class="danger">Supprimer</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% else %}
+<p>Aucune capture pour l'instant.</p>
+{% endfor %}
+
+<h2>Ajouter une capture</h2>
+<form method="post" action="/admin/captures/ajouter" enctype="multipart/form-data" class="stack card">
+  <input type="hidden" name="csrf_token" value="{{ csrf }}">
+  <label>Image
+    <input type="file" name="image" accept="image/png,image/jpeg,image/webp,image/gif">
+  </label>
+  <label>Légende
+    <input type="text" name="caption" maxlength="120">
+  </label>
+  <button type="submit">Ajouter</button>
+</form>
+{% endblock %}

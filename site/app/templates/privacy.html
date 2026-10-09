@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Politique de confidentialité · {{ site.game_name }}{% endblock %}
+{% block content %}
+<article class="prose">
+  <h1>Politique de confidentialité</h1>
+  {% if site.privacy_updated %}
+  <p class="updated">Dernière mise à jour : {{ site.privacy_updated|date_fr }}</p>
+  {% endif %}
+  {{ site.privacy_policy|rich_text }}
+</article>
+{% endblock %}

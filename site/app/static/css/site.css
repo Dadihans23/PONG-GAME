@@ -1,0 +1,102 @@
+/* Feuille de style provisoire, à remplacer par celle de la maquette.
+   Couleurs du jeu : fond #0B0B10, texte #F2F2F5, rose #E91E63. */
+
+@font-face { font-family: "Archivo"; src: url("../fonts/Archivo-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Archivo"; src: url("../fonts/Archivo-SemiBold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+@font-face { font-family: "Archivo"; src: url("../fonts/Archivo-Bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
+@font-face { font-family: "Archivo"; src: url("../fonts/Archivo-Black.ttf") format("truetype"); font-weight: 900; font-display: swap; }
+
+:root {
+  --bg: #0B0B10;
+  --surface: #16161E;
+  --text: #F2F2F5;
+  --muted: #A0A0AB;
+  --accent: #E91E63;
+  --danger: #FF5252;
+  --ok: #4CAF50;
+  --radius: 10px;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 400 1rem/1.6 "Archivo", system-ui, sans-serif;
+}
+main { max-width: 56rem; margin: 0 auto; padding: 1rem 1rem 3rem; }
+h1, h2, h3 { line-height: 1.2; }
+h1 { font-weight: 900; }
+a { color: var(--accent); }
+img { max-width: 100%; height: auto; }
+
+.site-header, .site-footer { max-width: 56rem; margin: 0 auto; padding: 1rem; }
+.site-header { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between; }
+.brand { color: var(--text); font-weight: 900; text-decoration: none; letter-spacing: .1em; text-transform: uppercase; }
+.site-footer { color: var(--muted); font-size: .9rem; border-top: 1px solid var(--surface); }
+.signature { display: flex; align-items: center; gap: .5rem; }
+.studio-logo { height: 1.5rem; width: auto; }
+
+.hero { text-align: center; padding: 3rem 0; }
+.hero h1 { font-size: clamp(2.5rem, 10vw, 5rem); margin: 0; letter-spacing: .08em; text-transform: uppercase; }
+.tagline { font-size: 1.3rem; font-weight: 700; }
+.intro { color: var(--muted); max-width: 40rem; margin: 0 auto; }
+.actions { margin-top: 2rem; display: flex; flex-direction: column; align-items: center; gap: .5rem; }
+.apk-meta { color: var(--muted); font-size: .9rem; margin: 0; }
+
+.button, button {
+  display: inline-block; padding: .7rem 1.4rem; border: 0; border-radius: var(--radius);
+  background: var(--accent); color: #fff; font: 700 1rem "Archivo", sans-serif;
+  text-decoration: none; cursor: pointer;
+}
+.button.secondary, button.secondary { background: var(--surface); color: var(--text); }
+button.danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
+button.link { background: none; color: var(--accent); padding: 0; font-weight: 400; text-decoration: underline; }
+
+.features ul, .screenshots ul { list-style: none; padding: 0; display: grid; gap: 1rem; }
+.features ul { grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
+.features li, .steps li { background: var(--surface); border-radius: var(--radius); padding: 1rem; }
+.features h3, .steps h3 { margin: 0 0 .3rem; }
+.features p, .steps p { margin: 0; color: var(--muted); }
+.steps ol { display: grid; gap: 1rem; padding-left: 1.5rem; }
+.screenshots ul { grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); }
+.screenshots img { border-radius: var(--radius); display: block; }
+
+.prose { max-width: 42rem; }
+.prose h2 { margin-top: 2rem; }
+
+/* Administration */
+.admin nav { display: flex; flex-wrap: wrap; gap: .4rem 1rem; align-items: center; }
+.stack { display: flex; flex-direction: column; gap: .8rem; align-items: flex-start; }
+.stack label { display: flex; flex-direction: column; gap: .3rem; width: 100%; }
+.row { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+form.inline { display: inline; }
+label.check { flex-direction: row; align-items: center; gap: .5rem; }
+input[type=text], input[type=url], input[type=email], input[type=password], textarea {
+  width: 100%; padding: .6rem; border-radius: 6px; border: 1px solid #33333F;
+  background: var(--surface); color: var(--text); font: inherit;
+}
+.card { background: var(--surface); border-radius: var(--radius); padding: 1rem; margin-bottom: 1rem; }
+.card input[type=text], .card textarea { background: var(--bg); }
+.shot { display: grid; grid-template-columns: 8rem 1fr; gap: 1rem; }
+.logo-preview img { max-height: 4rem; background: #000; padding: .5rem; }
+.flash { padding: .6rem 1rem; border-radius: 6px; background: var(--surface); border-left: 4px solid var(--ok); }
+.flash.error { border-left-color: var(--danger); }
+.hint { color: var(--muted); font-size: .9rem; }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: .5rem; border-bottom: 1px solid var(--surface); vertical-align: middle; }
+
+/* Sections de la maquette (à remplacer avec la maquette) */
+.site-header nav { display: flex; flex-wrap: wrap; gap: .4rem 1.2rem; }
+.site-header nav a { color: var(--text); text-decoration: none; }
+.kicker { color: var(--accent); font-size: .85rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; margin: 0 0 .3rem; }
+.hero-note, .download-text { color: var(--muted); font-size: .9rem; margin: 0; }
+.feature { padding: 2rem 0; border-top: 1px solid var(--surface); }
+.feature h2 { margin: 0 0 .5rem; }
+.feature p:last-child { color: var(--muted); margin: 0; }
+.screenshots figure { margin: 0; }
+.screenshots figcaption { margin-top: .4rem; color: var(--muted); font-size: .9rem; }
+.shot-placeholder { aspect-ratio: 9 / 19.5; background: var(--surface); border-radius: var(--radius); display: grid; place-items: center; color: var(--muted); }
+.download { text-align: center; padding: 3rem 0; }
+.footer-links { display: flex; gap: 1rem; }
+.updated { color: var(--muted); }

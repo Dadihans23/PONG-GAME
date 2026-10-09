@@ -1,0 +1,12 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1>{{ site.game_name }} · {{ site.studio_name }}</h1>
+<ul class="stack">
+  <li>Version proposée au téléchargement :
+    {% if apk %}<strong>{{ apk.version }}</strong> ({{ apk.size_bytes|filesize }}, {{ apk.uploaded_at|date_fr }}){% else %}aucune{% endif %}
+    — <a href="/admin/apk">gérer les APK</a></li>
+  <li>Lien Play Store : {% if site.play_store_url %}{{ site.play_store_url }}{% else %}non renseigné{% endif %}
+    — <a href="/admin/textes">modifier</a></li>
+  <li>Captures d'écran : {{ n_screens }} — <a href="/admin/captures">gérer</a></li>
+</ul>
+{% endblock %}

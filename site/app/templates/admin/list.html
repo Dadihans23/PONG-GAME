@@ -1,0 +1,45 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ conf.title }} · Administration{% endblock %}
+
+{% macro fields(item=None) %}
+  {% if conf.kicker %}
+  <label>Sur-titre (ex. INCLINE) <input type="text" name="kicker" value="{{ item.kicker if item else '' }}" maxlength="40"></label>
+  {% endif %}
+  <label>Titre <input type="text" name="title" value="{{ item.title if item else '' }}" maxlength="120" required></label>
+  <label>{{ conf.body_label }} <textarea name="body" rows="3" maxlength="1000">{{ item.body if item else '' }}</textarea></label>
+{% endmacro %}
+
+{% block content %}
+<h1>{{ conf.title }}</h1>
+{% for item in items %}
+<div class="card">
+  <form method="post" action="/admin/listes/{{ slug }}/{{ item.id }}/modifier" class="stack">
+    <input type="hidden" name="csrf_token" value="{{ csrf }}">
+    {{ fields(item) }}
+    <button type="submit">Enregistrer</button>
+  </form>
+  <div class="row">
+    {% for dir, label in [("up", "Monter"), ("down", "Descendre")] %}
+    <form method="post" action="/admin/listes/{{ slug }}/{{ item.id }}/deplacer" class="inline">
+      <input type="hidden" name="csrf_token" value="{{ csrf }}">
+      <input type="hidden" name="direction" value="{{ dir }}">
+      <button type="submit" class="secondary">{{ label }}</button>
+    </form>
+    {% endfor %}
+    <form method="post" action="/admin/listes/{{ slug }}/{{ item.id }}/supprimer" class="inline" data-confirm="Supprimer cet élément ?">
+      <input type="hidden" name="csrf_token" value="{{ csrf }}">
+      <button type="submit" class="danger">Supprimer</button>
+    </form>
+  </div>
+</div>
+{% else %}
+<p>Aucun élément pour l'instant.</p>
+{% endfor %}
+
+<h2>Ajouter : {{ conf.item }}</h2>
+<form method="post" action="/admin/listes/{{ slug }}/ajouter" class="stack card">
+  <input type="hidden" name="csrf_token" value="{{ csrf }}">
+  {{ fields() }}
+  <button type="submit">Ajouter</button>
+</form>
+{% endblock %}

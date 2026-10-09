@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>{% block title %}Administration{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/site.css">
+  <script src="/static/js/admin.js" defer></script>
+</head>
+<body class="admin">
+  <header class="site-header">
+    <a class="brand" href="/admin">Administration</a>
+    {% block nav %}
+    <nav>
+      <a href="/admin/textes">Textes</a>
+      <a href="/admin/listes/arguments">Arguments</a>
+      <a href="/admin/listes/etapes">Comment jouer</a>
+      <a href="/admin/captures">Captures</a>
+      <a href="/admin/apk">APK</a>
+      <a href="/admin/studio">Studio</a>
+      <a href="/admin/confidentialite">Confidentialité</a>
+      <a href="/" target="_blank" rel="noopener">Voir le site</a>
+      <form method="post" action="/admin/deconnexion" class="inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf }}">
+        <button type="submit" class="link">Se déconnecter</button>
+      </form>
+    </nav>
+    {% endblock %}
+  </header>
+  <main>
+    {% for level, message in flashes or [] %}
+    <p class="flash {{ level }}" role="status">{{ message }}</p>
+    {% endfor %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

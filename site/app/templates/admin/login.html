@@ -1,0 +1,14 @@
+{% extends "admin/base.html" %}
+{% block title %}Connexion · Administration{% endblock %}
+{% block nav %}{% endblock %}
+{% block content %}
+<h1>Connexion</h1>
+{% if error %}<p class="flash error" role="alert">{{ error }}</p>{% endif %}
+<form method="post" action="/admin/connexion" class="stack">
+  <input type="hidden" name="csrf_token" value="{{ csrf }}">
+  <label>Mot de passe
+    <input type="password" name="password" required autofocus autocomplete="current-password">
+  </label>
+  <button type="submit">Se connecter</button>
+</form>
+{% endblock %}

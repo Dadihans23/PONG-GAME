@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{# Boutons de téléchargement : héros et bloc final. #}
+{% macro download_buttons() %}
+  {% if site.play_store_url %}
+  <a class="button" href="{{ site.play_store_url }}" rel="noopener">Télécharger sur Google Play</a>
+  {% endif %}
+  {% if apk %}
+  <a class="button secondary" href="/telecharger">Télécharger l'APK</a>
+  <p class="apk-meta">Version {{ apk.version }} · {{ apk.size_bytes|filesize }}</p>
+  {% endif %}
+  {% if not apk and not site.play_store_url %}
+  <p class="apk-meta">Bientôt disponible.</p>
+  {% endif %}
+{% endmacro %}
+
+{% block content %}
+<section class="hero">
+  <h1>{{ site.game_name|upper }}</h1>
+  {% if site.tagline %}<p class="tagline">{{ site.tagline }}</p>{% endif %}
+  <div class="actions">
+    {{ download_buttons() }}
+    {% if site.hero_note %}<p class="hero-note">{{ site.hero_note }}</p>{% endif %}
+  </div>
+</section>
+
+{% if features %}
+<section class="features" id="le-jeu">
+  {% for f in features %}
+  <article class="feature">
+    {% if f.kicker %}<p class="kicker">{{ f.kicker }}</p>{% endif %}
+    <h2>{{ f.title }}</h2>
+    {% if f.body %}<p>{{ f.body }}</p>{% endif %}
+  </article>
+  {% endfor %}
+</section>
+{% endif %}
+
+{% if steps %}
+<section class="steps" id="comment-jouer">
+  <h2 class="kicker">Comment jouer</h2>
+  <ol>
+    {% for s in steps %}
+    <li><h3>{{ s.title }}</h3>{% if s.body %}<p>{{ s.body }}</p>{% endif %}</li>
+    {% endfor %}
+  </ol>
+</section>
+{% endif %}
+
+{% if screenshots %}
+<section class="screenshots" id="captures">
+  <h2 class="kicker">Captures</h2>
+  <ul>
+    {% for shot in screenshots %}
+    <li>
+      <figure>
+        {% if shot.filename %}
+        <img src="/media/{{ shot.filename }}" alt="{{ shot.caption or ('Capture de ' ~ site.game_name) }}" loading="lazy">
+        {% else %}
+        <div class="shot-placeholder" aria-hidden="true"></div>
+        {% endif %}
+        {% if shot.caption %}<figcaption>{{ shot.caption }}</figcaption>{% endif %}
+      </figure>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<section class="download" id="telecharger">
+  <h2>{{ site.download_title }}</h2>
+  <div class="actions">
+    {{ download_buttons() }}
+  </div>
+  {% if site.download_text %}<p class="download-text">{{ site.download_text }}</p>{% endif %}
+</section>
+{% endblock %}

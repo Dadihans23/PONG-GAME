@@ -1,0 +1,27 @@
+{% extends "admin/base.html" %}
+{% block title %}Studio · Administration{% endblock %}
+{% block content %}
+<h1>Studio</h1>
+<p class="hint">Le pied de page affiche le logo puis « Un jeu de {{ site.studio_name }} · © année ». Utilisez la version claire du logo (texte blanc), le fond du site étant sombre.</p>
+<p>Logo actuel :</p>
+<p class="logo-preview">
+  {% if site.studio_logo %}
+  <img src="/media/{{ site.studio_logo }}" alt="{{ site.studio_name }}">
+  {% else %}
+  <em>aucun logo (seul le nom s'affiche)</em>
+  {% endif %}
+</p>
+<form method="post" action="/admin/studio" enctype="multipart/form-data" class="stack">
+  <input type="hidden" name="csrf_token" value="{{ csrf }}">
+  <label>Nom du studio
+    <input type="text" name="studio_name" value="{{ site.studio_name }}" maxlength="60" required>
+  </label>
+  <label>Nouveau logo (PNG, JPEG, WebP, GIF ou SVG)
+    <input type="file" name="logo" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml">
+  </label>
+  {% if site.studio_logo %}
+  <label class="check"><input type="checkbox" name="remove_logo" value="1"> Retirer le logo</label>
+  {% endif %}
+  <button type="submit">Enregistrer</button>
+</form>
+{% endblock %}

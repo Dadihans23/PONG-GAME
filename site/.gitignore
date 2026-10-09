@@ -1,0 +1,6 @@
+# Environnement virtuel et données locales du site (base SQLite, fichiers téléversés)
+.venv/
+data/
+.env
+__pycache__/
+.pytest_cache/
