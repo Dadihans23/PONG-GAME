@@ -74,7 +74,7 @@ Ton pseudo, tes 10 meilleurs scores, tes statistiques (parties jouées, temps de
 
 ## Pendant un duel
 
-Les deux téléphones communiquent directement sur votre réseau Wi-Fi local, le temps de la partie : pseudos, position des raquettes et de la balle, score. Rien ne passe par Internet ni par nos serveurs. Nous n'en avons pas.
+Les deux téléphones communiquent directement sur votre réseau Wi-Fi local, le temps de la partie : pseudos, position des raquettes et de la balle, score. Rien ne passe par Internet ni par nos serveurs.
 
 ## Ce que Tilto n'utilise pas
 
@@ -83,6 +83,10 @@ Pas de compte, pas de publicité, pas d'outil de mesure d'audience, pas de local
 ## Autorisations demandées
 
 L'accès au réseau Wi-Fi, pour trouver et rejoindre une partie en duel. La vibration, pour les renvois. Le capteur de mouvement qui sert à déplacer la raquette ne demande pas d'autorisation.
+
+## Ce site
+
+Comme tout site web, notre serveur enregistre des journaux techniques pour chaque visite : adresse IP, date et heure, page demandée et type de navigateur. Ils servent uniquement à faire fonctionner le site, à le sécuriser et à corriger les erreurs. Ils ne sont ni vendus ni partagés, et ne sont conservés que pour une durée limitée. Le site ne dépose aucun cookie de suivi.
 
 ## Effacer tes données
 
