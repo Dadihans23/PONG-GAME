@@ -261,6 +261,7 @@ main:focus { outline: none; }
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
 .wide-only { display: none; }
+.nowrap { white-space: nowrap; }
 
 .skip-link {
   position: absolute; left: var(--sp-3); top: -64px; z-index: 30;
@@ -817,35 +818,54 @@ a.topbar__version:hover { color: var(--text-2); }
   font-size: 12px; line-height: 1.5; color: var(--faint);
 }
 
-/* ---------- Pages de lecture : confidentialité, mentions légales, contact ---------- */
+/* ---------- Pages courtes : contact, mentions légales, confidentialité ----------
+   Mobile et tablette : une colonne de lecture centrée. Ordinateur (1024 px) : mise en page
+   horizontale sur la largeur du conteneur, pour tenir dans l'écran sans défiler. */
 
-.prose {
+.page {
   max-width: calc(680px + 2 * var(--gutter)); margin: 0 auto;
   padding: var(--sp-7) var(--gutter) var(--sp-10);
-  display: flex; flex-direction: column; gap: var(--sp-5);
+  display: flex; flex-direction: column; gap: var(--sp-7);
 }
-.prose--form { max-width: calc(600px + 2 * var(--gutter)); }
-.prose__head { display: flex; flex-direction: column; gap: var(--sp-2); }
-.prose h1 { font-size: 13px; font-weight: 800; letter-spacing: .42em; line-height: 1.6; text-transform: uppercase; color: var(--label); }
-.prose__head p { font-size: 15px; line-height: 1.6; color: var(--text-2); }
-.prose__head .prose__lead { font-size: 22px; font-weight: 800; line-height: 1.3; color: var(--text); text-wrap: balance; }
-.updated { font-size: 14px; color: var(--faint); }
-.policy--lead > p:first-child { font-size: 22px; line-height: 1.35; font-weight: 700; color: var(--text); text-wrap: pretty; }
-.policy h2 { margin: var(--sp-7) 0 var(--sp-2); font-size: 20px; font-weight: 700; line-height: 1.3; }
-.policy > h2:first-child { margin-top: 0; }
-.policy p, .policy li { font-size: 16px; line-height: 1.7; color: var(--text-2); }
-.policy p + p, .policy dl + p, .policy ul + p { margin-top: var(--sp-3); }
-.policy ul { margin-top: var(--sp-2); display: flex; flex-direction: column; gap: var(--sp-1); }
-.policy li { position: relative; padding-left: var(--sp-5); }
-.policy li::before { content: ""; position: absolute; left: 2px; top: .8em; width: 8px; height: 2px; border-radius: 1px; background: var(--accent); }
-.policy__contact { margin-top: var(--sp-7); }
+.page--contact, .page--sent { max-width: calc(600px + 2 * var(--gutter)); }
+.page__head { display: flex; flex-direction: column; gap: var(--sp-3); min-width: 0; }
+.page__kicker { font-size: 13px; font-weight: 800; letter-spacing: .42em; line-height: 1.6; text-transform: uppercase; color: var(--label); }
+.page__title { font-size: 24px; font-weight: 800; line-height: 1.25; letter-spacing: -.01em; color: var(--text); text-wrap: balance; }
+.page__text { font-size: 15px; line-height: 1.6; color: var(--text-2); text-wrap: pretty; }
+.page__updated { font-size: 14px; color: var(--faint); }
+.page__main { min-width: 0; display: flex; flex-direction: column; gap: var(--sp-5); }
+.page__note { font-size: 13px; line-height: 1.55; color: var(--muted); }
+.page__intro p { font-size: 22px; font-weight: 700; line-height: 1.35; color: var(--text); text-wrap: pretty; }
+.page__intro p + p { margin-top: var(--sp-3); }
+.page__actions { margin-top: var(--sp-3); display: flex; flex-wrap: wrap; gap: var(--sp-3); }
+.page__actions .btn { flex: 1 1 200px; }
 
-/* Mentions légales : libellé au-dessus de la valeur, puis en deux colonnes. */
+/* Texte saisi dans l'administration (politique, complément des mentions). */
+.policy { display: flex; flex-direction: column; gap: var(--sp-7); }
+.policy__section, .page__extra { display: flex; flex-direction: column; gap: var(--sp-2); }
+.policy__section { padding-top: var(--sp-5); border-top: 1px solid var(--line); }
+.policy h2, .page__extra h2 { font-size: 19px; font-weight: 700; line-height: 1.3; color: var(--text); }
+.page__extra h2:not(:first-child) { margin-top: var(--sp-4); }
+.policy p, .policy li, .page__extra p, .page__extra li { font-size: 16px; line-height: 1.65; color: var(--text-2); }
+.policy p + p, .policy ul + p, .page__extra p + p, .page__extra ul + p { margin-top: var(--sp-2); }
+.policy ul, .page__extra ul { display: flex; flex-direction: column; gap: var(--sp-1); }
+.policy li, .page__extra li { position: relative; padding-left: var(--sp-5); }
+.policy li::before, .page__extra li::before { content: ""; position: absolute; left: 2px; top: .8em; width: 8px; height: 2px; border-radius: 1px; background: var(--accent); }
+
+/* Mentions légales : un bloc par rubrique, libellé au-dessus de la valeur. */
+.legal-grid { display: flex; flex-direction: column; gap: var(--sp-8); }
+.legal-block { display: flex; flex-direction: column; gap: var(--sp-3); min-width: 0; }
+.legal-block h2 { font-size: 20px; font-weight: 700; line-height: 1.3; color: var(--text); }
 .legal { border-top: 1px solid var(--line); }
 .legal > div { padding: var(--sp-3) 0; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 2px; }
 .legal dt { font-size: 13px; color: var(--muted); }
-.legal dd { font-size: 16px; line-height: 1.6; color: var(--text); overflow-wrap: anywhere; }
+.legal dd { font-size: 16px; line-height: 1.55; color: var(--text); overflow-wrap: anywhere; }
 .legal dd p { font-size: inherit; color: inherit; }
+.page__foot { display: flex; flex-direction: column; gap: var(--sp-4); }
+.page__contact { font-size: 15px; line-height: 1.6; color: var(--text-2); }
+
+/* Message envoyé : le terrain au repos passe au-dessus du titre sur mobile. */
+.page--sent .done__court { order: -1; }
 
 /* Formulaire de contact */
 .form-alert {
@@ -859,6 +879,7 @@ a.topbar__version:hover { color: var(--text-2); }
 .form-alert ul { display: flex; flex-direction: column; gap: var(--sp-1); }
 .form-alert a { color: var(--danger-text); font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
 .contact-form { display: flex; flex-direction: column; gap: var(--sp-5); }
+.contact-form__row { display: flex; flex-direction: column; gap: var(--sp-5); }
 .field { display: flex; flex-direction: column; gap: var(--sp-2); }
 .field label { font-size: 15px; font-weight: 700; color: var(--text); }
 .field__opt { font-weight: 400; color: var(--muted); }
@@ -890,15 +911,13 @@ a.topbar__version:hover { color: var(--text-2); }
 
 /* ---------- Message envoyé et page d'erreur : un terrain au repos ---------- */
 
-.done, .oops {
+.oops {
   max-width: calc(560px + 2 * var(--gutter)); margin: 0 auto;
   padding: var(--sp-8) var(--gutter) var(--sp-11);
   display: flex; flex-direction: column; align-items: center; gap: var(--sp-4); text-align: center;
 }
-.done h1, .oops h1 { font-size: 28px; font-weight: 800; line-height: 1.2; text-wrap: balance; }
-.done p { font-size: 16px; line-height: 1.6; color: var(--text-2); }
-.done__actions { margin-top: var(--sp-2); display: flex; flex-wrap: wrap; justify-content: center; gap: var(--sp-3); }
-.done__actions .btn, .oops .btn { min-width: 220px; }
+.oops h1 { font-size: 28px; font-weight: 800; line-height: 1.2; text-wrap: balance; }
+.oops .btn { min-width: 220px; }
 .oops .btn { margin-top: var(--sp-2); }
 .done__court, .oops__court { position: relative; width: 200px; height: 132px; margin-bottom: var(--sp-2); }
 .done__line, .oops__line {
@@ -943,6 +962,7 @@ a.topbar__version:hover { color: var(--text-2); }
 
   .legal > div { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: var(--sp-4); align-items: baseline; }
 
+  .contact-form__row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-4); }
   .contact-form__submit .btn { width: auto; align-self: flex-start; padding: 0 var(--sp-8); }
 }
 
@@ -1036,14 +1056,14 @@ a.topbar__version:hover { color: var(--text-2); }
   .footer__brand-row { justify-content: flex-start; }
   .footer__bottom { flex-direction: row; flex-wrap: wrap; justify-content: space-between; gap: var(--sp-1) var(--sp-6); }
 
-  .prose { padding: var(--sp-10) var(--gutter) var(--sp-12); gap: var(--sp-7); }
-  .prose__head { gap: var(--sp-3); }
-  .prose__head .prose__lead, .policy--lead > p:first-child { font-size: 28px; }
-  .policy h2 { margin: var(--sp-8) 0 var(--sp-3); font-size: 22px; }
+  .page { padding: var(--sp-10) var(--gutter) var(--sp-12); gap: var(--sp-8); }
+  .page__title { font-size: 30px; }
+  .page__intro p { font-size: 26px; }
+  .policy h2, .page__extra h2 { font-size: 21px; }
   .policy p, .policy li { font-size: 17px; }
 
-  .done, .oops { padding: var(--sp-10) var(--gutter) var(--sp-12); }
-  .done h1, .oops h1 { font-size: 36px; }
+  .oops { padding: var(--sp-10) var(--gutter) var(--sp-12); }
+  .oops h1 { font-size: 36px; }
 }
 
 /* =================== 1024 px : ordinateur (3a) =================== */
@@ -1098,6 +1118,62 @@ a.topbar__version:hover { color: var(--text-2); }
   .footer__about { order: 2; }
   .footer__brand-row .studio-logo { order: 3; margin-top: var(--sp-1); }
   .footer__links { justify-content: flex-end; gap: 0 var(--sp-6); }
+
+  /* Pages courtes : pleine largeur du conteneur, mise en page horizontale. */
+  .page, .page--contact, .page--sent {
+    max-width: none; margin: 0;
+    padding: var(--sp-9) var(--pad-x) var(--sp-10);
+  }
+  .page__title { font-size: 38px; line-height: 1.14; }
+
+  /* Contact : présentation | formulaire. La note de confidentialité descend en bas de
+     la colonne de gauche, alignée sur le bouton d'envoi. */
+  .page--contact, .page--sent {
+    display: grid; align-items: start;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "head main" "note main";
+    column-gap: var(--sp-12); row-gap: var(--sp-6);
+  }
+  .page--contact .page__head, .page--sent .page__head { grid-area: head; gap: var(--sp-4); }
+  .page--contact .page__main, .page--sent .page__main { grid-area: main; }
+  .page--contact .page__note {
+    grid-area: note; align-self: end; max-width: 380px;
+    padding-top: var(--sp-4); border-top: 1px solid var(--line);
+  }
+  .page--contact .page__text { font-size: 16px; }
+  .page--contact .contact-form { gap: var(--sp-4); }
+  .page--contact .field textarea { min-height: 136px; }
+  .page__actions .btn { flex: 0 0 auto; min-width: 200px; }
+  /* Message envoyé : le terrain à la place du formulaire, agrandi. */
+  .page--sent .done__court { order: 0; align-self: center; justify-self: center; transform: scale(1.5); margin: var(--sp-9) 0; }
+
+  /* Mentions légales : rubriques côte à côte, complément et contact dessous. */
+  .page--legal { gap: var(--sp-7); padding-top: var(--sp-8); }
+  .page--legal .page__head { flex-direction: row; align-items: baseline; flex-wrap: wrap; gap: var(--sp-2) var(--sp-6); }
+  .legal-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-9); align-items: start; }
+  .legal-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .legal-grid--1 { grid-template-columns: minmax(0, 680px); }
+  .legal > div { display: flex; flex-direction: column; gap: 2px; padding: 10px 0; }
+  .page__foot {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-9); align-items: baseline;
+    padding-top: var(--sp-5); border-top: 1px solid var(--line);
+  }
+  .page__extra { grid-column: span 2; }
+  .page__extra p, .page__extra li { font-size: 15px; }
+  .page__contact:only-child { grid-column: 1 / -1; }
+
+  /* Confidentialité : titre et introduction à gauche (collants), sections sur deux colonnes. */
+  .page--privacy {
+    display: grid; align-items: start;
+    grid-template-columns: minmax(0, 280px) minmax(0, 1fr); column-gap: var(--sp-9);
+  }
+  .page--privacy .page__head { position: sticky; top: var(--sp-7); gap: var(--sp-4); }
+  .page--privacy .page__intro p { font-size: 24px; line-height: 1.3; }
+  .page--privacy .policy { display: block; columns: 2; column-gap: var(--sp-8); }
+  .policy__section { break-inside: avoid; margin-bottom: var(--sp-5); padding-top: var(--sp-3); gap: 6px; }
+  .policy h2 { font-size: 18px; }
+  .policy p, .policy li { font-size: 15px; line-height: 1.55; }
 }
 
 /* =================== 1280 px : maquette 3a (1440 px) =================== */

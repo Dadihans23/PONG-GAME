@@ -4,18 +4,23 @@
 {% block description %}{% endblock %}
 {% block body_class %}page-contact{% endblock %}
 {% block content %}
-<section class="done">
-  <div class="done__court" aria-hidden="true">
+{# Même grille que la page Contact : le titre reste à sa place, le terrain prend
+   celle du formulaire. #}
+<article class="page page--sent">
+  <header class="page__head">
+    <p class="page__kicker">Contact</p>
+    <h1 class="page__title">Message envoyé</h1>
+    <p class="page__text">{{ "Merci ! Ton message est bien arrivé."|nbsp }} On te répondra à l'adresse <span class="nowrap">e-mail</span> que tu as indiquée.</p>
+    <div class="page__actions">
+      <a class="btn btn--primary" href="/">Retour à l'accueil</a>
+      {% if faq %}<a class="btn" href="/#faq">Questions fréquentes</a>{% endif %}
+    </div>
+  </header>
+  <div class="page__main done__court" aria-hidden="true">
     <i class="done__pad done__pad--top"></i>
     <i class="done__line"></i>
     <i class="done__ball"></i>
     <i class="done__pad done__pad--me"></i>
   </div>
-  <h1>Message envoyé</h1>
-  <p>Merci ! Ton message est bien arrivé. On te répondra à l'adresse e-mail que tu as indiquée.</p>
-  <div class="done__actions">
-    <a class="btn btn--primary" href="/">Retour à l'accueil</a>
-    {% if faq %}<a class="btn" href="/#faq">Questions fréquentes</a>{% endif %}
-  </div>
-</section>
+</article>
 {% endblock %}

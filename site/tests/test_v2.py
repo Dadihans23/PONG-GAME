@@ -242,7 +242,7 @@ def test_release_notes_and_sha(admin):
 def test_legal_incomplete_then_complete(admin):
     assert "Mentions légales incomplètes" in unescape(admin.get("/admin").text)
     public = unescape(admin.get("/mentions-legales").text)
-    assert "<h1>Mentions légales</h1>" in public
+    assert ">Mentions légales</h1>" in public
     assert "Contabo GmbH" in public
     assert "Éditeur du site" not in public  # aucun champ éditeur rempli
     token = admin_csrf(admin, "/admin/mentions-legales")

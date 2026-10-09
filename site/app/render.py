@@ -69,25 +69,63 @@ def when(value: str, mode: str = "list", now: datetime | None = None) -> str:
     return f"{d.day} {MONTHS_SHORT[d.month - 1]} {d.year}"
 
 
-def rich_text(text: str) -> Markup:
-    """Texte saisi dans l'administration -> HTML sûr.
+# Espace avant ? ! : ; » et après « : rendue insécable, pour qu'un signe double ne
+# commence jamais une ligne. U+00A0 plutôt que l'espace fine U+202F, absente
+# d'Archivo (elle tomberait sur une police de repli).
+_NBSP_BEFORE = re.compile(r"[  ](?=[?!:;»])")
+_NBSP_AFTER = re.compile(r"(?<=«)[  ]")
 
-    Paragraphes séparés par une ligne vide, « ## Titre » pour un intertitre,
-    « - élément » pour une liste. Tout le texte est échappé.
-    """
-    html: list[str] = []
+
+def nbsp(text: str) -> str:
+    """Espaces insécables de la typographie française (filtre `nbsp`)."""
+    return _NBSP_AFTER.sub(" ", _NBSP_BEFORE.sub(" ", text or ""))
+
+
+def _blocks(text: str, typo: bool = False) -> list[tuple[str, str]]:
+    """Blocs du texte saisi : [(type, html)], type « h2 », « ul » ou « p »."""
+    out: list[tuple[str, str]] = []
     for block in re.split(r"\n\s*\n", (text or "").replace("\r\n", "\n").strip()):
         lines = [line.strip() for line in block.split("\n") if line.strip()]
         if not lines:
             continue
+        if typo:
+            lines = [nbsp(line) for line in lines]
         if len(lines) == 1 and lines[0].startswith("## "):
-            html.append(f"<h2>{escape(lines[0][3:].strip())}</h2>")
+            out.append(("h2", f"<h2>{escape(lines[0][3:].strip())}</h2>"))
         elif all(line.startswith("- ") for line in lines):
             items = "".join(f"<li>{escape(line[2:].strip())}</li>" for line in lines)
-            html.append(f"<ul>{items}</ul>")
+            out.append(("ul", f"<ul>{items}</ul>"))
         else:
-            html.append("<p>" + "<br>".join(str(escape(line)) for line in lines) + "</p>")
-    return Markup("\n".join(html))
+            out.append(("p", "<p>" + "<br>".join(str(escape(line)) for line in lines) + "</p>"))
+    return out
+
+
+def rich_text(text: str, typo: bool = False) -> Markup:
+    """Texte saisi dans l'administration -> HTML sûr.
+
+    Paragraphes séparés par une ligne vide, « ## Titre » pour un intertitre,
+    « - élément » pour une liste. Tout le texte est échappé. typo=True pose les
+    espaces insécables (pages publiques ; pas pour les messages reçus).
+    """
+    return Markup("\n".join(html for _, html in _blocks(text, typo)))
+
+
+def rich_sections(text: str) -> dict[str, Markup]:
+    """Comme rich_text (avec les espaces insécables), découpé pour la mise en page :
+    `intro` (ce qui précède le premier intertitre) et `body`, où chaque intertitre
+    ouvre un <section class="policy__section"> qui court jusqu'au suivant."""
+    intro: list[str] = []
+    sections: list[list[str]] = []
+    for kind, html in _blocks(text, typo=True):
+        if kind == "h2":
+            sections.append([html])
+        elif sections:
+            sections[-1].append(html)
+        else:
+            intro.append(html)
+    body = "\n".join('<section class="policy__section">' + "\n".join(parts) + "</section>"
+                     for parts in sections)
+    return {"intro": Markup("\n".join(intro)), "body": Markup(body)}
 
 
 def make_static_url(static_dir: Path):
@@ -121,6 +159,8 @@ def make_templates(directory: Path, static_dir: Path | None = None,
     templates.env.filters["date_fr"] = date_fr
     templates.env.filters["date_short"] = date_short
     templates.env.filters["rich_text"] = rich_text
+    templates.env.filters["rich_sections"] = rich_sections
+    templates.env.filters["nbsp"] = nbsp
     templates.env.filters["when"] = when
     return templates
 

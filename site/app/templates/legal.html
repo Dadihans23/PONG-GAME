@@ -3,25 +3,35 @@
 {% block description %}Mentions légales du site de {{ site.game_name }}, le jeu de Pong gratuit pour Android du studio {{ site.studio_name }} : éditeur du site, directeur de la publication et hébergeur.{% endblock %}
 {% block body_class %}page-legal{% endblock %}
 {% block content %}
-<article class="prose">
-  <header class="prose__head">
-    <h1>Mentions légales</h1>
+{# Ordinateur : les blocs Éditeur, Directeur de la publication et Hébergeur côte à
+   côte (autant de colonnes que de blocs remplis), le complément et le contact
+   dessous ; tient sans défiler en 1440 × 900. Mobile : une colonne. #}
+<article class="page page--legal">
+  <header class="page__head">
+    <h1 class="page__kicker">Mentions légales</h1>
     {% if site.legal_updated %}
-    <p class="updated">Dernière mise à jour : {{ site.legal_updated|date_fr }}</p>
+    <p class="page__updated">Dernière mise à jour : {{ site.legal_updated|date_fr }}</p>
     {% endif %}
   </header>
-  <div class="policy">
-    {# legal_sections : [{title, rows: [{label, value}]}], champs vides omis. #}
+  {# legal_sections : [{title, rows: [{label, value}]}], champs vides omis. #}
+  {% if legal_sections %}
+  <div class="legal-grid legal-grid--{{ legal_sections|length }}">
     {% for section in legal_sections %}
-    <h2>{{ section.title }}</h2>
-    <dl class="legal">
-      {% for row in section.rows %}
-      <div><dt>{{ row.label }}</dt><dd>{% if "\n" in row.value %}{{ row.value|rich_text }}{% else %}{{ row.value }}{% endif %}</dd></div>
-      {% endfor %}
-    </dl>
+    <section class="legal-block">
+      <h2>{{ section.title }}</h2>
+      <dl class="legal">
+        {% for row in section.rows %}
+        <div><dt>{{ row.label }}</dt><dd>{% if "
+" in row.value %}{{ row.value|rich_text }}{% else %}{{ row.value }}{% endif %}</dd></div>
+        {% endfor %}
+      </dl>
+    </section>
     {% endfor %}
-    {% if site.legal_extra %}{{ site.legal_extra|rich_text }}{% endif %}
-    <p class="policy__contact">Pour toute question, utilise le <a href="/contact">formulaire de contact</a>.</p>
+  </div>
+  {% endif %}
+  <div class="page__foot">
+    {% if site.legal_extra %}<div class="page__extra">{{ site.legal_extra|rich_text(typo=True) }}</div>{% endif %}
+    <p class="page__contact">Pour toute question, utilise le <a href="/contact">formulaire de contact</a>.</p>
   </div>
 </article>
 {% endblock %}

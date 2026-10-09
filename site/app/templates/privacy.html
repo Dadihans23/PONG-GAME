@@ -3,15 +3,20 @@
 {% block description %}{{ site.game_name }} ne collecte aucune donnée personnelle : pas de compte, pas de pub, pas de mesure d'audience. Ce que le jeu garde sur ton téléphone, et rien d'autre.{% endblock %}
 {% block body_class %}page-privacy{% endblock %}
 {% block content %}
-<article class="prose">
-  <header class="prose__head">
-    <h1>Politique de confidentialité</h1>
+{# Ordinateur : à gauche (colonne collante) le titre, la date et l'introduction en
+   grand ; à droite les sections, chacune dans un <section> (render.rich_sections),
+   réparties sur deux colonnes sans être coupées. Mobile : une colonne. #}
+{% set doc = site.privacy_policy|rich_sections %}
+<article class="page page--privacy">
+  <header class="page__head">
+    <h1 class="page__kicker">Politique de confidentialité</h1>
     {% if site.privacy_updated %}
-    <p class="updated">Dernière mise à jour : {{ site.privacy_updated|date_fr }}</p>
+    <p class="page__updated">Dernière mise à jour : {{ site.privacy_updated|date_fr }}</p>
     {% endif %}
+    {% if doc.intro %}<div class="page__intro">{{ doc.intro }}</div>{% endif %}
   </header>
-  <div class="policy policy--lead">
-    {{ site.privacy_policy|rich_text }}
+  <div class="policy">
+    {{ doc.body }}
   </div>
 </article>
 {% endblock %}

@@ -45,8 +45,12 @@ def test_privacy_page(client):
     assert "Tilto ne collecte aucune donnée personnelle." in page
     for section in ("Ce que Tilto garde sur ton téléphone", "Pendant un duel",
                     "Ce que Tilto n'utilise pas", "Autorisations demandées",
-                    "Effacer tes données", "Une question ?"):
+                    "Effacer tes données", "Une question ?"):
         assert f"<h2>{section}</h2>" in page
+    # Chaque intertitre ouvre une section (mise en page en colonnes) ; l'introduction
+    # reste hors des sections.
+    assert page.count('<section class="policy__section">') == 8
+    assert '<div class="page__intro"><p>Tilto ne collecte' in page
 
 
 def test_seed_logo_served(client):
