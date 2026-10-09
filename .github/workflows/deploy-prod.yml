@@ -1,0 +1,111 @@
+# Déploiement du site Tilto sur le VPS à chaque push sur la branche `prod`.
+#
+# 1. Vérifie l'app Flutter (analyse + tests) et le site (pytest).
+# 2. Si tout passe, copie le dossier `site/` sur le VPS par SSH (rsync) et relance
+#    le conteneur avec docker compose. Le `.env` et les données (volume Docker
+#    `tilto-data`) restent sur le serveur et ne sont jamais écrasés.
+#
+# Secrets GitHub à créer (Settings › Secrets and variables › Actions) :
+#   DEPLOY_HOST         adresse du VPS
+#   DEPLOY_USER         utilisateur SSH
+#   DEPLOY_SSH_KEY      clé privée SSH dédiée au déploiement (sans mot de passe)
+#   DEPLOY_KNOWN_HOSTS  empreinte du serveur : sortie de `ssh-keyscan <adresse>`
+# Variable GitHub (même écran, onglet Variables) :
+#   DEPLOY_PATH         dossier du site sur le VPS, par exemple /home/hans/tilto-site
+# Procédure complète : site/README.md, section « Déploiement automatique ».
+
+name: Déploiement prod
+
+on:
+  push:
+    branches: [prod]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+jobs:
+  app:
+    name: App Flutter (analyse et tests)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.0'
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+
+  site:
+    name: Site (tests)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: site/requirements*.txt
+      - run: pip install -r requirements.txt -r requirements-dev.txt
+      - run: python -m pytest -q
+
+  deploy:
+    name: Mise à jour du serveur
+    needs: [app, site]
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Clé SSH
+        env:
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Copie du site
+        env:
+          HOST: ${{ secrets.DEPLOY_HOST }}
+          USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
+        run: |
+          test -n "$DEPLOY_PATH" || { echo "Variable DEPLOY_PATH manquante"; exit 1; }
+          rsync -az --delete \
+            --exclude '.env' --exclude 'data/' --exclude '.venv/' \
+            --exclude '__pycache__/' --exclude '.pytest_cache/' \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes" \
+            site/ "$USER@$HOST:$DEPLOY_PATH/"
+
+      - name: Relance du conteneur
+        env:
+          HOST: ${{ secrets.DEPLOY_HOST }}
+          USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes "$USER@$HOST" bash -s -- "$DEPLOY_PATH" <<'EOF'
+          set -euo pipefail
+          cd "$1"
+          test -f .env || { echo ".env absent sur le serveur : voir site/README.md"; exit 1; }
+          docker compose up -d --build --remove-orphans
+          # Attend que le conteneur réponde
+          port=$(grep -E '^HOST_PORT=' .env | cut -d= -f2); port=${port:-8085}
+          for i in $(seq 1 30); do
+            if curl -fsS "http://127.0.0.1:${port}/sante" >/dev/null; then
+              echo "Site en ligne sur le port ${port}"; docker image prune -f >/dev/null; exit 0
+            fi
+            sleep 2
+          done
+          echo "Le site ne répond pas"; docker compose logs --tail 50; exit 1
+          EOF

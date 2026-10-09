@@ -176,3 +176,36 @@ Les données suivent déjà les sections de la maquette (`maquette/Corrections e
 | Politique de confidentialité (3c) | `privacy.html` | `site.privacy_updated\|date_fr`, `site.privacy_policy\|rich_text` (paragraphes, `<h2>`, listes) |
 
 Autres fichiers : `error.html` (erreurs 404 et autres), `app/static/css/site.css` (les règles d'administration sont à la fin : les déplacer dans un `admin.css` si la nouvelle feuille remplace tout), polices dans `app/static/fonts/`. L'animation du terrain va dans un fichier de `app/static/js/` chargé par `<script src>` : la CSP interdit le JavaScript et les styles en ligne (`style="…"`) ainsi que toute ressource externe ; tout doit être servi par le site. Les éléments purement décoratifs de la maquette (classement d'exemple, curseur Douce / Vive, téléphones de Léa et Tom) relèvent du gabarit, pas de la base.
+
+## Déploiement automatique (branche `prod`)
+
+Chaque push sur la branche `prod` lance `.github/workflows/deploy-prod.yml` : analyse et tests de l'app Flutter, tests du site, puis copie de `site/` sur le VPS (rsync) et `docker compose up -d --build`. Le `.env` et le volume `tilto-data` restent sur le serveur et ne sont jamais écrasés. Un déploiement peut aussi être relancé à la main (onglet Actions › Déploiement prod › Run workflow).
+
+### Mise en place (une seule fois)
+
+1. **Sur ton PC**, crée une clé SSH dédiée au déploiement, sans mot de passe :
+   ```bash
+   ssh-keygen -t ed25519 -C "deploy-tilto" -f ~/.ssh/tilto_deploy -N ""
+   ```
+2. **Autorise cette clé sur le VPS** (demande ton mot de passe une dernière fois) :
+   ```bash
+   ssh-copy-id -i ~/.ssh/tilto_deploy.pub hans@79.143.190.190
+   ```
+   Sous Windows sans `ssh-copy-id` : `type $env:USERPROFILE\.ssh\tilto_deploy.pub | ssh hans@79.143.190.190 "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"`
+3. **Sur le VPS**, prépare le dossier et le `.env` (une seule fois) :
+   ```bash
+   mkdir -p ~/tilto-site && cd ~/tilto-site
+   # copie .env.example depuis le dépôt, puis :
+   cp .env.example .env && chmod 600 .env
+   # choisis un HOST_PORT libre (vérifie avec : ss -ltnp | grep :8085)
+   ```
+   Les valeurs `SECRET_KEY` et `ADMIN_PASSWORD_HASH` se génèrent après le premier déploiement avec
+   `docker compose run --rm --no-deps tilto-site python -m app.hashpw --secret` puis sans `--secret`.
+   L'utilisateur `hans` doit pouvoir lancer `docker` sans `sudo` (groupe `docker`).
+4. **Sur GitHub** (dépôt › Settings › Secrets and variables › Actions) :
+   - Secrets : `DEPLOY_HOST` = `79.143.190.190`, `DEPLOY_USER` = `hans`,
+     `DEPLOY_SSH_KEY` = contenu de `~/.ssh/tilto_deploy` (la clé **privée**),
+     `DEPLOY_KNOWN_HOSTS` = sortie de `ssh-keyscan 79.143.190.190`.
+   - Variable : `DEPLOY_PATH` = `/home/hans/tilto-site`.
+   - Optionnel : Settings › Environments › `prod` › « Required reviewers » pour valider chaque déploiement à la main.
+5. **Crée la branche `prod`** et pousse : `git push origin main:prod`.
