@@ -47,6 +47,11 @@
     if (button) {
       label(button, theme);
     }
+    // Sélecteur « Sombre / Clair » de l'administration.
+    var choices = document.querySelectorAll("[data-set-theme]");
+    for (var j = 0; j < choices.length; j++) {
+      choices[j].setAttribute("aria-pressed", choices[j].getAttribute("data-set-theme") === theme ? "true" : "false");
+    }
   }
 
   apply(stored() || system());
@@ -66,7 +71,22 @@
     }
   }
 
+  // Boutons qui choisissent un thème précis (administration), y compris dans un
+  // contenu remplacé après coup : écoute déléguée.
+  document.addEventListener("click", function (event) {
+    var choice = event.target.closest ? event.target.closest("[data-set-theme]") : null;
+    if (!choice) {
+      return;
+    }
+    var theme = choice.getAttribute("data-set-theme");
+    if (theme === "light" || theme === "dark") {
+      apply(theme);
+      remember(theme);
+    }
+  });
+
   document.addEventListener("DOMContentLoaded", function () {
+    apply(root.getAttribute("data-theme"));
     var button = document.querySelector(".theme-toggle");
     if (!button) {
       return;

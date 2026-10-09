@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi.templating import Jinja2Templates
@@ -41,6 +41,33 @@ def date_short(value: str) -> str:
     return f"{d.day} {MONTHS_SHORT[d.month - 1]} {d.year}"
 
 
+def when(value: str, mode: str = "list", now: datetime | None = None) -> str:
+    """Date et heure d'un horodatage ISO (UTC), pour l'administration.
+
+    mode « list » : « aujourd'hui, 9 h 12 », « hier, 21 h 40 », « 7 oct. »,
+    « 7 oct. 2025 » ; mode « long » : « 7 octobre 2026, 18 h 05 ».
+    Le serveur écrit l'heure UTC ; admin.js la remplace par l'heure locale.
+    """
+    try:
+        d = datetime.fromisoformat(value)
+    except (TypeError, ValueError):
+        return value or ""
+    if d.tzinfo is not None:
+        d = d.astimezone(timezone.utc).replace(tzinfo=None)
+    now = now or datetime.now(timezone.utc).replace(tzinfo=None)
+    hour = f"{d.hour} h {d.minute:02d} UTC"
+    if mode == "long":
+        return f"{d.day} {MONTHS[d.month - 1]} {d.year}, {hour}"
+    days = (now.date() - d.date()).days
+    if days == 0:
+        return f"aujourd'hui, {hour}"
+    if days == 1:
+        return f"hier, {hour}"
+    if d.year == now.year:
+        return f"{d.day} {MONTHS_SHORT[d.month - 1]}"
+    return f"{d.day} {MONTHS_SHORT[d.month - 1]} {d.year}"
+
+
 def rich_text(text: str) -> Markup:
     """Texte saisi dans l'administration -> HTML sûr.
 
@@ -68,6 +95,7 @@ def make_templates(directory: Path) -> Jinja2Templates:
     templates.env.filters["date_fr"] = date_fr
     templates.env.filters["date_short"] = date_short
     templates.env.filters["rich_text"] = rich_text
+    templates.env.filters["when"] = when
     return templates
 
 

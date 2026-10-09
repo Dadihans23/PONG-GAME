@@ -1,34 +1,52 @@
 {% extends "admin/base.html" %}
-{% block title %}Messages · Administration{% endblock %}
+{% block content_class %}{% if m %} is-reading{% endif %}{% endblock %}
 {% block content %}
-<h1>Messages</h1>
-<p class="hint">Messages envoyés avec le formulaire de la page <a href="/contact" target="_blank" rel="noopener">Contact</a>, du plus récent au plus ancien.</p>
-{% if messages %}
-<table>
-  <thead><tr><th>Date</th><th>De</th><th>Sujet</th><th>Aperçu</th><th>Actions</th></tr></thead>
-  <tbody>
-    {% for m in messages %}
-    <tr>
-      <td>{{ m.created_at|date_short }}</td>
-      <td>{% if not m.is_read %}<strong>{% endif %}{{ m.name or m.email }}{% if not m.is_read %}</strong> (non lu){% endif %}</td>
-      <td>{{ m.subject }}</td>
-      <td><a href="/admin/messages/{{ m.id }}">{{ m.message|truncate(60) }}</a></td>
-      <td class="row">
-        <form method="post" action="/admin/messages/{{ m.id }}/lu" class="inline">
-          <input type="hidden" name="csrf_token" value="{{ csrf }}">
-          <input type="hidden" name="read" value="{{ '0' if m.is_read else '1' }}">
-          <button type="submit" class="secondary">{{ "Marquer non lu" if m.is_read else "Marquer comme lu" }}</button>
-        </form>
-        <form method="post" action="/admin/messages/{{ m.id }}/supprimer" class="inline" data-confirm="Supprimer ce message ?">
-          <input type="hidden" name="csrf_token" value="{{ csrf }}">
-          <button type="submit" class="danger">Supprimer</button>
-        </form>
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+{% if not messages %}
+<div class="empty">
+  <p class="empty__title">Aucun message.</p>
+  <p class="empty__text">Les messages envoyés depuis le formulaire de la page <a href="/contact" target="_blank" rel="noopener">Contact</a> arrivent ici, du plus récent au plus ancien.</p>
+</div>
 {% else %}
-<p>Aucun message pour l'instant.</p>
+<div class="mail">
+  <ul class="mail__list lines" aria-label="Messages reçus">
+    {% for msg in messages %}
+    <li>
+      <a class="mail__item{% if not msg.is_read %} is-unread{% endif %}{% if m and m.id == msg.id %} is-selected{% endif %}" href="/admin/messages/{{ msg.id }}"{% if m and m.id == msg.id %} aria-current="true"{% endif %}>
+        <span class="mail__top"><span class="mail__name">{{ msg.name or "Sans nom" }}{% if not msg.is_read %}<span class="sr-only"> (non lu)</span>{% endif %}</span>{{ ui.time_of(msg.created_at) }}</span>
+        <span class="mail__meta">{{ msg.subject }} · {{ msg.email }}</span>
+        <span class="mail__ex">{{ msg.message }}</span>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+
+  {% if m %}
+  <article class="reader" aria-labelledby="reader-name">
+    <a class="reader__back" href="/admin/messages">← Messages</a>
+    <header class="reader__head">
+      <p class="overline">{{ m.subject }}</p>
+      <h2 class="reader__name" id="reader-name">{{ m.name or "Sans nom" }}</h2>
+      <p class="reader__meta">{{ m.email }} · {{ ui.time_of(m.created_at, "long") }}</p>
+    </header>
+    <div class="reader__body">{{ m.message|rich_text }}</div>
+    <div class="reader__actions">
+      <a class="btn btn--primary" href="{{ reply_url }}">Répondre</a>
+      <form method="post" action="/admin/messages/{{ m.id }}/non-lu" class="inline-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf }}">
+        <button type="submit" class="btn btn--secondary">Marquer comme non lu</button>
+      </form>
+      <form method="post" action="/admin/messages/{{ m.id }}/supprimer" class="inline-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf }}">
+        <button type="submit" class="btn btn--ghost" data-confirm-title="Supprimer le message de {{ m.name or m.email }} ?" data-confirm-text="Il est effacé du serveur. Si tu lui as répondu, ta réponse reste dans ta messagerie.">Supprimer</button>
+      </form>
+    </div>
+    <p class="reader__note">« Répondre » ouvre ta messagerie avec l'adresse {{ m.email }} et le sujet déjà remplis.</p>
+  </article>
+  {% else %}
+  <div class="reader reader--idle">
+    <p>Choisis un message dans la liste pour le lire. L'ouvrir le marque comme lu.</p>
+  </div>
+  {% endif %}
+</div>
 {% endif %}
 {% endblock %}

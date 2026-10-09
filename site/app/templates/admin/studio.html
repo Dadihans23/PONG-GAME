@@ -1,27 +1,51 @@
 {% extends "admin/base.html" %}
-{% block title %}Studio · Administration{% endblock %}
 {% block content %}
-<h1>Studio</h1>
-<p class="hint">Le pied de page affiche le logo puis « Un jeu de {{ site.studio_name }} · © année ». Utilisez la version claire du logo (texte blanc), le fond du site étant sombre.</p>
-<p>Logo actuel :</p>
-<p class="logo-preview">
-  {% if site.studio_logo %}
-  <img src="/media/{{ site.studio_logo }}" alt="{{ site.studio_name }}">
-  {% else %}
-  <em>aucun logo (seul le nom s'affiche)</em>
-  {% endif %}
-</p>
-<form method="post" action="/admin/studio" enctype="multipart/form-data" class="stack">
+{% set lerr = errors.get("logo", "") %}
+<form method="post" action="/admin/studio" enctype="multipart/form-data" class="page-form page-form--narrow" novalidate>
   <input type="hidden" name="csrf_token" value="{{ csrf }}">
-  <label>Nom du studio
-    <input type="text" name="studio_name" value="{{ site.studio_name }}" maxlength="60" required>
-  </label>
-  <label>Nouveau logo (PNG, JPEG, WebP, GIF ou SVG)
-    <input type="file" name="logo" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml">
-  </label>
-  {% if site.studio_logo %}
-  <label class="check"><input type="checkbox" name="remove_logo" value="1"> Retirer le logo</label>
-  {% endif %}
-  <button type="submit">Enregistrer</button>
+  {# Bouton par défaut (touche Entrée) : enregistrer, jamais « Retirer le logo ». #}
+  <button type="submit" class="sr-only" tabindex="-1" aria-hidden="true">Enregistrer</button>
+  {{ ui.field("studio_name", "Nom du studio", vals.studio_name, max=60, mark="required", required=True,
+              err=errors.get("studio_name", "")) }}
+
+  <div class="field field--wide{% if lerr %} has-error{% endif %}">
+    <p class="field__label" id="logo-label">Logo du studio</p>
+    {% if vals.studio_logo_url %}
+    <div class="logo-previews">
+      <figure class="logo-preview logo-preview--dark">
+        <div class="logo-preview__stage"><img class="logo-preview__img" src="{{ vals.studio_logo_url }}" alt="Logo de {{ vals.studio_name }} sur le thème sombre"></div>
+        <figcaption>Sur le thème sombre</figcaption>
+      </figure>
+      <figure class="logo-preview logo-preview--light">
+        <div class="logo-preview__stage"><img class="logo-preview__img" src="{{ vals.studio_logo_url }}" alt="Logo de {{ vals.studio_name }} sur le thème clair"></div>
+        <figcaption>Sur le thème clair (posé sur une petite plaque sombre, comme sur le site)</figcaption>
+      </figure>
+    </div>
+    {% else %}
+    <p class="muted">Aucun logo : le pied de page n'affiche que le texte.</p>
+    {% endif %}
+    <p class="field__help">Le site pose le logo tel quel sur le thème sombre, et sur une petite plaque sombre en thème clair : un logo clair (texte blanc) reste donc lisible partout. PNG, JPEG, WebP, GIF ou SVG, {{ max_image_mb }} Mo maximum. Le SVG est conseillé : il reste net à toutes les tailles.</p>
+    <div class="logo-actions">
+      <label class="field__label" for="f-logo">{{ "Remplacer le logo" if vals.studio_logo_url else "Ajouter un logo" }}</label>
+      <input class="file" type="file" id="f-logo" name="logo" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"{% if lerr %} aria-invalid="true" aria-describedby="e-f-logo"{% endif %}>
+      {% if lerr %}<p class="field__err" id="e-f-logo">{{ lerr }}</p>{% endif %}
+      {% if vals.studio_logo_url %}
+      <button type="submit" name="remove_logo" value="1" class="btn btn--ghost"
+              data-confirm-title="Retirer le logo ?" data-confirm-text="Le pied de page n'affichera plus que le texte. Le fichier est effacé du serveur." data-confirm-ok="Retirer">Retirer le logo</button>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="where">
+    <p class="where__title">Où ils apparaissent</p>
+    <p class="where__text">Dans le pied de page de toutes les pages du site :</p>
+    <div class="where__footer">
+      <div class="where__brand"><span class="where__game">{{ (game_name or "Tilto")|upper }}</span>{% if vals.studio_logo_url %}<img class="where__logo" src="{{ vals.studio_logo_url }}" alt="">{% endif %}</div>
+      <p class="where__credit">Un jeu de {{ vals.studio_name }} · © {{ year }}{% if apk %} · {{ game_name }} {{ apk.version }}{% endif %}</p>
+    </div>
+    <p class="where__note">Sans logo, seul le texte s'affiche. Le nom du studio apparaît aussi en haut de page (« un jeu de {{ vals.studio_name }} ») et donne son titre à la dernière colonne de liens.</p>
+  </div>
+
+  {{ ui.savebar(ui.saved_note(saved_at)) }}
 </form>
 {% endblock %}

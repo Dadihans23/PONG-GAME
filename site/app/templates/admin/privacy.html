@@ -1,17 +1,37 @@
 {% extends "admin/base.html" %}
-{% block title %}Confidentialité · Administration{% endblock %}
 {% block content %}
-<h1>Politique de confidentialité</h1>
-<p class="hint">Une ligne vide sépare les paragraphes. « ## Titre » crée un intertitre, « - texte » un élément de liste.</p>
-<form method="post" action="/admin/confidentialite" class="stack">
+<form method="post" action="/admin/confidentialite" class="page-form page-form--wide" novalidate>
   <input type="hidden" name="csrf_token" value="{{ csrf }}">
-  <label>Date de dernière mise à jour
-    <input type="date" name="privacy_updated" value="{{ site.privacy_updated }}" required>
-  </label>
-  <label>Texte
-    <textarea name="privacy_policy" rows="30">{{ site.privacy_policy }}</textarea>
-  </label>
-  <button type="submit">Enregistrer</button>
+  <div class="privacy__top">
+    {{ ui.field("privacy_updated", "Dernière mise à jour", vals.privacy_updated, type="date",
+                err=errors.get("privacy_updated", ""), required=True, extra_class="field--date") }}
+    <p class="privacy__syntax">Un paragraphe par bloc, séparé par une ligne vide. Une ligne qui commence par <code>##</code> devient un intertitre, et des lignes qui commencent par <code>-</code> forment une liste.</p>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Texte et aperçu" data-tabs hidden>
+    <button type="button" role="tab" id="tab-edit" aria-controls="pane-edit" aria-selected="true">Modifier</button>
+    <button type="button" role="tab" id="tab-preview" aria-controls="pane-preview" aria-selected="false" tabindex="-1">Aperçu</button>
+  </div>
+  <div class="split">
+    <div class="split__pane" id="pane-edit" role="tabpanel" aria-labelledby="tab-edit">
+      <div class="field field--wide">
+        <div class="field__top">
+          <label class="field__label" for="f-privacy_policy">Texte de la politique</label>
+        </div>
+        <textarea class="control control--mono control--tall" id="f-privacy_policy" name="privacy_policy" rows="22" aria-describedby="c-privacy">{{ vals.privacy_policy }}</textarea>
+        <p class="field__help" id="c-privacy"><span data-count-for="f-privacy_policy" data-count-mode="chars">{{ "{:,}".format(vals.privacy_policy|length).replace(",", " ") }} caractères</span></p>
+      </div>
+    </div>
+    <div class="split__pane" id="pane-preview" role="tabpanel" aria-labelledby="tab-preview">
+      <p class="field__label split__label">Aperçu</p>
+      <div class="preview">
+        <p class="preview__kicker">Politique de confidentialité</p>
+        {% if saved.privacy_updated %}<p class="preview__date">Dernière mise à jour : {{ saved.privacy_updated|date_fr }}</p>{% endif %}
+        <div class="preview__body">{{ saved.privacy_policy|rich_text }}</div>
+      </div>
+      <p class="field__help">Aperçu du texte enregistré, dans le thème actif. Il se met à jour à chaque enregistrement.</p>
+    </div>
+  </div>
+  {{ ui.savebar(ui.published(host, "/confidentialite", "Publiée")) }}
 </form>
-<p><a href="/confidentialite" target="_blank" rel="noopener">Voir la page publique</a></p>
 {% endblock %}

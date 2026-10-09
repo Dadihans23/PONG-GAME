@@ -1,28 +1,31 @@
 {% extends "admin/base.html" %}
-{% block title %}Mentions légales · Administration{% endblock %}
 {% block content %}
-<h1>Mentions légales</h1>
-{% if missing %}
-<p class="flash error" role="alert"><strong>Mentions légales incomplètes</strong> : {{ missing|join(", ") }}.</p>
-{% endif %}
-<p class="hint">La page publique <a href="/mentions-legales" target="_blank" rel="noopener">/mentions-legales</a> affiche les champs remplis. Pour une personne physique : nom et prénom, « Entrepreneur individuel » ou « Particulier » comme forme juridique.</p>
-<form method="post" action="/admin/mentions-legales" class="stack">
+<form method="post" action="/admin/mentions-legales" class="page-form" novalidate>
   <input type="hidden" name="csrf_token" value="{{ csrf }}">
-  {% for key, (label, required) in fields.items() %}
-  {% if key == "legal_host_name" %}<h2>Hébergeur</h2>{% elif loop.first %}<h2>Éditeur</h2>{% endif %}
-  <label>{{ label }}{% if required %} *{% endif %}
-    {% if key in ("legal_address", "legal_host_address") %}
-    <textarea name="{{ key }}" rows="2" maxlength="300">{{ site[key] }}</textarea>
-    {% else %}
-    <input type="{{ 'email' if key == 'legal_email' else 'text' }}" name="{{ key }}" value="{{ site[key] }}" maxlength="300">
-    {% endif %}
-  </label>
+  {% for g in groups %}
+  <section class="group" aria-labelledby="legal-{{ loop.index }}">
+    <div class="group__head">
+      <h2 class="overline" id="legal-{{ loop.index }}">{{ g.title }}</h2>
+      {% if g.help %}<p class="group__help">{{ g.help }}</p>{% endif %}
+    </div>
+    <div class="fields">
+      {% for f in g.fields %}
+      {{ ui.field(f.key, f.label, vals.get(f.key, ""), max=f.max, counter=False, area=f.area, rows=2,
+                  mark=("required" if f.required else "optional"), help=f.help, err=errors.get(f.key, ""),
+                  type=f.kind, placeholder=f.placeholder) }}
+      {% endfor %}
+    </div>
+  </section>
   {% endfor %}
-  <h2>Texte complémentaire</h2>
-  <label>Texte libre (propriété intellectuelle, crédits…). Une ligne vide sépare les paragraphes, « ## Titre » crée un intertitre.
-    <textarea name="legal_extra" rows="10">{{ site.legal_extra }}</textarea>
-  </label>
-  <button type="submit">Enregistrer</button>
+  <section class="group" aria-labelledby="legal-extra">
+    <div class="group__head">
+      <h2 class="overline" id="legal-extra">Texte complémentaire</h2>
+      <p class="group__help">Propriété intellectuelle, crédits… Une ligne vide sépare les paragraphes ; « ## Titre » crée un intertitre.</p>
+    </div>
+    <div class="fields">
+      {{ ui.field("legal_extra", "Texte libre", vals.legal_extra, max=extra_max, area=True, rows=6, mark="optional") }}
+    </div>
+  </section>
+  {{ ui.savebar(ui.published(host, "/mentions-legales", "Publiées")) }}
 </form>
-<p class="hint">* champs obligatoires : tant qu'ils sont vides, le tableau de bord signale « Mentions légales incomplètes ».</p>
 {% endblock %}

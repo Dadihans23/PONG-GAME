@@ -94,8 +94,9 @@ def test_admin_texts_sections_reflected(admin):
 
 
 def table_ids(client, slug):
+    # Un seul formulaire par tableau : chaque ligne a ses champs row-<id>-<colonne>.
     page = client.get(f"/admin/tableaux/{slug}").text
-    return csrf_from(page), re.findall(rf"/admin/tableaux/{slug}/(\d+)/modifier", page)
+    return csrf_from(page), re.findall(r'name="row-(\d+)-label"', page)
 
 
 def test_compare_table_crud(admin):
@@ -385,7 +386,7 @@ def test_messages_admin(client, clock, settings):
     from conftest import login
     login(client)
     dashboard = unescape(client.get("/admin").text)
-    assert "1 message non lu" in dashboard
+    assert "Messages · 1 non lu" in dashboard
     assert 'Messages <strong class="badge">1</strong>' in dashboard
     listing = client.get("/admin/messages").text
     token = csrf_from(listing)

@@ -1,46 +1,83 @@
+{% import "admin/_ui.html" as ui %}
 <!doctype html>
-<html lang="fr" data-theme="dark">
+<html lang="fr">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex">
-  <title>{% block title %}Administration{% endblock %}</title>
-  <link rel="stylesheet" href="/static/css/site.css">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#0B0B10" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#F6F6F9" media="(prefers-color-scheme: light)">
+  {# Sans defer : pose le thème mémorisé avant le premier rendu (même mécanisme que le site). #}
+  <script src="/static/js/theme.js"></script>
+  <title>{% block title %}{% if page_title %}{{ page_title }} · {% endif %}Administration · {{ game_name or "Tilto" }}{% endblock %}</title>
+  <link rel="icon" href="/static/img/favicon.ico" sizes="16x16 32x32 48x48">
+  <link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/static/css/admin.css">
   <script src="/static/js/admin.js" defer></script>
 </head>
 <body class="admin">
-  <header class="site-header">
-    <a class="brand" href="/admin">Administration</a>
-    {% block nav %}
-    <nav>
-      <a href="/admin/textes">Textes</a>
-      <a href="/admin/tableaux/fiche">Fiche technique</a>
-      <a href="/admin/listes/arguments">Arguments</a>
-      <a href="/admin/tableaux/comparatif">Comparatif</a>
-      <a href="/admin/listes/etapes">Comment jouer</a>
-      <a href="/admin/tableaux/bareme">Barème</a>
-      <a href="/admin/captures">Captures</a>
-      <a href="/admin/faq">FAQ</a>
-      <a href="/admin/tableaux/installation">Installation</a>
-      <a href="/admin/apk">APK</a>
-      <a href="/admin/studio">Studio</a>
-      <a href="/admin/confidentialite">Confidentialité</a>
-      <a href="/admin/mentions-legales">Mentions légales</a>
-      <a href="/admin/messages">Messages{% if unread_count %} <strong class="badge">{{ unread_count }}</strong>{% endif %}</a>
-      <a href="/" target="_blank" rel="noopener">Voir le site</a>
-      <form method="post" action="/admin/deconnexion" class="inline">
+{% block body %}
+  <a class="skip-link" href="#contenu">Aller au contenu</a>
+  <div class="shell">
+    <header class="topbar">
+      <a class="topbar__brand" href="/admin"><span class="topbar__game">{{ (game_name or "Tilto")|upper }}</span><span class="topbar__sub">admin · {{ studio_name }}</span></a>
+      <a class="topbar__menu" href="#menu" aria-controls="menu" aria-expanded="false" data-menu-toggle>
+        <span class="when-closed">Menu{% if unread_count %}<span class="topbar__count"> · {{ unread_count }}</span>{% endif %}</span>
+        <span class="when-open">Fermer</span>
+      </a>
+    </header>
+
+    <nav class="side" id="menu" aria-label="Menu de l'administration">
+      <div class="side__brand"><span class="side__game">{{ (game_name or "Tilto")|upper }}</span><span class="side__sub">Administration · {{ studio_name }}</span></div>
+      <a class="side__close" href="#contenu">Fermer le menu</a>
+      {% for g in nav or [] %}
+      <div class="side__group">
+        {% if g.title %}<p class="side__h">{{ g.title }}</p>{% endif %}
+        <ul>
+          {% for it in g.links %}
+          <li><a class="side__link{% if it.active %} is-active{% endif %}" href="{{ it.url }}"{% if it.active %} aria-current="page"{% endif %}>{{ it.label }}{% if it.count %} <strong class="badge">{{ it.count }}</strong><span class="sr-only"> non lus</span>{% endif %}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endfor %}
+      <div class="side__sep"></div>
+      <a class="side__link side__link--quiet" href="/" target="_blank" rel="noopener">Voir le site ↗<span class="sr-only"> (nouvel onglet)</span></a>
+      <form method="post" action="/admin/deconnexion">
         <input type="hidden" name="csrf_token" value="{{ csrf }}">
-        <button type="submit" class="link">Se déconnecter</button>
+        <button type="submit" class="side__link side__link--quiet side__logout">Se déconnecter</button>
       </form>
+      <div class="side__spacer"></div>
+      <div class="theme-switch" role="group" aria-label="Thème">
+        <span class="theme-switch__label">Thème</span>
+        <div class="theme-switch__buttons">
+          <button type="button" data-set-theme="dark" aria-pressed="false">Sombre</button>
+          <button type="button" data-set-theme="light" aria-pressed="false">Clair</button>
+        </div>
+      </div>
     </nav>
-    {% endblock %}
-  </header>
-  <main>
-    {% for level, message in flashes or [] %}
-    <p class="flash {{ level }}" role="status">{{ message }}</p>
-    {% endfor %}
-    {% block content %}{% endblock %}
-  </main>
+
+    <main class="main" id="contenu" tabindex="-1">
+      <div class="content{% block content_class %}{% endblock %}">
+        {% block head %}
+        {% if page_title %}
+        <header class="head">
+          <div class="head__text">
+            {% if page_crumb %}<p class="head__crumb">{{ page_crumb }}</p>{% endif %}
+            <h1 class="head__title">{{ page_title }}</h1>
+            <p class="head__sub">{{ page_sub }}</p>
+          </div>
+          <a class="head__site" href="/" target="_blank" rel="noopener">{{ host }}<span class="sr-only"> (nouvel onglet)</span></a>
+        </header>
+        {% endif %}
+        {% endblock %}
+        {{ ui.banners(flashes, banner) }}
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+  </div>
+  {{ ui.confirm_dialog() }}
+{% endblock %}
+  <p class="sr-only" id="live" aria-live="polite"></p>
 </body>
 </html>

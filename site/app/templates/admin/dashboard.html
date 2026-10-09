@@ -1,25 +1,66 @@
 {% extends "admin/base.html" %}
 {% block content %}
-<h1>{{ site.game_name }} · {{ site.studio_name }}</h1>
 {% if legal_missing %}
-<p class="flash error" role="alert"><strong>Mentions légales incomplètes</strong> : {{ legal_missing|join(", ") }}.
-  <a href="/admin/mentions-legales">Compléter</a></p>
+<div class="alert" role="alert">
+  <div class="alert__text">
+    <p class="alert__title">Mentions légales incomplètes</p>
+    <p class="alert__body">{{ legal_sentence }} {{ "Il est obligatoire" if legal_missing|length == 1 else "Ils sont obligatoires" }} pour un site publié.</p>
+  </div>
+  <a class="arrow-link" href="/admin/mentions-legales">Compléter →</a>
+</div>
 {% endif %}
-{% if unread_count %}
-<p class="flash" role="status"><strong>{{ unread_count }} message{{ "s" if unread_count > 1 }} non lu{{ "s" if unread_count > 1 }}</strong>
-  — <a href="/admin/messages">lire</a></p>
-{% endif %}
-<ul class="stack">
-  <li>Version proposée au téléchargement :
-    {% if apk %}<strong>{{ apk.version }}</strong> ({{ apk.size_bytes|filesize }}, {{ apk.uploaded_at|date_fr }}){% else %}aucune{% endif %}
-    — <a href="/admin/apk">gérer les APK et les notes de version</a></li>
-  <li>Lien Play Store : {% if site.play_store_url %}{{ site.play_store_url }}{% else %}non renseigné{% endif %}
-    — <a href="/admin/textes">modifier</a></li>
-  <li>Captures d'écran : {{ n_screens }} — <a href="/admin/captures">gérer</a></li>
-  <li>Questions fréquentes : {{ n_faq }} — <a href="/admin/faq">gérer</a></li>
-  <li>Messages de contact : {{ n_messages }}{% if unread_count %} dont {{ unread_count }} non lu{{ "s" if unread_count > 1 }}{% endif %}
-    — <a href="/admin/messages">voir</a></li>
-  <li>Mentions légales : {% if legal_missing %}incomplètes{% else %}complètes{% endif %}
-    — <a href="/admin/mentions-legales">modifier</a></li>
-</ul>
+
+<div class="cols">
+  <section class="col" aria-labelledby="dash-messages">
+    <div class="col__head">
+      <h2 class="overline" id="dash-messages">Messages{% if unread_count %} · {{ unread_count }} non lu{{ "s" if unread_count > 1 }}{% endif %}</h2>
+      <a class="arrow-link" href="/admin/messages">Tous les messages →</a>
+    </div>
+    <ul class="lines">
+      {% for m in latest %}
+      <li>
+        <a class="msg-line{% if not m.is_read %} is-unread{% endif %}" href="/admin/messages/{{ m.id }}">
+          <span class="msg-line__top"><span class="msg-line__who">{{ m.name or m.email }} · {{ m.subject }}</span>{{ ui.time_of(m.created_at) }}</span>
+          <span class="msg-line__ex">{{ m.message }}</span>
+        </a>
+      </li>
+      {% else %}
+      <li class="lines__empty">Aucun message pour l'instant.</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section class="col" aria-labelledby="dash-todo">
+    {% if todo %}
+    <h2 class="overline col__head" id="dash-todo">À faire pour que le site soit complet</h2>
+    <ol class="lines todo">
+      {% for title, detail, action, url in todo %}
+      <li class="todo__item">
+        <span class="todo__n" aria-hidden="true">{{ loop.index }}</span>
+        <span class="todo__text"><span class="todo__title">{{ title }}</span><span class="todo__detail">{{ detail }}</span></span>
+        <a class="arrow-link todo__go" href="{{ url }}">{{ action }} →<span class="sr-only"> : {{ title|lower }}</span></a>
+      </li>
+      {% endfor %}
+    </ol>
+    {% else %}
+    <h2 class="overline col__head" id="dash-todo">À faire</h2>
+    <ul class="lines"><li class="lines__done">Le site est complet. Rien à faire.</li></ul>
+    {% endif %}
+  </section>
+</div>
+
+<section aria-labelledby="dash-state">
+  <h2 class="overline col__head" id="dash-state">État du site</h2>
+  <dl class="lines state">
+    {% for r in rows %}
+    <div class="state__row">
+      <dt class="state__label">{{ r.label }}</dt>
+      <dd class="state__value{% if r.style %} state__value--{{ r.style }}{% endif %}">{{ r.value }}</dd>
+      <dd class="state__action"><a class="btn-link" href="{{ r.url }}">{{ r.action }}<span class="sr-only"> : {{ r.label|lower }}</span></a></dd>
+    </div>
+    {% endfor %}
+  </dl>
+</section>
+
+<p><a class="btn btn--secondary" href="/" target="_blank" rel="noopener">Voir le site ↗<span class="sr-only"> (nouvel onglet)</span></a></p>
 {% endblock %}

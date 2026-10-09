@@ -1,60 +1,68 @@
 {% extends "admin/base.html" %}
-{% block title %}Captures · Administration{% endblock %}
 {% block content %}
-<h1>Captures d'écran</h1>
-<p class="hint">Le titre et l'introduction de la section se règlent dans Textes. Une capture sans image s'affiche comme un emplacement vide avec sa légende. Images acceptées : PNG, JPEG, WebP ou GIF.</p>
-{% for shot in screenshots %}
-<div class="card shot">
-  {% if shot.filename %}
-  <img src="/media/{{ shot.filename }}" alt="{{ shot.caption }}">
-  {% else %}
-  <div class="shot-placeholder">Pas d'image</div>
-  {% endif %}
-  <div class="stack">
-    <form method="post" action="/admin/captures/{{ shot.id }}/modifier" enctype="multipart/form-data" class="stack">
-      <input type="hidden" name="csrf_token" value="{{ csrf }}">
-      <label>Légende
-        <input type="text" name="caption" value="{{ shot.caption }}" maxlength="120">
-      </label>
-      <label>Description (sous la légende, facultatif)
-        <textarea name="description" rows="2" maxlength="500">{{ shot.description }}</textarea>
-      </label>
-      <label>{{ "Remplacer l'image" if shot.filename else "Ajouter l'image" }}
-        <input type="file" name="image" accept="image/png,image/jpeg,image/webp,image/gif">
-      </label>
-      <button type="submit">Enregistrer</button>
-    </form>
-    <div class="row">
-      {% for dir, label in [("up", "Monter"), ("down", "Descendre")] %}
-      <form method="post" action="/admin/captures/{{ shot.id }}/deplacer" class="inline">
-        <input type="hidden" name="csrf_token" value="{{ csrf }}">
-        <input type="hidden" name="direction" value="{{ dir }}">
-        <button type="submit" class="secondary">{{ label }}</button>
-      </form>
-      {% endfor %}
-      <form method="post" action="/admin/captures/{{ shot.id }}/supprimer" class="inline" data-confirm="Supprimer cette capture ?">
-        <input type="hidden" name="csrf_token" value="{{ csrf }}">
-        <button type="submit" class="danger">Supprimer</button>
-      </form>
-    </div>
-  </div>
-</div>
-{% else %}
-<p>Aucune capture pour l'instant.</p>
-{% endfor %}
-
-<h2>Ajouter une capture</h2>
-<form method="post" action="/admin/captures/ajouter" enctype="multipart/form-data" class="stack card">
+<form method="post" action="{{ header_url }}" class="page-form" novalidate>
   <input type="hidden" name="csrf_token" value="{{ csrf }}">
-  <label>Image
-    <input type="file" name="image" accept="image/png,image/jpeg,image/webp,image/gif">
-  </label>
-  <label>Légende
-    <input type="text" name="caption" maxlength="120">
-  </label>
-  <label>Description (facultatif)
-    <textarea name="description" rows="2" maxlength="500"></textarea>
-  </label>
-  <button type="submit">Ajouter</button>
+  {{ ui.setting_groups(groups, vals, errors) }}
+  <div class="group__save"><button type="submit" class="btn btn--secondary">Enregistrer l'en-tête</button></div>
+</form>
+
+<section class="shots" aria-labelledby="shots-title">
+  <div class="group__head">
+    <h2 class="overline" id="shots-title">Captures</h2>
+    <p class="group__help">Format portrait, idéalement 1080 × 2400. PNG, JPEG, WebP ou GIF, {{ max_image_mb }} Mo maximum. Le site les affiche dans cet ordre, dans un cadre de téléphone, avec la légende et la description. Une capture sans image s'affiche comme un emplacement vide.</p>
+  </div>
+  {% if not shots %}
+  <div class="empty">
+    <p class="empty__title">Aucune capture.</p>
+    <p class="empty__text">La section Captures est masquée sur le site tant que la liste est vide.</p>
+  </div>
+  {% endif %}
+  <ol class="shots__grid">
+    {% for s in shots %}
+    {% set img_err = errors.get("image-" ~ s.id, "") %}
+    <li class="shot" id="capture-{{ s.id }}">
+      <div class="shot__top">
+        {% if s.filename %}
+        <div class="phone"><img class="phone__img" src="/media/{{ s.filename }}" alt="Capture {{ s.n }}{% if s.caption %} : {{ s.caption }}{% endif %}" loading="lazy"></div>
+        {% else %}
+        <div class="phone phone--empty"><span>Aucune image</span><label class="btn-link" for="img-{{ s.id }}">Choisir…</label></div>
+        {% endif %}
+        <div class="shot__side">
+          <span class="shot__n" aria-hidden="true">{{ s.n }}</span>
+          {{ ui.post_icon("/admin/captures/" ~ s.id ~ "/deplacer", csrf, "up", "Monter la capture " ~ s.n, direction="up", disabled=loop.first) }}
+          {{ ui.post_icon("/admin/captures/" ~ s.id ~ "/deplacer", csrf, "down", "Descendre la capture " ~ s.n, direction="down", disabled=loop.last) }}
+          {{ ui.post_icon("/admin/captures/" ~ s.id ~ "/supprimer", csrf, "delete", "Supprimer la capture " ~ s.n,
+                          confirm=("Supprimer la capture " ~ s.n ~ " ?", "L'image, sa légende et sa description sont effacées.")) }}
+        </div>
+      </div>
+      <form method="post" action="/admin/captures/{{ s.id }}/modifier" enctype="multipart/form-data" class="shot__form" novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf }}">
+        {{ ui.field("caption", "Légende", s.caption, max=120, id="cap-" ~ s.id) }}
+        {{ ui.field("description", "Description", s.description, max=500, area=True, id="desc-" ~ s.id) }}
+        <div class="field{% if img_err %} has-error{% endif %}">
+          <label class="field__label" for="img-{{ s.id }}">{{ "Remplacer l'image" if s.filename else "Image" }}</label>
+          <input class="file" type="file" id="img-{{ s.id }}" name="image" accept="image/png,image/jpeg,image/webp,image/gif"{% if img_err %} aria-invalid="true" aria-describedby="e-img-{{ s.id }}"{% endif %}>
+          {% if img_err %}<p class="field__err" id="e-img-{{ s.id }}">{{ img_err }}</p>{% endif %}
+        </div>
+        <div><button type="submit" class="btn btn--secondary">Enregistrer la capture {{ s.n }}</button></div>
+      </form>
+    </li>
+    {% endfor %}
+  </ol>
+</section>
+
+<form method="post" action="/admin/captures/ajouter" enctype="multipart/form-data" class="panel panel--add" novalidate>
+  <input type="hidden" name="csrf_token" value="{{ csrf }}">
+  <h2 class="panel__title">Ajouter une capture</h2>
+  <div class="fields">
+    {% set new_err = errors.get("new-image", "") %}
+    <div class="field{% if new_err %} has-error{% endif %}">
+      <label class="field__label" for="new-image">Image</label>
+      <input class="file" type="file" id="new-image" name="image" accept="image/png,image/jpeg,image/webp,image/gif"{% if new_err %} aria-invalid="true" aria-describedby="e-new-image"{% endif %}>
+      {% if new_err %}<p class="field__err" id="e-new-image">{{ new_err }}</p>{% endif %}
+    </div>
+    {{ ui.field("caption", "Légende", add_vals.get("caption", ""), max=120, id="new-caption", placeholder="Ex. : Le classement") }}
+  </div>
+  <div><button type="submit" class="btn btn--primary">Ajouter la capture</button></div>
 </form>
 {% endblock %}

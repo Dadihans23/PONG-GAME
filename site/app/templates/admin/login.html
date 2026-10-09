@@ -1,14 +1,26 @@
 {% extends "admin/base.html" %}
-{% block title %}Connexion · Administration{% endblock %}
-{% block nav %}{% endblock %}
-{% block content %}
-<h1>Connexion</h1>
-{% if error %}<p class="flash error" role="alert">{{ error }}</p>{% endif %}
-<form method="post" action="/admin/connexion" class="stack">
-  <input type="hidden" name="csrf_token" value="{{ csrf }}">
-  <label>Mot de passe
-    <input type="password" name="password" required autofocus autocomplete="current-password">
-  </label>
-  <button type="submit">Se connecter</button>
-</form>
+{% block title %}Connexion · Administration · {{ game_name or "Tilto" }}{% endblock %}
+{% block body %}
+<main class="login" id="contenu">
+  <div class="login__box">
+    <div class="login__brand">
+      <h1 class="login__game">{{ (game_name or "Tilto")|upper }}</h1>
+      <p class="login__sub">Administration du site · {{ studio_name }}</p>
+    </div>
+    {% if locked %}
+    <p class="banner banner--err" role="alert">Trop de tentatives. Réessaie dans quelques minutes.</p>
+    {% endif %}
+    <form method="post" action="/admin/connexion" class="login__form">
+      <input type="hidden" name="csrf_token" value="{{ csrf }}">
+      {{ ui.field("password", "Mot de passe", "", type="password", err=errors.get("password", ""), required=True) }}
+      {% if locked %}
+      <button type="submit" class="btn btn--block" disabled>Se connecter</button>
+      {% else %}
+      <button type="submit" class="btn btn--primary btn--block">Se connecter</button>
+      {% endif %}
+      <p class="login__help">Il n'y a qu'un compte, sans identifiant. Le mot de passe se change sur le serveur.</p>
+    </form>
+  </div>
+  <p class="login__back">Retour à <a href="/">{{ host }}</a></p>
+</main>
 {% endblock %}

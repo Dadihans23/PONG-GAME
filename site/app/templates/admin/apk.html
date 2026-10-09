@@ -1,73 +1,117 @@
 {% extends "admin/base.html" %}
-{% block title %}APK · Administration{% endblock %}
+{% macro sha_short(sha) %}{{ sha[:8] }}…{{ sha[-4:] }}{% endmacro %}
 {% block content %}
-<h1>Versions de l'application</h1>
+<div class="apk">
+  <section class="apk__current" aria-labelledby="apk-current">
+    <h2 class="overline" id="apk-current">Proposée au téléchargement</h2>
+    {% if current %}
+    <p class="apk__version"><span class="apk__v">{{ current.version }}</span><span class="apk__info">{{ current.size_bytes|filesize }} · déposée le {{ current.uploaded_at|date_short }}</span></p>
+    <dl class="lines kv">
+      <div class="kv__row">
+        <dt>Lien public</dt>
+        <dd class="kv__value"><span class="kv__url">{{ public_url }}</span>{{ ui.copy_btn(public_url, what="le lien public") }}</dd>
+      </div>
+      <div class="kv__row">
+        <dt>Mention sur le site</dt>
+        <dd class="kv__value">« {% if site.play_store_url %}{{ download_name }} · {{ current.size_bytes|filesize }}{% else %}v{{ current.version }} · {{ current.size_bytes|filesize }} · sans Play Store{% endif %} »</dd>
+      </div>
+    </dl>
+    {% else %}
+    <p class="apk__none">Aucune version.</p>
+    <p class="muted">Le bouton « Télécharger l'APK », le bloc « Installer l'APK » et le bloc « Nouveautés » sont masqués sur le site tant qu'aucune version n'est proposée. Dépose un fichier avec le formulaire de dépôt.</p>
+    {% endif %}
 
-<h2>Déposer une nouvelle version</h2>
-<form method="post" action="/admin/apk/deposer" enctype="multipart/form-data" class="stack card">
-  <input type="hidden" name="csrf_token" value="{{ csrf }}">
-  <label>Numéro de version
-    <input type="text" name="version" placeholder="1.0.0" maxlength="32" required>
-  </label>
-  <label>Fichier APK ({{ max_mb }} Mo maximum)
-    <input type="file" name="apk" accept=".apk,application/vnd.android.package-archive" required>
-  </label>
-  <label>Notes de version (une nouveauté par ligne)
-    <textarea name="release_notes" rows="6" maxlength="5000">{{ default_notes }}</textarea>
-  </label>
-  <label>Date de la version (vide = date du dépôt)
-    <input type="date" name="release_date">
-  </label>
-  <label class="check"><input type="checkbox" name="make_current" value="1" checked>
-    Proposer cette version au téléchargement</label>
-  <button type="submit">Déposer</button>
-</form>
+    {% if notes_apk %}
+    {% set nerr = errors.get("release_date", "") if not upload_vals else "" %}
+    <form method="post" action="/admin/apk/{{ notes_apk.id }}/notes" class="notes-form" id="notes" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf }}">
+      <h2 class="overline">Notes de version {{ notes_apk.version }}</h2>
+      <div class="field field--date{% if nerr %} has-error{% endif %}">
+        <label class="field__label" for="f-release_date">Date de sortie</label>
+        <input class="control" type="date" id="f-release_date" name="release_date" value="{{ notes_vals.release_date }}"{% if nerr %} aria-invalid="true" aria-describedby="e-f-release_date h-f-release_date"{% else %} aria-describedby="h-f-release_date"{% endif %}>
+        {% if nerr %}<p class="field__err" id="e-f-release_date">{{ nerr }}</p>{% endif %}
+        <p class="field__help" id="h-f-release_date">Vide = date du dépôt ({{ notes_apk.uploaded_at|date_short }}).</p>
+      </div>
+      {{ ui.field("release_notes", "Nouveautés", notes_vals.release_notes, max=5000, area=True, rows=7, counter=False,
+                  mark=None,
+                  help=("S'affichent sur le site sous « " ~ (site.notes_title or "Nouveautés") ~ " " ~ notes_apk.version ~ " », tant que cette version est proposée. Une nouveauté par ligne."
+                        if notes_apk.is_current else
+                        "Elles s'afficheront sur le site quand cette version sera proposée. Une nouveauté par ligne.")) }}
+      <div class="notes-form__actions">
+        <button type="submit" class="btn btn--secondary">Enregistrer les notes</button>
+        {% if current and notes_apk.id != current.id %}<a class="btn-link" href="/admin/apk">Revenir à la version proposée</a>{% endif %}
+      </div>
+    </form>
+    {% endif %}
+  </section>
 
-<h2>Historique</h2>
-{% if apks %}
-<table>
-  <thead><tr><th>Version</th><th>Taille</th><th>Date</th><th>SHA-256</th><th>Actions</th></tr></thead>
-  <tbody>
+  {% set verr = errors.get("version", "") %}
+  {% set ferr = errors.get("apk", "") %}
+  <form method="post" action="/admin/apk/deposer" enctype="multipart/form-data" class="panel apk__upload" data-upload data-max-bytes="{{ max_bytes }}" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf }}">
+    <h2 class="panel__title">Déposer une nouvelle version</h2>
+    <div class="field{% if ferr %} has-error{% endif %}">
+      <label class="field__label" for="f-apk">Fichier APK</label>
+      <div class="dropzone" data-upload-zone>
+        <input class="file" type="file" id="f-apk" name="apk" accept=".apk,application/vnd.android.package-archive" aria-describedby="h-f-apk{% if ferr %} e-f-apk{% endif %}"{% if ferr %} aria-invalid="true"{% endif %}>
+        <p class="dropzone__help" id="h-f-apk">{{ max_mb }} Mo maximum · vérifié avant publication</p>
+      </div>
+      <div class="progress" data-upload-progress hidden>
+        <div class="progress__top"><span class="progress__name" data-upload-name></span><span data-upload-total></span></div>
+        <progress max="100" value="0" data-upload-bar aria-label="Envoi du fichier"></progress>
+        <div class="progress__bottom"><span data-upload-status aria-live="polite"></span><button type="button" class="btn-link" data-upload-cancel>Annuler l'envoi</button></div>
+        <p class="field__help">Garde cette page ouverte. Le fichier est vérifié une fois l'envoi terminé.</p>
+      </div>
+      <p class="field__err" id="e-f-apk" data-upload-error{% if not ferr %} hidden{% endif %}>{{ ferr }}</p>
+    </div>
+    {{ ui.field("version", "Numéro de version", upload_vals.get("version", ""), max=32, counter=False, err=verr,
+                help="" if verr else "Trois nombres séparés par des points, par exemple 1.2.0.") }}
+    <label class="check">
+      <input type="checkbox" name="make_current" value="1"{% if upload_vals.get("make_current", true) %} checked{% endif %}>
+      <span>La proposer tout de suite au téléchargement</span>
+    </label>
+    <details class="more"{% if default_notes or upload_vals.get("release_notes") or errors.get("release_date") and upload_vals %} open{% endif %}>
+      <summary class="btn-link">Notes de version{% if not default_notes %} (facultatif){% endif %}</summary>
+      {{ ui.field("release_notes", "Nouveautés", upload_vals.get("release_notes") or default_notes, max=5000, area=True, rows=6, counter=False,
+                  id="up-release_notes", help="Une nouveauté par ligne. Tu peux aussi les écrire juste après le dépôt.") }}
+      {{ ui.field("release_date", "Date de sortie", upload_vals.get("release_date", ""), type="date", id="up-release_date",
+                  err=(errors.get("release_date", "") if upload_vals else ""), help="Vide = date du dépôt.") }}
+    </details>
+    <button type="submit" class="btn btn--primary btn--block" data-upload-submit>Déposer</button>
+  </form>
+</div>
+
+<section class="history" aria-labelledby="apk-history">
+  <h2 class="overline col__head" id="apk-history">Historique des versions</h2>
+  {% if not apks %}
+  <p class="lines__empty lines__empty--boxed">Aucune version déposée pour l'instant.</p>
+  {% else %}
+  <div class="vers__head" aria-hidden="true"><span>Version</span><span>Taille</span><span>Déposée le</span><span>SHA-256</span><span></span></div>
+  <ul class="vers">
     {% for a in apks %}
-    <tr>
-      <td>{{ a.version }}{% if a.is_current %} <strong>(courante)</strong>{% endif %}</td>
-      <td>{{ a.size_bytes|filesize }}</td>
-      <td>{{ a.uploaded_at|date_fr }}</td>
-      <td><code title="{{ a.sha256 }}">{{ a.sha256[:12] }}…</code></td>
-      <td class="row">
-        {% if not a.is_current %}
-        <form method="post" action="/admin/apk/{{ a.id }}/courante" class="inline">
+    <li class="ver">
+      <span class="ver__v">{{ a.version }}</span>
+      <span class="ver__size">{{ a.size_bytes|filesize }}</span>
+      <span class="ver__date">{{ a.uploaded_at[:10]|date_short }}</span>
+      <span class="ver__sha"><span class="sr-only">SHA-256 </span><code title="{{ a.sha256 }}">{{ sha_short(a.sha256) }}</code>{{ ui.copy_btn(a.sha256, what="l'empreinte SHA-256 de la version " ~ a.version) }}</span>
+      <span class="ver__actions">
+        <a class="btn-link" href="/admin/apk?version={{ a.id }}#notes">Notes<span class="sr-only"> de la version {{ a.version }}</span></a>
+        {% if a.is_current %}
+        <span class="ver__current">Proposée au téléchargement</span>
+        <button type="button" class="icon-btn" disabled aria-label="Supprimer la version {{ a.version }} (impossible : c'est la version proposée)" title="La version proposée ne peut pas être supprimée">{{ ui.icon("delete") }}</button>
+        {% else %}
+        <form method="post" action="/admin/apk/{{ a.id }}/courante" class="inline-form">
           <input type="hidden" name="csrf_token" value="{{ csrf }}">
-          <button type="submit" class="secondary">Rendre courante</button>
+          <button type="submit" class="btn-link">Proposer celle-ci<span class="sr-only"> ({{ a.version }})</span></button>
         </form>
-        <form method="post" action="/admin/apk/{{ a.id }}/supprimer" class="inline" data-confirm="Supprimer la version {{ a.version }} ?">
-          <input type="hidden" name="csrf_token" value="{{ csrf }}">
-          <button type="submit" class="danger">Supprimer</button>
-        </form>
+        {{ ui.post_icon("/admin/apk/" ~ a.id ~ "/supprimer", csrf, "delete", "Supprimer la version " ~ a.version,
+                        confirm=("Supprimer la version " ~ a.version ~ " ?", "Le fichier et ses notes de version sont effacés du serveur. Les personnes qui l'ont déjà installée la gardent.")) }}
         {% endif %}
-      </td>
-    </tr>
+      </span>
+    </li>
     {% endfor %}
-  </tbody>
-</table>
-
-<h2>Notes de version</h2>
-<p class="hint">La page publique affiche les notes de la version courante, avec sa date. Une ligne par nouveauté ; les puces (« - ») sont facultatives.</p>
-{% for a in apks %}
-<form method="post" action="/admin/apk/{{ a.id }}/notes" class="stack card">
-  <input type="hidden" name="csrf_token" value="{{ csrf }}">
-  <h3>Version {{ a.version }}{% if a.is_current %} (courante){% endif %}</h3>
-  <p class="hint">SHA-256 : <code>{{ a.sha256 }}</code></p>
-  <label>Notes
-    <textarea name="release_notes" rows="6" maxlength="5000">{{ a.release_notes }}</textarea>
-  </label>
-  <label>Date de la version (vide = date du dépôt, {{ a.uploaded_at|date_fr }})
-    <input type="date" name="release_date" value="{{ a.release_date }}">
-  </label>
-  <button type="submit">Enregistrer</button>
-</form>
-{% endfor %}
-{% else %}
-<p>Aucune version déposée.</p>
-{% endif %}
+  </ul>
+  <p class="history__note">La version proposée ne peut pas être supprimée : propose d'abord une autre version.</p>
+  {% endif %}
+</section>
 {% endblock %}

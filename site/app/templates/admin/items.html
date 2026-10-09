@@ -1,0 +1,114 @@
+{% extends "admin/base.html" %}
+{# Liste d'éléments qu'on déplie pour les modifier : arguments, étapes, FAQ.
+   Chaque élément est un <details> : fermé, il montre son contenu ; ouvert, son
+   formulaire. Fonctionne sans JavaScript. #}
+
+{% macro mark_of(req) %}{{ "required" if req == true else ("optional" if req is none else "") }}{% endmacro %}
+
+{% macro item_fields(values, errs, prefix, id_prefix) -%}
+{% for name, label, max_len, area, req, help in conf.fields %}
+{{ ui.field(name, label, values.get(name, ""), max=max_len, area=area, mark=(mark_of(req)|trim or none),
+            help=help, err=errs.get(prefix ~ name, ""), id=id_prefix ~ name, rows=(4 if max_len > 1000 else 3)) }}
+{% endfor %}
+{%- endmacro %}
+
+{% macro ordinal(n) %}{{ n }}{{ "ʳᵉ" if n == 1 else "ᵉ" }}{% endmacro %}
+
+{% block content %}
+{% if groups %}
+<form method="post" action="{{ header_url }}" class="page-form" novalidate>
+  <input type="hidden" name="csrf_token" value="{{ csrf }}">
+  {{ ui.setting_groups(groups, vals, errors) }}
+  <div class="group__save"><button type="submit" class="btn btn--secondary">Enregistrer l'en-tête</button></div>
+</form>
+{% endif %}
+
+<section class="items" aria-labelledby="items-title">
+  <div class="group__head">
+    <h2 class="overline" id="items-title">{{ conf.list_title }}</h2>
+    <p class="group__help">{{ list_help }}</p>
+  </div>
+
+  {% if not items %}
+  <div class="empty">
+    <p class="empty__title">{{ conf.empty_title }}</p>
+    <p class="empty__text">{{ conf.empty_text }}</p>
+  </div>
+  {% else %}
+  <ol class="items__list">
+    {% for it in items %}
+    <li class="item{% if it.open %} is-open{% endif %}" id="item-{{ it.id }}">
+      <span class="item__n" aria-hidden="true">{{ it.n }}</span>
+      <details class="item__main"{% if it.open %} open{% endif %}>
+        <summary class="item__summary">
+          <span class="item__view">
+            {%- if it.sur %}<span class="item__sur">{{ it.sur }}</span>{% endif %}
+            <span class="item__title">{{ it.title }}</span>
+            {%- if it.text %}<span class="item__text">{{ it.text }}</span>{% endif %}
+            {%- if it.meta %}<span class="item__meta">{{ it.meta }}</span>{% endif -%}
+          </span>
+          <span class="item__edit">Modifier</span>
+        </summary>
+        <form method="post" action="{{ conf.base }}/{{ it.id }}/modifier" class="panel" novalidate>
+          <input type="hidden" name="csrf_token" value="{{ csrf }}">
+          {% if conf.specs %}<button type="submit" class="sr-only" tabindex="-1" aria-hidden="true">Enregistrer</button>{% endif %}
+          {{ item_fields(it.data, errors if it.open else {}, "", "f" ~ it.id ~ "-") }}
+          {% if conf.specs %}
+          <fieldset class="feats">
+            <legend class="field__label">Caractéristiques <span class="field__mark">(libellé · valeur, dans l'ordre)</span></legend>
+            {% for s in it.specs %}
+            {% set errs = errors if it.open else {} %}
+            {% set lerr = errs.get("spec-" ~ s.id ~ "-label", "") %}
+            <div class="feat{% if lerr %} has-error{% endif %}">
+              <input class="control feat__label" type="text" name="spec-{{ s.id }}-label" value="{{ s.label }}" maxlength="{{ spec_cols[0][2] }}" aria-label="Libellé de la caractéristique {{ loop.index }}"{% if lerr %} aria-invalid="true" aria-describedby="e-spec-{{ s.id }}"{% endif %}>
+              <input class="control feat__value" type="text" name="spec-{{ s.id }}-value" value="{{ s.value }}" maxlength="{{ spec_cols[1][2] }}" aria-label="Valeur de la caractéristique {{ loop.index }}">
+              <div class="feat__actions">
+                {{ ui.icon_btn("up", "Monter « " ~ s.label ~ " »", "action", "spec-up:" ~ s.id, disabled=loop.first) }}
+                {{ ui.icon_btn("down", "Descendre « " ~ s.label ~ " »", "action", "spec-down:" ~ s.id, disabled=loop.last) }}
+                {{ ui.icon_btn("delete", "Supprimer « " ~ s.label ~ " »", "action", "spec-delete:" ~ s.id, danger=True,
+                               confirm=("Supprimer la caractéristique « " ~ s.label ~ " » ?", "Elle disparaît du site dès la confirmation. Les modifications de l'argument sont enregistrées en même temps.")) }}
+              </div>
+              {% if lerr %}<p class="field__err" id="e-spec-{{ s.id }}">{{ lerr }}</p>{% endif %}
+            </div>
+            {% endfor %}
+            {% if it.open and new_spec %}
+            {% set nerr = errors.get("spec-new-label", "") %}
+            <div class="feat{% if nerr %} has-error{% endif %}">
+              <input class="control feat__label" type="text" name="spec-new-label" value="{{ it.data.get('_new_label', '') }}" maxlength="{{ spec_cols[0][2] }}" placeholder="Libellé" aria-label="Libellé de la nouvelle caractéristique"{% if not nerr %} autofocus{% endif %}{% if nerr %} aria-invalid="true" aria-describedby="e-spec-new"{% endif %}>
+              <input class="control feat__value" type="text" name="spec-new-value" value="{{ it.data.get('_new_value', '') }}" maxlength="{{ spec_cols[1][2] }}" placeholder="Valeur" aria-label="Valeur de la nouvelle caractéristique">
+              {% if nerr %}<p class="field__err" id="e-spec-new">{{ nerr }}</p>{% endif %}
+            </div>
+            {% endif %}
+            <button type="submit" name="action" value="spec-add" class="btn-link feats__add">+ Ajouter une caractéristique</button>
+          </fieldset>
+          {% endif %}
+          <div class="panel__actions">
+            <button type="submit" class="btn btn--primary">Enregistrer</button>
+            <a class="btn btn--ghost" href="{{ conf.base }}#item-{{ it.id }}" data-close-details>Annuler</a>
+          </div>
+        </form>
+      </details>
+      <div class="item__actions">
+        {{ ui.post_icon(conf.base ~ "/" ~ it.id ~ "/deplacer", csrf, "up", "Monter « " ~ it.title ~ " »", direction="up", disabled=loop.first) }}
+        {{ ui.post_icon(conf.base ~ "/" ~ it.id ~ "/deplacer", csrf, "down", "Descendre « " ~ it.title ~ " »", direction="down", disabled=loop.last) }}
+        {{ ui.post_icon(conf.base ~ "/" ~ it.id ~ "/supprimer", csrf, "delete", "Supprimer « " ~ it.title ~ " »", confirm=(it.confirm_title, it.confirm_text)) }}
+      </div>
+    </li>
+    {% endfor %}
+  </ol>
+  {% endif %}
+
+  <details class="add" id="ajout"{% if add_open %} open{% endif %}>
+    <summary class="btn {{ 'btn--secondary' if items else 'btn--primary' }}">{{ "+ " if items }}{{ conf.add_label }}</summary>
+    <form method="post" action="{{ conf.base }}/ajouter" class="panel" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf }}">
+      <p class="panel__title">{{ conf.new_title }} · {{ ordinal(items|length + 1) }} position</p>
+      {{ item_fields(add_vals, errors, "new-", "new-") }}
+      <div class="panel__actions">
+        <button type="submit" class="btn btn--primary">{{ conf.add_button }}</button>
+        <a class="btn btn--ghost" href="{{ conf.base }}" data-close-details>Annuler</a>
+      </div>
+    </form>
+  </details>
+</section>
+{% endblock %}

@@ -1,0 +1,130 @@
+{# Composants de l'administration (maquette « Tilto Admin v2 »). Aucun style en ligne :
+   la CSP l'interdit ; tout est dans static/css/admin.css. #}
+
+{# Les trois seules icônes : monter, descendre, supprimer. #}
+{% macro icon(name) -%}
+<svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+  {%- if name == "up" %}<path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/>
+  {%- elif name == "down" %}<path d="M12 5v14M5.5 12.5 12 19l6.5-6.5"/>
+  {%- else %}<path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 12.5h9l1-12.5M10.5 11v5M13.5 11v5"/>{% endif -%}
+</svg>
+{%- endmacro %}
+
+{# Bouton icône de 44 px. `confirm` = (titre, texte[, libellé du bouton]) : boîte de
+   confirmation (admin.js) ; sans JavaScript, l'envoi est direct. #}
+{% macro icon_btn(name, label, field=None, value=None, disabled=False, confirm=None, form=None, formaction=None, danger=False) -%}
+<button type="submit" class="icon-btn{% if danger %} icon-btn--quiet{% endif %}" aria-label="{{ label }}" title="{{ label }}"
+  {%- if field %} name="{{ field }}" value="{{ value }}"{% endif %}
+  {%- if form %} form="{{ form }}"{% endif %}
+  {%- if formaction %} formaction="{{ formaction }}"{% endif %}
+  {%- if disabled %} disabled{% endif %}
+  {%- if confirm %} data-confirm-title="{{ confirm[0] }}" data-confirm-text="{{ confirm[1] }}"{% if confirm|length > 2 %} data-confirm-ok="{{ confirm[2] }}"{% endif %}{% endif %}>{{ icon(name) }}</button>
+{%- endmacro %}
+
+{# Petit formulaire POST d'une seule action (monter, descendre, supprimer…). #}
+{% macro post_icon(action, csrf, name, label, direction=None, disabled=False, confirm=None) -%}
+<form method="post" action="{{ action }}" class="inline-form">
+  <input type="hidden" name="csrf_token" value="{{ csrf }}">
+  {%- if direction %}<input type="hidden" name="direction" value="{{ direction }}">{% endif %}
+  {{ icon_btn(name, label, disabled=disabled, confirm=confirm, danger=(name == "delete")) }}
+</form>
+{%- endmacro %}
+
+{# Champ de formulaire : libellé, compteur n / max, contrôle, erreur, aide.
+   mark : "required" -> « (obligatoire) », "optional" -> « (facultatif) ». #}
+{% macro field(name, label, value="", max=None, area=False, mark=None, help="", err="", type="text", id=None, rows=3, placeholder="", required=False, form=None, wide=False, mono=False, extra_class="", counter=True) -%}
+{%- set fid = id or ("f-" ~ name) -%}
+{%- set described = [("e-" ~ fid) if err, ("h-" ~ fid) if help]|select|join(" ") -%}
+<div class="field{% if area or wide %} field--wide{% endif %}{% if err %} has-error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}">
+  <div class="field__top">
+    <label class="field__label" for="{{ fid }}">{{ label }}{% if mark == "required" %} <span class="field__mark">(obligatoire)</span>{% elif mark == "optional" %} <span class="field__mark">(facultatif)</span>{% endif %}</label>
+    {%- if max and counter %}<span class="field__count" data-count-for="{{ fid }}">{{ (value or "")|length }} / {{ max }}</span>{% endif %}
+  </div>
+  {%- if area %}
+  <textarea class="control{% if mono %} control--mono{% endif %}" id="{{ fid }}" name="{{ name }}" rows="{{ rows }}"
+    {%- if max %} maxlength="{{ max }}"{% endif %}{% if form %} form="{{ form }}"{% endif %}{% if placeholder %} placeholder="{{ placeholder }}"{% endif %}
+    {%- if required %} required{% endif %}{% if err %} aria-invalid="true"{% endif %}{% if described %} aria-describedby="{{ described }}"{% endif %}>{{ value or "" }}</textarea>
+  {%- else %}
+  <input class="control" type="{{ type }}" id="{{ fid }}" name="{{ name }}" value="{{ value or "" }}"
+    {%- if max %} maxlength="{{ max }}"{% endif %}{% if form %} form="{{ form }}"{% endif %}{% if placeholder %} placeholder="{{ placeholder }}"{% endif %}
+    {%- if required %} required{% endif %}{% if err %} aria-invalid="true"{% endif %}{% if described %} aria-describedby="{{ described }}"{% endif %}>
+  {%- endif %}
+  {%- if err %}<p class="field__err" id="e-{{ fid }}">{{ err }}</p>{% endif %}
+  {%- if help %}<p class="field__help" id="h-{{ fid }}">{{ help }}</p>{% endif %}
+</div>
+{%- endmacro %}
+
+{# Réglage de la table setting (voir routes_admin.TEXT_FIELDS). #}
+{% macro setting(f, vals, errors, form=None) -%}
+{{ field(f.key, f.label, vals.get(f.key, ""), max=f.max, area=f.area,
+         mark=("required" if f.required else ("optional" if f.opt else None)),
+         help=f.help, err=errors.get(f.key, ""), type=f.kind, rows=(5 if f.max > 500 else 3),
+         form=form, required=f.required) }}
+{%- endmacro %}
+
+{# Groupes de réglages : intertitre, aide, grille de champs. #}
+{% macro setting_groups(groups, vals, errors, form=None) -%}
+{% for g in groups %}
+<section class="group" aria-labelledby="g-{{ loop.index }}-{{ g.title|lower|replace(' ', '-') }}">
+  <div class="group__head">
+    <h2 class="overline" id="g-{{ loop.index }}-{{ g.title|lower|replace(' ', '-') }}">{{ g.title }}</h2>
+    {%- if g.help %}<p class="group__help">{{ g.help }}</p>{% endif %}
+  </div>
+  <div class="fields">
+    {% for f in g.fields %}{{ setting(f, vals, errors, form) }}{% endfor %}
+  </div>
+</section>
+{% endfor %}
+{%- endmacro %}
+
+{# Bandeaux de retour : messages de la redirection précédente, puis bandeau de la page. #}
+{% macro banners(flashes, banner) -%}
+{% for level, message in flashes or [] %}
+<p class="banner banner--{{ 'err' if level == 'error' else 'ok' }}" role="{{ 'alert' if level == 'error' else 'status' }}">{{ message }}</p>
+{% endfor %}
+{% if banner %}
+<p class="banner banner--{{ 'err' if banner[0] == 'error' else 'ok' }}" role="{{ 'alert' if banner[0] == 'error' else 'status' }}">{{ banner[1] }}</p>
+{% endif %}
+{%- endmacro %}
+
+{# Barre d'enregistrement en bas du contenu. #}
+{% macro savebar(note="", label="Enregistrer", form=None, name=None, value=None) -%}
+<div class="savebar">
+  <button type="submit" class="btn btn--primary"{% if form %} form="{{ form }}"{% endif %}{% if name %} name="{{ name }}" value="{{ value }}"{% endif %}>{{ label }}</button>
+  {%- if note %}<p class="savebar__note">{{ note }}</p>{% endif %}
+</div>
+{%- endmacro %}
+
+{# Date et heure : UTC écrit par le serveur, heure locale posée par admin.js. #}
+{% macro time_of(iso, mode="list") -%}
+<time datetime="{{ iso }}" data-local="{{ mode }}">{{ iso|when(mode) }}</time>
+{%- endmacro %}
+
+{# « Dernier enregistrement : … » #}
+{% macro saved_note(saved_at) -%}
+{% if saved_at %}Dernier enregistrement : {{ time_of(saved_at) }}{% endif %}
+{%- endmacro %}
+
+{# « Publiée sur tilto.fun/… » (lien vers la page publique). #}
+{% macro published(host, path, label="Publiée") -%}
+{{ label }} sur <a href="{{ path }}" target="_blank" rel="noopener">{{ host }}{{ path }}<span class="sr-only"> (nouvel onglet)</span></a>
+{%- endmacro %}
+
+{# Bouton « Copier » : caché sans JavaScript (rien à copier sans lui). #}
+{% macro copy_btn(value, label="Copier", what="") -%}
+<button type="button" class="btn-link copy" data-copy="{{ value }}" hidden{% if what %} aria-label="Copier {{ what }}"{% endif %}>{{ label }}</button>
+{%- endmacro %}
+
+{# Boîte de confirmation partagée par toute l'administration (admin.js). #}
+{% macro confirm_dialog() -%}
+<dialog class="dialog" id="confirm" aria-labelledby="confirm-title" aria-describedby="confirm-text">
+  <form method="dialog" class="dialog__box">
+    <h2 class="dialog__title" id="confirm-title"></h2>
+    <p class="dialog__text" id="confirm-text"></p>
+    <div class="dialog__actions">
+      <button type="submit" value="cancel" class="btn btn--secondary" autofocus>Annuler</button>
+      <button type="submit" value="ok" class="btn btn--danger" id="confirm-ok">Supprimer</button>
+    </div>
+  </form>
+</dialog>
+{%- endmacro %}
