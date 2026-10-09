@@ -173,6 +173,39 @@ Décidé avec le propriétaire. Développé sur la branche `feature-sensibilite`
 
 ---
 
+## Phase 2 bis — Identité, accueil, site et Play Store
+
+Décidé avec le propriétaire. Ordre : après le test du duel sur deux téléphones et la fusion dans `main`.
+
+Décisions :
+- Nom du jeu : **Tilto** (« Pong » est une marque d'Atari et trop générique). Studio : **Nexora** (nom susceptible de changer).
+- Logo : `assets/nexora.png` (fond transparent, symbole « N » bleu dégradé, texte bleu nuit). Couleurs du studio : noir et blanc.
+- Nom et logo du studio regroupés dans un seul fichier de l'app ; pas de configuration à distance pour l'instant.
+- Distribution : APK en téléchargement direct et Play Store (compte Play Console existant). Site sur le VPS du propriétaire, sur un port en attendant un nom de domaine.
+
+### Signature visuelle
+- [ ] Nom et logo du studio dans un seul fichier de configuration
+- [ ] Version blanche du logo pour les fonds sombres
+- [ ] Intro studio (logo, environ 1,5 s, passable d'un toucher) avant le chargement, durée totale pas plus longue qu'aujourd'hui
+- [ ] « Un jeu de Nexora » en bas des Réglages et de l'Aide
+- [ ] Nom affiché sous l'icône : « Tilto » (aujourd'hui `pong_game`) ; titre « Tilto » dans l'app
+- [ ] Icône de l'app (aujourd'hui celle de Flutter par défaut)
+
+### Nouvel écran d'accueil
+- [ ] Prompt Claude Design : 2 ou 3 directions simples, sans cartes, avec un terrain qui joue tout seul en fond
+- [ ] Choix d'une direction par le propriétaire, puis développement (les autres écrans ne changent pas)
+
+### Site de présentation et backend
+- [ ] Page unique : jeu en mouvement, points forts, comment jouer, captures, téléchargement APK et lien Play Store, politique de confidentialité, signature Nexora
+- [ ] Petit backend FastAPI sur le VPS : administration du nom du studio, du logo, des textes, du lien de téléchargement et dépôt de l'APK
+- [ ] Déploiement sur le VPS (port), puis nom de domaine et HTTPS avant la publication
+
+### Publication sur le Play Store
+- [ ] Identifiant définitif de l'app (par exemple `com.nexora.tilto`) à la place de `com.example.pong_game`
+- [ ] Clé de signature créée et sauvegardée
+- [ ] Mise à jour des outils Android exigée par Google (SDK cible), format AAB
+- [ ] Fiche du store : icône, captures, description, classification, formulaire sur les données, URL de politique de confidentialité
+
 ## Phase 3 — Multijoueur en ligne (plus tard)
 
 - [ ] À planifier une fois la phase 2 stabilisée : serveur FastAPI/WebSocket, salons en ligne, matchmaking, authentification
