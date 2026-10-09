@@ -1,6 +1,6 @@
-# Pong Game
+# Tilto
 
-Un jeu de Pong mobile en Flutter, contrôlé en inclinant le téléphone. Il est écrit sans moteur de jeu : uniquement des widgets Flutter et une boucle de jeu maison.
+**Tilto**, un jeu de **Nexora** : un jeu de raquette et de balle mobile en Flutter, contrôlé en inclinant le téléphone. Il est écrit sans moteur de jeu : uniquement des widgets Flutter et une boucle de jeu maison.
 
 ## Fonctionnalités
 
@@ -38,6 +38,12 @@ Il n'y a pas de pause en duel : si l'app passe en arrière-plan, la partie est f
 
 Côté technique, le téléphone qui crée la partie fait tourner le moteur et envoie l'état 30 fois par seconde par WebSocket (port 47800) ; les parties sont découvertes par broadcast UDP (port 47801). Le protocole est décrit dans `lib/net/PROTOCOL.md`.
 
+## Marque
+
+Le nom du jeu (Tilto), le nom du studio (Nexora) et les chemins des logos sont regroupés dans `lib/brand.dart` ; le code ne les écrit nulle part ailleurs. Au lancement, l'intro du studio (logo blanc sur noir, 1,5 s, un toucher la passe) précède l'écran de chargement (4,5 s) : 6 s au total.
+
+Pour changer de studio : modifier `Brand.studioName` dans `lib/brand.dart` et remplacer les images de `assets/brand/` (logo à texte blanc pour fond sombre, logo d'origine pour fond clair, symbole seul). `tool/brand_logos.py` (Python + Pillow) produit ces trois images à partir de `assets/nexora.png` ; ses seuils sont propres à ce logo. Le nom sous l'icône est dans `android/app/src/main/AndroidManifest.xml` (`android:label`) et `ios/Runner/Info.plist`. Le paquet Dart et l'identifiant de l'app restent `pong_game` / `com.example.pong_game` jusqu'à la publication.
+
 ## Lancer le projet
 
 Prérequis : [Flutter](https://docs.flutter.dev/get-started/install) avec un SDK Dart 3.3 ou plus récent, et un appareil physique. L'accéléromètre n'est pas disponible sur la plupart des émulateurs, le paddle n'y bougera donc pas.
@@ -57,7 +63,9 @@ flutter build apk
 
 | Fichier | Rôle |
 |---|---|
+| `lib/brand.dart` | Nom du jeu, nom du studio, logos : le seul fichier à changer pour la marque |
 | `lib/main.dart` | Démarrage, ouverture des boîtes Hive, écran de chargement |
+| `lib/studio_intro.dart` | Intro du studio avant le chargement |
 | `lib/entername.dart` | Écran d'accueil : pseudo, mode (solo ou multijoueur), difficulté |
 | `lib/game/pong_engine.dart` | Moteur du jeu solo : balle, collisions, score, IA, sans dépendance à Flutter |
 | `lib/game/duel_engine.dart` | Moteur du duel, sur le téléphone qui a créé la partie |
@@ -74,6 +82,7 @@ flutter build apk
 | `lib/settings/` | Réglages : musique, effets, vibration, sensibilité de la raquette |
 | `lib/ui/` | Système de design : couleurs, textes, boutons, cartes |
 | `assets/sounds/` | Sons et musiques |
+| `assets/brand/` | Logos du studio (fond sombre, fond clair, symbole seul) |
 
 ## Dépendances principales
 

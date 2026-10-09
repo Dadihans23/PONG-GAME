@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:pong_game/aide.dart';
+import 'package:pong_game/brand.dart';
 import 'package:pong_game/entername.dart';
 import 'package:pong_game/leaderboard.dart';
 import 'package:pong_game/multiplayer/screens/multiplayer_menu_screen.dart';
@@ -53,6 +54,8 @@ void main() {
           (tester) async {
         await _pump(tester, const NamePage(), size);
 
+        // Logo texte au nom du jeu, en entier même à 320 dp
+        expect(find.text(Brand.gameName.toUpperCase()), findsOneWidget);
         expect(find.text('Ton pseudo'), findsOneWidget);
         expect(find.text('Solo'), findsOneWidget);
         // Le multijoueur est disponible : plus de « Bientôt »
@@ -321,6 +324,10 @@ void main() {
             findsOneWidget);
         expect(find.textContaining("L'un crée la partie, l'autre la rejoint."),
             findsOneWidget);
+        // Signature du studio sous les règles
+        await tester.scrollUntilVisible(find.text(Brand.signaturePrefix), 100);
+        expect(find.byType(PongStudioSignature), findsOneWidget);
+        expect(tester.takeException(), isNull);
       });
     }
   });

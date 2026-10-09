@@ -1,6 +1,6 @@
 // Titres et textes espacés.
 //
-// - `PongLogo` : le mot « PONG » avec halo rose (chargement, accueil).
+// - `PongLogo` : le nom du jeu en majuscules avec halo rose (chargement, accueil).
 // - `PongScreenTitle` : titre d'écran espacé (« CLASSEMENT »), centré.
 //   Normalement placé par `PongHeaderBar`, pas à la main.
 // - `PongOverline` : sur-titre de section (« MODE DE JEU »), aligné à gauche.
@@ -10,6 +10,7 @@
 // majuscules. Jamais d'espaces entre les lettres (« C L A S S E M E N T »).
 import 'package:flutter/material.dart';
 
+import '../../brand.dart';
 import '../pong_text.dart';
 
 /// Texte espacé correctement centré : Flutter ajoute l'espacement après
@@ -46,8 +47,10 @@ class PongSpacedText extends StatelessWidget {
   }
 }
 
-/// Logo « PONG » : Black 900, espacement 0,45 em, halo rose.
-/// 40 px sur l'écran de chargement, 32 px dans l'en-tête de l'accueil.
+/// Logo texte du jeu ([Brand.gameName] en majuscules) :
+/// Black 900, espacement 0,45 em, halo rose. 48 px sur l'écran de
+/// chargement, 32 px dans l'en-tête de l'accueil ; rétrécit plutôt que
+/// d'être tronqué si la place manque (en-tête à 320 dp).
 class PongLogo extends StatelessWidget {
   const PongLogo({super.key, this.fontSize = 40});
 
@@ -57,13 +60,16 @@ class PongLogo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       header: true,
-      label: 'Pong',
+      label: Brand.gameName,
       excludeSemantics: true,
-      child: PongSpacedText(
-        'PONG',
-        style: PongText.logo.copyWith(
-          fontSize: fontSize,
-          letterSpacing: fontSize * 0.45,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: PongSpacedText(
+          Brand.gameName.toUpperCase(),
+          style: PongText.logo.copyWith(
+            fontSize: fontSize,
+            letterSpacing: fontSize * 0.45,
+          ),
         ),
       ),
     );

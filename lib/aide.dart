@@ -59,13 +59,18 @@ class AidePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return PongPageScaffold(
       title: 'Aide',
-      body: ListView.separated(
+      body: ListView(
         padding: const EdgeInsets.fromLTRB(PongSpacing.screen, PongSpacing.xxs,
             PongSpacing.screen, PongSpacing.screen),
-        itemCount: _sections.length,
-        separatorBuilder: (context, index) =>
-            const SizedBox(height: PongSpacing.xs),
-        itemBuilder: (context, index) => _sections[index],
+        children: [
+          for (final (index, section) in _sections.indexed) ...[
+            if (index > 0) const SizedBox(height: PongSpacing.xs),
+            section,
+          ],
+          // Signature du studio, en retrait sous les règles
+          const SizedBox(height: PongSpacing.xl),
+          const PongStudioSignature(),
+        ],
       ),
     );
   }

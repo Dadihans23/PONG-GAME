@@ -184,15 +184,15 @@ Décisions :
 - Distribution : APK en téléchargement direct et Play Store (compte Play Console existant). Site sur le VPS du propriétaire, sur un port en attendant un nom de domaine.
 
 ### Signature visuelle
-- [ ] Nom et logo du studio dans un seul fichier de configuration
-- [ ] Version blanche du logo pour les fonds sombres
-- [ ] Intro studio (logo, environ 1,5 s, passable d'un toucher) avant le chargement, durée totale pas plus longue qu'aujourd'hui
-- [ ] « Un jeu de Nexora » en bas des Réglages et de l'Aide
-- [ ] Nom affiché sous l'icône : « Tilto » (aujourd'hui `pong_game`) ; titre « Tilto » dans l'app
-- [ ] Icône de l'app (aujourd'hui celle de Flutter par défaut)
+- [x] Nom et logo du studio dans un seul fichier (`lib/brand.dart`)
+- [x] Version blanche du logo pour les fonds sombres (`assets/brand/`, générée par `tool/brand_logos.py`)
+- [x] Intro studio (1,5 s, passable d'un toucher) avant le chargement, raccourci à 4,5 s : 6 s au total comme avant
+- [x] « Un jeu de Nexora » en bas des Réglages et de l'Aide
+- [x] Nom affiché sous l'icône : « Tilto » ; « TILTO » dans l'app
+- [ ] Icône de l'app (aujourd'hui celle de Flutter par défaut) : en attente des propositions de Claude Design
 
 ### Nouvel écran d'accueil
-- [ ] Prompt Claude Design : 2 ou 3 directions simples, sans cartes, avec un terrain qui joue tout seul en fond
+- [x] Prompt Claude Design (`design_prompt_accueil.md`) : directions d'accueil, icône et site — maquettes en attente
 - [ ] Choix d'une direction par le propriétaire, puis développement (les autres écrans ne changent pas)
 
 ### Site de présentation et backend

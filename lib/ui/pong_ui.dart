@@ -19,6 +19,7 @@ export 'widgets/pong_pills.dart';
 export 'widgets/pong_pressable.dart';
 export 'widgets/pong_selection.dart';
 export 'widgets/pong_slider.dart';
+export 'widgets/pong_studio_signature.dart';
 export 'widgets/pong_switch.dart';
 export 'widgets/pong_text_field.dart';
 export 'widgets/pong_titles.dart';

@@ -68,6 +68,8 @@ flutter:
 
   assets:
     - assets/sounds/
+    # Logos du studio (voir lib/brand.dart)
+    - assets/brand/
 
   # Police Archivo (licence SIL OFL 1.1, voir assets/fonts/OFL.txt),
   # intégrée pour fonctionner hors ligne. Utilisée par lib/ui/.

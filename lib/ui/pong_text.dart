@@ -23,7 +23,7 @@ abstract final class PongText {
 
   static const List<FontFeature> _tabular = [FontFeature.tabularFigures()];
 
-  /// Logo « PONG » : 40 · Black 900 · 0,45 em · halo rose.
+  /// Logo texte du jeu (nom en majuscules) : 40 · Black 900 · 0,45 em · halo rose.
   static const TextStyle logo = TextStyle(
     fontFamily: fontFamily,
     fontSize: 40,

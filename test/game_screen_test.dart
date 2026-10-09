@@ -34,7 +34,7 @@ Future<void> _pumpGame(WidgetTester tester, Size size) async {
   final NavigatorState navigator = tester.state(find.byType(Navigator));
   navigator.push(MaterialPageRoute(
     builder: (context) => const MyHomePage(
-        title: 'Pong Game', playerName: 'Léa', difficulty: 'Normal'),
+        title: 'Tilto', playerName: 'Léa', difficulty: 'Normal'),
   ));
   await tester.pumpAndSettle();
 }

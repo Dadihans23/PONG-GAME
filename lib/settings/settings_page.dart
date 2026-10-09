@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:pong_game/brand.dart';
 import 'package:pong_game/game/game_tuning.dart';
 import 'package:pong_game/game/paddle_sensitivity.dart';
 import 'package:pong_game/game/tilt_control.dart';
@@ -155,11 +156,8 @@ class _SettingsPageState extends State<SettingsPage> {
           const SizedBox(height: PongSpacing.sm),
           _PseudoCard(pseudo: _pseudo, onEdit: _editPseudo),
           const SizedBox(height: PongSpacing.xl),
-          Text(
-            'PONG · version ${SettingsPage.appVersion}',
-            textAlign: TextAlign.center,
-            style: PongText.caption.copyWith(
-                fontSize: 12, color: PongColors.textTertiary),
+          const PongStudioSignature(
+            caption: '${Brand.gameName} · version ${SettingsPage.appVersion}',
           ),
         ],
       ),

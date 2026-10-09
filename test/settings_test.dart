@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:pong_game/brand.dart';
 import 'package:pong_game/game/paddle_sensitivity.dart';
 import 'package:pong_game/game_sound.dart';
 import 'package:pong_game/settings/pong_settings.dart';
@@ -235,7 +236,11 @@ void main() {
         expect(find.text('Aucun'), findsOneWidget);
         expect(find.text('Choisir'), findsOneWidget);
 
-        await tester.scrollUntilVisible(find.text('PONG · version 1.0.0'), 50);
+        // Signature du studio et version, tout en bas
+        await tester.scrollUntilVisible(
+            find.text('${Brand.gameName} · version 1.0.0'), 50);
+        expect(find.byType(PongStudioSignature), findsOneWidget);
+        expect(find.text(Brand.signaturePrefix), findsOneWidget);
         expect(tester.takeException(), isNull);
       });
     }

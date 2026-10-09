@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:pong_game/aide.dart';
+import 'package:pong_game/brand.dart';
 import 'package:pong_game/game_sound.dart';
 import 'package:pong_game/hompage.dart';
 import 'package:pong_game/leaderboard.dart';
@@ -113,7 +114,7 @@ class _NamePageState extends State<NamePage> {
         context,
         MaterialPageRoute(
           builder: (context) => MyHomePage(
-            title: 'Pong Game',
+            title: Brand.gameName,
             playerName: playerName,
             difficulty: _difficulty,
           ),

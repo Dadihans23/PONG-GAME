@@ -62,7 +62,8 @@ Autres règles :
 | Petit chiffre + libellé | `PongFigureTile(value, label)` |
 | Icône dans une pastille | `PongIconBadge(icon, color?, background?, size?, iconSize?, circular?)` |
 | Saisie | `PongTextField(controller?, label?, hintText?, errorText?, shakeTrigger?, …)` |
-| Logo | `PongLogo(fontSize?)` |
+| Logo texte du jeu (nom de `lib/brand.dart` en majuscules) | `PongLogo(fontSize?)` |
+| Signature du studio (bas des Réglages et de l'Aide, jamais en jeu) | `PongStudioSignature(caption?)` |
 | Titre d'écran | `PongScreenTitle(text)` (placé par `PongHeaderBar`) |
 | Sur-titre de section | `PongOverline(text, color?)` |
 | Texte espacé centré | `PongSpacedText(text, style)` |
