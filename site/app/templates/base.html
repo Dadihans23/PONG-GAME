@@ -15,65 +15,127 @@
   <link rel="apple-touch-icon" href="/static/img/apple-touch-icon.png">
   <link rel="preload" href="/static/fonts/Archivo-Black.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="stylesheet" href="/static/css/site.css">
+  <script src="/static/js/nav.js" defer></script>
   {% block scripts %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
+  {% set game = site.game_name if site else "Tilto" %}
   <a class="skip-link" href="#contenu">Aller au contenu</a>
-  <header class="topbar">
-    <a class="topbar__brand" href="/" aria-label="{{ site.game_name if site else 'Tilto' }}, accueil">{{ (site.game_name if site else "Tilto")|upper }}</a>
-    <nav class="topbar__nav" aria-label="Navigation principale">
-      {% block nav_links %}
-      <a class="topbar__link" href="/#le-jeu">Le jeu</a>
-      <a class="topbar__link" href="/#comment-jouer">Comment jouer</a>
-      <a class="topbar__link" href="/#captures">Captures</a>
-      <a class="topbar__link" href="/#faq">FAQ</a>
-      {% endblock %}
-      <button type="button" class="theme-toggle" aria-label="Changer de thème">
-        <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/></svg>
-        <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg>
-      </button>
-      <a class="topbar__cta" href="/#telecharger">Télécharger</a>
-    </nav>
+
+  {# Liens de la navigation principale : seulement les sections qui existent.
+     Sur l'accueil, les listes sont connues ; ailleurs, on suppose les sections
+     de contenu présentes (elles le sont dès le premier démarrage). #}
+  {% macro nav_items(cls) %}
+    {% if features is not defined or features %}<a class="{{ cls }}" href="/#le-jeu">Le jeu</a>{% endif %}
+    {% if compare is not defined or compare %}<a class="{{ cls }}" href="/#solo-duel">Solo ou Duel</a>{% endif %}
+    {% if steps is not defined or steps %}<a class="{{ cls }}" href="/#comment-jouer">Comment jouer</a>{% endif %}
+    {% if screenshots is not defined or screenshots %}<a class="{{ cls }}" href="/#captures">Captures</a>{% endif %}
+    {% if faq %}<a class="{{ cls }}" href="/#faq">FAQ</a>{% endif %}
+    {% if apk %}<a class="{{ cls }}" href="/#installer-apk">Installer l'APK</a>{% endif %}
+  {% endmacro %}
+
+  <header class="masthead">
+    {# Niveau 1 (ordinateur) : repères rapides et liens utilitaires. #}
+    {% if site %}
+    <div class="utility">
+      <p class="utility__facts">
+        {% if site.hero_note %}<span>{{ site.hero_note }}</span>{% endif %}
+        {% if apk %}<span>Version {{ apk.version }} · APK {{ apk.size_bytes|filesize }}</span>{% endif %}
+      </p>
+      <nav class="utility__links" aria-label="Liens utiles">
+        {% if apk and apk.notes %}<a href="/#nouveautes">Nouveautés {{ apk.version }}</a>{% endif %}
+        <a href="/contact"{% if request.url.path == "/contact" %} aria-current="page"{% endif %}>Contact</a>
+      </nav>
+    </div>
+    {% endif %}
+
+    {# Niveau 2 : marque, sections de l'accueil, version, thème, téléchargement. #}
+    <div class="topbar">
+      <div class="topbar__brand-wrap">
+        <a class="topbar__brand" href="/" aria-label="{{ game }}, accueil">{{ game|upper }}</a>
+        {% if site and site.studio_name %}<span class="topbar__by"><span class="wide-only">un jeu de</span><span class="narrow-only">par</span> {{ site.studio_name }}</span>{% endif %}
+      </div>
+      <nav class="topbar__nav" aria-label="Navigation principale">
+        {{ nav_items("topbar__link") }}
+      </nav>
+      <div class="topbar__actions">
+        {% if apk %}
+        {% if apk.notes %}<a class="topbar__version" href="/#nouveautes">v{{ apk.version }} · {{ apk.date|date_short }}</a>
+        {% else %}<span class="topbar__version">v{{ apk.version }} · {{ apk.date|date_short }}</span>{% endif %}
+        {% endif %}
+        <button type="button" class="theme-toggle" aria-label="Changer de thème">
+          <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/></svg>
+          <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg>
+        </button>
+        <a class="topbar__cta" href="/#telecharger">Télécharger</a>
+        {# Menu des petits écrans : <details> natif, fonctionne sans JavaScript ;
+           nav.js le referme après un choix, avec Échap ou un clic à côté. #}
+        <details class="menu">
+          <summary class="menu__button" aria-label="Menu">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path class="menu__open" d="M4 7h16M4 12h16M4 17h16"/><path class="menu__close" d="M6 6l12 12M18 6L6 18"/></svg>
+          </summary>
+          <nav class="menu__panel" aria-label="Menu">
+            {{ nav_items("menu__link") }}
+            {% if apk and apk.notes %}<a class="menu__link" href="/#nouveautes">Nouveautés {{ apk.version }}</a>{% endif %}
+            <a class="menu__link" href="/contact">Contact</a>
+            {% if site and site.hero_note %}<p class="menu__facts">{{ site.hero_note }}{% if apk %} · APK v{{ apk.version }} · {{ apk.size_bytes|filesize }}{% endif %}</p>{% endif %}
+          </nav>
+        </details>
+      </div>
+    </div>
   </header>
+
   <main id="contenu" tabindex="-1">
     {% block content %}{% endblock %}
   </main>
+
   <footer class="footer">
-    {% if site %}
-    <div class="footer__studio">
-      {% if site.studio_logo_url %}
-      <img src="{{ site.studio_logo_url }}" alt="{{ site.studio_name }}" class="studio-logo" height="28">
-      {% endif %}
-      {% if site.footer_text %}<p class="footer__about">{{ site.footer_text }}</p>{% endif %}
-    </div>
-    {% endif %}
-    {# Colonnes générées : Le jeu, Aide (avec les questions de la FAQ marquées
-       pour le pied de page), Télécharger, studio (Contact, Confidentialité,
-       Mentions légales). Voir routes_public.footer_columns. #}
-    {% if footer_columns %}
-    <nav class="footer__columns" aria-label="Pied de page">
-      {% for col in footer_columns %}
-      <div class="footer__col">
-        <p class="footer__col-title">{{ col.title|upper }}</p>
-        <ul>
-          {% for l in col.links %}
-          <li><a href="{{ l.href }}"{% if l.external %} rel="noopener"{% endif %}{% if l.href == request.url.path %} aria-current="page"{% endif %}>{{ l.label }}</a></li>
-          {% endfor %}
-        </ul>
+    <div class="footer__top">
+      <div class="footer__brand">
+        <div class="footer__brand-row">
+          <a class="footer__name" href="/">{{ game|upper }}</a>
+          {% if site and site.studio_logo_url %}
+          <img src="{{ site.studio_logo_url }}" alt="{{ site.studio_name }}" class="studio-logo" height="28">
+          {% endif %}
+        </div>
+        {% if site and site.footer_text %}<p class="footer__about">{{ site.footer_text }}</p>{% endif %}
       </div>
-      {% endfor %}
-    </nav>
-    {% else %}
-    <p class="footer__links">
-      <a href="/confidentialite">Politique de confidentialité</a>
-      <a href="/mentions-legales">Mentions légales</a>
-      <a href="/contact">Contact</a>
-    </p>
-    {% endif %}
+      {# Colonnes générées : Le jeu, Aide (avec les questions de la FAQ marquées
+         pour le pied de page), Télécharger, studio (Contact, Confidentialité,
+         Mentions légales). Voir routes_public.footer_columns. #}
+      {% if footer_columns %}
+      <nav class="footer__columns" aria-label="Pied de page">
+        {% for col in footer_columns %}
+        <div class="footer__col">
+          <p class="footer__col-title">{{ col.title }}</p>
+          <ul>
+            {% for l in col.links %}
+            <li><a href="{{ l.href }}"{% if l.external %} rel="noopener"{% endif %}{% if l.href == request.url.path %} aria-current="page"{% endif %}>{{ l.label }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endfor %}
+      </nav>
+      {% else %}
+      <nav class="footer__columns" aria-label="Pied de page">
+        <div class="footer__col">
+          <p class="footer__col-title">Liens</p>
+          <ul>
+            <li><a href="/">Accueil</a></li>
+            <li><a href="/contact">Contact</a></li>
+            <li><a href="/confidentialite">Politique de confidentialité</a></li>
+            <li><a href="/mentions-legales">Mentions légales</a></li>
+          </ul>
+        </div>
+      </nav>
+      {% endif %}
+    </div>
     {% if site %}
-    <p class="footer__credit">Un jeu de {{ site.studio_name }} · © {{ year }}{% if apk %} · {{ site.game_name }} {{ apk.version }}{% endif %}</p>
-    {% if site.footer_note %}<p class="footer__note">{{ site.footer_note }}</p>{% endif %}
-    {% if site.footer_trademark %}<p class="footer__trademark">{{ site.footer_trademark }}</p>{% endif %}
+    <div class="footer__bottom">
+      <p class="footer__credit">Un jeu de {{ site.studio_name }} · © {{ year }}{% if apk %} · {{ site.game_name }} {{ apk.version }}{% endif %}</p>
+      {% if site.footer_note %}<p class="footer__note">{{ site.footer_note }}</p>{% endif %}
+      {% if site.footer_trademark %}<p class="footer__trademark">{{ site.footer_trademark }}</p>{% endif %}
+    </div>
     {% endif %}
   </footer>
 </body>

@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Politique de confidentialité · {{ site.game_name }}{% endblock %}
 {% block body_class %}page-privacy{% endblock %}
-{% block nav_links %}{% endblock %}
 {% block content %}
 <article class="prose">
   <header class="prose__head">
@@ -10,7 +9,7 @@
     <p class="updated">Dernière mise à jour : {{ site.privacy_updated|date_fr }}</p>
     {% endif %}
   </header>
-  <div class="policy">
+  <div class="policy policy--lead">
     {{ site.privacy_policy|rich_text }}
   </div>
 </article>

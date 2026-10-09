@@ -3,18 +3,22 @@
 {% block scripts %}<script src="/static/js/site.js" defer></script>{% endblock %}
 {% block body_class %}home{% endblock %}
 
-{# Boutons de téléchargement : héros et bloc final.
+{# Boutons de téléchargement : héros (côte à côte) et bloc final (empilés).
    Le bouton principal (rose) est Google Play s'il existe, sinon l'APK. #}
-{% macro download_buttons() %}
+{% macro download_buttons(where) %}
   {% if site.play_store_url or apk %}
-  <div class="downloads">
+  <div class="downloads downloads--{{ where }}">
     {% if site.play_store_url %}
     <a class="btn btn--primary" href="{{ site.play_store_url }}" rel="noopener">Télécharger sur Google Play</a>
     {% endif %}
     {% if apk %}
     <a class="btn btn--apk{% if not site.play_store_url %} btn--primary{% endif %}" href="/telecharger" download>
       <span class="btn__label">Télécharger l'APK</span>
-      <span class="btn__meta apk-meta">Version {{ apk.version }} · {{ apk.size_bytes|filesize }}</span>
+      {% if where == "hero" %}
+      <span class="btn__meta apk-meta">v{{ apk.version }} · {{ apk.size_bytes|filesize }} · sans Play Store</span>
+      {% else %}
+      <span class="btn__meta apk-meta">{{ apk.download_name }} · {{ apk.size_bytes|filesize }}</span>
+      {% endif %}
     </a>
     {% endif %}
   </div>
@@ -56,7 +60,8 @@
 </div>
 {% endmacro %}
 
-{# Démonstrations des quatre arguments, dans l'ordre de la maquette. #}
+{# Démonstrations dessinées des quatre arguments, dans l'ordre de la maquette.
+   Purement décoratives : masquées aux lecteurs d'écran. #}
 {% macro demo(n) %}
   {% if n == 1 %}
   <div class="demo demo--tilt" aria-hidden="true">
@@ -66,11 +71,11 @@
   <div class="demo demo--duo" aria-hidden="true">
     <div class="duo">
       <div class="phone phone--duo"><div class="phone__screen">{{ screen_duel('LÉA', 'TOM', 2, 3, 'a') }}</div></div>
-      <span class="duo__name"><span class="wide-only">Le téléphone de </span>Léa</span>
+      <span class="duo__name">Léa</span>
     </div>
-    <div class="duo duo--low">
+    <div class="duo">
       <div class="phone phone--duo"><div class="phone__screen">{{ screen_duel('TOM', 'LÉA', 3, 2, 'b') }}</div></div>
-      <span class="duo__name"><span class="wide-only">Le téléphone de </span>Tom</span>
+      <span class="duo__name">Tom</span>
     </div>
   </div>
   {% elif n == 3 %}
@@ -97,104 +102,138 @@
 {% endmacro %}
 
 {% block content %}
+
+{# ---------- Haut de page : texte à gauche, terrain de démonstration à droite ---------- #}
 <section class="hero">
   <div class="hero__text">
     {% if site.hero_kicker %}<p class="kicker">{{ site.hero_kicker }}</p>{% endif %}
     <h1>{{ site.game_name|upper }}</h1>
     {% if site.tagline %}<p class="hero__tagline">{{ site.tagline }}</p>{% endif %}
-    {% if site.hero_text %}<p class="hero__lead">{{ site.hero_text }}</p>{% endif %}
-    {{ download_buttons() }}
-    {% if site.hero_note %}<p class="hero__note">{{ site.hero_note }}</p>{% endif %}
-    {# Fiche technique (paires libellé / valeur). #}
+    {% if site.hero_text %}<p class="hero__lead{% if site.hero_text_short %} hero__lead--long{% endif %}">{{ site.hero_text }}</p>{% endif %}
+    {% if site.hero_text_short %}<p class="hero__lead hero__lead--short{% if not site.hero_text %} hero__lead--only{% endif %}">{{ site.hero_text_short }}</p>{% endif %}
+    {{ download_buttons("hero") }}
+    {# Fiche technique (paires libellé / valeur) ; sur mobile, les trois premières. #}
     {% if hero_specs %}
     <dl class="specs specs--hero">
       {% for row in hero_specs %}<div><dt>{{ row.label }}</dt><dd>{{ row.value }}</dd></div>{% endfor %}
     </dl>
     {% endif %}
   </div>
-  <div class="court" aria-hidden="true">
-    <div class="court__line"></div>
-    <div class="court__pad court__pad--top"></div>
-    <div class="court__pad court__pad--bottom"></div>
-    <div class="court__ballx"><div class="court__ball"></div></div>
-  </div>
+  <figure class="hero__demo">
+    <div class="court" aria-hidden="true">
+      <span class="court__tag court__tag--demo">DÉMO<span class="wide-only"> · SOLO NORMAL</span></span>
+      <span class="court__tag court__tag--them">ORDINATEUR</span>
+      <span class="court__tag court__tag--me">TOI</span>
+      <div class="court__line"></div>
+      <div class="court__pad court__pad--top"></div>
+      <div class="court__pad court__pad--bottom"></div>
+      <div class="court__ballx"><div class="court__ball"></div></div>
+    </div>
+    {% if site.hero_demo_text %}<figcaption class="hero__caption">{{ site.hero_demo_text }}</figcaption>{% endif %}
+  </figure>
 </section>
 
+{# ---------- Arguments numérotés 01 à 04 ---------- #}
 {% if features %}
-<div class="features" id="le-jeu">
-  {% if site.features_title %}
-  <header class="section-head">
-    {% if site.features_kicker %}<p class="kicker">{{ site.features_kicker }}</p>{% endif %}
-    <h2 class="section-title">{{ site.features_title }}</h2>
-    {% if site.features_intro %}<p>{{ site.features_intro }}</p>{% endif %}
+<section class="features" id="le-jeu" aria-labelledby="titre-le-jeu">
+  <header class="section-head section-head--split">
+    <div>
+      {% if site.features_kicker %}<p class="kicker">{{ site.features_kicker }}</p>{% endif %}
+      <h2 class="display" id="titre-le-jeu">{{ site.features_title or "Le jeu" }}</h2>
+    </div>
+    {% if site.features_intro %}<p class="section-head__intro">{{ site.features_intro }}</p>{% endif %}
   </header>
-  {% endif %}
-  {% for f in features %}
-  <section class="feature feature--{{ loop.index }}{% if loop.index > 4 %} feature--plain{% endif %}">
-    {{ demo(loop.index) }}
-    <div class="feature__text">
-      {% if f.kicker %}<p class="kicker">{{ f.kicker }}</p>{% endif %}
-      <h2>{{ f.title }}</h2>
-      {% if f.body %}<p class="feature__body">{{ f.body }}</p>{% endif %}
+  <ol class="features__list">
+    {% for f in features %}
+    <li class="feature feature--{{ loop.index }}{% if loop.index > 4 %} feature--plain{% endif %}{% if f.short_body %} feature--has-short{% endif %}">
+      <span class="feature__num" aria-hidden="true">{{ "%02d"|format(loop.index) }}</span>
+      <div class="feature__text">
+        {% if f.kicker %}<p class="kicker">{{ f.kicker }}</p>{% endif %}
+        <h3>{{ f.title }}</h3>
+        {% if f.body %}<p class="feature__body">{{ f.body }}</p>{% endif %}
+        {% if f.short_body %}<p class="feature__short">{{ f.short_body }}</p>{% endif %}
+      </div>
       {% if f.specs %}
-      <dl class="specs">
+      <dl class="specs specs--rows">
         {% for row in f.specs %}<div><dt>{{ row.label }}</dt><dd>{{ row.value }}</dd></div>{% endfor %}
       </dl>
       {% endif %}
-    </div>
-  </section>
-  {% endfor %}
-</div>
-{% endif %}
-
-{% if compare %}
-<section class="compare" id="solo-duel" aria-labelledby="titre-solo-duel">
-  {% if site.compare_kicker %}<p class="kicker">{{ site.compare_kicker }}</p>{% endif %}
-  <h2 class="section-title" id="titre-solo-duel">{{ site.compare_title or "Solo ou Duel" }}</h2>
-  <table class="compare__table">
-    <thead><tr><td></td><th scope="col">Solo</th><th scope="col">Duel</th></tr></thead>
-    <tbody>
-      {% for row in compare %}
-      <tr><th scope="row">{{ row.label }}</th><td>{{ row.value }}</td><td>{{ row.value2 }}</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</section>
-{% endif %}
-
-{% if steps %}
-<section class="steps" id="comment-jouer" aria-labelledby="titre-comment-jouer">
-  <h2 class="section-title" id="titre-comment-jouer">{{ site.steps_title or "Comment jouer" }}</h2>
-  <ol class="steps__list">
-    {% for s in steps %}
-    <li class="step">
-      <span class="step__num" aria-hidden="true">{{ loop.index }}</span>
-      <div class="step__text">
-        <h3>{{ s.title }}</h3>
-        {% if s.body %}<p>{{ s.body }}</p>{% endif %}
-      </div>
+      {% if loop.index <= 4 %}<div class="feature__demo">{{ demo(loop.index) }}</div>{% endif %}
     </li>
     {% endfor %}
   </ol>
-  {% if scoring %}
-  <div class="scoring" id="bareme">
-    <h3>{{ site.scoring_title or "Barème" }}</h3>
-    <dl class="specs">
-      {% for row in scoring %}<div><dt>{{ row.label }}</dt><dd>{{ row.value }}</dd></div>{% endfor %}
-    </dl>
-  </div>
-  {% endif %}
 </section>
 {% endif %}
 
+{# ---------- Solo ou Duel, Comment jouer et barème (bande) ---------- #}
+{% if compare or steps or scoring %}
+<div class="band play">
+  {% if compare %}
+  <section class="compare" id="solo-duel" aria-labelledby="titre-solo-duel">
+    {% if site.compare_kicker %}<p class="kicker">{{ site.compare_kicker }}</p>{% endif %}
+    <h2 class="display display--md" id="titre-solo-duel">{{ site.compare_title or "Solo ou Duel" }}</h2>
+    {# Sur mobile, les lignes passent en grille (CSS) : les rôles posés sur le tableau
+       et ses lignes aident les navigateurs qui perdraient la sémantique de tableau. #}
+    <table class="compare__table" role="table">
+      <caption class="sr-only">Comparatif des modes Solo et Duel</caption>
+      <thead role="rowgroup">
+        <tr role="row"><td></td><th scope="col" class="compare__solo">Solo</th><th scope="col" class="compare__duel">Duel</th></tr>
+      </thead>
+      <tbody role="rowgroup">
+        {% for row in compare %}
+        <tr role="row"><th scope="row">{{ row.label }}</th><td>{{ row.value }}</td><td>{{ row.value2 }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+  {% endif %}
+
+  {% if steps or scoring %}
+  <section class="steps" id="comment-jouer" aria-labelledby="titre-comment-jouer">
+    <h2 class="section-title" id="titre-comment-jouer">{{ site.steps_title or "Comment jouer" }}</h2>
+    {% if steps %}
+    <ol class="steps__list">
+      {% for s in steps %}
+      <li class="step">
+        <span class="step__num" aria-hidden="true">{{ loop.index }}</span>
+        <div class="step__text">
+          <h3>{{ s.title }}</h3>
+          {% if s.body %}<p>{{ s.body }}</p>{% endif %}
+        </div>
+      </li>
+      {% endfor %}
+    </ol>
+    {% endif %}
+    {% if scoring %}
+    <div class="scoring" id="bareme">
+      <h3 class="section-title">{{ site.scoring_title or "Barème" }}</h3>
+      <dl class="specs specs--score">
+        {% for row in scoring %}<div><dt>{{ row.label }}</dt><dd>{{ row.value }}</dd></div>{% endfor %}
+      </dl>
+    </div>
+    {% endif %}
+  </section>
+  {% endif %}
+</div>
+{% endif %}
+
+{# ---------- Captures ---------- #}
 {% if screenshots %}
 <section class="shots" id="captures" aria-labelledby="titre-captures">
-  <h2 class="section-title" id="titre-captures">{{ site.screens_title or "Captures" }}</h2>
-  {% if site.screens_intro %}<p>{{ site.screens_intro }}</p>{% endif %}
-  {% if site.screens_note %}<p class="hint">{{ site.screens_note }}</p>{% endif %}
+  <header class="section-head shots__head">
+    <div>
+      {% if site.screens_intro %}
+      <p class="kicker">{{ site.screens_title or "Captures" }}</p>
+      <h2 class="display display--md" id="titre-captures">{{ site.screens_intro }}</h2>
+      {% else %}
+      <h2 class="display display--md" id="titre-captures">{{ site.screens_title or "Captures" }}</h2>
+      {% endif %}
+    </div>
+    {% if site.screens_note %}<p class="shots__note">{{ site.screens_note }}</p>{% endif %}
+  </header>
   <ul class="shots__list" aria-label="Captures d'écran">
     {% for shot in screenshots %}
-    <li>
+    <li class="shots__item">
       <figure class="capture">
         <div class="phone phone--shot">
           <div class="phone__screen">
@@ -211,45 +250,65 @@
           </div>
         </div>
         {% if shot.caption %}<figcaption>{{ shot.caption }}</figcaption>{% endif %}
-        {% if shot.description %}<p class="capture__text">{{ shot.description }}</p>{% endif %}
       </figure>
+      {% if shot.description %}<p class="capture__text">{{ shot.description }}</p>{% endif %}
     </li>
     {% endfor %}
   </ul>
 </section>
 {% endif %}
 
+{# ---------- Questions fréquentes : <details> natifs, ancres ouvertes par site.js ---------- #}
 {% if faq %}
 <section class="faq" id="faq" aria-labelledby="titre-faq">
-  <h2 class="section-title" id="titre-faq">{{ site.faq_title or "Questions fréquentes" }}</h2>
-  {% if site.faq_subtitle %}<p>{{ site.faq_subtitle }}</p>{% endif %}
-  {% for q in faq %}
-  <details class="faq__item" id="{{ q.anchor }}">
-    <summary>{{ q.question }}</summary>
-    <p>{{ q.answer }}</p>
-  </details>
-  {% endfor %}
-  {% if site.faq_text %}<p class="faq__more">{{ site.faq_text }} <a href="/contact">Contact</a></p>{% endif %}
+  <header class="faq__head">
+    {% if site.faq_subtitle %}
+    <p class="kicker">{{ site.faq_title or "Questions fréquentes" }}</p>
+    <h2 class="display display--md" id="titre-faq">{{ site.faq_subtitle }}</h2>
+    {% else %}
+    <h2 class="display display--md" id="titre-faq">{{ site.faq_title or "Questions fréquentes" }}</h2>
+    {% endif %}
+    <p class="faq__more">{% if site.faq_text %}{{ site.faq_text }} {% endif %}<a class="faq__contact" href="/contact">Contact</a></p>
+  </header>
+  <div class="faq__list">
+    {% for q in faq %}
+    <details class="faq__item" id="{{ q.anchor }}">
+      <summary><span class="faq__q">{{ q.question }}</span><span class="faq__icon" aria-hidden="true"></span></summary>
+      <div class="faq__a">
+        <p class="faq__long{% if q.short_answer %} has-short{% endif %}">{{ q.answer }}</p>
+        {% if q.short_answer %}<p class="faq__short">{{ q.short_answer }}</p>{% endif %}
+      </div>
+    </details>
+    {% endfor %}
+  </div>
 </section>
 {% endif %}
 
-<section class="download" id="telecharger" aria-labelledby="titre-telecharger">
-  <h2 id="titre-telecharger">{{ site.download_title }}</h2>
-  {{ download_buttons() }}
-  {% if site.download_text %}<p class="download__text">{{ site.download_text }}</p>{% endif %}
+{# ---------- Téléchargement, installation de l'APK, nouveautés (bande) ---------- #}
+<section class="band download" id="telecharger" aria-labelledby="titre-telecharger">
+  <div class="download__main">
+    <h2 class="display" id="titre-telecharger">{{ site.download_title or ("Télécharge " ~ site.game_name) }}</h2>
+    {% if site.download_text %}<p class="download__text">{{ site.download_text }}</p>{% endif %}
+    {{ download_buttons("final") }}
+  </div>
   {% if apk %}
   <div class="install" id="installer-apk">
-    <h3>{{ site.install_title or "Installer l'APK" }}</h3>
+    <h3 class="section-title">{{ site.install_title or "Installer l'APK" }}</h3>
     {% if install_steps %}
-    <ol>{% for row in install_steps %}<li>{{ row.label }}</li>{% endfor %}</ol>
+    <ol class="install__steps">{% for row in install_steps %}<li>{{ row.label }}</li>{% endfor %}</ol>
     {% endif %}
-    {% if site.install_note %}<p>{{ site.install_note }}</p>{% endif %}
-    <p class="install__sha">SHA-256 ({{ apk.download_name }}) : <code>{{ apk.sha256 }}</code></p>
+    {% if site.install_note %}<p class="install__note">{{ site.install_note }}</p>{% endif %}
+    {# Empreinte abrégée ; l'empreinte complète s'ouvre au toucher (et se sélectionne d'un coup). #}
+    <details class="sha">
+      <summary>SHA-256 <span class="sha__short">{{ apk.sha256[:8] }}…{{ apk.sha256[-8:] }}</span> <span class="sha__more">· empreinte complète</span></summary>
+      <p class="sha__full"><code>{{ apk.sha256 }}</code></p>
+      <p class="sha__file">Fichier : {{ apk.download_name }}</p>
+    </details>
   </div>
   {% if apk.notes %}
   <div class="notes" id="nouveautes">
-    <h3>{{ site.notes_title or "Nouveautés" }} {{ apk.version }} · <time datetime="{{ apk.date }}">{{ apk.date|date_short }}</time></h3>
-    <ul>{% for line in apk.notes %}<li>{{ line }}</li>{% endfor %}</ul>
+    <h3 class="section-title">{{ site.notes_title or "Nouveautés" }} {{ apk.version }} · <time datetime="{{ apk.date }}">{{ apk.date|date_short }}</time></h3>
+    <ul class="notes__list">{% for line in apk.notes %}<li>{{ line }}</li>{% endfor %}</ul>
   </div>
   {% endif %}
   {% endif %}

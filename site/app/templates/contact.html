@@ -2,49 +2,87 @@
 {% block title %}Contact · {{ site.game_name }}{% endblock %}
 {% block description %}Écrire à l'équipe de {{ site.game_name }}.{% endblock %}
 {% block body_class %}page-contact{% endblock %}
-{% block nav_links %}{% endblock %}
+{% block scripts %}<script src="/static/js/contact.js" defer></script>{% endblock %}
 {% block content %}
-<article class="prose">
+{# Les erreurs arrivent en liste (contact.py) : on rattache chacune à son champ
+   d'après son texte ; celles qui ne visent aucun champ (formulaire expiré,
+   envoi trop rapide, trop d'envois) restent en tête du formulaire. #}
+{% set err = namespace(email=[], subject=[], message=[], other=[]) %}
+{% for e in form.errors %}
+  {% set l = e|lower %}
+  {% if "adresse e-mail" in l %}{% set err.email = err.email + [e] %}
+  {% elif "sujet" in l %}{% set err.subject = err.subject + [e] %}
+  {% elif l.startswith("écris ton message") or "message est trop long" in l %}{% set err.message = err.message + [e] %}
+  {% else %}{% set err.other = err.other + [e] %}{% endif %}
+{% endfor %}
+{% set field_errors = err.email + err.subject + err.message %}
+
+<article class="prose prose--form">
   <header class="prose__head">
     <h1>Contact</h1>
-    <p>Une question, un problème, une idée ? Écris-nous : on te répond par e-mail.
-      Avant d'écrire, jette un œil aux <a href="/#faq">questions fréquentes</a>.</p>
+    <p class="prose__lead">Une question, un problème, une idée ? Écris-nous : on te répond par e-mail.</p>
+    <p>Avant d'écrire, jette un œil aux <a href="/#faq">questions fréquentes</a>.</p>
     {% if site.contact_email %}<p>Tu peux aussi écrire directement à <a href="mailto:{{ site.contact_email }}">{{ site.contact_email }}</a>.</p>{% endif %}
   </header>
 
   {% if form.errors %}
-  <div class="form-errors" role="alert">
-    {% for e in form.errors %}<p>{{ e }}</p>{% endfor %}
+  <div class="form-alert" role="alert" tabindex="-1" id="form-alert">
+    {% for e in err.other %}<p>{{ e }}</p>{% endfor %}
+    {% if field_errors %}
+    <p>{% if field_errors|length == 1 %}Un champ est à corriger :{% else %}{{ field_errors|length }} champs sont à corriger :{% endif %}</p>
+    <ul>
+      {% if err.email %}<li><a href="#contact-email">{{ err.email[0] }}</a></li>{% endif %}
+      {% if err.subject %}<li><a href="#contact-subject">{{ err.subject[0] }}</a></li>{% endif %}
+      {% if err.message %}<li><a href="#contact-message">{{ err.message[0] }}</a></li>{% endif %}
+    </ul>
+    {% endif %}
   </div>
   {% endif %}
 
   <form method="post" action="/contact" class="contact-form" novalidate>
     <input type="hidden" name="csrf_token" value="{{ contact_token }}">
-    <p>
-      <label for="contact-name">Ton nom <span class="optional">(facultatif)</span></label>
+
+    <div class="field">
+      <label for="contact-name">Ton nom <span class="field__opt">(facultatif)</span></label>
       <input id="contact-name" type="text" name="name" value="{{ form.name }}" maxlength="80" autocomplete="name">
-    </p>
-    <p>
+    </div>
+
+    <div class="field{% if err.email %} field--error{% endif %}">
       <label for="contact-email">Ton adresse e-mail</label>
-      <input id="contact-email" type="email" name="email" value="{{ form.email }}" maxlength="254" autocomplete="email" required>
-    </p>
-    <p>
+      <input id="contact-email" type="email" name="email" value="{{ form.email }}" maxlength="254" autocomplete="email" inputmode="email" spellcheck="false" required
+        {% if err.email %}aria-describedby="contact-email-error" aria-invalid="true"{% endif %}>
+      {% if err.email %}<p class="field__error" id="contact-email-error">{{ err.email|join(" ") }}</p>{% endif %}
+    </div>
+
+    <div class="field{% if err.subject %} field--error{% endif %}">
       <label for="contact-subject">Sujet</label>
-      <select id="contact-subject" name="subject">
-        {% for s in subjects %}<option value="{{ s }}"{% if s == form.subject %} selected{% endif %}>{{ s }}</option>{% endfor %}
-      </select>
-    </p>
-    <p>
-      <label for="contact-message">Message <span class="optional">({{ max_message }} caractères maximum)</span></label>
-      <textarea id="contact-message" name="message" rows="8" maxlength="{{ max_message }}" required>{{ form.message }}</textarea>
-    </p>
+      <div class="select">
+        <select id="contact-subject" name="subject"{% if err.subject %} aria-invalid="true" aria-describedby="contact-subject-error"{% endif %}>
+          {% for s in subjects %}<option value="{{ s }}"{% if s == form.subject %} selected{% endif %}>{{ s }}</option>{% endfor %}
+        </select>
+      </div>
+      {% if err.subject %}<p class="field__error" id="contact-subject-error">{{ err.subject|join(" ") }}</p>{% endif %}
+    </div>
+
+    <div class="field{% if err.message %} field--error{% endif %}">
+      <label for="contact-message">Message</label>
+      <textarea id="contact-message" name="message" rows="7" maxlength="{{ max_message }}" required
+        aria-describedby="{% if err.message %}contact-message-error {% endif %}contact-message-count"{% if err.message %} aria-invalid="true"{% endif %}>{{ form.message }}</textarea>
+      {% if err.message %}<p class="field__error" id="contact-message-error">{{ err.message|join(" ") }}</p>{% endif %}
+      {# Compteur : mis à jour par contact.js ; sans JavaScript, il annonce la limite. #}
+      <p class="field__count" id="contact-message-count" data-max="{{ max_message }}">{{ max_message }} caractères au maximum.</p>
+    </div>
+
     {# Champ piège : caché aux humains (classe contact-hp), rempli par les robots. #}
     <p class="contact-hp" aria-hidden="true">
       <label for="contact-{{ honeypot }}">Ne pas remplir ce champ</label>
       <input id="contact-{{ honeypot }}" type="text" name="{{ honeypot }}" value="" tabindex="-1" autocomplete="off">
     </p>
-    <p><button type="submit" class="btn btn--primary">Envoyer</button></p>
-    <p class="hint">Ton adresse et ton message servent uniquement à te répondre. Voir la <a href="/confidentialite">politique de confidentialité</a>.</p>
+
+    <div class="contact-form__submit">
+      <button type="submit" class="btn btn--primary">Envoyer le message</button>
+      <p class="field__hint">Ton adresse et ton message servent uniquement à te répondre. Voir la <a href="/confidentialite">politique de confidentialité</a>.</p>
+    </div>
   </form>
 </article>
 {% endblock %}

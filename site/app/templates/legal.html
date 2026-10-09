@@ -2,7 +2,6 @@
 {% block title %}Mentions légales · {{ site.game_name }}{% endblock %}
 {% block description %}Mentions légales du site de {{ site.game_name }}.{% endblock %}
 {% block body_class %}page-legal{% endblock %}
-{% block nav_links %}{% endblock %}
 {% block content %}
 <article class="prose">
   <header class="prose__head">
@@ -22,7 +21,7 @@
     </dl>
     {% endfor %}
     {% if site.legal_extra %}{{ site.legal_extra|rich_text }}{% endif %}
-    <p>Pour toute question, utilise le <a href="/contact">formulaire de contact</a>.</p>
+    <p class="policy__contact">Pour toute question, utilise le <a href="/contact">formulaire de contact</a>.</p>
   </div>
 </article>
 {% endblock %}
