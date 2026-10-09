@@ -196,9 +196,10 @@ Décisions :
 - [x] Directions proposées par Claude Design écartées par le propriétaire : **l'accueil actuel est conservé**, pas de nouvelle demande
 
 ### Site de présentation et backend
-- [ ] Page unique : jeu en mouvement, points forts, comment jouer, captures, téléchargement APK et lien Play Store, politique de confidentialité, signature Nexora
-- [ ] Petit backend FastAPI sur le VPS : administration du nom du studio, du logo, des textes, du lien de téléchargement et dépôt de l'APK
+- [x] Page unique d'après la maquette (`site/`) : jeu en mouvement, 4 arguments, comment jouer, captures, téléchargement APK et Play Store, confidentialité, signature Nexora
+- [x] Backend FastAPI : administration (studio, logo, textes, arguments, étapes, captures, Play Store, versions de l'APK), Docker
 - [ ] Déploiement sur le VPS (port), puis nom de domaine et HTTPS avant la publication
+- [ ] Contenu à fournir : 3 captures d'écran de l'app, lien Play Store, adresse de contact, APK
 
 ### Publication sur le Play Store
 - [ ] Identifiant définitif de l'app (par exemple `com.nexora.tilto`) à la place de `com.example.pong_game`
