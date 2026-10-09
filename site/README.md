@@ -21,7 +21,7 @@ site/
 │   ├── hashpw.py          génération du hachage du mot de passe et de la clé secrète
 │   ├── templates/         gabarits HTML (publics, et admin/)
 │   ├── seed/              logo initial du studio, copié dans les données au premier démarrage
-│   └── static/            css/site.css, js/admin.js, fonts/ (Archivo)
+│   └── static/            css/site.css (site), css/admin.css (administration), js/ (theme.js partagé, admin.js), fonts/ (Archivo)
 ├── tests/                 pytest
 ├── Dockerfile, docker-compose.yml, .env.example
 └── requirements.txt (production), requirements-dev.txt (tests)
@@ -154,6 +154,24 @@ sudo nginx -t && sudo systemctl reload nginx
 
 4. HTTPS : `sudo certbot --nginx -d tilto.exemple.com` (Certbot ajoute le bloc `listen 443 ssl` et la redirection), ou le mécanisme du serveur web déjà en place (Caddy, Traefik… : même principe, proxy vers `127.0.0.1:8085` avec les en-têtes `X-Forwarded-*` et une taille de requête suffisante). Puis `COOKIE_SECURE=true` dans `.env` et `docker compose up -d` (le site envoie alors aussi l'en-tête HSTS).
 
+## Administration (maquette « Tilto Admin v2 »)
+
+`maquette/Corrections et validation des maquettes/Tilto Admin v2.dc.html` (planche) et `TiltoAdmin2.dc.html` (composant). Gabarits `app/templates/admin/` (composants communs dans `_ui.html`), styles `app/static/css/admin.css` (feuille autonome : l'administration ne charge pas `site.css`), script `app/static/js/admin.js`.
+
+- **Menu** : barre latérale de 240 px groupée dans l'ordre du site (`routes_admin.NAV`, titres et sous-titres des pages dans `PAGES`) ; sous 900 px, barre du haut « TILTO admin · studio » et bouton « Menu ». Thème Sombre / Clair en bas du menu, mémorisé comme sur le site (`theme.js`, clé `tilto-theme`) ; sans choix, le système décide.
+- **Tableau de bord** : calculé depuis la base (`routes_admin.site_state`) : alerte rouge si des mentions légales obligatoires manquent, trois derniers messages, liste « À faire » (mentions, APK, notes de la version proposée, images des captures, adresse de contact ; le lien Play Store n'y figure pas tant que l'app n'est pas sur le Play Store), état de chaque section.
+- **Textes de sections** : chaque page de section porte ses propres textes (sur-titre, titre…) ; Textes garde le haut de page, le bloc de téléchargement, les liens et le pied de page (`SETTING_GROUPS`). `POST /admin/textes` accepte toujours n'importe quel texte de `TEXT_FIELDS`.
+- **Tableaux** (fiche technique, Solo / Duel, barème, installation) : un seul formulaire, `POST /admin/tableaux/<slug>`, qui enregistre l'en-tête et toutes les lignes (`row-<id>-<colonne>`, `new-<colonne>`), puis applique `action` (`add`, `up:<id>`, `down:<id>`, `delete:<id>`). Les anciennes routes par ligne existent toujours.
+- **Listes** (arguments avec leurs caractéristiques, étapes, FAQ) : un élément se déplie (`<details>`) pour être modifié ; en-tête de section enregistré par `POST /admin/en-tete/<page>`.
+- **Erreurs** : un envoi refusé n'enregistre rien ; la page est réaffichée avec les valeurs saisies, un bandeau en haut et le message sous le champ (`errors` : nom du champ → message).
+- **Dernier enregistrement** : horodatage par page dans `setting` (clé interne `_saved:<page>`, jamais affichée ni modifiable comme texte), écrit en UTC et converti à l'heure locale par `admin.js`.
+- **JavaScript** (amélioration progressive, tout marche sans lui) : compteurs « n / max » (le maximum vient de `maxlength`), boutons « Copier », boîte de confirmation `<dialog>` des suppressions (sans JS : envoi direct), barre de progression et « Annuler l'envoi » pour l'APK (XHR ; sans JS : envoi classique), onglets Modifier / Aperçu de la confidentialité sur mobile (l'aperçu est le texte enregistré, rendu par le serveur), menu mobile.
+- Trois icônes seulement (monter, descendre, supprimer), en SVG dans les gabarits : rien n'est chargé hors du site, la CSP ne change pas.
+
+### Étapes d'installation : titre + précision
+
+Les étapes d'installation (`spec_row`, groupe `install`) ont deux colonnes : `label` = titre, `value` = précision. Au démarrage, une étape qui a encore exactement l'ancien texte par défaut d'une seule colonne est découpée (`db.INSTALL_SPLIT`, par exemple « Télécharge le fichier » / « Depuis ton téléphone Android. ») ; une étape modifiée par le propriétaire n'est pas touchée (sa précision reste vide, à remplir dans Administration › Installation). `python -m app.reseed_v2` propose aussi de remplacer les étapes par celles de la v2.
+
 ## Sécurité, en bref
 
 - Mot de passe unique, stocké uniquement sous forme de hachage scrypt (N = 2^16, r = 8), vérifié en temps constant ; 5 échecs par IP en 15 minutes bloquent la connexion (réglable).
@@ -166,7 +184,7 @@ sudo nginx -t && sudo systemctl reload nginx
 
 ## Formulaire de contact et notification par e-mail
 
-`/contact` affiche le formulaire (nom facultatif, e-mail, sujet : Question, Problème technique, Suggestion, Autre, message de 2000 caractères au plus) ; un envoi réussi mène à `/contact/merci`. Les messages sont enregistrés en base et se lisent dans **Administration › Messages** (liste, lecture, marquer comme lu ou non lu, supprimer, bouton « Répondre par e-mail » qui ouvre un `mailto:`). Le nombre de non-lus s'affiche dans le menu et sur le tableau de bord.
+`/contact` affiche le formulaire (nom facultatif, e-mail, sujet : Question, Problème technique, Suggestion, Autre, message de 2000 caractères au plus) ; un envoi réussi mène à `/contact/merci`. Les messages sont enregistrés en base et se lisent dans **Administration › Messages** (liste et lecture côte à côte sur ordinateur ; ouvrir un message le marque comme lu ; « Marquer comme non lu », « Supprimer », « Répondre » qui ouvre un `mailto:` avec l'adresse et le sujet « Re: … »). Le nombre de non-lus s'affiche à côté de « Messages » dans le menu, et les trois derniers messages sur le tableau de bord.
 
 Notification facultative, variables de `.env` (voir `.env.example`) :
 
@@ -242,7 +260,7 @@ Page d'accueil (`index.html`) :
 | Captures | `site.screens_title`, `site.screens_intro`, `site.screens_note`, `screenshots` : `filename` (`/media/<filename>`, vide = emplacement réservé), `caption`, `description` |
 | Questions fréquentes | `site.faq_title`, `site.faq_subtitle`, `faq` (chaque question porte `id="{{ q.anchor }}"`, cible des liens du pied de page), `site.faq_text` + lien `/contact` |
 | Télécharge Tilto | `site.download_title`, `site.download_text`, `apk` |
-| Installer l'APK | `site.install_title`, `install_steps` (`label` = texte de l'étape), `site.install_note` (phrase Play Store), `apk.sha256` |
+| Installer l'APK | `site.install_title`, `install_steps` (`label` = titre de l'étape, en gras ; `value` = précision, peut être vide), `site.install_note` (phrase Play Store), `apk.sha256` |
 | Nouveautés | `site.notes_title`, `apk.version`, `apk.date`, `apk.notes` |
 | Pied de page (`base.html`) | `site.footer_text`, `site.studio_logo_url`, `footer_columns`, « Un jeu de `site.studio_name` · © `year` · `site.game_name` `apk.version` », `site.footer_note`, `site.footer_trademark` |
 

@@ -209,7 +209,8 @@ Décisions :
 - [ ] **En attente d'accord du propriétaire** : `reseed_v2 --apply` sur le site en ligne (simulation faite : 14 changements — accroche, phrase de téléchargement, 4 arguments, 3 étapes, légendes des 3 captures + 4e « Fin du duel », section contact de la confidentialité). Commande : `ssh hans@79.143.190.190 "cd ~/tilto-site && docker compose exec tilto-site python -m app.reseed_v2 --apply"` (demande « oui »)
 - [ ] Mentions légales à remplir par le propriétaire (éditeur, forme, immatriculation, adresse, e-mail, directeur de la publication, adresse et téléphone de Contabo) ; **pays d'édition à demander** pour adapter la liste
 - [ ] SMTP facultatif pour recevoir les messages de contact par e-mail
-- [ ] Administration : maquette reçue, décisions validées le 2026-10-09 (`maquette/Corrections et validation des maquettes/Tilto Admin v2.dc.html` + composant `TiltoAdmin2.dc.html`, prompt `design_prompt_admin.md`) — à intégrer (défauts connus : tableaux qui débordent à 360 px, variable `--surface-2` non définie dans `admin.css`)
+- [x] Administration v2 intégrée d'après la maquette (`Tilto Admin v2.dc.html` + `TiltoAdmin2.dc.html`, décisions du 2026-10-09) : menu latéral groupé, tableau de bord calculé (à faire, état du site), messages en liste + lecture, erreurs sous le champ, tableaux enregistrés d'un bloc, listes dépliables, confirmation `<dialog>`, mode clair, mobile 360 px sans débordement, étapes d'installation en titre + précision (migration du texte par défaut) ; corrige `--surface-2` et les tableaux qui débordaient
+- [ ] Administration v2 : à vérifier par le propriétaire en local puis à déployer (dépôt d'un vrai APK avec la barre de progression, copie du lien et de l'empreinte, thème clair sur téléphone)
 - [ ] Mise à jour des actions GitHub (avertissements Node.js 20 et Ubuntu 26) lors d'une prochaine modification du workflow
 
 ### Publication sur le Play Store
