@@ -759,6 +759,8 @@ a.topbar__version:hover { color: var(--text-2); }
   font-size: 14px; line-height: 1.55; color: var(--text-2);
 }
 .install__steps li::before { content: counter(step); font-weight: 800; color: var(--faint); }
+.install__step { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.install__step strong { font-weight: 700; color: var(--text); }
 .install__note {
   padding-left: var(--sp-3); border-left: 2px solid var(--border);
   font-size: 13px; line-height: 1.55; color: var(--muted);

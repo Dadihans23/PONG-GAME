@@ -3,8 +3,9 @@
 Au démarrage, la v2 ajoute ses nouveaux contenus (fiche technique, comparatif,
 barème, FAQ, installation, caractéristiques des arguments) sans rien écraser.
 Les textes qui existaient déjà (accroche, phrase de téléchargement, arguments,
-étapes, légendes des captures, politique de confidentialité) restent tels
-quels : cette commande les met à jour, après confirmation.
+étapes, légendes des captures, étapes d'installation modifiées, politique de
+confidentialité) restent tels quels : cette commande les met à jour, après
+confirmation.
 
     python -m app.reseed_v2              # affiche les changements, ne modifie rien
     python -m app.reseed_v2 --apply      # demande confirmation, puis applique
@@ -111,6 +112,14 @@ def plan(conn: sqlite3.Connection) -> list[tuple[str, callable]]:
                                 "INSERT INTO screenshot (filename, caption, description, position,"
                                 " created_at) VALUES (NULL, ?, ?, ?, ?)",
                                 (t, d, db.next_position(c, "screenshot"), db.now_iso()))))
+
+    install = [(r["label"], r["value"]) for r in db.list_rows(conn, "install")]
+    if install and install != list(db.V2_INSTALL):
+        def replace_install(c):
+            c.execute("DELETE FROM spec_row WHERE grp = 'install' AND item_id IS NULL")
+            db._insert_rows(c, "install", db.V2_INSTALL)
+        changes.append(("Installation : étapes v2 (titre + précision) à la place des "
+                        f"{len(install)} étapes actuelles", replace_install))
 
     policy = site.get("privacy_policy", "")
     if "## Formulaire de contact" not in policy:

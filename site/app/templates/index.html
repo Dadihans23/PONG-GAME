@@ -295,7 +295,7 @@
   <div class="install" id="installer-apk">
     <h3 class="section-title">{{ site.install_title or "Installer l'APK" }}</h3>
     {% if install_steps %}
-    <ol class="install__steps">{% for row in install_steps %}<li>{{ row.label }}</li>{% endfor %}</ol>
+    <ol class="install__steps">{% for row in install_steps %}<li><span class="install__step"><strong>{{ row.label }}</strong>{% if row.value %}<span>{{ row.value }}</span>{% endif %}</span></li>{% endfor %}</ol>
     {% endif %}
     {% if site.install_note %}<p class="install__note">{{ site.install_note }}</p>{% endif %}
     {# Empreinte abrégée ; l'empreinte complète s'ouvre au toucher (et se sélectionne d'un coup). #}

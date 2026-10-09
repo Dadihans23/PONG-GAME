@@ -60,8 +60,8 @@ CREATE UNIQUE INDEX IF NOT EXISTS apk_one_current
 
 -- Lignes ordonnées libellé / valeur(s), regroupées par « grp » (voir TABLE_GROUPS) :
 -- fiche technique, comparatif Solo / Duel (value = Solo, value2 = Duel), barème,
--- étapes d'installation de l'APK (label seul) et caractéristiques d'un argument
--- (item_id = l'argument).
+-- étapes d'installation de l'APK (label = titre, value = précision) et
+-- caractéristiques d'un argument (item_id = l'argument).
 CREATE TABLE IF NOT EXISTS spec_row (
     id       INTEGER PRIMARY KEY,
     grp      TEXT NOT NULL,
@@ -384,11 +384,21 @@ V2_SCORING = [
     ("La balle accélère", "tous les 4 renvois"),
 ]
 
+# Étapes d'installation de l'APK : (titre, précision).
 V2_INSTALL = [
+    ("Télécharge le fichier", "Depuis ton téléphone Android."),
+    ("Ouvre-le", "Si Android le demande, autorise ton navigateur à installer des applications."),
+    ("Installe", "Touche Installer, puis Ouvrir."),
+]
+
+# Ancien texte par défaut des étapes (une seule colonne) -> (titre, précision).
+# Une étape encore identique à ce texte est découpée au démarrage ; une étape
+# modifiée par le propriétaire n'est jamais touchée.
+INSTALL_SPLIT = dict(zip([
     "Télécharge le fichier depuis ton téléphone Android.",
     "Ouvre-le. Si Android le demande, autorise ton navigateur à installer des applications.",
     "Touche Installer, puis Ouvrir.",
-]
+], V2_INSTALL))
 
 # anchor, question, réponse, réponse courte (mobile), libellé du lien de pied de page
 V2_FAQ: list[dict] = [
@@ -512,6 +522,17 @@ def _seed_v2(conn: sqlite3.Connection) -> None:
                  (SEED_V2_MARKER, now_iso()))
 
 
+def _split_install_steps(conn: sqlite3.Connection) -> None:
+    """Étapes d'installation d'avant la colonne « précision » : celles qui ont
+    encore exactement le texte par défaut sont découpées en titre + précision."""
+    for row in conn.execute("SELECT id, label FROM spec_row WHERE grp = 'install'"
+                            " AND value = ''").fetchall():
+        split = INSTALL_SPLIT.get(row["label"])
+        if split:
+            conn.execute("UPDATE spec_row SET label = ?, value = ? WHERE id = ?",
+                         (*split, row["id"]))
+
+
 def init_db(db_path: Path, images_dir: Path) -> None:
     """Crée les tables et, au premier démarrage, le contenu initial.
 
@@ -550,6 +571,7 @@ def init_db(db_path: Path, images_dir: Path) -> None:
                         (caption, description, pos, now_iso()))
             if SEED_V2_MARKER not in existing:
                 _seed_v2(conn)
+            _split_install_steps(conn)
     finally:
         conn.close()
 
@@ -579,6 +601,20 @@ def set_settings(conn: sqlite3.Connection, values: dict[str, str]) -> None:
                 " ON CONFLICT(key) DO UPDATE SET value = excluded.value",
                 (key, value),
             )
+
+
+def get_internal(conn: sqlite3.Connection, key: str) -> str | None:
+    """Réglage interne (clé « _… »), jamais affiché ni modifiable comme un texte."""
+    assert key.startswith("_")
+    row = conn.execute("SELECT value FROM setting WHERE key = ?", (key,)).fetchone()
+    return row["value"] if row else None
+
+
+def set_internal(conn: sqlite3.Connection, key: str, value: str) -> None:
+    assert key.startswith("_")
+    with conn:
+        conn.execute("INSERT INTO setting (key, value) VALUES (?, ?)"
+                     " ON CONFLICT(key) DO UPDATE SET value = excluded.value", (key, value))
 
 
 def list_items(conn: sqlite3.Connection, kind: str) -> list[sqlite3.Row]:
