@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Mentions légales · {{ site.game_name }}{% endblock %}
+{% block description %}Mentions légales du site de {{ site.game_name }}.{% endblock %}
+{% block body_class %}page-legal{% endblock %}
+{% block nav_links %}{% endblock %}
+{% block content %}
+<article class="prose">
+  <header class="prose__head">
+    <h1>Mentions légales</h1>
+    {% if site.legal_updated %}
+    <p class="updated">Dernière mise à jour : {{ site.legal_updated|date_fr }}</p>
+    {% endif %}
+  </header>
+  <div class="policy">
+    {# legal_sections : [{title, rows: [{label, value}]}], champs vides omis. #}
+    {% for section in legal_sections %}
+    <h2>{{ section.title }}</h2>
+    <dl class="legal">
+      {% for row in section.rows %}
+      <div><dt>{{ row.label }}</dt><dd>{% if "\n" in row.value %}{{ row.value|rich_text }}{% else %}{{ row.value }}{% endif %}</dd></div>
+      {% endfor %}
+    </dl>
+    {% endfor %}
+    {% if site.legal_extra %}{{ site.legal_extra|rich_text }}{% endif %}
+    <p>Pour toute question, utilise le <a href="/contact">formulaire de contact</a>.</p>
+  </div>
+</article>
+{% endblock %}

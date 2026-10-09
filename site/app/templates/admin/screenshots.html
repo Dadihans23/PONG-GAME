@@ -2,7 +2,7 @@
 {% block title %}Captures · Administration{% endblock %}
 {% block content %}
 <h1>Captures d'écran</h1>
-<p class="hint">Une capture sans image s'affiche comme un emplacement vide avec sa légende. Images acceptées : PNG, JPEG, WebP ou GIF.</p>
+<p class="hint">Le titre et l'introduction de la section se règlent dans Textes. Une capture sans image s'affiche comme un emplacement vide avec sa légende. Images acceptées : PNG, JPEG, WebP ou GIF.</p>
 {% for shot in screenshots %}
 <div class="card shot">
   {% if shot.filename %}
@@ -15,6 +15,9 @@
       <input type="hidden" name="csrf_token" value="{{ csrf }}">
       <label>Légende
         <input type="text" name="caption" value="{{ shot.caption }}" maxlength="120">
+      </label>
+      <label>Description (sous la légende, facultatif)
+        <textarea name="description" rows="2" maxlength="500">{{ shot.description }}</textarea>
       </label>
       <label>{{ "Remplacer l'image" if shot.filename else "Ajouter l'image" }}
         <input type="file" name="image" accept="image/png,image/jpeg,image/webp,image/gif">
@@ -48,6 +51,9 @@
   </label>
   <label>Légende
     <input type="text" name="caption" maxlength="120">
+  </label>
+  <label>Description (facultatif)
+    <textarea name="description" rows="2" maxlength="500"></textarea>
   </label>
   <button type="submit">Ajouter</button>
 </form>

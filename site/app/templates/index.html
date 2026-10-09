@@ -99,10 +99,18 @@
 {% block content %}
 <section class="hero">
   <div class="hero__text">
+    {% if site.hero_kicker %}<p class="kicker">{{ site.hero_kicker }}</p>{% endif %}
     <h1>{{ site.game_name|upper }}</h1>
     {% if site.tagline %}<p class="hero__tagline">{{ site.tagline }}</p>{% endif %}
+    {% if site.hero_text %}<p class="hero__lead">{{ site.hero_text }}</p>{% endif %}
     {{ download_buttons() }}
     {% if site.hero_note %}<p class="hero__note">{{ site.hero_note }}</p>{% endif %}
+    {# Fiche technique (paires libellé / valeur). #}
+    {% if hero_specs %}
+    <dl class="specs specs--hero">
+      {% for row in hero_specs %}<div><dt>{{ row.label }}</dt><dd>{{ row.value }}</dd></div>{% endfor %}
+    </dl>
+    {% endif %}
   </div>
   <div class="court" aria-hidden="true">
     <div class="court__line"></div>
@@ -114,6 +122,13 @@
 
 {% if features %}
 <div class="features" id="le-jeu">
+  {% if site.features_title %}
+  <header class="section-head">
+    {% if site.features_kicker %}<p class="kicker">{{ site.features_kicker }}</p>{% endif %}
+    <h2 class="section-title">{{ site.features_title }}</h2>
+    {% if site.features_intro %}<p>{{ site.features_intro }}</p>{% endif %}
+  </header>
+  {% endif %}
   {% for f in features %}
   <section class="feature feature--{{ loop.index }}{% if loop.index > 4 %} feature--plain{% endif %}">
     {{ demo(loop.index) }}
@@ -121,15 +136,35 @@
       {% if f.kicker %}<p class="kicker">{{ f.kicker }}</p>{% endif %}
       <h2>{{ f.title }}</h2>
       {% if f.body %}<p class="feature__body">{{ f.body }}</p>{% endif %}
+      {% if f.specs %}
+      <dl class="specs">
+        {% for row in f.specs %}<div><dt>{{ row.label }}</dt><dd>{{ row.value }}</dd></div>{% endfor %}
+      </dl>
+      {% endif %}
     </div>
   </section>
   {% endfor %}
 </div>
 {% endif %}
 
+{% if compare %}
+<section class="compare" id="solo-duel" aria-labelledby="titre-solo-duel">
+  {% if site.compare_kicker %}<p class="kicker">{{ site.compare_kicker }}</p>{% endif %}
+  <h2 class="section-title" id="titre-solo-duel">{{ site.compare_title or "Solo ou Duel" }}</h2>
+  <table class="compare__table">
+    <thead><tr><td></td><th scope="col">Solo</th><th scope="col">Duel</th></tr></thead>
+    <tbody>
+      {% for row in compare %}
+      <tr><th scope="row">{{ row.label }}</th><td>{{ row.value }}</td><td>{{ row.value2 }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+
 {% if steps %}
 <section class="steps" id="comment-jouer" aria-labelledby="titre-comment-jouer">
-  <h2 class="section-title" id="titre-comment-jouer">Comment jouer</h2>
+  <h2 class="section-title" id="titre-comment-jouer">{{ site.steps_title or "Comment jouer" }}</h2>
   <ol class="steps__list">
     {% for s in steps %}
     <li class="step">
@@ -141,12 +176,22 @@
     </li>
     {% endfor %}
   </ol>
+  {% if scoring %}
+  <div class="scoring" id="bareme">
+    <h3>{{ site.scoring_title or "Barème" }}</h3>
+    <dl class="specs">
+      {% for row in scoring %}<div><dt>{{ row.label }}</dt><dd>{{ row.value }}</dd></div>{% endfor %}
+    </dl>
+  </div>
+  {% endif %}
 </section>
 {% endif %}
 
 {% if screenshots %}
 <section class="shots" id="captures" aria-labelledby="titre-captures">
-  <h2 class="section-title" id="titre-captures">Captures</h2>
+  <h2 class="section-title" id="titre-captures">{{ site.screens_title or "Captures" }}</h2>
+  {% if site.screens_intro %}<p>{{ site.screens_intro }}</p>{% endif %}
+  {% if site.screens_note %}<p class="hint">{{ site.screens_note }}</p>{% endif %}
   <ul class="shots__list" aria-label="Captures d'écran">
     {% for shot in screenshots %}
     <li>
@@ -166,6 +211,7 @@
           </div>
         </div>
         {% if shot.caption %}<figcaption>{{ shot.caption }}</figcaption>{% endif %}
+        {% if shot.description %}<p class="capture__text">{{ shot.description }}</p>{% endif %}
       </figure>
     </li>
     {% endfor %}
@@ -173,9 +219,39 @@
 </section>
 {% endif %}
 
+{% if faq %}
+<section class="faq" id="faq" aria-labelledby="titre-faq">
+  <h2 class="section-title" id="titre-faq">{{ site.faq_title or "Questions fréquentes" }}</h2>
+  {% if site.faq_subtitle %}<p>{{ site.faq_subtitle }}</p>{% endif %}
+  {% for q in faq %}
+  <details class="faq__item" id="{{ q.anchor }}">
+    <summary>{{ q.question }}</summary>
+    <p>{{ q.answer }}</p>
+  </details>
+  {% endfor %}
+  {% if site.faq_text %}<p class="faq__more">{{ site.faq_text }} <a href="/contact">Contact</a></p>{% endif %}
+</section>
+{% endif %}
+
 <section class="download" id="telecharger" aria-labelledby="titre-telecharger">
   <h2 id="titre-telecharger">{{ site.download_title }}</h2>
   {{ download_buttons() }}
   {% if site.download_text %}<p class="download__text">{{ site.download_text }}</p>{% endif %}
+  {% if apk %}
+  <div class="install" id="installer-apk">
+    <h3>{{ site.install_title or "Installer l'APK" }}</h3>
+    {% if install_steps %}
+    <ol>{% for row in install_steps %}<li>{{ row.label }}</li>{% endfor %}</ol>
+    {% endif %}
+    {% if site.install_note %}<p>{{ site.install_note }}</p>{% endif %}
+    <p class="install__sha">SHA-256 ({{ apk.download_name }}) : <code>{{ apk.sha256 }}</code></p>
+  </div>
+  {% if apk.notes %}
+  <div class="notes" id="nouveautes">
+    <h3>{{ site.notes_title or "Nouveautés" }} {{ apk.version }} · <time datetime="{{ apk.date }}">{{ apk.date|date_short }}</time></h3>
+    <ul>{% for line in apk.notes %}<li>{{ line }}</li>{% endfor %}</ul>
+  </div>
+  {% endif %}
+  {% endif %}
 </section>
 {% endblock %}

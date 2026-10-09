@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import logging
+import time
 from http import HTTPStatus
 from pathlib import Path
 
@@ -11,7 +13,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import RedirectResponse
 
-from . import db, render
+from . import contact, db, render
 from .config import Settings
 from .routes_admin import LoginRequired
 from .routes_admin import router as admin_router
@@ -34,6 +36,19 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.login_limiter = LoginLimiter(
         settings.login_max_attempts, settings.login_window_seconds
     )
+    # Formulaire de contact : horloge (remplaçable dans les tests) et limitations.
+    app.state.contact_clock = time.time
+    app.state.contact_limiter = LoginLimiter(settings.contact_max_per_hour, 3600)
+    app.state.contact_global_limiter = LoginLimiter(settings.contact_global_per_hour, 3600)
+
+    # Journaux de l'application (notification SMTP…) dans la sortie standard,
+    # visibles avec docker compose logs.
+    app_log = logging.getLogger("tilto")
+    if not app_log.handlers:
+        handler = logging.StreamHandler()
+        handler.setFormatter(logging.Formatter("%(levelname)s %(name)s: %(message)s"))
+        app_log.addHandler(handler)
+        app_log.setLevel(logging.INFO)
 
     app.mount("/static", StaticFiles(directory=APP_DIR / "static"), name="static")
     app.include_router(public_router)
@@ -53,7 +68,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.add_middleware(
         BodySizeLimitMiddleware,
         default_limit=settings.max_image_bytes + form_margin,
-        path_limits={"/admin/apk/deposer": settings.max_apk_bytes + form_margin},
+        path_limits={"/admin/apk/deposer": settings.max_apk_bytes + form_margin,
+                     "/contact": contact.MAX_BODY_BYTES},
     )
     app.add_middleware(SecurityHeadersMiddleware, hsts=settings.cookie_secure)
 

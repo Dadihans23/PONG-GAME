@@ -34,6 +34,37 @@ def _int(name: str, value: str | None, default: int) -> int:
 
 
 @dataclass(frozen=True)
+class SmtpConfig:
+    """Notification par e-mail des messages de contact (facultative)."""
+    host: str
+    port: int
+    user: str
+    password: str
+    sender: str
+    notify_to: str
+    security: str  # "ssl" (SMTPS, port 465) ou "starttls"
+
+    @classmethod
+    def from_env(cls, env: dict[str, str]) -> "SmtpConfig | None":
+        host = env.get("SMTP_HOST", "").strip()
+        sender = env.get("SMTP_FROM", "").strip()
+        notify_to = env.get("CONTACT_NOTIFY_TO", "").strip()
+        if not (host and sender and notify_to):
+            return None  # notification désactivée
+        port = _int("SMTP_PORT", env.get("SMTP_PORT"), 587)
+        security = env.get("SMTP_SECURITY", "").strip().lower() or (
+            "ssl" if port == 465 else "starttls")
+        if security not in {"ssl", "starttls"}:
+            raise ConfigError("SMTP_SECURITY doit valoir ssl ou starttls")
+        for name, value in (("SMTP_FROM", sender), ("CONTACT_NOTIFY_TO", notify_to)):
+            if "@" not in value or any(c in value for c in "\r\n"):
+                raise ConfigError(f"{name} doit être une adresse e-mail")
+        return cls(host=host, port=port, user=env.get("SMTP_USER", "").strip(),
+                   password=env.get("SMTP_PASSWORD", ""), sender=sender,
+                   notify_to=notify_to, security=security)
+
+
+@dataclass(frozen=True)
 class Settings:
     secret_key: str
     admin_password_hash: str
@@ -44,6 +75,11 @@ class Settings:
     max_image_mb: int = 5
     login_max_attempts: int = 5
     login_window_seconds: int = 15 * 60
+    # Formulaire de contact
+    contact_max_per_hour: int = 3       # messages acceptés par IP et par heure
+    contact_global_per_hour: int = 30   # tous visiteurs confondus
+    contact_min_seconds: int = 3        # délai minimal entre affichage et envoi
+    smtp: SmtpConfig | None = None
 
     @property
     def db_path(self) -> Path:
@@ -92,4 +128,11 @@ class Settings:
             login_window_seconds=_int(
                 "LOGIN_WINDOW_SECONDS", env.get("LOGIN_WINDOW_SECONDS"), 15 * 60
             ),
+            contact_max_per_hour=_int(
+                "CONTACT_MAX_PER_HOUR", env.get("CONTACT_MAX_PER_HOUR"), 3),
+            contact_global_per_hour=_int(
+                "CONTACT_GLOBAL_PER_HOUR", env.get("CONTACT_GLOBAL_PER_HOUR"), 30),
+            contact_min_seconds=_int(
+                "CONTACT_MIN_SECONDS", env.get("CONTACT_MIN_SECONDS"), 3),
+            smtp=SmtpConfig.from_env(env),
         )

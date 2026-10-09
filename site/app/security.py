@@ -88,7 +88,8 @@ def csrf_valid(request: Request, submitted: str | None) -> bool:
 # --- Limitation des tentatives de connexion ----------------------------------
 
 class LoginLimiter:
-    """Compte les échecs par adresse IP sur une fenêtre glissante (en mémoire)."""
+    """Compte les événements (échecs de connexion, messages de contact) par clé
+    (adresse IP) sur une fenêtre glissante, en mémoire."""
 
     def __init__(self, max_attempts: int, window_seconds: int, clock=time.monotonic):
         self.max_attempts = max_attempts
@@ -113,6 +114,9 @@ class LoginLimiter:
             if len(self._failures) > 10_000:  # borne la mémoire
                 self._failures.clear()
             self._prune(key).append(self.clock())
+
+    # Même mécanisme pour le formulaire de contact : chaque envoi accepté compte.
+    hit = fail
 
     def reset(self, key: str) -> None:
         with self._lock:

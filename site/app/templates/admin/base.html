@@ -15,12 +15,19 @@
     {% block nav %}
     <nav>
       <a href="/admin/textes">Textes</a>
+      <a href="/admin/tableaux/fiche">Fiche technique</a>
       <a href="/admin/listes/arguments">Arguments</a>
+      <a href="/admin/tableaux/comparatif">Comparatif</a>
       <a href="/admin/listes/etapes">Comment jouer</a>
+      <a href="/admin/tableaux/bareme">Barème</a>
       <a href="/admin/captures">Captures</a>
+      <a href="/admin/faq">FAQ</a>
+      <a href="/admin/tableaux/installation">Installation</a>
       <a href="/admin/apk">APK</a>
       <a href="/admin/studio">Studio</a>
       <a href="/admin/confidentialite">Confidentialité</a>
+      <a href="/admin/mentions-legales">Mentions légales</a>
+      <a href="/admin/messages">Messages{% if unread_count %} <strong class="badge">{{ unread_count }}</strong>{% endif %}</a>
       <a href="/" target="_blank" rel="noopener">Voir le site</a>
       <form method="post" action="/admin/deconnexion" class="inline">
         <input type="hidden" name="csrf_token" value="{{ csrf }}">

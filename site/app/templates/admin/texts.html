@@ -3,12 +3,15 @@
 {% block content %}
 <h1>Textes de la page</h1>
 {% for e in errors or [] %}<p class="flash error" role="alert">{{ e }}</p>{% endfor %}
+<p class="hint">Les listes (fiche technique, arguments, comparatif, étapes, barème, FAQ, installation) ont chacune leur page dans le menu.</p>
 <form method="post" action="/admin/textes" class="stack">
   <input type="hidden" name="csrf_token" value="{{ csrf }}">
+  {% for section, fields in sections %}
+  <h2>{{ section }}</h2>
   {% for key, (label, max_len, multiline) in fields.items() %}
   <label>{{ label }}
     {% if multiline %}
-    <textarea name="{{ key }}" rows="3" maxlength="{{ max_len }}">{{ site[key] }}</textarea>
+    <textarea name="{{ key }}" rows="{{ 5 if max_len > 500 else 3 }}" maxlength="{{ max_len }}">{{ site[key] }}</textarea>
     {% else %}
     <input type="{{ {'play_store_url': 'url', 'contact_email': 'email'}.get(key, 'text') }}"
            name="{{ key }}" value="{{ site[key] }}" maxlength="{{ max_len }}"
@@ -16,7 +19,8 @@
     {% endif %}
   </label>
   {% endfor %}
+  {% endfor %}
   <button type="submit">Enregistrer</button>
 </form>
-<p class="hint">La version et la taille affichées sous les boutons viennent de l'APK courant (page APK).</p>
+<p class="hint">La version, la date et la taille affichées viennent de l'APK courant (page APK).</p>
 {% endblock %}

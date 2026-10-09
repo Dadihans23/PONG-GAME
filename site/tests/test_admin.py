@@ -76,7 +76,7 @@ def test_edit_texts_reflected_on_home(admin):
     assert "TILTO PRO" in home
     assert "Nouvelle &lt;b&gt;accroche&lt;/b&gt;" in home  # échappé
     assert "https://play.google.com/store/apps/details?id=x" in home
-    assert "mailto:contact@example.com" in home
+    assert "mailto:contact@example.com" in admin.get("/contact").text
     for expected in ("Gratuit · Android 8+", "Récupère Tilto", "Phrase finale modifiée."):
         assert expected in unescape(home)
 
@@ -133,9 +133,9 @@ def test_list_move_and_delete(admin):
     ids = re.findall(r"/admin/listes/etapes/(\d+)/modifier", page)
     admin.post(f"/admin/listes/etapes/{ids[1]}/deplacer", data={"csrf_token": token, "direction": "up"})
     home = unescape(admin.get("/").text)
-    assert home.index("Tape l'écran.") < home.index("Prends ton téléphone à deux mains.")
+    assert home.index("Tape l'écran pour") < home.index("Prends ton téléphone à deux mains.")
     admin.post(f"/admin/listes/etapes/{ids[1]}/supprimer", data={"csrf_token": token})
-    assert "Tape l'écran." not in unescape(admin.get("/").text)
+    assert "Tape l'écran pour" not in unescape(admin.get("/").text)
 
 
 # --- Images --------------------------------------------------------------------------
@@ -162,7 +162,7 @@ def test_screenshot_placeholder_gets_image(admin):
                files={"image": ("mode.png", PNG_1PX, "image/png")})
     home = admin.get("/").text
     assert re.search(r'src="/media/[a-f0-9]{32}\.png" alt="Choisis ton mode"', home)
-    assert home.count('class="shot-placeholder"') == 2
+    assert home.count('class="shot-placeholder"') == 3  # 4 captures initiales
 
 
 def test_screenshot_not_image_refused(admin, settings):

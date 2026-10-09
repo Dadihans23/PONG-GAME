@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Contact · {{ site.game_name }}{% endblock %}
+{% block description %}Écrire à l'équipe de {{ site.game_name }}.{% endblock %}
+{% block body_class %}page-contact{% endblock %}
+{% block nav_links %}{% endblock %}
+{% block content %}
+<article class="prose">
+  <header class="prose__head">
+    <h1>Contact</h1>
+    <p>Une question, un problème, une idée ? Écris-nous : on te répond par e-mail.
+      Avant d'écrire, jette un œil aux <a href="/#faq">questions fréquentes</a>.</p>
+    {% if site.contact_email %}<p>Tu peux aussi écrire directement à <a href="mailto:{{ site.contact_email }}">{{ site.contact_email }}</a>.</p>{% endif %}
+  </header>
+
+  {% if form.errors %}
+  <div class="form-errors" role="alert">
+    {% for e in form.errors %}<p>{{ e }}</p>{% endfor %}
+  </div>
+  {% endif %}
+
+  <form method="post" action="/contact" class="contact-form" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ contact_token }}">
+    <p>
+      <label for="contact-name">Ton nom <span class="optional">(facultatif)</span></label>
+      <input id="contact-name" type="text" name="name" value="{{ form.name }}" maxlength="80" autocomplete="name">
+    </p>
+    <p>
+      <label for="contact-email">Ton adresse e-mail</label>
+      <input id="contact-email" type="email" name="email" value="{{ form.email }}" maxlength="254" autocomplete="email" required>
+    </p>
+    <p>
+      <label for="contact-subject">Sujet</label>
+      <select id="contact-subject" name="subject">
+        {% for s in subjects %}<option value="{{ s }}"{% if s == form.subject %} selected{% endif %}>{{ s }}</option>{% endfor %}
+      </select>
+    </p>
+    <p>
+      <label for="contact-message">Message <span class="optional">({{ max_message }} caractères maximum)</span></label>
+      <textarea id="contact-message" name="message" rows="8" maxlength="{{ max_message }}" required>{{ form.message }}</textarea>
+    </p>
+    {# Champ piège : caché aux humains (classe contact-hp), rempli par les robots. #}
+    <p class="contact-hp" aria-hidden="true">
+      <label for="contact-{{ honeypot }}">Ne pas remplir ce champ</label>
+      <input id="contact-{{ honeypot }}" type="text" name="{{ honeypot }}" value="" tabindex="-1" autocomplete="off">
+    </p>
+    <p><button type="submit" class="btn btn--primary">Envoyer</button></p>
+    <p class="hint">Ton adresse et ton message servent uniquement à te répondre. Voir la <a href="/confidentialite">politique de confidentialité</a>.</p>
+  </form>
+</article>
+{% endblock %}

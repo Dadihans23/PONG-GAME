@@ -200,6 +200,9 @@ Décisions :
 - [x] Backend FastAPI : administration (studio, logo, textes, arguments, étapes, captures, Play Store, versions de l'APK), Docker
 - [x] Déployé sur le VPS : **https://tilto.fun** (Nginx + Certbot, conteneur sur 127.0.0.1:8085) ; déploiement automatique à chaque push sur `prod`
 - [ ] Contenu à fournir : 3 captures d'écran de l'app, lien Play Store, adresse de contact, APK
+- [x] Backend du site v2 (maquette « Tilto Site v2 ») : fiche technique, caractéristiques des arguments, comparatif Solo / Duel, barème, FAQ à ancres, installation de l'APK, notes de version, empreinte SHA-256, pied de page à colonnes, page Mentions légales, formulaire de contact (CSRF, champ piège, délai, limitation par IP) avec page Messages et notification SMTP facultative ; migration sans perte et commande `python -m app.reseed_v2`
+- [ ] Habillage des gabarits v2 par le designer (données prêtes, voir `site/README.md`)
+- [ ] Après déploiement : remplir les mentions légales (éditeur, adresse et téléphone de Contabo), décider `reseed_v2 --apply` ou mise à jour manuelle des textes, section contact de la politique de confidentialité, SMTP facultatif
 
 ### Publication sur le Play Store
 - [ ] Identifiant définitif de l'app (par exemple `com.nexora.tilto`) à la place de `com.example.pong_game`

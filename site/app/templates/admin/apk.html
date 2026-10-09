@@ -12,6 +12,12 @@
   <label>Fichier APK ({{ max_mb }} Mo maximum)
     <input type="file" name="apk" accept=".apk,application/vnd.android.package-archive" required>
   </label>
+  <label>Notes de version (une nouveauté par ligne)
+    <textarea name="release_notes" rows="6" maxlength="5000">{{ default_notes }}</textarea>
+  </label>
+  <label>Date de la version (vide = date du dépôt)
+    <input type="date" name="release_date">
+  </label>
   <label class="check"><input type="checkbox" name="make_current" value="1" checked>
     Proposer cette version au téléchargement</label>
   <button type="submit">Déposer</button>
@@ -44,6 +50,23 @@
     {% endfor %}
   </tbody>
 </table>
+
+<h2>Notes de version</h2>
+<p class="hint">La page publique affiche les notes de la version courante, avec sa date. Une ligne par nouveauté ; les puces (« - ») sont facultatives.</p>
+{% for a in apks %}
+<form method="post" action="/admin/apk/{{ a.id }}/notes" class="stack card">
+  <input type="hidden" name="csrf_token" value="{{ csrf }}">
+  <h3>Version {{ a.version }}{% if a.is_current %} (courante){% endif %}</h3>
+  <p class="hint">SHA-256 : <code>{{ a.sha256 }}</code></p>
+  <label>Notes
+    <textarea name="release_notes" rows="6" maxlength="5000">{{ a.release_notes }}</textarea>
+  </label>
+  <label>Date de la version (vide = date du dépôt, {{ a.uploaded_at|date_fr }})
+    <input type="date" name="release_date" value="{{ a.release_date }}">
+  </label>
+  <button type="submit">Enregistrer</button>
+</form>
+{% endfor %}
 {% else %}
 <p>Aucune version déposée.</p>
 {% endif %}

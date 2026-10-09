@@ -746,3 +746,6 @@ main:focus { outline: none; }
   .feature { gap: var(--sp-10); }
   .shots__list { gap: var(--sp-10); }
 }
+
+/* Formulaire de contact : champ piège invisible pour les humains (ne pas retirer). */
+.contact-hp { position: absolute !important; left: -10000px !important; width: 1px; height: 1px; overflow: hidden; }

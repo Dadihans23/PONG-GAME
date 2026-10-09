@@ -20,10 +20,10 @@ def test_home_shows_initial_content(client):
         assert f'<p class="kicker">{kicker}</p>' in page
     assert "Pas de bouton. Tu penches, la raquette suit." in page
     assert "Prends ton téléphone à deux mains." in page
-    for caption in ("Choisis ton mode", "Renvoie, accélère", "Gagne le duel"):
+    for caption in ("L'accueil", "En solo", "En duel", "Fin du duel"):
         assert f"<figcaption>{caption}</figcaption>" in page
     assert "Télécharge Tilto" in page
-    assert "L'APK s'installe sans le Play Store." in page
+    assert "L'APK sert si tu n'as pas le Play Store" in page
     assert "Un jeu de Nexora · ©" in page
     assert 'alt="Nexora" class="studio-logo"' in page  # logo initial copié dans les données
     assert "/confidentialite" in page

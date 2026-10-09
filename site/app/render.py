@@ -28,6 +28,19 @@ def date_fr(value: str) -> str:
     return f"{d.day} {MONTHS[d.month - 1]} {d.year}"
 
 
+MONTHS_SHORT = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.",
+                "août", "sept.", "oct.", "nov.", "déc."]
+
+
+def date_short(value: str) -> str:
+    """« 9 oct. 2026 » (barre de navigation, notes de version)."""
+    try:
+        d = datetime.fromisoformat(value)
+    except (TypeError, ValueError):
+        return value or ""
+    return f"{d.day} {MONTHS_SHORT[d.month - 1]} {d.year}"
+
+
 def rich_text(text: str) -> Markup:
     """Texte saisi dans l'administration -> HTML sûr.
 
@@ -53,6 +66,7 @@ def make_templates(directory: Path) -> Jinja2Templates:
     templates = Jinja2Templates(directory=str(directory))  # échappement HTML actif
     templates.env.filters["filesize"] = filesize
     templates.env.filters["date_fr"] = date_fr
+    templates.env.filters["date_short"] = date_short
     templates.env.filters["rich_text"] = rich_text
     return templates
 

@@ -1,0 +1,28 @@
+{% extends "admin/base.html" %}
+{% block title %}Mentions légales · Administration{% endblock %}
+{% block content %}
+<h1>Mentions légales</h1>
+{% if missing %}
+<p class="flash error" role="alert"><strong>Mentions légales incomplètes</strong> : {{ missing|join(", ") }}.</p>
+{% endif %}
+<p class="hint">La page publique <a href="/mentions-legales" target="_blank" rel="noopener">/mentions-legales</a> affiche les champs remplis. Pour une personne physique : nom et prénom, « Entrepreneur individuel » ou « Particulier » comme forme juridique.</p>
+<form method="post" action="/admin/mentions-legales" class="stack">
+  <input type="hidden" name="csrf_token" value="{{ csrf }}">
+  {% for key, (label, required) in fields.items() %}
+  {% if key == "legal_host_name" %}<h2>Hébergeur</h2>{% elif loop.first %}<h2>Éditeur</h2>{% endif %}
+  <label>{{ label }}{% if required %} *{% endif %}
+    {% if key in ("legal_address", "legal_host_address") %}
+    <textarea name="{{ key }}" rows="2" maxlength="300">{{ site[key] }}</textarea>
+    {% else %}
+    <input type="{{ 'email' if key == 'legal_email' else 'text' }}" name="{{ key }}" value="{{ site[key] }}" maxlength="300">
+    {% endif %}
+  </label>
+  {% endfor %}
+  <h2>Texte complémentaire</h2>
+  <label>Texte libre (propriété intellectuelle, crédits…). Une ligne vide sépare les paragraphes, « ## Titre » crée un intertitre.
+    <textarea name="legal_extra" rows="10">{{ site.legal_extra }}</textarea>
+  </label>
+  <button type="submit">Enregistrer</button>
+</form>
+<p class="hint">* champs obligatoires : tant qu'ils sont vides, le tableau de bord signale « Mentions légales incomplètes ».</p>
+{% endblock %}

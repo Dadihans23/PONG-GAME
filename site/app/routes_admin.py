@@ -1,11 +1,14 @@
-"""Administration : connexion, contenu, studio, captures, APK."""
+"""Administration : connexion, contenu, studio, captures, APK, FAQ, mentions
+légales, messages de contact."""
 
 from __future__ import annotations
 
 import re
 import sqlite3
 import time
+import unicodedata
 from datetime import date
+from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
@@ -13,7 +16,7 @@ from starlette.concurrency import run_in_threadpool
 from starlette.datastructures import UploadFile
 
 from . import db, render
-from .routes_public import get_conn
+from .routes_public import SECTION_ANCHORS, get_conn
 from .security import csrf_token, csrf_valid, password_fingerprint, verify_password
 from .uploads import VERSION_RE, UploadError, delete_file, save_apk, save_image
 
@@ -26,21 +29,100 @@ class LoginRequired(Exception):
 
 LISTS = {
     "arguments": {"kind": "feature", "title": "Arguments (section « Le jeu »)",
-                  "item": "argument", "kicker": True, "body_label": "Texte"},
+                  "item": "argument", "kicker": True, "body_label": "Texte",
+                  "short": True, "specs": True},
     "etapes": {"kind": "step", "title": "Comment jouer",
-               "item": "étape", "kicker": False, "body_label": "Précision (facultatif)"},
+               "item": "étape", "kicker": False, "body_label": "Précision (facultatif)",
+               "short": False, "specs": False},
 }
 
-# clé : (libellé, longueur maximale, zone de texte sur plusieurs lignes)
-TEXT_FIELDS = {
-    "game_name": ("Nom du jeu (titre du héros)", 60, False),
-    "tagline": ("Accroche du héros", 300, True),
-    "hero_note": ("Mention sous les boutons (ex. « Gratuit · Android »)", 80, False),
-    "download_title": ("Titre du bloc de téléchargement", 80, False),
-    "download_text": ("Phrase du bloc de téléchargement", 300, True),
-    "play_store_url": ("Lien Play Store (https://…, vide = bouton masqué)", 500, False),
-    "contact_email": ("Adresse de contact (lien « Contact » du pied de page)", 200, False),
+# Tableaux de lignes ordonnées (table spec_row).
+# cols : (colonne, libellé, longueur maximale, zone de texte sur plusieurs lignes).
+TABLES = {
+    "fiche": {
+        "grp": "hero_spec", "title": "Fiche technique (haut de page)", "item": "ligne",
+        "hint": "Paires affichées à côté de l'accroche (ex. MODES · Solo · Duel).",
+        "cols": [("label", "Libellé (ex. MODES)", 40, False),
+                 ("value", "Valeur (ex. Solo · Duel)", 80, False)]},
+    "comparatif": {
+        "grp": "compare", "title": "Comparatif Solo / Duel", "item": "ligne",
+        "hint": "Une ligne par critère. Le titre de la section se règle dans Textes.",
+        "cols": [("label", "Critère", 60, False), ("value", "Solo", 160, False),
+                 ("value2", "Duel", 160, False)]},
+    "bareme": {
+        "grp": "scoring", "title": "Barème en solo", "item": "ligne",
+        "hint": "Ex. « Chaque renvoi » · « +50 ». Le titre se règle dans Textes.",
+        "cols": [("label", "Libellé", 80, False), ("value", "Valeur", 60, False)]},
+    "installation": {
+        "grp": "install", "title": "Installation de l'APK", "item": "étape",
+        "hint": "Étapes numérotées dans l'ordre. La phrase sur le Play Store se règle "
+                "dans Textes (« Remarque sous les étapes d'installation »).",
+        "cols": [("label", "Étape", 300, True)]},
+    # Caractéristiques d'un argument : gérées depuis la page des arguments.
+    "caracteristiques": {
+        "grp": "feature_spec", "title": "Caractéristiques", "item": "caractéristique",
+        "parent": True, "back": "/admin/listes/arguments",
+        "cols": [("label", "Libellé (ex. Format)", 40, False),
+                 ("value", "Valeur (ex. Premier à 5 points)", 120, False)]},
 }
+
+# Textes de la page, par section : clé -> (libellé, longueur maximale, plusieurs lignes).
+TEXT_SECTIONS: list[tuple[str, dict[str, tuple[str, int, bool]]]] = [
+    ("Haut de page", {
+        "game_name": ("Nom du jeu (titre du héros)", 60, False),
+        "hero_kicker": ("Sur-titre (ex. PONG VERTICAL · ANDROID · SOLO ET DUEL LOCAL)", 120, False),
+        "tagline": ("Accroche", 300, True),
+        "hero_text": ("Texte de présentation sous l'accroche", 1000, True),
+        "hero_text_short": ("Texte de présentation, version courte pour mobile (facultatif)",
+                            500, True),
+        "hero_demo_text": ("Légende de la partie de démonstration", 300, True),
+        "hero_note": ("Mention sous les boutons (ex. « Gratuit · Android »)", 80, False),
+    }),
+    ("Section « Le jeu »", {
+        "features_kicker": ("Sur-titre de la section", 80, False),
+        "features_title": ("Titre de la section", 120, False),
+        "features_intro": ("Introduction", 1000, True),
+    }),
+    ("Solo ou Duel", {
+        "compare_kicker": ("Sur-titre du comparatif", 80, False),
+        "compare_title": ("Titre du comparatif", 120, False),
+    }),
+    ("Comment jouer et barème", {
+        "steps_title": ("Titre « Comment jouer »", 80, False),
+        "scoring_title": ("Titre du barème", 80, False),
+    }),
+    ("Captures", {
+        "screens_title": ("Titre de la section", 80, False),
+        "screens_intro": ("Phrase d'introduction", 200, False),
+        "screens_note": ("Mention (ex. Captures réelles · Android, 360 × 800)", 120, False),
+    }),
+    ("Questions fréquentes", {
+        "faq_title": ("Titre de la section", 80, False),
+        "faq_subtitle": ("Sous-titre", 120, False),
+        "faq_text": ("Phrase sous les questions (renvoi vers le contact)", 300, True),
+    }),
+    ("Téléchargement et installation", {
+        "download_title": ("Titre du bloc de téléchargement", 80, False),
+        "download_text": ("Phrase du bloc de téléchargement", 300, True),
+        "install_title": ("Titre « Installer l'APK »", 80, False),
+        "install_note": ("Remarque sous les étapes d'installation (Play Store)", 400, True),
+        "notes_title": ("Titre des notes de version (suivi du numéro de version)", 60, False),
+    }),
+    ("Liens", {
+        "play_store_url": ("Lien Play Store (https://…, vide = bouton masqué)", 500, False),
+        "contact_email": ("Adresse e-mail affichée sur la page Contact (facultatif)", 200, False),
+    }),
+    ("Pied de page", {
+        "footer_text": ("Texte de présentation court", 300, True),
+        "footer_note": ("Mention (ex. Aucune donnée personnelle collectée)", 160, False),
+        "footer_trademark": ("Mention de marque", 160, False),
+    }),
+]
+TEXT_FIELDS = {key: spec for _, fields in TEXT_SECTIONS for key, spec in fields.items()}
+
+ANCHOR_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+MAX_ANCHOR = 40
+
 
 def valid_date(value: str) -> bool:
     """Date AAAA-MM-JJ (champ <input type="date">)."""
@@ -88,6 +170,13 @@ async def admin_form(request: Request):
 def admin_page(request: Request, name: str, context: dict | None = None, status_code: int = 200):
     context = dict(context or {})
     context["csrf"] = csrf_token(request)
+    if is_admin(request):
+        # Nombre de messages non lus, affiché dans le menu.
+        conn = db.connect(request.app.state.settings.db_path)
+        try:
+            context["unread_count"] = db.unread_count(conn)
+        finally:
+            conn.close()
     return render.page(request, name, context, status_code=status_code)
 
 
@@ -153,10 +242,14 @@ async def logout(request: Request):
 @router.get("")
 def dashboard(request: Request, conn: sqlite3.Connection = Depends(get_conn)):
     require_admin(request)
+    site = db.get_settings(conn)
     return admin_page(request, "admin/dashboard.html", {
-        "site": db.get_settings(conn),
+        "site": site,
         "apk": db.current_apk(conn),
         "n_screens": len(db.list_screenshots(conn)),
+        "n_faq": len(db.list_faq(conn)),
+        "n_messages": len(db.list_messages(conn)),
+        "legal_missing": db.legal_missing(site),
     })
 
 
@@ -166,23 +259,26 @@ def dashboard(request: Request, conn: sqlite3.Connection = Depends(get_conn)):
 def texts_page(request: Request, conn: sqlite3.Connection = Depends(get_conn)):
     require_admin(request)
     return admin_page(request, "admin/texts.html",
-                      {"site": db.get_settings(conn), "fields": TEXT_FIELDS})
+                      {"site": db.get_settings(conn), "sections": TEXT_SECTIONS})
 
 
 @router.post("/textes")
 def texts_save(request: Request, form=Depends(admin_form),
                conn: sqlite3.Connection = Depends(get_conn)):
-    values = {key: text(form, key, max_len) for key, (_, max_len, _) in TEXT_FIELDS.items()}
+    # Seuls les champs envoyés sont modifiés.
+    values = {key: text(form, key, max_len)
+              for key, (_, max_len, _) in TEXT_FIELDS.items() if key in form}
     errors = []
-    if not values["game_name"]:
+    if "game_name" in values and not values["game_name"]:
         errors.append("Le nom du jeu est obligatoire.")
-    if values["play_store_url"] and not values["play_store_url"].startswith("https://"):
+    if values.get("play_store_url") and not values["play_store_url"].startswith("https://"):
         errors.append("Le lien Play Store doit commencer par https://")
-    if values["contact_email"] and not EMAIL_RE.match(values["contact_email"]):
+    if values.get("contact_email") and not EMAIL_RE.match(values["contact_email"]):
         errors.append("L'adresse de contact n'est pas valide.")
     if errors:
         return admin_page(request, "admin/texts.html",
-                          {"site": values, "fields": TEXT_FIELDS, "errors": errors},
+                          {"site": {**db.get_settings(conn), **values},
+                           "sections": TEXT_SECTIONS, "errors": errors},
                           status_code=400)
     db.set_settings(conn, values)
     render.flash(request, "Textes enregistrés.")
@@ -246,6 +342,35 @@ def privacy_save(request: Request, form=Depends(admin_form),
     return back("/admin/confidentialite")
 
 
+# --- Mentions légales -------------------------------------------------------
+
+@router.get("/mentions-legales")
+def legal_page(request: Request, conn: sqlite3.Connection = Depends(get_conn)):
+    require_admin(request)
+    site = db.get_settings(conn)
+    return admin_page(request, "admin/legal.html", {
+        "site": site, "fields": db.LEGAL_FIELDS, "missing": db.legal_missing(site)})
+
+
+@router.post("/mentions-legales")
+def legal_save(request: Request, form=Depends(admin_form),
+               conn: sqlite3.Connection = Depends(get_conn)):
+    values = {key: text(form, key, 300) for key in db.LEGAL_FIELDS}
+    values["legal_extra"] = text(form, "legal_extra", 20_000)
+    if values["legal_email"] and not EMAIL_RE.match(values["legal_email"]):
+        render.flash(request, "L'e-mail de l'éditeur n'est pas valide.", "error")
+        return back("/admin/mentions-legales")
+    values["legal_updated"] = date.today().isoformat()
+    db.set_settings(conn, values)
+    missing = db.legal_missing(values)
+    if missing:
+        render.flash(request, "Mentions légales enregistrées, mais incomplètes : "
+                              + ", ".join(missing) + ".", "error")
+    else:
+        render.flash(request, "Mentions légales enregistrées.")
+    return back("/admin/mentions-legales")
+
+
 # --- Listes : arguments et étapes ----------------------------------------------
 
 def list_conf(slug: str) -> dict:
@@ -259,24 +384,33 @@ def list_conf(slug: str) -> dict:
 def list_page(slug: str, request: Request, conn: sqlite3.Connection = Depends(get_conn)):
     require_admin(request)
     conf = list_conf(slug)
-    return admin_page(request, "admin/list.html",
-                      {"slug": slug, "conf": conf, "items": db.list_items(conn, conf["kind"])})
+    return admin_page(request, "admin/list.html", {
+        "slug": slug, "conf": conf, "items": db.list_items(conn, conf["kind"]),
+        "specs": db.rows_by_item(conn, "feature_spec") if conf["specs"] else {},
+        "spec_conf": TABLES["caracteristiques"],
+    })
+
+
+def _item_values(form, conf: dict) -> tuple[str, str, str, str]:
+    return (text(form, "kicker", 40), text(form, "title", 120), text(form, "body", 1000),
+            text(form, "short_body", 500) if conf["short"] else "")
 
 
 @router.post("/listes/{slug}/ajouter")
 def list_add(slug: str, request: Request, form=Depends(admin_form),
              conn: sqlite3.Connection = Depends(get_conn)):
-    kind = list_conf(slug)["kind"]
-    title = text(form, "title", 120)
+    conf = list_conf(slug)
+    kind = conf["kind"]
+    kicker, title, body, short_body = _item_values(form, conf)
     if not title:
         render.flash(request, "Le titre est obligatoire.", "error")
         return back(f"/admin/listes/{slug}")
     with conn:
         conn.execute(
-            "INSERT INTO content_item (kind, position, kicker, title, body)"
-            " VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO content_item (kind, position, kicker, title, body, short_body)"
+            " VALUES (?, ?, ?, ?, ?, ?)",
             (kind, db.next_position(conn, "content_item", "kind = ?", (kind,)),
-             text(form, "kicker", 40), title, text(form, "body", 1000)),
+             kicker, title, body, short_body),
         )
     render.flash(request, "Élément ajouté.")
     return back(f"/admin/listes/{slug}")
@@ -285,15 +419,16 @@ def list_add(slug: str, request: Request, form=Depends(admin_form),
 @router.post("/listes/{slug}/{item_id}/modifier")
 def list_edit(slug: str, item_id: int, request: Request, form=Depends(admin_form),
               conn: sqlite3.Connection = Depends(get_conn)):
-    kind = list_conf(slug)["kind"]
-    title = text(form, "title", 120)
+    conf = list_conf(slug)
+    kicker, title, body, short_body = _item_values(form, conf)
     if not title:
         render.flash(request, "Le titre est obligatoire.", "error")
         return back(f"/admin/listes/{slug}")
     with conn:
         conn.execute(
-            "UPDATE content_item SET kicker = ?, title = ?, body = ? WHERE id = ? AND kind = ?",
-            (text(form, "kicker", 40), title, text(form, "body", 1000), item_id, kind))
+            "UPDATE content_item SET kicker = ?, title = ?, body = ?, short_body = ?"
+            " WHERE id = ? AND kind = ?",
+            (kicker, title, body, short_body, item_id, conf["kind"]))
     render.flash(request, "Élément modifié.")
     return back(f"/admin/listes/{slug}")
 
@@ -303,6 +438,7 @@ def list_delete(slug: str, item_id: int, request: Request, form=Depends(admin_fo
                 conn: sqlite3.Connection = Depends(get_conn)):
     kind = list_conf(slug)["kind"]
     with conn:
+        # Les caractéristiques de l'argument partent avec lui (ON DELETE CASCADE).
         conn.execute("DELETE FROM content_item WHERE id = ? AND kind = ?", (item_id, kind))
     render.flash(request, "Élément supprimé.")
     return back(f"/admin/listes/{slug}")
@@ -315,6 +451,206 @@ def list_move(slug: str, item_id: int, request: Request, form=Depends(admin_form
     direction = -1 if form.get("direction") == "up" else 1
     db.move(conn, "content_item", item_id, direction, "kind = ?", (kind,))
     return back(f"/admin/listes/{slug}")
+
+
+# --- Tableaux : fiche technique, comparatif, barème, installation, caractéristiques
+
+def table_conf(slug: str) -> dict:
+    conf = TABLES.get(slug)
+    if conf is None:
+        raise HTTPException(404)
+    return conf
+
+
+def table_back(slug: str, conf: dict) -> str:
+    return conf.get("back", f"/admin/tableaux/{slug}")
+
+
+def _row_values(form, conf: dict) -> dict[str, str]:
+    values = {"label": "", "value": "", "value2": ""}
+    for col, _, max_len, _ in conf["cols"]:
+        values[col] = text(form, col, max_len)
+    return values
+
+
+def _row_scope(conn: sqlite3.Connection, conf: dict, row_id: int) -> tuple[str, tuple] | None:
+    """Clause WHERE du groupe de la ligne (pour l'ordre), ou None si elle n'existe pas."""
+    row = conn.execute("SELECT item_id FROM spec_row WHERE id = ? AND grp = ?",
+                       (row_id, conf["grp"])).fetchone()
+    if row is None:
+        return None
+    if row["item_id"] is None:
+        return "grp = ? AND item_id IS NULL", (conf["grp"],)
+    return "grp = ? AND item_id = ?", (conf["grp"], row["item_id"])
+
+
+@router.get("/tableaux/{slug}")
+def table_page(slug: str, request: Request, conn: sqlite3.Connection = Depends(get_conn)):
+    require_admin(request)
+    conf = table_conf(slug)
+    if conf.get("parent"):
+        return back(conf["back"])
+    return admin_page(request, "admin/table.html",
+                      {"slug": slug, "conf": conf, "rows": db.list_rows(conn, conf["grp"])})
+
+
+@router.post("/tableaux/{slug}/ajouter")
+def table_add(slug: str, request: Request, form=Depends(admin_form),
+              conn: sqlite3.Connection = Depends(get_conn)):
+    conf = table_conf(slug)
+    values = _row_values(form, conf)
+    item_id = None
+    if conf.get("parent"):
+        raw = form.get("item_id", "")
+        item_id = int(raw) if isinstance(raw, str) and raw.isdigit() else None
+        exists = item_id is not None and conn.execute(
+            "SELECT 1 FROM content_item WHERE id = ? AND kind = 'feature'", (item_id,)).fetchone()
+        if not exists:
+            raise HTTPException(404)
+    if not values["label"]:
+        render.flash(request, f"{conf['cols'][0][1]} : champ obligatoire.", "error")
+        return back(table_back(slug, conf))
+    where, args = (("grp = ? AND item_id = ?", (conf["grp"], item_id)) if item_id is not None
+                   else ("grp = ? AND item_id IS NULL", (conf["grp"],)))
+    with conn:
+        conn.execute(
+            "INSERT INTO spec_row (grp, item_id, position, label, value, value2)"
+            " VALUES (?, ?, ?, ?, ?, ?)",
+            (conf["grp"], item_id, db.next_position(conn, "spec_row", where, args),
+             values["label"], values["value"], values["value2"]))
+    render.flash(request, "Ligne ajoutée.")
+    return back(table_back(slug, conf))
+
+
+@router.post("/tableaux/{slug}/{row_id}/modifier")
+def table_edit(slug: str, row_id: int, request: Request, form=Depends(admin_form),
+               conn: sqlite3.Connection = Depends(get_conn)):
+    conf = table_conf(slug)
+    values = _row_values(form, conf)
+    if not values["label"]:
+        render.flash(request, f"{conf['cols'][0][1]} : champ obligatoire.", "error")
+        return back(table_back(slug, conf))
+    with conn:
+        conn.execute("UPDATE spec_row SET label = ?, value = ?, value2 = ?"
+                     " WHERE id = ? AND grp = ?",
+                     (values["label"], values["value"], values["value2"], row_id, conf["grp"]))
+    render.flash(request, "Ligne modifiée.")
+    return back(table_back(slug, conf))
+
+
+@router.post("/tableaux/{slug}/{row_id}/supprimer")
+def table_delete(slug: str, row_id: int, request: Request, form=Depends(admin_form),
+                 conn: sqlite3.Connection = Depends(get_conn)):
+    conf = table_conf(slug)
+    with conn:
+        conn.execute("DELETE FROM spec_row WHERE id = ? AND grp = ?", (row_id, conf["grp"]))
+    render.flash(request, "Ligne supprimée.")
+    return back(table_back(slug, conf))
+
+
+@router.post("/tableaux/{slug}/{row_id}/deplacer")
+def table_move(slug: str, row_id: int, request: Request, form=Depends(admin_form),
+               conn: sqlite3.Connection = Depends(get_conn)):
+    conf = table_conf(slug)
+    scope = _row_scope(conn, conf, row_id)
+    if scope is not None:
+        db.move(conn, "spec_row", row_id, -1 if form.get("direction") == "up" else 1, *scope)
+    return back(table_back(slug, conf))
+
+
+# --- Questions fréquentes ------------------------------------------------------
+
+def slugify(value: str) -> str:
+    value = unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode()
+    value = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
+    return value[:MAX_ANCHOR].strip("-")
+
+
+def _faq_values(form, conn: sqlite3.Connection, faq_id: int | None) -> tuple[dict, list[str]]:
+    values = {
+        "question": text(form, "question", 200),
+        "answer": text(form, "answer", 2000),
+        "short_answer": text(form, "short_answer", 500),
+        "footer_label": text(form, "footer_label", 60),
+        "anchor": text(form, "anchor", 80).lower(),
+    }
+    errors = []
+    if not values["question"]:
+        errors.append("La question est obligatoire.")
+    if not values["anchor"]:
+        values["anchor"] = slugify(values["question"]) or "question"
+    if len(values["anchor"]) > MAX_ANCHOR or not ANCHOR_RE.match(values["anchor"]):
+        errors.append("Identifiant d'ancre invalide : lettres minuscules sans accent, "
+                      "chiffres et tirets (ex. duel-connexion).")
+    elif values["anchor"] in SECTION_ANCHORS:
+        errors.append(f"L'identifiant « {values['anchor']} » est déjà pris par une section "
+                      "de la page.")
+    else:
+        taken = conn.execute("SELECT id FROM faq WHERE anchor = ?", (values["anchor"],)).fetchone()
+        if taken and taken["id"] != faq_id:
+            errors.append(f"L'identifiant « {values['anchor']} » est déjà utilisé par une "
+                          "autre question.")
+    return values, errors
+
+
+@router.get("/faq")
+def faq_page(request: Request, conn: sqlite3.Connection = Depends(get_conn)):
+    require_admin(request)
+    return admin_page(request, "admin/faq.html", {"items": db.list_faq(conn)})
+
+
+@router.post("/faq/ajouter")
+def faq_add(request: Request, form=Depends(admin_form),
+            conn: sqlite3.Connection = Depends(get_conn)):
+    values, errors = _faq_values(form, conn, None)
+    if errors:
+        for error in errors:
+            render.flash(request, error, "error")
+        return back("/admin/faq")
+    with conn:
+        conn.execute(
+            "INSERT INTO faq (position, anchor, question, answer, short_answer, footer_label)"
+            " VALUES (?, ?, ?, ?, ?, ?)",
+            (db.next_position(conn, "faq"), values["anchor"], values["question"],
+             values["answer"], values["short_answer"], values["footer_label"]))
+    render.flash(request, "Question ajoutée.")
+    return back("/admin/faq")
+
+
+@router.post("/faq/{faq_id}/modifier")
+def faq_edit(faq_id: int, request: Request, form=Depends(admin_form),
+             conn: sqlite3.Connection = Depends(get_conn)):
+    if conn.execute("SELECT 1 FROM faq WHERE id = ?", (faq_id,)).fetchone() is None:
+        raise HTTPException(404)
+    values, errors = _faq_values(form, conn, faq_id)
+    if errors:
+        for error in errors:
+            render.flash(request, error, "error")
+        return back("/admin/faq")
+    with conn:
+        conn.execute(
+            "UPDATE faq SET anchor = ?, question = ?, answer = ?, short_answer = ?,"
+            " footer_label = ? WHERE id = ?",
+            (values["anchor"], values["question"], values["answer"], values["short_answer"],
+             values["footer_label"], faq_id))
+    render.flash(request, "Question modifiée.")
+    return back("/admin/faq")
+
+
+@router.post("/faq/{faq_id}/supprimer")
+def faq_delete(faq_id: int, request: Request, form=Depends(admin_form),
+               conn: sqlite3.Connection = Depends(get_conn)):
+    with conn:
+        conn.execute("DELETE FROM faq WHERE id = ?", (faq_id,))
+    render.flash(request, "Question supprimée.")
+    return back("/admin/faq")
+
+
+@router.post("/faq/{faq_id}/deplacer")
+def faq_move(faq_id: int, request: Request, form=Depends(admin_form),
+             conn: sqlite3.Connection = Depends(get_conn)):
+    db.move(conn, "faq", faq_id, -1 if form.get("direction") == "up" else 1)
+    return back("/admin/faq")
 
 
 # --- Captures d'écran ------------------------------------------------------------
@@ -340,6 +676,7 @@ def _screenshot_image(request: Request, form) -> str | None:
 def screens_add(request: Request, form=Depends(admin_form),
                 conn: sqlite3.Connection = Depends(get_conn)):
     caption = text(form, "caption", 120)
+    description = text(form, "description", 500)
     try:
         name = _screenshot_image(request, form)
     except UploadError as exc:
@@ -350,9 +687,9 @@ def screens_add(request: Request, form=Depends(admin_form),
         return back("/admin/captures")
     with conn:
         conn.execute(
-            "INSERT INTO screenshot (filename, caption, position, created_at)"
-            " VALUES (?, ?, ?, ?)",
-            (name, caption, db.next_position(conn, "screenshot"), db.now_iso()),
+            "INSERT INTO screenshot (filename, caption, description, position, created_at)"
+            " VALUES (?, ?, ?, ?, ?)",
+            (name, caption, description, db.next_position(conn, "screenshot"), db.now_iso()),
         )
     render.flash(request, "Capture ajoutée.")
     return back("/admin/captures")
@@ -361,7 +698,7 @@ def screens_add(request: Request, form=Depends(admin_form),
 @router.post("/captures/{shot_id}/modifier")
 def screens_edit(shot_id: int, request: Request, form=Depends(admin_form),
                  conn: sqlite3.Connection = Depends(get_conn)):
-    """Modifie la légende et, si un fichier est joint, remplace l'image."""
+    """Modifie la légende et la description et, si un fichier est joint, remplace l'image."""
     row = conn.execute("SELECT filename FROM screenshot WHERE id = ?", (shot_id,)).fetchone()
     if row is None:
         raise HTTPException(404)
@@ -371,8 +708,9 @@ def screens_edit(shot_id: int, request: Request, form=Depends(admin_form),
         render.flash(request, str(exc), "error")
         return back("/admin/captures")
     with conn:
-        conn.execute("UPDATE screenshot SET caption = ?, filename = COALESCE(?, filename)"
-                     " WHERE id = ?", (text(form, "caption", 120), name, shot_id))
+        conn.execute("UPDATE screenshot SET caption = ?, description = ?,"
+                     " filename = COALESCE(?, filename) WHERE id = ?",
+                     (text(form, "caption", 120), text(form, "description", 500), name, shot_id))
     if name and row["filename"]:
         delete_file(request.app.state.settings.images_dir, row["filename"])
     render.flash(request, "Capture enregistrée.")
@@ -400,12 +738,24 @@ def screens_move(shot_id: int, request: Request, form=Depends(admin_form),
 
 # --- APK ----------------------------------------------------------------------------
 
+def _release_fields(form) -> tuple[str, str, str | None]:
+    """Notes de version et date (facultative) ; renvoie aussi un message d'erreur."""
+    notes = text(form, "release_notes", 5000)
+    release_date = text(form, "release_date", 10)
+    if release_date and not valid_date(release_date):
+        return notes, release_date, "Date de version invalide."
+    return notes, release_date, None
+
+
 @router.get("/apk")
 def apk_page(request: Request, conn: sqlite3.Connection = Depends(get_conn)):
     require_admin(request)
+    apks = db.list_apks(conn)
     return admin_page(request, "admin/apk.html", {
-        "apks": db.list_apks(conn),
+        "apks": apks,
         "max_mb": request.app.state.settings.max_apk_mb,
+        # Premier dépôt : notes de la 1.0.0 proposées dans le formulaire.
+        "default_notes": "" if apks else db.V2_RELEASE_NOTES_1_0_0,
     })
 
 
@@ -419,6 +769,10 @@ def apk_upload(request: Request, form=Depends(admin_form),
         return back("/admin/apk")
     if conn.execute("SELECT 1 FROM apk_release WHERE version = ?", (version,)).fetchone():
         render.flash(request, f"La version {version} existe déjà.", "error")
+        return back("/admin/apk")
+    notes, release_date, error = _release_fields(form)
+    if error:
+        render.flash(request, error, "error")
         return back("/admin/apk")
     apk_file = upload(form, "apk")
     if apk_file is None:
@@ -436,15 +790,32 @@ def apk_upload(request: Request, form=Depends(admin_form),
                 conn.execute("UPDATE apk_release SET is_current = 0 WHERE is_current = 1")
             conn.execute(
                 "INSERT INTO apk_release (version, filename, size_bytes, sha256, uploaded_at,"
-                " is_current) VALUES (?, ?, ?, ?, ?, ?)",
+                " is_current, release_notes, release_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                 (version, saved.filename, saved.size, saved.sha256, db.now_iso(),
-                 1 if make_current else 0),
+                 1 if make_current else 0, notes, release_date),
             )
     except sqlite3.IntegrityError:
         delete_file(settings.apk_dir, saved.filename)
         render.flash(request, f"La version {version} existe déjà.", "error")
         return back("/admin/apk")
     render.flash(request, f"Version {version} déposée" + (" et publiée." if make_current else "."))
+    return back("/admin/apk")
+
+
+@router.post("/apk/{apk_id}/notes")
+def apk_notes(apk_id: int, request: Request, form=Depends(admin_form),
+              conn: sqlite3.Connection = Depends(get_conn)):
+    row = conn.execute("SELECT version FROM apk_release WHERE id = ?", (apk_id,)).fetchone()
+    if row is None:
+        raise HTTPException(404)
+    notes, release_date, error = _release_fields(form)
+    if error:
+        render.flash(request, error, "error")
+        return back("/admin/apk")
+    with conn:
+        conn.execute("UPDATE apk_release SET release_notes = ?, release_date = ? WHERE id = ?",
+                     (notes, release_date, apk_id))
+    render.flash(request, f"Notes de la version {row['version']} enregistrées.")
     return back("/admin/apk")
 
 
@@ -476,3 +847,52 @@ def apk_delete(apk_id: int, request: Request, form=Depends(admin_form),
     delete_file(request.app.state.settings.apk_dir, row["filename"])
     render.flash(request, f"Version {row['version']} supprimée.")
     return back("/admin/apk")
+
+
+# --- Messages du formulaire de contact -------------------------------------------
+
+def reply_link(message: sqlite3.Row) -> str:
+    subject = quote(f"Re: {message['subject']}")
+    return f"mailto:{quote(message['email'], safe='@.+-_')}?subject={subject}"
+
+
+def _message(conn: sqlite3.Connection, message_id: int) -> sqlite3.Row:
+    row = conn.execute("SELECT * FROM contact_message WHERE id = ?", (message_id,)).fetchone()
+    if row is None:
+        raise HTTPException(404, "Ce message n'existe pas ou a été supprimé.")
+    return row
+
+
+@router.get("/messages")
+def messages_page(request: Request, conn: sqlite3.Connection = Depends(get_conn)):
+    require_admin(request)
+    return admin_page(request, "admin/messages.html", {"messages": db.list_messages(conn)})
+
+
+@router.get("/messages/{message_id}")
+def message_page(message_id: int, request: Request,
+                 conn: sqlite3.Connection = Depends(get_conn)):
+    require_admin(request)
+    message = _message(conn, message_id)
+    return admin_page(request, "admin/message.html",
+                      {"m": message, "reply_url": reply_link(message)})
+
+
+@router.post("/messages/{message_id}/lu")
+def message_mark(message_id: int, request: Request, form=Depends(admin_form),
+                 conn: sqlite3.Connection = Depends(get_conn)):
+    _message(conn, message_id)
+    is_read = 0 if form.get("read") == "0" else 1
+    with conn:
+        conn.execute("UPDATE contact_message SET is_read = ? WHERE id = ?", (is_read, message_id))
+    render.flash(request, "Message marqué comme lu." if is_read else "Message marqué comme non lu.")
+    return back(f"/admin/messages/{message_id}" if form.get("stay") else "/admin/messages")
+
+
+@router.post("/messages/{message_id}/supprimer")
+def message_delete(message_id: int, request: Request, form=Depends(admin_form),
+                   conn: sqlite3.Connection = Depends(get_conn)):
+    with conn:
+        conn.execute("DELETE FROM contact_message WHERE id = ?", (message_id,))
+    render.flash(request, "Message supprimé.")
+    return back("/admin/messages")

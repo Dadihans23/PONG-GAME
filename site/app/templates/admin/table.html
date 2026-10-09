@@ -1,0 +1,50 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ conf.title }} · Administration{% endblock %}
+
+{% macro fields(row=None) %}
+  {% for col, label, max_len, multiline in conf.cols %}
+  <label>{{ label }}
+    {% if multiline %}
+    <textarea name="{{ col }}" rows="2" maxlength="{{ max_len }}" {% if loop.first %}required{% endif %}>{{ row[col] if row else '' }}</textarea>
+    {% else %}
+    <input type="text" name="{{ col }}" value="{{ row[col] if row else '' }}" maxlength="{{ max_len }}" {% if loop.first %}required{% endif %}>
+    {% endif %}
+  </label>
+  {% endfor %}
+{% endmacro %}
+
+{% block content %}
+<h1>{{ conf.title }}</h1>
+{% if conf.hint %}<p class="hint">{{ conf.hint }}</p>{% endif %}
+{% for row in rows %}
+<div class="card">
+  <form method="post" action="/admin/tableaux/{{ slug }}/{{ row.id }}/modifier" class="stack">
+    <input type="hidden" name="csrf_token" value="{{ csrf }}">
+    {{ fields(row) }}
+    <button type="submit">Enregistrer</button>
+  </form>
+  <div class="row">
+    {% for dir, label in [("up", "Monter"), ("down", "Descendre")] %}
+    <form method="post" action="/admin/tableaux/{{ slug }}/{{ row.id }}/deplacer" class="inline">
+      <input type="hidden" name="csrf_token" value="{{ csrf }}">
+      <input type="hidden" name="direction" value="{{ dir }}">
+      <button type="submit" class="secondary">{{ label }}</button>
+    </form>
+    {% endfor %}
+    <form method="post" action="/admin/tableaux/{{ slug }}/{{ row.id }}/supprimer" class="inline" data-confirm="Supprimer cette ligne ?">
+      <input type="hidden" name="csrf_token" value="{{ csrf }}">
+      <button type="submit" class="danger">Supprimer</button>
+    </form>
+  </div>
+</div>
+{% else %}
+<p>Aucune ligne pour l'instant.</p>
+{% endfor %}
+
+<h2>Ajouter : {{ conf.item }}</h2>
+<form method="post" action="/admin/tableaux/{{ slug }}/ajouter" class="stack card">
+  <input type="hidden" name="csrf_token" value="{{ csrf }}">
+  {{ fields() }}
+  <button type="submit">Ajouter</button>
+</form>
+{% endblock %}

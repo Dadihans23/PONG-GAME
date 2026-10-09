@@ -1,6 +1,6 @@
 # Site de présentation de Tilto
 
-Petit site FastAPI (rendu serveur Jinja2, SQLite, fichiers sur disque) qui présente le jeu, propose l'APK en téléchargement et le lien Play Store, publie la politique de confidentialité, et offre une administration protégée par mot de passe pour tout modifier sans toucher au code.
+Petit site FastAPI (rendu serveur Jinja2, SQLite, fichiers sur disque) qui présente le jeu, propose l'APK en téléchargement et le lien Play Store, publie la politique de confidentialité et les mentions légales, reçoit les messages du formulaire de contact, et offre une administration protégée par mot de passe pour tout modifier sans toucher au code.
 
 ## Organisation
 
@@ -12,9 +12,12 @@ site/
 │   ├── db.py              schéma SQLite, contenu initial, requêtes
 │   ├── security.py        mot de passe scrypt, CSRF, limitation, taille des requêtes, en-têtes
 │   ├── uploads.py         vérification et enregistrement des images et des APK
-│   ├── render.py          gabarits et filtres (taille, date, texte enrichi)
-│   ├── routes_public.py   /, /confidentialite, /telecharger, /media/…, /sante
+│   ├── render.py          gabarits et filtres (taille, date, date courte, texte enrichi)
+│   ├── routes_public.py   /, /confidentialite, /mentions-legales, /contact, /telecharger, /media/…, /sante
 │   ├── routes_admin.py    /admin/…
+│   ├── contact.py         formulaire de contact : jeton, délai, validation
+│   ├── mailer.py          notification SMTP facultative des messages de contact
+│   ├── reseed_v2.py       commande facultative : textes v1 → textes v2 (voir plus bas)
 │   ├── hashpw.py          génération du hachage du mot de passe et de la clé secrète
 │   ├── templates/         gabarits HTML (publics, et admin/)
 │   ├── seed/              logo initial du studio, copié dans les données au premier démarrage
@@ -53,7 +56,7 @@ docker compose run --rm --no-deps tilto-site python -m app.hashpw            # -
 docker compose up -d --build
 ```
 
-Au premier démarrage, la base et le contenu initial sont créés automatiquement : textes de la maquette « Tilto Site » (héros, 4 arguments, 3 étapes, 3 légendes de captures, bloc de téléchargement, politique de confidentialité de la planche 3c), studio Nexora et son logo clair. Restent à saisir dans l'administration : le lien Play Store, l'adresse de contact, les images des captures et l'APK.
+Au premier démarrage, la base et le contenu initial sont créés automatiquement : textes de la maquette « Tilto Site v2 », corrigés (haut de page et fiche technique, 4 arguments avec leurs caractéristiques, comparatif Solo / Duel, 3 étapes, barème, 4 captures avec description, 6 questions fréquentes, étapes d'installation de l'APK, pied de page, politique de confidentialité avec la section « Formulaire de contact »), studio Nexora et son logo clair, hébergeur Contabo GmbH dans les mentions légales. Restent à saisir dans l'administration : le lien Play Store, les images des captures, l'APK (ses notes de version 1.0.0 sont proposées au premier dépôt) et les mentions légales (le tableau de bord signale « Mentions légales incomplètes » tant que les champs obligatoires sont vides).
 
 ## Installation sur le VPS
 
@@ -89,7 +92,7 @@ git pull                   # ou recopier le dossier site/
 docker compose up -d --build
 ```
 
-La base et les fichiers sont dans le volume `tilto-data` : la reconstruction de l'image ne les touche pas. Le schéma est créé avec `CREATE TABLE IF NOT EXISTS` et le contenu initial n'est inséré que s'il manque.
+La base et les fichiers sont dans le volume `tilto-data` : la reconstruction de l'image ne les touche pas. Le schéma est créé avec `CREATE TABLE IF NOT EXISTS`, les colonnes ajoutées par une version sont ajoutées aux bases existantes (`MIGRATIONS` dans `db.py`), et le contenu initial n'est inséré que s'il manque.
 
 ### Sauvegarder et restaurer le volume
 
@@ -154,28 +157,106 @@ sudo nginx -t && sudo systemctl reload nginx
 ## Sécurité, en bref
 
 - Mot de passe unique, stocké uniquement sous forme de hachage scrypt (N = 2^16, r = 8), vérifié en temps constant ; 5 échecs par IP en 15 minutes bloquent la connexion (réglable).
-- Session dans un cookie signé (`itsdangerous`), `HttpOnly`, `SameSite=Lax`, limité au chemin `/admin`, `Secure` si `COOKIE_SECURE=true`, durée maximale `SESSION_MAX_AGE` ; les pages publiques ne déposent aucun cookie.
+- Session dans un cookie signé (`itsdangerous`), `HttpOnly`, `SameSite=Lax`, limité au chemin `/admin`, `Secure` si `COOKIE_SECURE=true`, durée maximale `SESSION_MAX_AGE` ; les pages publiques ne déposent aucun cookie, sauf `/contact` (voir ci-dessous).
+- Formulaire de contact : jeton anti-CSRF « double envoi » (cookie technique aléatoire `tilto_contact`, `HttpOnly`, `SameSite=Strict`, limité au chemin `/contact`, effacé à la fermeture du navigateur, plus un jeton signé avec `SECRET_KEY` dans le formulaire), champ piège invisible (`website`, un envoi qui le remplit est ignoré en silence), délai minimal `CONTACT_MIN_SECONDS` entre affichage et envoi, jeton valable 2 heures, limitation à `CONTACT_MAX_PER_HOUR` messages par IP et `CONTACT_GLOBAL_PER_HOUR` au total par heure (en mémoire), corps limité à 32 Ko, message à 2000 caractères, e-mail validé et sans retour à la ligne (pas d'injection d'en-têtes dans la notification). Aucun service externe ni captcha. Aucune adresse IP n'est enregistrée avec les messages.
 - Jeton CSRF sur tous les formulaires, y compris connexion et déconnexion.
 - Fichiers : type vérifié sur le contenu (signature PNG/JPEG/WebP/GIF, SVG sans script pour le logo, APK = ZIP contenant `AndroidManifest.xml`), nom généré par le serveur, taille limitée avant même la lecture du formulaire (413).
 - En-têtes : CSP stricte (aucun script en ligne), `X-Frame-Options`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`, HSTS en HTTPS.
 - Pas de mode debug, pas de documentation `/docs` exposée, conteneur sans privilèges (utilisateur 10001, `no-new-privileges`).
 
-## Habiller les gabarits (maquette « Tilto Site »)
+## Formulaire de contact et notification par e-mail
 
-Les données suivent déjà les sections de la maquette (`maquette/Corrections et validation des maquettes/Tilto Site.dc.html`, planches 3a, 3b, 3c) : l'habillage ne touche que les gabarits publics, la feuille de style et d'éventuels scripts. Routes et base ne changent pas.
+`/contact` affiche le formulaire (nom facultatif, e-mail, sujet : Question, Problème technique, Suggestion, Autre, message de 2000 caractères au plus) ; un envoi réussi mène à `/contact/merci`. Les messages sont enregistrés en base et se lisent dans **Administration › Messages** (liste, lecture, marquer comme lu ou non lu, supprimer, bouton « Répondre par e-mail » qui ouvre un `mailto:`). Le nombre de non-lus s'affiche dans le menu et sur le tableau de bord.
 
-| Section de la maquette | Gabarit | Données |
+Notification facultative, variables de `.env` (voir `.env.example`) :
+
+| Variable | Rôle |
+|---|---|
+| `SMTP_HOST` | serveur SMTP (vide = aucune notification) |
+| `SMTP_PORT` | 587 (STARTTLS, défaut) ou 465 (SSL) |
+| `SMTP_SECURITY` | facultatif : `starttls` ou `ssl` (déduit du port sinon) |
+| `SMTP_USER`, `SMTP_PASSWORD` | identifiants (vide = pas d'authentification) |
+| `SMTP_FROM` | expéditeur (adresse autorisée par le serveur SMTP) |
+| `CONTACT_NOTIFY_TO` | destinataire de la notification |
+| `CONTACT_MAX_PER_HOUR`, `CONTACT_GLOBAL_PER_HOUR`, `CONTACT_MIN_SECONDS` | limitations (3, 30, 3 par défaut) |
+
+La notification part en tâche de fond après la réponse au visiteur ; son « Répondre » écrit directement au visiteur (`Reply-To`). Un échec (serveur injoignable, mauvais mot de passe) est écrit dans `docker compose logs` (`ERROR tilto.mailer: …`) et le message reste en base. Sans `SMTP_HOST`, `SMTP_FROM` et `CONTACT_NOTIFY_TO`, rien n'est envoyé.
+
+## Mise à jour vers le site v2 : ce qui change en production
+
+Au premier démarrage de la v2, sans rien effacer :
+
+- nouvelles colonnes : `content_item.short_body` (texte court mobile des arguments), `screenshot.description`, `apk_release.release_notes` et `release_date` ;
+- nouvelles tables : `spec_row` (fiche technique, comparatif, barème, étapes d'installation, caractéristiques des arguments), `faq`, `contact_message` ;
+- nouveaux réglages (sur-titres, titres de sections, textes du pied de page, mentions légales…) avec leur texte initial ;
+- contenus v2 insérés une seule fois (repère interne `_seed_v2`) : fiche technique, comparatif, barème, installation, 6 questions de FAQ, caractéristiques et texte court des 4 arguments existants (reconnus à leur sur-titre INCLINE, À DEUX, SENSIBILITÉ, RECORDS), notes de version de l'APK `1.0.0` s'il est déjà déposé et sans notes. Un tableau vidé ensuite dans l'administration n'est pas recréé.
+
+Les textes **déjà en base ne sont pas écrasés**. Après le déploiement, la page affichera donc encore les textes v1 suivants, à mettre à jour :
+
+1. **Textes › Accroche** : en v1 elle contient aussi « Seul contre l'ordinateur, ou à deux sur le même Wi-Fi. », qui fait maintenant doublon avec le nouveau texte de présentation. Texte v2 : « Le Pong qu'on joue en inclinant son téléphone. »
+2. **Textes › Phrase du bloc de téléchargement** : v2 « Le Play Store installe les mises à jour tout seul. L'APK sert si tu n'as pas le Play Store ou si tu veux l'installer à la main. » (à ne changer qu'une fois l'app sur le Play Store).
+3. **Arguments** : titres et textes v2 des 4 arguments (le texte court et les caractéristiques sont déjà ajoutés).
+4. **Comment jouer** : précisions v2 des 3 étapes, titre de l'étape 2 « Tape l'écran pour lancer la balle. ».
+5. **Captures** : légendes v2 (L'accueil, En solo, En duel, Fin du duel), descriptions, et une 4e capture « Fin du duel ». Vérifier que chaque image correspond à sa nouvelle légende.
+6. **Confidentialité** : ajouter la section « Formulaire de contact » (texte dans `db.py`, `PRIVACY_CONTACT_SECTION`) et changer la date de mise à jour.
+7. **Mentions légales** : éditeur (nom, forme juridique, adresse, e-mail, directeur de la publication) et adresse et téléphone de l'hébergeur Contabo GmbH, à vérifier sur le site de Contabo.
+8. **APK** : relire les notes de version de la 1.0.0 (page APK) et, si besoin, la date de version.
+9. Facultatif : variables SMTP dans `.env` sur le VPS, puis `docker compose up -d`.
+
+Les points 1 à 6 peuvent aussi être faits en une fois, après une sauvegarde de la base :
+
+```bash
+docker compose exec tilto-site python -m app.reseed_v2            # liste les changements, ne modifie rien
+docker compose exec tilto-site python -m app.reseed_v2 --apply    # demande « oui », puis applique
+```
+
+La commande remplace, position par position, les textes des arguments (et leurs caractéristiques), des étapes et des légendes et descriptions des captures par ceux de la v2 (images conservées, capture manquante ajoutée sans image), l'accroche et la phrase de téléchargement, et ajoute la section contact à la politique de confidentialité (date mise à aujourd'hui). Elle ne touche ni aux APK, ni aux images, ni à la FAQ, ni aux tableaux, ni aux mentions légales.
+
+## Habiller les gabarits (maquette « Tilto Site v2 »)
+
+Les données suivent les sections de la maquette `maquette/Corrections et validation des maquettes/Tilto Site v2.dc (1).html` (planches 3a ordinateur, 3b mobile). Les gabarits actuels affichent ces données avec un balisage minimal, sans habillage : l'habillage ne touche que les gabarits publics, `app/static/css/site.css` et `app/static/js/`. Routes et base ne changent pas. Toutes les valeurs sont échappées par Jinja ; `|rich_text` pour les textes longs à intertitres.
+
+Variables communes à toutes les pages publiques (`routes_public.site_context`) :
+
+| Variable | Contenu |
+|---|---|
+| `site` | tous les réglages (clés ci-dessous), plus `site.studio_logo_url` (vide sans logo) |
+| `year` | année en cours |
+| `apk` | APK courant ou `None` : `version`, `size_bytes` (`\|filesize`), `sha256` (empreinte complète), `uploaded_at`, `date` (date de version, ou de dépôt, AAAA-MM-JJ ; `\|date_short` → « 9 oct. 2026 », `\|date_fr` → « 9 octobre 2026 »), `notes` (liste des nouveautés, une par ligne saisie), `download_name` (ex. `Tilto-1.0.0.apk`) |
+| `faq` | questions : `anchor`, `question`, `answer`, `short_answer` (mobile, peut être vide), `footer_label` |
+| `footer_columns` | colonnes du pied de page : `[{title, links: [{label, href, external}]}]` — Le jeu (Solo et Duel, Comment jouer, Captures, Nouveautés x.y.z), Aide (Questions fréquentes, Installer l'APK, puis chaque question dont `footer_label` est rempli), Télécharger (Google Play, APK vx · taille ; colonne absente sans l'un ni l'autre), studio (Contact, Politique de confidentialité, Mentions légales) |
+
+Page d'accueil (`index.html`) :
+
+| Section de la maquette | Données |
+|---|---|
+| Barre de navigation (Le jeu, Solo ou Duel, Comment jouer, Captures, FAQ, Installer l'APK ; « v1.0.0 · 9 oct. 2026 ») | ancres `#le-jeu`, `#solo-duel`, `#comment-jouer`, `#captures`, `#faq`, `#installer-apk`, `#telecharger`, `#nouveautes`, `#bareme` ; `apk.version`, `apk.date\|date_short`. Pas de bandeau « Nouveau », pas de sélecteur de langue. |
+| Haut de page | `site.hero_kicker`, `site.game_name`, `site.tagline`, `site.hero_text` (ordinateur), `site.hero_text_short` (mobile), `site.play_store_url` (vide = bouton masqué), `apk` (version, taille, « sans Play Store » est du gabarit), `site.hero_note` |
+| Fiche technique (MODES, JOUEURS…) | `hero_specs` : `label`, `value` (la version mobile de la maquette n'en montre que 3 : au gabarit de choisir) |
+| Démo | `site.hero_demo_text` (légende) ; l'animation est du gabarit |
+| Section « Ce qui change » | `site.features_kicker`, `site.features_title`, `site.features_intro` |
+| 4 arguments (01 à 04) | `features` : `kicker`, `title`, `body`, `short_body` (mobile, peut être vide), `specs` (liste de `label`, `value`) ; le numéro est `loop.index` |
+| Solo ou Duel | `site.compare_kicker`, `site.compare_title`, `compare` : `label` (critère), `value` (Solo), `value2` (Duel) |
+| Comment jouer | `site.steps_title`, `steps` : `title`, `body` |
+| Barème en solo | `site.scoring_title`, `scoring` : `label`, `value` |
+| Captures | `site.screens_title`, `site.screens_intro`, `site.screens_note`, `screenshots` : `filename` (`/media/<filename>`, vide = emplacement réservé), `caption`, `description` |
+| Questions fréquentes | `site.faq_title`, `site.faq_subtitle`, `faq` (chaque question porte `id="{{ q.anchor }}"`, cible des liens du pied de page), `site.faq_text` + lien `/contact` |
+| Télécharge Tilto | `site.download_title`, `site.download_text`, `apk` |
+| Installer l'APK | `site.install_title`, `install_steps` (`label` = texte de l'étape), `site.install_note` (phrase Play Store), `apk.sha256` |
+| Nouveautés | `site.notes_title`, `apk.version`, `apk.date`, `apk.notes` |
+| Pied de page (`base.html`) | `site.footer_text`, `site.studio_logo_url`, `footer_columns`, « Un jeu de `site.studio_name` · © `year` · `site.game_name` `apk.version` », `site.footer_note`, `site.footer_trademark` |
+
+Autres pages :
+
+| Page | Gabarit | Données |
 |---|---|---|
-| En-tête, navigation (Le jeu, Comment jouer, Captures, Télécharger) | `base.html` | ancres `#le-jeu`, `#comment-jouer`, `#captures`, `#telecharger` |
-| Héros | `index.html` | `site.game_name` (affiché en majuscules), `site.tagline`, `site.play_store_url` (vide = bouton masqué), `apk` (`version`, `size_bytes\|filesize` ; `None` sans APK), `site.hero_note` (« Gratuit · Android ») |
-| 4 arguments | `index.html` | `features` : `kicker` (INCLINE…), `title`, `body` |
-| Comment jouer | `index.html` | `steps` : `title`, `body` (précision) |
-| Captures | `index.html` | `screenshots` : `filename` (image servie par `/media/<filename>`, ou vide = emplacement réservé), `caption` (légende, aussi texte alternatif) |
-| Bloc final | `index.html` (macro `download_buttons`, partagée avec le héros) | `site.download_title`, `site.download_text`, `apk` |
-| Pied de page | `base.html` | `site.studio_logo_url` (vide si aucun logo), `site.studio_name`, `year`, `site.contact_email` (lien Contact masqué s'il est vide) |
-| Politique de confidentialité (3c) | `privacy.html` | `site.privacy_updated\|date_fr`, `site.privacy_policy\|rich_text` (paragraphes, `<h2>`, listes) |
+| `/confidentialite` (3c) | `privacy.html` | `site.privacy_updated\|date_fr`, `site.privacy_policy\|rich_text` |
+| `/mentions-legales` | `legal.html` | `legal_sections` : `[{title, rows: [{label, value}]}]` (Éditeur du site, Directeur de la publication, Hébergeur ; champs vides omis), `site.legal_extra\|rich_text`, `site.legal_updated`, ou directement `site.legal_publisher`, `legal_form`, `legal_registration`, `legal_address`, `legal_email`, `legal_phone`, `legal_director`, `legal_host_name`, `legal_host_address`, `legal_host_phone` |
+| `/contact` | `contact.html` | `form` (`name`, `email`, `subject`, `message`, `errors` : liste de messages en français), `subjects`, `max_message`, `contact_token` (champ caché `csrf_token`, obligatoire), `honeypot` (nom du champ piège, à garder invisible avec la classe `contact-hp` définie à la fin de `site.css`), `site.contact_email` (adresse affichée si remplie) |
+| `/contact/merci` | `contact_sent.html` | variables communes |
+| Erreurs | `error.html` | `status`, `message` (sans `site` : le pied de page affiche des liens fixes) |
 
-Autres fichiers : `error.html` (erreurs 404 et autres), `app/static/css/site.css` (les règles d'administration sont à la fin : les déplacer dans un `admin.css` si la nouvelle feuille remplace tout), polices dans `app/static/fonts/`. L'animation du terrain va dans un fichier de `app/static/js/` chargé par `<script src>` : la CSP interdit le JavaScript et les styles en ligne (`style="…"`) ainsi que toute ressource externe ; tout doit être servi par le site. Les éléments purement décoratifs de la maquette (classement d'exemple, curseur Douce / Vive, téléphones de Léa et Tom) relèvent du gabarit, pas de la base.
+La CSP interdit le JavaScript et les styles en ligne (`style="…"`) ainsi que toute ressource externe : scripts dans `app/static/js/` chargés par `<script src>`, polices dans `app/static/fonts/`. Les éléments purement décoratifs de la maquette (classement d'exemple, curseur Douce / Vive, téléphones de Léa et Tom, partie de démonstration) relèvent du gabarit, pas de la base.
 
 ## Déploiement automatique (branche `prod`)
 
