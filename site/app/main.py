@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import mimetypes
 import time
 from http import HTTPStatus
 from pathlib import Path
@@ -21,6 +22,10 @@ from .routes_public import router as public_router
 from .security import BodySizeLimitMiddleware, LoginLimiter, SecurityHeadersMiddleware
 
 APP_DIR = Path(__file__).resolve().parent
+
+# Python 3.12 ne connaît pas toujours .woff2 (selon /etc/mime.types) : sans
+# cela, StaticFiles servirait les polices en text/plain.
+mimetypes.add_type("font/woff2", ".woff2")
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:

@@ -13,7 +13,8 @@
   <link rel="icon" href="/static/img/favicon.ico" sizes="16x16 32x32 48x48">
   <link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/static/img/apple-touch-icon.png">
-  <link rel="preload" href="/static/fonts/Archivo-Black.ttf" as="font" type="font/ttf" crossorigin>
+  {# Seule la graisse du titre (900, h1 de l'accueil) est préchargée ; même URL que dans site.css. #}
+  <link rel="preload" href="/static/fonts/Archivo-Black.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/static/css/site.css">
   <script src="/static/js/nav.js" defer></script>
   {% block scripts %}{% endblock %}

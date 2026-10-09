@@ -5,12 +5,12 @@
    (.btn--primary) ; le rouge (.btn--danger) n'apparaît que dans la boîte de
    confirmation. Aucune icône hors monter / descendre / supprimer. */
 
-@font-face { font-family: "Archivo"; src: url("../fonts/Archivo-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
-@font-face { font-family: "Archivo"; src: url("../fonts/Archivo-Medium.ttf") format("truetype"); font-weight: 500; font-display: swap; }
-@font-face { font-family: "Archivo"; src: url("../fonts/Archivo-SemiBold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
-@font-face { font-family: "Archivo"; src: url("../fonts/Archivo-Bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
-@font-face { font-family: "Archivo"; src: url("../fonts/Archivo-ExtraBold.ttf") format("truetype"); font-weight: 800; font-display: swap; }
-@font-face { font-family: "Archivo"; src: url("../fonts/Archivo-Black.ttf") format("truetype"); font-weight: 900; font-display: swap; }
+@font-face { font-family: "Archivo"; src: url("../fonts/Archivo-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Archivo"; src: url("../fonts/Archivo-Medium.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Archivo"; src: url("../fonts/Archivo-SemiBold.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+@font-face { font-family: "Archivo"; src: url("../fonts/Archivo-Bold.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+@font-face { font-family: "Archivo"; src: url("../fonts/Archivo-ExtraBold.woff2") format("woff2"); font-weight: 800; font-display: swap; }
+@font-face { font-family: "Archivo"; src: url("../fonts/Archivo-Black.woff2") format("woff2"); font-weight: 900; font-display: swap; }
 
 /* ---------- Jetons ---------- */
 
