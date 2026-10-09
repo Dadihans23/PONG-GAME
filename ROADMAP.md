@@ -175,13 +175,16 @@ Décidé avec le propriétaire. Développé sur la branche `feature-sensibilite`
 
 ## Phase 2 bis — Identité, accueil, site et Play Store
 
-Décidé avec le propriétaire. Ordre : après le test du duel sur deux téléphones et la fusion dans `main`.
+Décidé avec le propriétaire. Le site a été lancé sans attendre le test du duel (accord du propriétaire).
+
+**Branches (état au 2026-10-09)** : tout le travail est sur `feature-sensibilite` (contient `phase-2-multijoueur` + sensibilité + signature + icône + site + CI/CD). `prod` = copie de `feature-sensibilite`, déployée sur https://tilto.fun. `main` (sur GitHub) n'a que la phase 1 : la fusion dans `main` attend le test du duel sur deux téléphones.
 
 Décisions :
 - Nom du jeu : **Tilto** (« Pong » est une marque d'Atari et trop générique). Studio : **Nexora** (nom susceptible de changer).
 - Logo : `assets/nexora.png` (fond transparent, symbole « N » bleu dégradé, texte bleu nuit). Couleurs du studio : noir et blanc.
 - Nom et logo du studio regroupés dans un seul fichier de l'app ; pas de configuration à distance pour l'instant.
-- Distribution : APK en téléchargement direct et Play Store (compte Play Console existant). Site sur le VPS du propriétaire, sur un port en attendant un nom de domaine.
+- Distribution : APK en téléchargement direct et Play Store (compte Play Console existant). Site sur le VPS du propriétaire, domaine **tilto.fun**.
+- Version de l'app : **1.0.0** (première version publique sous le nom Tilto).
 
 ### Signature visuelle
 - [x] Nom et logo du studio dans un seul fichier (`lib/brand.dart`)
@@ -199,12 +202,20 @@ Décisions :
 - [x] Page unique d'après la maquette (`site/`) : jeu en mouvement, 4 arguments, comment jouer, captures, téléchargement APK et Play Store, confidentialité, signature Nexora
 - [x] Backend FastAPI : administration (studio, logo, textes, arguments, étapes, captures, Play Store, versions de l'APK), Docker
 - [x] Déployé sur le VPS : **https://tilto.fun** (Nginx + Certbot, conteneur sur 127.0.0.1:8085) ; déploiement automatique à chaque push sur `prod`
-- [ ] Contenu à fournir : 3 captures d'écran de l'app, lien Play Store, adresse de contact, APK
+- [ ] Contenu à fournir par le propriétaire dans l'administration : 4 captures d'écran (accueil, solo, duel, fin du duel), lien Play Store, adresse de contact, APK 1.0.0 et ses notes
 - [x] Backend du site v2 (maquette « Tilto Site v2 ») : fiche technique, caractéristiques des arguments, comparatif Solo / Duel, barème, FAQ à ancres, installation de l'APK, notes de version, empreinte SHA-256, pied de page à colonnes, page Mentions légales, formulaire de contact (CSRF, champ piège, délai, limitation par IP) avec page Messages et notification SMTP facultative ; migration sans perte et commande `python -m app.reseed_v2`
-- [ ] Habillage des gabarits v2 par le designer (données prêtes, voir `site/README.md`)
-- [ ] Après déploiement : remplir les mentions légales (éditeur, adresse et téléphone de Contabo), décider `reseed_v2 --apply` ou mise à jour manuelle des textes, section contact de la politique de confidentialité, SMTP facultatif
+- [x] Habillage v2 d'après la maquette « Tilto Site v2 » (corrigée : pas de bandeau d'annonce, pas de sélecteur de langue, pas de liens Presse / Versions précédentes, infos fausses retirées) ; déployé ; sauvegarde des données dans `~/tilto-backups/` sur le VPS avant déploiement
+- [x] Marge horizontale globale (conteneur 1160 px), mode clair et sombre sans flash, espacements resserrés
+- [ ] **En attente d'accord du propriétaire** : `reseed_v2 --apply` sur le site en ligne (simulation faite : 14 changements — accroche, phrase de téléchargement, 4 arguments, 3 étapes, légendes des 3 captures + 4e « Fin du duel », section contact de la confidentialité). Commande : `ssh hans@79.143.190.190 "cd ~/tilto-site && docker compose exec tilto-site python -m app.reseed_v2 --apply"` (demande « oui »)
+- [ ] Mentions légales à remplir par le propriétaire (éditeur, forme, immatriculation, adresse, e-mail, directeur de la publication, adresse et téléphone de Contabo) ; **pays d'édition à demander** pour adapter la liste
+- [ ] SMTP facultatif pour recevoir les messages de contact par e-mail
+- [ ] Administration : maquette reçue (`maquette/Corrections et validation des maquettes/Tilto Admin v2.dc (1).html`, prompt `design_prompt_admin.md`) — à intégrer (défauts connus : tableaux qui débordent à 360 px, variable `--surface-2` non définie dans `admin.css`)
+- [ ] Mise à jour des actions GitHub (avertissements Node.js 20 et Ubuntu 26) lors d'une prochaine modification du workflow
 
 ### Publication sur le Play Store
+
+Attention : l'APK actuel est signé avec la clé de debug (`signingConfig signingConfigs.debug`) ; la version Play Store aura une autre signature, donc pas de mise à jour par-dessus un APK installé à la main.
+
 - [ ] Identifiant définitif de l'app (par exemple `com.nexora.tilto`) à la place de `com.example.pong_game`
 - [ ] Clé de signature créée et sauvegardée
 - [ ] Mise à jour des outils Android exigée par Google (SDK cible), format AAB

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=block" rel="stylesheet">
+<style>html{background:#050507}body{margin:0;background:#050507;color:#F2F2F5;font-family:Archivo,sans-serif;-webkit-font-smoothing:antialiased}a{color:#FF5C93;text-decoration:none}a:hover{color:#FF8AB1}@keyframes tiltoX{from{transform:translateX(0)}to{transform:translateX(var(--tx))}}@keyframes tiltoY{from{transform:translateY(0)}to{transform:translateY(var(--ty))}}</style>
+</helmet>
+<div style="padding:64px;display:flex;flex-direction:column;gap:48px">
+  <header style="display:flex;flex-direction:column;gap:14px;max-width:1100px">
+    <div style="display:flex;gap:20px;font-size:13px;font-weight:600;letter-spacing:.06em"><a href="Tilto%20Accueil.dc.html">1 · Accueil</a><a href="Tilto%20Icone.dc.html">2 · Icône</a><a href="Tilto%20Site.dc.html">3 · Site v1</a><a href="Tilto%20Site%20v2.dc.html" style="color:#F2F2F5">3 · Site v2</a></div>
+    <div style="font-size:32px;font-weight:900;letter-spacing:.3em">TILTO · SITE v2</div>
+    <p style="margin:0;max-width:860px;font-size:15px;line-height:1.6;color:#9E9EAB;text-wrap:pretty">Version plus dense que la <a href="Tilto%20Site.dc.html">v1</a> : marges divisées par deux à trois, plus de texte. Le hero passe en deux colonnes avec la fiche technique. Les arguments deviennent une liste numérotée détaillée. On ajoute un comparatif Solo / Duel, le barème des points, une FAQ, l'installation de l'APK et les notes de version. La barre de navigation et le pied de page ont chacun deux niveaux.</p>
+  </header>
+
+  <div style="display:flex;gap:56px;align-items:flex-start">
+  <div id="3a" style="display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;font-weight:800;padding:4px 9px;border-radius:6px;background:#E91E63;color:#fff">3a</span><span style="font-size:14px;font-weight:700">Ordinateur · 1440 px</span></div>
+    <div style="width:1440px;background:#0B0B10;border-radius:16px;overflow:hidden;box-shadow:0 0 0 1px #262630,0 30px 80px rgba(0,0,0,.6)">
+
+      <div style="height:36px;padding:0 56px;background:#07070A;border-bottom:1px solid #16161E;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#9E9EAB">
+        <div style="display:flex;gap:10px;align-items:center"><span style="color:#FF5C93;font-weight:800;letter-spacing:.14em">NOUVEAU</span><span>Tilto 2.0 : le duel à deux sur le même Wi-Fi est arrivé.</span><a href="#notes" style="font-weight:700">Notes de version →</a></div>
+        <div style="display:flex;gap:18px"><span>Android 7.0 et plus</span><span>18 Mo</span><span>Gratuit, sans publicité, sans compte</span><span style="color:#C8C8D2;font-weight:600">FR</span></div>
+      </div>
+      <div style="height:60px;padding:0 56px;display:flex;align-items:center;gap:40px;border-bottom:1px solid #16161E">
+        <div style="display:flex;align-items:baseline;gap:10px"><span style="font-size:20px;font-weight:900;letter-spacing:.32em">TILTO</span><span style="font-size:12px;color:#6B6B7A">un jeu de Nexora</span></div>
+        <div style="flex:1;display:flex;gap:26px;font-size:14px;font-weight:600;color:#C8C8D2"><span style="color:#F2F2F5">Le jeu</span><span>Solo ou Duel</span><span>Comment jouer</span><span>Captures</span><span>FAQ</span><span>Installer l'APK</span></div>
+        <div style="display:flex;align-items:center;gap:14px"><span style="font-size:12px;color:#6B6B7A">v2.0.0 · 9 oct. 2026</span><div style="height:40px;padding:0 18px;border-radius:12px;border:1px solid #3A3A48;display:flex;align-items:center;font-size:14px;font-weight:700">Télécharger</div></div>
+      </div>
+
+      <div style="padding:44px 56px 48px;display:grid;grid-template-columns:minmax(0,1fr) 560px;gap:56px;align-items:start">
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div style="font-size:12px;font-weight:800;letter-spacing:.3em;color:#6B6B7A">PONG VERTICAL · ANDROID · SOLO ET DUEL LOCAL</div>
+          <div style="font-size:120px;font-weight:900;letter-spacing:.28em;line-height:.95;text-shadow:0 0 48px rgba(233,30,99,.45)">TILTO</div>
+          <div style="font-size:30px;font-weight:800;line-height:1.15;max-width:640px;text-wrap:balance">Le Pong qu'on joue en inclinant son téléphone.</div>
+          <p style="margin:0;font-size:17px;line-height:1.6;color:#C8C8D2;max-width:640px;text-wrap:pretty">Ta raquette est en bas, celle de l'adversaire en haut. Pas de bouton à l'écran : tu tiens le téléphone à deux mains et tu le penches à gauche ou à droite. Joue seul contre l'ordinateur sur trois niveaux, ou défie un ami en duel. Chacun joue sur son téléphone, sur le même Wi-Fi, sans Internet.</p>
+          <div style="display:flex;gap:12px;margin-top:4px">
+            <div style="height:56px;padding:0 26px;border-radius:16px;background:#E91E63;display:flex;align-items:center;font-size:16px;font-weight:800;box-shadow:0 0 24px rgba(233,30,99,.5),0 8px 28px rgba(233,30,99,.3)">Télécharger sur Google Play</div>
+            <div style="height:56px;padding:0 22px;border-radius:16px;background:#15151C;border:1px solid #2A2A36;display:flex;flex-direction:column;justify-content:center;gap:1px"><span style="font-size:15px;font-weight:700">Télécharger l'APK</span><span style="font-size:12px;color:#9E9EAB">v2.0.0 · 18 Mo · sans Play Store</span></div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-top:1px solid #1E1E28;border-bottom:1px solid #1E1E28;margin-top:10px">
+            <div style="padding:12px 14px 12px 0;display:flex;flex-direction:column;gap:3px"><span style="font-size:11px;font-weight:800;letter-spacing:.18em;color:#6B6B7A">MODES</span><span style="font-size:14px;font-weight:600">Solo · Duel</span></div>
+            <div style="padding:12px 14px;border-left:1px solid #1E1E28;display:flex;flex-direction:column;gap:3px"><span style="font-size:11px;font-weight:800;letter-spacing:.18em;color:#6B6B7A">JOUEURS</span><span style="font-size:14px;font-weight:600">1 ou 2</span></div>
+            <div style="padding:12px 14px;border-left:1px solid #1E1E28;display:flex;flex-direction:column;gap:3px"><span style="font-size:11px;font-weight:800;letter-spacing:.18em;color:#6B6B7A">INTERNET</span><span style="font-size:14px;font-weight:600">Jamais requis</span></div>
+            <div style="padding:12px 14px;border-left:1px solid #1E1E28;display:flex;flex-direction:column;gap:3px"><span style="font-size:11px;font-weight:800;letter-spacing:.18em;color:#6B6B7A">ANDROID</span><span style="font-size:14px;font-weight:600">7.0 et plus</span></div>
+            <div style="padding:12px 14px;border-left:1px solid #1E1E28;display:flex;flex-direction:column;gap:3px"><span style="font-size:11px;font-weight:800;letter-spacing:.18em;color:#6B6B7A">PRIX</span><span style="font-size:14px;font-weight:600">Gratuit</span></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="position:relative;width:560px;height:440px;border-radius:20px;border:1px solid #23232D;background:#08080C;overflow:hidden">
+            <div style="position:absolute;left:0;right:0;top:219px;height:2px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.1) 0 12px,transparent 12px 24px)"></div>
+            <div style="position:absolute;left:16px;top:14px;font-size:11px;font-weight:800;letter-spacing:.22em;color:#6B6B7A">DÉMO · SOLO NORMAL</div>
+            <div style="position:absolute;right:16px;bottom:14px;font-size:11px;font-weight:800;letter-spacing:.22em;color:#6B6B7A">TOI</div>
+            <div style="position:absolute;right:16px;top:14px;font-size:11px;font-weight:800;letter-spacing:.22em;color:#6B6B7A">ORDINATEUR</div>
+            {{ heroD }}
+          </div>
+          <div style="font-size:13px;line-height:1.5;color:#9E9EAB">Partie de démonstration. En jeu, ta raquette bleue suit l'inclinaison du téléphone, et la balle accélère tous les 4 renvois.</div>
+        </div>
+      </div>
+
+      <div style="padding:48px 56px;border-top:1px solid #16161E;display:flex;flex-direction:column;gap:28px">
+        <div style="display:grid;grid-template-columns:420px minmax(0,1fr);gap:56px;align-items:end">
+          <div style="display:flex;flex-direction:column;gap:10px"><div style="font-size:12px;font-weight:800;letter-spacing:.3em;color:#6B6B7A">CE QUI CHANGE DU PONG CLASSIQUE</div><div style="font-size:40px;font-weight:800;line-height:1.08">Quatre idées, poussées jusqu'au bout.</div></div>
+          <p style="margin:0;font-size:16px;line-height:1.6;color:#9E9EAB;max-width:720px;text-wrap:pretty">Tilto garde la règle du Pong : renvoyer la balle et ne pas la laisser passer. Ce qui change, c'est la façon de jouer. Ici, ce sont tes mains et le téléphone tout entier qui servent de manette, et le duel se joue sans réseau mobile ni compte.</p>
+        </div>
+        <div style="display:flex;flex-direction:column">
+          <div style="display:grid;grid-template-columns:64px minmax(0,1.1fr) minmax(0,1fr) 300px;gap:32px;padding:28px 0;border-top:1px solid #1E1E28;align-items:start">
+            <div style="font-size:40px;font-weight:900;color:#2A2A36;line-height:1">01</div>
+            <div style="display:flex;flex-direction:column;gap:10px"><div style="font-size:11px;font-weight:800;letter-spacing:.3em;color:#64B5F6">INCLINE</div><div style="font-size:26px;font-weight:800;line-height:1.15">Pas de bouton. Tu penches, la raquette suit.</div><p style="margin:0;font-size:15px;line-height:1.6;color:#C8C8D2">L'accéléromètre lit l'angle du téléphone en continu. Plus tu penches, plus la raquette va vite. Tes pouces ne couvrent jamais l'écran, et rien n'est posé sur le terrain à part le bouton pause, dans un coin.</p></div>
+            <div style="display:flex;flex-direction:column;font-size:14px;line-height:1.5"><div style="display:flex;justify-content:space-between;gap:16px;padding:8px 0;border-bottom:1px solid #16161E"><span style="color:#9E9EAB">Prise en main</span><span style="font-weight:600;text-align:right">À deux mains, en portrait</span></div><div style="display:flex;justify-content:space-between;gap:16px;padding:8px 0;border-bottom:1px solid #16161E"><span style="color:#9E9EAB">Retour</span><span style="font-weight:600;text-align:right">Son et vibration à chaque renvoi</span></div><div style="display:flex;justify-content:space-between;gap:16px;padding:8px 0;border-bottom:1px solid #16161E"><span style="color:#9E9EAB">Démarrage</span><span style="font-weight:600;text-align:right">Tape n'importe où</span></div><div style="display:flex;justify-content:space-between;gap:16px;padding:8px 0"><span style="color:#9E9EAB">Pause</span><span style="font-weight:600;text-align:right">En solo uniquement</span></div></div>
+            <div style="height:240px;display:flex;align-items:center;justify-content:center;background:#08080C;border-radius:16px;border:1px solid #1A1A22;overflow:hidden"><div style="transform:rotate(-9deg)"><div style="width:110px;height:236px;border-radius:18px;background:#1E1E28;padding:5px;box-sizing:border-box;box-shadow:0 0 0 1px #2A2A36"><div style="width:100px;height:226px;border-radius:14px;overflow:hidden;position:relative"><div style="width:360px;height:800px;transform:scale(.2825);transform-origin:0 0"><dc-import name="TiltoEcran" screen="jeu" hint-size="360px,800px"></dc-import></div></div></div></div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:64px minmax(0,1.1fr) minmax(0,1fr) 300px;gap:32px;padding:28px 0;border-top:1px solid #1E1E28;align-items:start">
+            <div style="font-size:40px;font-weight:900;color:#2A2A36;line-height:1">02</div>
+            <div style="display:flex;flex-direction:column;gap:10px"><div style="font-size:11px;font-weight:800;letter-spacing:.3em;color:#81C784">À DEUX</div><div style="font-size:26px;font-weight:800;line-height:1.15">Chacun son téléphone, chacun sa raquette en bas.</div><p style="margin:0;font-size:15px;line-height:1.6;color:#C8C8D2">L'un crée la partie, l'autre la voit apparaître dans sa liste et la rejoint. Il n'y a pas d'adresse IP à taper, ni de compte ou de code à partager. Les deux téléphones se parlent directement sur le Wi-Fi de la maison, ou sur le partage de connexion de l'un de vous, même sans forfait data.</p></div>
+            <div style="display:flex;flex-direction:column;font-size:14px;line-height:1.5"><div style="display:flex;justify-content:space-between;gap:16px;padding:8px 0;border-bottom:1px solid #16161E"><span style="color:#9E9EAB">Format</span><span style="font-weight:600;text-align:right">Premier à 5 points</span></div><div style="display:flex;justify-content:space-between;gap:16px;padding:8px 0;border-bottom:1px solid #16161E"><span style="color:#9E9EAB">Réseau</span><span style="font-weight:600;text-align:right">Même Wi-Fi ou hotspot</span></div><div style="display:flex;justify-content:space-between;gap:16px;padding:8px 0;border-bottom:1px solid #16161E"><span style="color:#9E9EAB">Lancement</span><span style="font-weight:600;text-align:right">Les deux « Prêt », puis 3-2-1</span></div><div style="display:flex;justify-content:space-between;gap:16px;padding:8px 0"><span style="color:#9E9EAB">Revanche</span><span style="font-weight:600;text-align:right">Un bouton, sans repasser par le menu</span></div></div>
+            <div style="height:240px;display:flex;align-items:center;justify-content:center;gap:14px;background:#08080C;border-radius:16px;border:1px solid #1A1A22;overflow:hidden"><div style="width:100px;height:214px;border-radius:16px;background:#1E1E28;padding:5px;box-sizing:border-box;box-shadow:0 0 0 1px #2A2A36"><div style="width:90px;height:204px;border-radius:12px;overflow:hidden;position:relative"><div style="width:360px;height:800px;transform:scale(.255);transform-origin:0 0"><dc-import name="TiltoEcran" screen="duel" hint-size="360px,800px"></dc-import></div></div></div><div style="width:100px;height:214px;border-radius:16px;background:#1E1E28;padding:5px;box-sizing:border-box;box-shadow:0 0 0 1px #2A2A36;margin-top:20px"><div style="width:90px;height:204px;border-radius:12px;overflow:hidden;position:relative"><div style="width:360px;height:800px;transform:scale(.255);transform-origin:0 0"><dc-import name="TiltoEcran" screen="duelb" hint-size="360px,800px"></dc-import></div></div></div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:64px minmax(0,1.1fr) minmax(0,1fr) 300px;gap:32px;padding:28px 0;border-top:1px solid #1E1E28;align-items:start">
+            <div style="font-size:40px;font-weight:900;color:#2A2A36;line-height:1">03</div>
+            <div style="display:flex;flex-direction:column;gap:10px"><div style="font-size:11px;font-weight:800;letter-spacing:.3em;color:#9E9EAB">SENSIBILITÉ</div><div style="font-size:26px;font-weight:800;line-height:1.15">Réglée pour ta façon de tenir.</div><p style="margin:0;font-size:15px;line-height:1.6;color:#C8C8D2">Certains jouent à petits gestes, d'autres font tourner tout le téléphone. Le curseur de sensibilité adapte la vitesse de la raquette à l'angle. Tu le règles une fois et il reste mémorisé. Le son, la musique de pause et la vibration ont chacun leur interrupteur.</p></div>
+            <div style="display:flex;flex-direction:column;font-size:14px;line-height:1.5"><div style="display:flex;justify-content:space-between;gap:16px;padding:8px 0;border-bottom:1px solid #16161E"><span style="color:#9E9EAB">Sensibilité</span><span style="font-weight:600;text-align:right">De douce à vive</span></div><div style="display:flex;justify-content:space-between;gap:16px;padding:8px 0;border-bottom:1px solid #16161E"><span style="color:#9E9EAB">Son</span><span style="font-weight:600;text-align:right">Activé / coupé</span></div><div style="display:flex;justify-content:space-between;gap:16px;padding:8px 0;border-bottom:1px solid #16161E"><span style="color:#9E9EAB">Vibration</span><span style="font-weight:600;text-align:right">Activée / coupée</span></div><div style="display:flex;justify-content:space-between;gap:16px;padding:8px 0"><span style="color:#9E9EAB">Où</span><span style="font-weight:600;text-align:right">Accueil › Réglages</span></div></div>
+            <div style="height:240px;display:flex;flex-direction:column;justify-content:center;gap:22px;padding:0 28px;background:#08080C;border-radius:16px;border:1px solid #1A1A22;box-sizing:border-box">
+              <div style="position:relative;height:13px"><div style="position:absolute;left:0;top:0;width:64px;height:13px;border-radius:7px;border:1.5px dashed rgba(33,150,243,.4);box-sizing:border-box"></div><div style="position:absolute;right:0;top:0;width:64px;height:13px;border-radius:7px;border:1.5px dashed rgba(33,150,243,.4);box-sizing:border-box"></div><div style="position:absolute;left:140px;top:0;width:64px;height:13px;border-radius:7px;background:#2196F3;box-shadow:0 0 16px rgba(33,150,243,.6)"></div></div>
+              <div style="position:relative;height:24px"><div style="position:absolute;left:0;right:0;top:9px;height:6px;border-radius:3px;background:#1E1E28"></div><div style="position:absolute;left:0;width:62%;top:9px;height:6px;border-radius:3px;background:#2196F3"></div><div style="position:absolute;left:calc(62% - 12px);top:0;width:24px;height:24px;border-radius:12px;background:#F2F2F5;box-shadow:0 0 0 5px rgba(33,150,243,.2)"></div></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:#9E9EAB"><span>Douce</span><span>Vive</span></div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:64px minmax(0,1.1fr) minmax(0,1fr) 300px;gap:32px;padding:28px 0;border-top:1px solid #1E1E28;border-bottom:1px solid #1E1E28;align-items:start">
+            <div style="font-size:40px;font-weight:900;color:#2A2A36;line-height:1">04</div>
+            <div style="display:flex;flex-direction:column;gap:10px"><div style="font-size:11px;font-weight:800;letter-spacing:.3em;color:#FFC93C">RECORDS</div><div style="font-size:26px;font-weight:800;line-height:1.15">Bats ton record, puis celui de la famille.</div><p style="margin:0;font-size:15px;line-height:1.6;color:#C8C8D2">Le classement garde les 10 meilleurs scores joués sur le téléphone, avec le pseudo et la date. Quand quelqu'un bat le record pendant une partie, le terrain passe à l'or. Les statistiques comptent tes parties, ton temps de jeu, ta meilleure série de renvois et ton bilan en duel.</p></div>
+            <div style="display:flex;flex-direction:column;font-size:14px;line-height:1.5"><div style="display:flex;justify-content:space-between;gap:16px;padding:8px 0;border-bottom:1px solid #16161E"><span style="color:#9E9EAB">Classement</span><span style="font-weight:600;text-align:right">Top 10 local</span></div><div style="display:flex;justify-content:space-between;gap:16px;padding:8px 0;border-bottom:1px solid #16161E"><span style="color:#9E9EAB">Statistiques</span><span style="font-weight:600;text-align:right">Parties, temps, série, duels</span></div><div style="display:flex;justify-content:space-between;gap:16px;padding:8px 0;border-bottom:1px solid #16161E"><span style="color:#9E9EAB">Accès</span><span style="font-weight:600;text-align:right">Depuis l'accueil, à tout moment</span></div><div style="display:flex;justify-content:space-between;gap:16px;padding:8px 0"><span style="color:#9E9EAB">Stockage</span><span style="font-weight:600;text-align:right">Sur le téléphone, jamais en ligne</span></div></div>
+            <div style="height:240px;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:0 28px;background:#08080C;border-radius:16px;border:1px solid #1A1A22;box-sizing:border-box">
+              <div style="font-size:10px;font-weight:800;letter-spacing:.26em;color:#6B6B7A">TON RECORD</div>
+              <div style="font-size:56px;font-weight:900;line-height:1;color:#FFC93C;font-variant-numeric:tabular-nums">2 650</div>
+              <div style="margin-top:10px;display:flex;flex-direction:column;font-size:14px">
+                <div style="display:flex;gap:12px;height:30px;align-items:center;border-top:1px solid #1E1E28"><span style="width:12px;color:#FFD700;font-weight:800">1</span><span style="flex:1">Léa</span><span style="font-weight:800">2 650</span></div>
+                <div style="display:flex;gap:12px;height:30px;align-items:center;border-top:1px solid #1E1E28"><span style="width:12px;color:#C0C0C0;font-weight:800">2</span><span style="flex:1">Tom</span><span style="font-weight:800">2 400</span></div>
+                <div style="display:flex;gap:12px;height:30px;align-items:center;border-top:1px solid #1E1E28"><span style="width:12px;color:#CD7F32;font-weight:800">3</span><span style="flex:1">Inès</span><span style="font-weight:800">1 950</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:48px 56px;background:#0E0E14;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:56px">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div style="font-size:12px;font-weight:800;letter-spacing:.3em;color:#6B6B7A">SOLO OU DUEL</div>
+          <div style="font-size:32px;font-weight:800;line-height:1.1">Deux façons de jouer, mêmes règles de base.</div>
+          <div style="display:grid;grid-template-columns:150px minmax(0,1fr) minmax(0,1fr);font-size:14px;line-height:1.45;margin-top:6px">
+            <div style="padding:10px 0;border-bottom:1px solid #23232D"></div><div style="padding:10px 12px;border-bottom:1px solid #23232D;font-size:12px;font-weight:800;letter-spacing:.24em;color:#64B5F6">SOLO</div><div style="padding:10px 12px;border-bottom:1px solid #23232D;font-size:12px;font-weight:800;letter-spacing:.24em;color:#81C784">DUEL</div>
+            <div style="padding:10px 0;border-bottom:1px solid #1A1A22;color:#9E9EAB">Adversaire</div><div style="padding:10px 12px;border-bottom:1px solid #1A1A22">L'ordinateur</div><div style="padding:10px 12px;border-bottom:1px solid #1A1A22">Un ami, sur son téléphone</div>
+            <div style="padding:10px 0;border-bottom:1px solid #1A1A22;color:#9E9EAB">Niveaux</div><div style="padding:10px 12px;border-bottom:1px solid #1A1A22">Facile, Normal, Difficile</div><div style="padding:10px 12px;border-bottom:1px solid #1A1A22">Le niveau de ton ami</div>
+            <div style="padding:10px 0;border-bottom:1px solid #1A1A22;color:#9E9EAB">But</div><div style="padding:10px 12px;border-bottom:1px solid #1A1A22">Le plus gros score possible</div><div style="padding:10px 12px;border-bottom:1px solid #1A1A22">Arriver le premier à 5 points</div>
+            <div style="padding:10px 0;border-bottom:1px solid #1A1A22;color:#9E9EAB">Fin de partie</div><div style="padding:10px 12px;border-bottom:1px solid #1A1A22">La balle passe derrière toi</div><div style="padding:10px 12px;border-bottom:1px solid #1A1A22">Un joueur atteint 5</div>
+            <div style="padding:10px 0;border-bottom:1px solid #1A1A22;color:#9E9EAB">Pause</div><div style="padding:10px 12px;border-bottom:1px solid #1A1A22">Oui, avec musique</div><div style="padding:10px 12px;border-bottom:1px solid #1A1A22">Non, le duel ne s'arrête pas</div>
+            <div style="padding:10px 0;border-bottom:1px solid #1A1A22;color:#9E9EAB">Réseau</div><div style="padding:10px 12px;border-bottom:1px solid #1A1A22">Aucun, même en mode avion</div><div style="padding:10px 12px;border-bottom:1px solid #1A1A22">Même Wi-Fi ou hotspot, sans Internet</div>
+            <div style="padding:10px 0;color:#9E9EAB">Compte dans</div><div style="padding:10px 12px">Classement, statistiques</div><div style="padding:10px 12px">Victoires / défaites</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div style="font-size:12px;font-weight:800;letter-spacing:.3em;color:#6B6B7A">COMMENT JOUER</div>
+          <div style="display:flex;flex-direction:column">
+            <div style="display:grid;grid-template-columns:48px minmax(0,1fr);gap:14px;padding:12px 0;border-bottom:1px solid #1A1A22"><div style="font-size:40px;font-weight:900;line-height:.9;color:#2A2A36">1</div><div style="display:flex;flex-direction:column;gap:4px"><div style="font-size:17px;font-weight:700">Prends ton téléphone à deux mains.</div><div style="font-size:14px;line-height:1.55;color:#9E9EAB">En portrait, l'écran face à toi, à plat ou légèrement relevé. Choisis Solo ou Duel sur l'accueil, puis touche JOUER.</div></div></div>
+            <div style="display:grid;grid-template-columns:48px minmax(0,1fr);gap:14px;padding:12px 0;border-bottom:1px solid #1A1A22"><div style="font-size:40px;font-weight:900;line-height:.9;color:#2A2A36">2</div><div style="display:flex;flex-direction:column;gap:4px"><div style="font-size:17px;font-weight:700">Tape l'écran pour lancer la balle.</div><div style="font-size:14px;line-height:1.55;color:#9E9EAB">En duel, pas besoin : un compte à rebours 3-2-1 lance la balle sur les deux téléphones en même temps.</div></div></div>
+            <div style="display:grid;grid-template-columns:48px minmax(0,1fr);gap:14px;padding:12px 0"><div style="font-size:40px;font-weight:900;line-height:.9;color:#2A2A36">3</div><div style="display:flex;flex-direction:column;gap:4px"><div style="font-size:17px;font-weight:700">Incline pour la renvoyer.</div><div style="font-size:14px;line-height:1.55;color:#9E9EAB">Penche vers la gauche ou la droite pour placer ta raquette bleue sous la balle. Ne la laisse pas passer derrière toi.</div></div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:6px;padding:16px 18px;border-radius:14px;border:1px solid #23232D">
+            <div style="font-size:11px;font-weight:800;letter-spacing:.24em;color:#6B6B7A">BARÈME EN SOLO</div>
+            <div style="display:flex;justify-content:space-between;font-size:14px"><span style="color:#C8C8D2">Chaque renvoi</span><span style="font-weight:800;color:#64B5F6">+50</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:14px"><span style="color:#C8C8D2">L'ordinateur rate la balle</span><span style="font-weight:800;color:#64B5F6">+100</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:14px"><span style="color:#C8C8D2">La balle accélère</span><span style="font-weight:800;color:#FF9800">tous les 4 renvois</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:48px 56px;display:flex;flex-direction:column;gap:24px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between"><div style="display:flex;flex-direction:column;gap:8px"><div style="font-size:12px;font-weight:800;letter-spacing:.3em;color:#6B6B7A">CAPTURES</div><div style="font-size:32px;font-weight:800">À quoi ça ressemble sur ton téléphone.</div></div><span style="font-size:13px;color:#6B6B7A">Captures réelles · Android, 360 × 800</span></div>
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:28px">
+          <div style="display:flex;flex-direction:column;gap:12px"><div style="width:198px;height:420px;border-radius:30px;background:#1E1E28;padding:8px;box-sizing:border-box;box-shadow:0 0 0 1px #2A2A36"><div style="width:182px;height:404px;border-radius:23px;overflow:hidden;position:relative"><div style="width:360px;height:800px;transform:scale(.5056);transform-origin:0 0"><dc-import name="TiltoEcran" screen="accueil" hint-size="360px,800px"></dc-import></div></div></div><div style="font-size:15px;font-weight:700">L'accueil</div><div style="font-size:13px;line-height:1.5;color:#9E9EAB">Une partie tourne en fond. Choisis Solo ou Duel, règle la difficulté avec les flèches, touche JOUER.</div></div>
+          <div style="display:flex;flex-direction:column;gap:12px"><div style="width:198px;height:420px;border-radius:30px;background:#1E1E28;padding:8px;box-sizing:border-box;box-shadow:0 0 0 1px #2A2A36"><div style="width:182px;height:404px;border-radius:23px;overflow:hidden;position:relative"><div style="width:360px;height:800px;transform:scale(.5056);transform-origin:0 0"><dc-import name="TiltoEcran" screen="jeu" hint-size="360px,800px"></dc-import></div></div></div><div style="font-size:15px;font-weight:700">En solo</div><div style="font-size:13px;line-height:1.5;color:#9E9EAB">Le score reste discret derrière la ligne médiane. Les points orange annoncent la prochaine accélération.</div></div>
+          <div style="display:flex;flex-direction:column;gap:12px"><div style="width:198px;height:420px;border-radius:30px;background:#1E1E28;padding:8px;box-sizing:border-box;box-shadow:0 0 0 1px #2A2A36"><div style="width:182px;height:404px;border-radius:23px;overflow:hidden;position:relative"><div style="width:360px;height:800px;transform:scale(.5056);transform-origin:0 0"><dc-import name="TiltoEcran" screen="duel" hint-size="360px,800px"></dc-import></div></div></div><div style="font-size:15px;font-weight:700">En duel</div><div style="font-size:13px;line-height:1.5;color:#9E9EAB">Chaque score est de son côté, dans sa couleur, avec cinq barres jusqu'à la victoire.</div></div>
+          <div style="display:flex;flex-direction:column;gap:12px"><div style="width:198px;height:420px;border-radius:30px;background:#1E1E28;padding:8px;box-sizing:border-box;box-shadow:0 0 0 1px #2A2A36"><div style="width:182px;height:404px;border-radius:23px;overflow:hidden;position:relative"><div style="width:360px;height:800px;transform:scale(.5056);transform-origin:0 0"><dc-import name="TiltoEcran" screen="fin" hint-size="360px,800px"></dc-import></div></div></div><div style="font-size:15px;font-weight:700">Fin du duel</div><div style="font-size:13px;line-height:1.5;color:#9E9EAB">Score final, durée, plus long échange. Un bouton pour la revanche, l'autre joueur n'a qu'à accepter.</div></div>
+        </div>
+      </div>
+
+      <div style="padding:48px 56px;border-top:1px solid #16161E;display:grid;grid-template-columns:300px minmax(0,1fr);gap:56px">
+        <div style="display:flex;flex-direction:column;gap:10px"><div style="font-size:12px;font-weight:800;letter-spacing:.3em;color:#6B6B7A">QUESTIONS FRÉQUENTES</div><div style="font-size:32px;font-weight:800;line-height:1.1">Avant de télécharger.</div><p style="margin:0;font-size:14px;line-height:1.6;color:#9E9EAB">Une autre question ? Écris-nous depuis la page Contact. On répond en général sous deux jours.</p></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 40px">
+          <div style="padding:14px 0;border-top:1px solid #1E1E28;display:flex;flex-direction:column;gap:6px"><div style="font-size:16px;font-weight:700">Faut-il Internet pour jouer ?</div><div style="font-size:14px;line-height:1.55;color:#9E9EAB">Non. Le solo marche même en mode avion. Le duel a juste besoin que les deux téléphones soient sur le même Wi-Fi ou partage de connexion.</div></div>
+          <div style="padding:14px 0;border-top:1px solid #1E1E28;display:flex;flex-direction:column;gap:6px"><div style="font-size:16px;font-weight:700">Mon ami a un iPhone, on peut jouer ?</div><div style="font-size:14px;line-height:1.55;color:#9E9EAB">Pas encore : Tilto existe uniquement sur Android pour l'instant. Le duel demande Tilto sur les deux téléphones.</div></div>
+          <div style="padding:14px 0;border-top:1px solid #1E1E28;display:flex;flex-direction:column;gap:6px"><div style="font-size:16px;font-weight:700">Le duel ne trouve pas la partie de mon ami.</div><div style="font-size:14px;line-height:1.55;color:#9E9EAB">Vérifiez que vous êtes sur le même réseau (pas un Wi-Fi invité), que ton ami a bien touché « Créer une partie », puis touche Actualiser.</div></div>
+          <div style="padding:14px 0;border-top:1px solid #1E1E28;display:flex;flex-direction:column;gap:6px"><div style="font-size:16px;font-weight:700">Ça marche sur un petit téléphone ?</div><div style="font-size:14px;line-height:1.55;color:#9E9EAB">Oui. Tilto est pensé pour les écrans à partir de 320 dp de large et les téléphones d'entrée de gamme à 60 Hz.</div></div>
+          <div style="padding:14px 0;border-top:1px solid #1E1E28;display:flex;flex-direction:column;gap:6px"><div style="font-size:16px;font-weight:700">Y a-t-il des achats ou des pubs ?</div><div style="font-size:14px;line-height:1.55;color:#9E9EAB">Non. Tilto est gratuit, sans publicité, sans achat intégré et sans compte.</div></div>
+          <div style="padding:14px 0;border-top:1px solid #1E1E28;display:flex;flex-direction:column;gap:6px"><div style="font-size:16px;font-weight:700">La raquette part toute seule.</div><div style="font-size:14px;line-height:1.55;color:#9E9EAB">Tiens le téléphone bien à plat au lancement, ou baisse la sensibilité dans Réglages. Une coque magnétique peut aussi gêner le capteur.</div></div>
+        </div>
+      </div>
+
+      <div id="notes" style="padding:48px 56px;background:#0E0E14;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:48px">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="font-size:36px;font-weight:800;line-height:1.05">Télécharge Tilto.</div>
+          <p style="margin:0;font-size:14px;line-height:1.6;color:#9E9EAB">Le Play Store installe les mises à jour tout seul. L'APK sert si tu n'as pas le Play Store ou si tu veux l'installer à la main.</p>
+          <div style="height:56px;border-radius:16px;background:#E91E63;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;box-shadow:0 0 24px rgba(233,30,99,.5),0 8px 28px rgba(233,30,99,.3)">Télécharger sur Google Play</div>
+          <div style="height:56px;border-radius:16px;background:#15151C;border:1px solid #2A2A36;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px"><span style="font-size:15px;font-weight:700">Télécharger l'APK</span><span style="font-size:12px;color:#9E9EAB">tilto-2.0.0.apk · 18 Mo</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:12px;font-weight:800;letter-spacing:.3em;color:#6B6B7A">INSTALLER L'APK</div>
+          <div style="display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;font-size:14px;line-height:1.55;color:#C8C8D2"><span style="font-weight:800;color:#6B6B7A">1</span><span>Télécharge le fichier depuis ton téléphone Android.</span><span style="font-weight:800;color:#6B6B7A">2</span><span>Ouvre-le. Si Android le demande, autorise ton navigateur à installer des applications.</span><span style="font-weight:800;color:#6B6B7A">3</span><span>Touche Installer, puis Ouvrir. Tes scores restent si tu passes plus tard au Play Store.</span></div>
+          <div style="font-size:12px;line-height:1.5;color:#6B6B7A;margin-top:6px;word-break:break-all">SHA-256 : 4f1c…9a02 (empreinte complète sur la page de téléchargement)</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:12px;font-weight:800;letter-spacing:.3em;color:#6B6B7A">NOUVEAUTÉS 2.0.0 · 9 OCT. 2026</div>
+          <div style="display:flex;flex-direction:column;gap:7px;font-size:14px;line-height:1.5;color:#C8C8D2"><span>— Mode Duel : deux téléphones, même Wi-Fi, premier à 5.</span><span>— Nouvel accueil avec partie de démonstration.</span><span>— Classement et statistiques accessibles depuis l'accueil.</span><span>— Réglage de la sensibilité, du son et de la vibration.</span><span>— Fin de partie redessinée, avec « Nouveau record ».</span><span>— Le jeu s'appelle maintenant Tilto.</span></div>
+        </div>
+      </div>
+
+      <div style="padding:36px 56px 0;border-top:1px solid #16161E;display:grid;grid-template-columns:minmax(0,1.4fr) repeat(4,minmax(0,1fr));gap:32px;font-size:13px;line-height:1.5">
+        <div style="display:flex;flex-direction:column;gap:10px"><span style="font-size:18px;font-weight:900;letter-spacing:.32em">TILTO</span><span style="color:#9E9EAB;max-width:300px">Le Pong qu'on joue en inclinant son téléphone, seul ou à deux sur le même Wi-Fi. Gratuit, sans pub, sans compte.</span><div style="width:132px;height:26px;border-radius:6px;background:repeating-linear-gradient(45deg,#15151C 0 6px,#1C1C26 6px 12px);display:flex;align-items:center;justify-content:center;font-family:ui-monospace,monospace;font-size:10px;color:#9E9EAB;margin-top:4px">logo Nexora blanc</div></div>
+        <div style="display:flex;flex-direction:column;gap:7px"><span style="font-size:11px;font-weight:800;letter-spacing:.22em;color:#6B6B7A;margin-bottom:3px">LE JEU</span><span style="color:#C8C8D2">Solo</span><span style="color:#C8C8D2">Duel</span><span style="color:#C8C8D2">Comment jouer</span><span style="color:#C8C8D2">Captures</span><span style="color:#C8C8D2">Nouveautés 2.0.0</span></div>
+        <div style="display:flex;flex-direction:column;gap:7px"><span style="font-size:11px;font-weight:800;letter-spacing:.22em;color:#6B6B7A;margin-bottom:3px">AIDE</span><span style="color:#C8C8D2">Questions fréquentes</span><span style="color:#C8C8D2">Installer l'APK</span><span style="color:#C8C8D2">Le duel ne se connecte pas</span><span style="color:#C8C8D2">Régler la sensibilité</span></div>
+        <div style="display:flex;flex-direction:column;gap:7px"><span style="font-size:11px;font-weight:800;letter-spacing:.22em;color:#6B6B7A;margin-bottom:3px">TÉLÉCHARGER</span><span style="color:#C8C8D2">Google Play</span><span style="color:#C8C8D2">APK v2.0.0 · 18 Mo</span><span style="color:#C8C8D2">Versions précédentes</span></div>
+        <div style="display:flex;flex-direction:column;gap:7px"><span style="font-size:11px;font-weight:800;letter-spacing:.22em;color:#6B6B7A;margin-bottom:3px">NEXORA</span><span style="color:#C8C8D2">Contact</span><span style="color:#C8C8D2">Presse</span><a href="#3c" style="color:#C8C8D2">Politique de confidentialité</a><span style="color:#C8C8D2">Mentions légales</span></div>
+      </div>
+      <div style="margin:28px 56px 0;padding:16px 0 20px;border-top:1px solid #16161E;display:flex;justify-content:space-between;font-size:12px;color:#6B6B7A"><span>Un jeu de Nexora · © 2026 Nexora · Tilto 2.0.0</span><span>Aucune donnée personnelle collectée · tout reste sur ton téléphone</span><span>Android est une marque de Google LLC.</span></div>
+    </div>
+  </div>
+
+  <div id="3b" style="display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;font-weight:800;padding:4px 9px;border-radius:6px;background:#E91E63;color:#fff">3b</span><span style="font-size:14px;font-weight:700">Mobile · 360 px</span></div>
+    <div style="width:360px;background:#0B0B10;border-radius:28px;overflow:hidden;box-shadow:0 0 0 1px #262630,0 30px 80px rgba(0,0,0,.6)">
+      <div style="padding:8px 16px;background:#07070A;border-bottom:1px solid #16161E;font-size:12px;line-height:1.4;color:#9E9EAB"><span style="color:#FF5C93;font-weight:800;letter-spacing:.12em">NOUVEAU</span> · Tilto 2.0 : le duel à deux est arrivé. <a href="#notes" style="font-weight:700">Voir</a></div>
+      <div style="height:52px;padding:0 4px 0 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #16161E"><div style="display:flex;align-items:baseline;gap:8px"><span style="font-size:17px;font-weight:900;letter-spacing:.3em">TILTO</span><span style="font-size:11px;color:#6B6B7A">par Nexora</span></div><div style="display:flex"><div style="height:48px;padding:0 10px;display:flex;align-items:center;font-size:14px;font-weight:700;color:#FF5C93">Télécharger</div><div style="width:48px;height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><div style="width:18px;height:2px;background:#C8C8D2"></div><div style="width:18px;height:2px;background:#C8C8D2"></div><div style="width:18px;height:2px;background:#C8C8D2"></div></div></div></div>
+      <div style="padding:24px 16px 0;display:flex;flex-direction:column;gap:12px">
+        <div style="font-size:11px;font-weight:800;letter-spacing:.24em;color:#6B6B7A">PONG VERTICAL · ANDROID</div>
+        <div style="font-size:60px;font-weight:900;letter-spacing:.26em;line-height:.95;text-shadow:0 0 32px rgba(233,30,99,.45)">TILTO</div>
+        <div style="font-size:22px;font-weight:800;line-height:1.18">Le Pong qu'on joue en inclinant son téléphone.</div>
+        <p style="margin:0;font-size:15px;line-height:1.55;color:#C8C8D2">Pas de bouton : tu penches le téléphone et ta raquette suit. Seul contre l'ordinateur, ou à deux sur le même Wi-Fi, sans Internet.</p>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:2px">
+          <div style="height:56px;border-radius:16px;background:#E91E63;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;box-shadow:0 0 24px rgba(233,30,99,.5),0 8px 28px rgba(233,30,99,.3)">Télécharger sur Google Play</div>
+          <div style="height:56px;border-radius:16px;background:#15151C;border:1px solid #2A2A36;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px"><span style="font-size:15px;font-weight:700">Télécharger l'APK</span><span style="font-size:12px;color:#9E9EAB">v2.0.0 · 18 Mo · sans Play Store</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid #1E1E28;border-bottom:1px solid #1E1E28;font-size:13px">
+          <div style="padding:9px 0;display:flex;flex-direction:column;gap:2px"><span style="font-size:10px;font-weight:800;letter-spacing:.16em;color:#6B6B7A">JOUEURS</span><span style="font-weight:600">1 ou 2</span></div>
+          <div style="padding:9px 10px;border-left:1px solid #1E1E28;display:flex;flex-direction:column;gap:2px"><span style="font-size:10px;font-weight:800;letter-spacing:.16em;color:#6B6B7A">INTERNET</span><span style="font-weight:600">Jamais</span></div>
+          <div style="padding:9px 10px;border-left:1px solid #1E1E28;display:flex;flex-direction:column;gap:2px"><span style="font-size:10px;font-weight:800;letter-spacing:.16em;color:#6B6B7A">PRIX</span><span style="font-weight:600">Gratuit</span></div>
+        </div>
+      </div>
+      <div style="position:relative;height:220px;margin:16px 16px 0;border-radius:16px;border:1px solid #23232D;background:#08080C;overflow:hidden">
+        <div style="position:absolute;left:0;right:0;top:109px;height:2px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.1) 0 12px,transparent 12px 24px)"></div>
+        <div style="position:absolute;left:12px;top:10px;font-size:10px;font-weight:800;letter-spacing:.2em;color:#6B6B7A">DÉMO</div>
+        {{ heroM }}
+      </div>
+
+      <div style="padding:36px 16px 8px;display:flex;flex-direction:column;gap:6px"><div style="font-size:11px;font-weight:800;letter-spacing:.24em;color:#6B6B7A">CE QUI CHANGE</div><div style="font-size:26px;font-weight:800;line-height:1.12">Quatre idées, poussées jusqu'au bout.</div></div>
+      <div style="padding:0 16px;display:flex;flex-direction:column">
+        <div style="padding:18px 0;border-top:1px solid #1E1E28;display:flex;flex-direction:column;gap:8px"><div style="display:flex;align-items:baseline;gap:10px"><span style="font-size:22px;font-weight:900;color:#2A2A36">01</span><span style="font-size:11px;font-weight:800;letter-spacing:.26em;color:#64B5F6">INCLINE</span></div><div style="font-size:19px;font-weight:800;line-height:1.2">Pas de bouton. Tu penches, la raquette suit.</div><p style="margin:0;font-size:14px;line-height:1.55;color:#C8C8D2">Plus tu penches, plus la raquette va vite. Tes pouces ne couvrent jamais l'écran. Son et vibration à chaque renvoi.</p></div>
+        <div style="padding:18px 0;border-top:1px solid #1E1E28;display:flex;flex-direction:column;gap:8px"><div style="display:flex;align-items:baseline;gap:10px"><span style="font-size:22px;font-weight:900;color:#2A2A36">02</span><span style="font-size:11px;font-weight:800;letter-spacing:.26em;color:#81C784">À DEUX</span></div><div style="font-size:19px;font-weight:800;line-height:1.2">Chacun son téléphone, chacun sa raquette en bas.</div><div style="display:flex;gap:10px;margin:4px 0"><div style="width:96px;height:206px;border-radius:15px;background:#1E1E28;padding:5px;box-sizing:border-box;box-shadow:0 0 0 1px #2A2A36"><div style="width:86px;height:196px;border-radius:11px;overflow:hidden;position:relative"><div style="width:360px;height:800px;transform:scale(.245);transform-origin:0 0"><dc-import name="TiltoEcran" screen="duel" hint-size="360px,800px"></dc-import></div></div></div><div style="width:96px;height:206px;border-radius:15px;background:#1E1E28;padding:5px;box-sizing:border-box;box-shadow:0 0 0 1px #2A2A36"><div style="width:86px;height:196px;border-radius:11px;overflow:hidden;position:relative"><div style="width:360px;height:800px;transform:scale(.245);transform-origin:0 0"><dc-import name="TiltoEcran" screen="duelb" hint-size="360px,800px"></dc-import></div></div></div><div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:8px;font-size:12px;line-height:1.4;color:#9E9EAB"><span><b style="color:#F2F2F5">Premier à 5</b></span><span>Même Wi-Fi ou hotspot</span><span>Pas d'IP, pas de compte</span><span>Revanche en un geste</span></div></div><p style="margin:0;font-size:14px;line-height:1.55;color:#C8C8D2">L'un crée la partie, l'autre la voit apparaître et la rejoint. Les téléphones se parlent directement, même sans forfait data.</p></div>
+        <div style="padding:18px 0;border-top:1px solid #1E1E28;display:flex;flex-direction:column;gap:8px"><div style="display:flex;align-items:baseline;gap:10px"><span style="font-size:22px;font-weight:900;color:#2A2A36">03</span><span style="font-size:11px;font-weight:800;letter-spacing:.26em;color:#9E9EAB">SENSIBILITÉ</span></div><div style="font-size:19px;font-weight:800;line-height:1.2">Réglée pour ta façon de tenir.</div><p style="margin:0;font-size:14px;line-height:1.55;color:#C8C8D2">De douce à vive, mémorisée une fois pour toutes. Son, musique de pause et vibration ont chacun leur interrupteur.</p></div>
+        <div style="padding:18px 0;border-top:1px solid #1E1E28;border-bottom:1px solid #1E1E28;display:flex;flex-direction:column;gap:8px"><div style="display:flex;align-items:baseline;gap:10px"><span style="font-size:22px;font-weight:900;color:#2A2A36">04</span><span style="font-size:11px;font-weight:800;letter-spacing:.26em;color:#FFC93C">RECORDS</span></div><div style="font-size:19px;font-weight:800;line-height:1.2">Bats ton record, puis celui de la famille.</div><p style="margin:0;font-size:14px;line-height:1.55;color:#C8C8D2">Top 10 du téléphone avec pseudo et date. Statistiques : parties, temps de jeu, meilleure série, bilan en duel.</p></div>
+      </div>
+
+      <div style="margin-top:32px;padding:28px 16px;background:#0E0E14;display:flex;flex-direction:column;gap:12px">
+        <div style="font-size:11px;font-weight:800;letter-spacing:.24em;color:#6B6B7A">SOLO OU DUEL</div>
+        <div style="display:grid;grid-template-columns:96px minmax(0,1fr) minmax(0,1fr);font-size:13px;line-height:1.4">
+          <div style="padding:8px 0;border-bottom:1px solid #23232D"></div><div style="padding:8px 6px;border-bottom:1px solid #23232D;font-size:11px;font-weight:800;letter-spacing:.18em;color:#64B5F6">SOLO</div><div style="padding:8px 6px;border-bottom:1px solid #23232D;font-size:11px;font-weight:800;letter-spacing:.18em;color:#81C784">DUEL</div>
+          <div style="padding:8px 0;border-bottom:1px solid #1A1A22;color:#9E9EAB">Contre</div><div style="padding:8px 6px;border-bottom:1px solid #1A1A22">L'ordinateur</div><div style="padding:8px 6px;border-bottom:1px solid #1A1A22">Un ami</div>
+          <div style="padding:8px 0;border-bottom:1px solid #1A1A22;color:#9E9EAB">But</div><div style="padding:8px 6px;border-bottom:1px solid #1A1A22">Gros score</div><div style="padding:8px 6px;border-bottom:1px solid #1A1A22">5 points</div>
+          <div style="padding:8px 0;border-bottom:1px solid #1A1A22;color:#9E9EAB">Pause</div><div style="padding:8px 6px;border-bottom:1px solid #1A1A22">Oui</div><div style="padding:8px 6px;border-bottom:1px solid #1A1A22">Non</div>
+          <div style="padding:8px 0;color:#9E9EAB">Réseau</div><div style="padding:8px 6px">Aucun</div><div style="padding:8px 6px">Même Wi-Fi</div>
+        </div>
+        <div style="font-size:11px;font-weight:800;letter-spacing:.24em;color:#6B6B7A;margin-top:16px">COMMENT JOUER</div>
+        <div style="display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px 8px;font-size:14px;line-height:1.5"><span style="font-size:22px;font-weight:900;color:#2A2A36;line-height:1">1</span><span><b>Deux mains, en portrait.</b> <span style="color:#9E9EAB">Choisis ton mode, touche JOUER.</span></span><span style="font-size:22px;font-weight:900;color:#2A2A36;line-height:1">2</span><span><b>Tape l'écran.</b> <span style="color:#9E9EAB">En duel, un 3-2-1 lance la balle.</span></span><span style="font-size:22px;font-weight:900;color:#2A2A36;line-height:1">3</span><span><b>Incline pour renvoyer.</b> <span style="color:#9E9EAB">+50 par renvoi, +100 si l'adversaire rate, accélération tous les 4 renvois.</span></span></div>
+      </div>
+
+      <div style="padding:28px 0 8px;display:flex;flex-direction:column;gap:14px">
+        <div style="padding:0 16px;font-size:11px;font-weight:800;letter-spacing:.24em;color:#6B6B7A">CAPTURES</div>
+        <div style="display:flex;gap:12px;overflow-x:auto;padding:0 16px 8px;scroll-snap-type:x mandatory">
+          <div style="flex:none;width:164px;display:flex;flex-direction:column;gap:8px;scroll-snap-align:start"><div style="width:164px;height:350px;border-radius:24px;background:#1E1E28;padding:6px;box-sizing:border-box;box-shadow:0 0 0 1px #2A2A36"><div style="width:152px;height:338px;border-radius:19px;overflow:hidden;position:relative"><div style="width:360px;height:800px;transform:scale(.4222);transform-origin:0 0"><dc-import name="TiltoEcran" screen="accueil" hint-size="360px,800px"></dc-import></div></div></div><span style="font-size:13px;font-weight:700">L'accueil</span><span style="font-size:12px;line-height:1.4;color:#9E9EAB">Une partie tourne en fond.</span></div>
+          <div style="flex:none;width:164px;display:flex;flex-direction:column;gap:8px;scroll-snap-align:start"><div style="width:164px;height:350px;border-radius:24px;background:#1E1E28;padding:6px;box-sizing:border-box;box-shadow:0 0 0 1px #2A2A36"><div style="width:152px;height:338px;border-radius:19px;overflow:hidden;position:relative"><div style="width:360px;height:800px;transform:scale(.4222);transform-origin:0 0"><dc-import name="TiltoEcran" screen="jeu" hint-size="360px,800px"></dc-import></div></div></div><span style="font-size:13px;font-weight:700">En solo</span><span style="font-size:12px;line-height:1.4;color:#9E9EAB">Score discret, balle en vedette.</span></div>
+          <div style="flex:none;width:164px;display:flex;flex-direction:column;gap:8px;scroll-snap-align:start"><div style="width:164px;height:350px;border-radius:24px;background:#1E1E28;padding:6px;box-sizing:border-box;box-shadow:0 0 0 1px #2A2A36"><div style="width:152px;height:338px;border-radius:19px;overflow:hidden;position:relative"><div style="width:360px;height:800px;transform:scale(.4222);transform-origin:0 0"><dc-import name="TiltoEcran" screen="fin" hint-size="360px,800px"></dc-import></div></div></div><span style="font-size:13px;font-weight:700">Fin du duel</span><span style="font-size:12px;line-height:1.4;color:#9E9EAB">Revanche en un bouton.</span></div>
+        </div>
+      </div>
+
+      <div style="padding:24px 16px;border-top:1px solid #16161E;display:flex;flex-direction:column">
+        <div style="font-size:11px;font-weight:800;letter-spacing:.24em;color:#6B6B7A;margin-bottom:6px">QUESTIONS FRÉQUENTES</div>
+        <div style="padding:12px 0;border-bottom:1px solid #1A1A22;display:flex;flex-direction:column;gap:4px"><span style="font-size:15px;font-weight:700">Faut-il Internet ?</span><span style="font-size:13px;line-height:1.5;color:#9E9EAB">Non. Le solo marche en mode avion, le duel a juste besoin du même Wi-Fi.</span></div>
+        <div style="padding:12px 0;border-bottom:1px solid #1A1A22;display:flex;flex-direction:column;gap:4px"><span style="font-size:15px;font-weight:700">Et sur iPhone ?</span><span style="font-size:13px;line-height:1.5;color:#9E9EAB">Pas encore : Tilto existe uniquement sur Android pour l'instant.</span></div>
+        <div style="padding:12px 0;border-bottom:1px solid #1A1A22;display:flex;flex-direction:column;gap:4px"><span style="font-size:15px;font-weight:700">Le duel ne trouve pas la partie.</span><span style="font-size:13px;line-height:1.5;color:#9E9EAB">Même réseau (pas un Wi-Fi invité), « Créer une partie » côté ami, puis Actualiser.</span></div>
+        <div style="padding:12px 0;display:flex;flex-direction:column;gap:4px"><span style="font-size:15px;font-weight:700">Pubs ou achats ?</span><span style="font-size:13px;line-height:1.5;color:#9E9EAB">Aucun. Gratuit, sans compte.</span></div>
+      </div>
+
+      <div style="padding:28px 16px;background:#0E0E14;display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:26px;font-weight:800">Télécharge Tilto.</div>
+        <div style="height:56px;border-radius:16px;background:#E91E63;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;box-shadow:0 0 24px rgba(233,30,99,.5),0 8px 28px rgba(233,30,99,.3)">Télécharger sur Google Play</div>
+        <div style="height:56px;border-radius:16px;background:#15151C;border:1px solid #2A2A36;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px"><span style="font-size:15px;font-weight:700">Télécharger l'APK</span><span style="font-size:12px;color:#9E9EAB">tilto-2.0.0.apk · 18 Mo</span></div>
+        <div style="font-size:12px;line-height:1.5;color:#9E9EAB;margin-top:4px">APK : ouvre le fichier, autorise l'installation si Android le demande, puis Installer.</div>
+        <div style="font-size:11px;font-weight:800;letter-spacing:.2em;color:#6B6B7A;margin-top:10px">NOUVEAUTÉS 2.0.0</div>
+        <div style="font-size:13px;line-height:1.55;color:#C8C8D2">Mode Duel · nouvel accueil · classement et statistiques depuis l'accueil · réglage de la sensibilité · fin de partie redessinée.</div>
+      </div>
+
+      <div style="padding:24px 16px 20px;border-top:1px solid #16161E;display:flex;flex-direction:column;gap:18px;font-size:13px">
+        <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:16px;font-weight:900;letter-spacing:.3em">TILTO</span><div style="width:112px;height:24px;border-radius:6px;background:repeating-linear-gradient(45deg,#15151C 0 6px,#1C1C26 6px 12px);display:flex;align-items:center;justify-content:center;font-family:ui-monospace,monospace;font-size:9px;color:#9E9EAB">logo Nexora</div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">
+          <div style="display:flex;flex-direction:column"><span style="font-size:10px;font-weight:800;letter-spacing:.2em;color:#6B6B7A;padding-bottom:2px">LE JEU</span><span style="height:40px;display:flex;align-items:center;color:#C8C8D2">Solo et Duel</span><span style="height:40px;display:flex;align-items:center;color:#C8C8D2">Comment jouer</span><span style="height:40px;display:flex;align-items:center;color:#C8C8D2">Questions fréquentes</span><span style="height:40px;display:flex;align-items:center;color:#C8C8D2">Installer l'APK</span></div>
+          <div style="display:flex;flex-direction:column"><span style="font-size:10px;font-weight:800;letter-spacing:.2em;color:#6B6B7A;padding-bottom:2px">NEXORA</span><span style="height:40px;display:flex;align-items:center;color:#C8C8D2">Contact</span><span style="height:40px;display:flex;align-items:center;color:#C8C8D2">Presse</span><a href="#3c" style="height:40px;display:flex;align-items:center;color:#C8C8D2">Confidentialité</a><span style="height:40px;display:flex;align-items:center;color:#C8C8D2">Mentions légales</span></div>
+        </div>
+        <div style="padding-top:12px;border-top:1px solid #16161E;font-size:11px;line-height:1.5;color:#6B6B7A">Un jeu de Nexora · © 2026 · Tilto 2.0.0 · Aucune donnée personnelle collectée.</div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <div id="3c" style="display:flex;flex-direction:column;gap:14px;padding-bottom:64px">
+    <div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;font-weight:800;padding:4px 9px;border-radius:6px;background:#E91E63;color:#fff">3c</span><span style="font-size:14px;font-weight:700">Politique de confidentialité · 1440 px (sur mobile, le sommaire passe au-dessus du texte)</span></div>
+    <div style="width:1440px;background:#0B0B10;border-radius:16px;overflow:hidden;box-shadow:0 0 0 1px #262630,0 30px 80px rgba(0,0,0,.6)">
+      <div style="height:60px;padding:0 56px;display:flex;align-items:center;gap:40px;border-bottom:1px solid #16161E">
+        <div style="display:flex;align-items:baseline;gap:10px"><span style="font-size:20px;font-weight:900;letter-spacing:.32em">TILTO</span><span style="font-size:12px;color:#6B6B7A">un jeu de Nexora</span></div>
+        <div style="flex:1;display:flex;gap:26px;font-size:14px;font-weight:600;color:#C8C8D2"><span>Le jeu</span><span>Solo ou Duel</span><span>Comment jouer</span><span>Captures</span><span>FAQ</span><span>Installer l'APK</span></div>
+        <div style="height:40px;padding:0 18px;border-radius:12px;border:1px solid #3A3A48;display:flex;align-items:center;font-size:14px;font-weight:700">Télécharger</div>
+      </div>
+      <div style="padding:44px 56px 64px;display:grid;grid-template-columns:260px minmax(0,760px) minmax(0,1fr);gap:56px">
+        <div style="display:flex;flex-direction:column;gap:4px;font-size:14px">
+          <span style="font-size:11px;font-weight:800;letter-spacing:.22em;color:#6B6B7A;margin-bottom:8px">SOMMAIRE</span>
+          <span style="padding:7px 0 7px 12px;border-left:2px solid #E91E63;color:#F2F2F5;font-weight:600">En bref</span>
+          <span style="padding:7px 0 7px 12px;border-left:2px solid #1E1E28;color:#9E9EAB">Données gardées sur le téléphone</span>
+          <span style="padding:7px 0 7px 12px;border-left:2px solid #1E1E28;color:#9E9EAB">Pendant un duel</span>
+          <span style="padding:7px 0 7px 12px;border-left:2px solid #1E1E28;color:#9E9EAB">Ce que Tilto n'utilise pas</span>
+          <span style="padding:7px 0 7px 12px;border-left:2px solid #1E1E28;color:#9E9EAB">Autorisations Android</span>
+          <span style="padding:7px 0 7px 12px;border-left:2px solid #1E1E28;color:#9E9EAB">Enfants</span>
+          <span style="padding:7px 0 7px 12px;border-left:2px solid #1E1E28;color:#9E9EAB">Effacer tes données</span>
+          <span style="padding:7px 0 7px 12px;border-left:2px solid #1E1E28;color:#9E9EAB">Changements et contact</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:28px">
+          <div style="display:flex;flex-direction:column;gap:10px"><div style="font-size:13px;font-weight:800;letter-spacing:.42em;color:#B8B8C4">POLITIQUE DE CONFIDENTIALITÉ</div><div style="font-size:13px;color:#6B6B7A">Tilto 2.0.0 · dernière mise à jour : 9 octobre 2026</div></div>
+          <p style="margin:0;font-size:26px;line-height:1.35;font-weight:700;text-wrap:pretty">Tilto ne collecte aucune donnée personnelle. Tout ce que le jeu enregistre reste sur ton téléphone.</p>
+          <div style="display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) 110px;font-size:14px;line-height:1.45;border-top:1px solid #23232D">
+            <div style="padding:9px 0;border-bottom:1px solid #23232D;font-size:11px;font-weight:800;letter-spacing:.2em;color:#6B6B7A">DONNÉE</div><div style="padding:9px 0;border-bottom:1px solid #23232D;font-size:11px;font-weight:800;letter-spacing:.2em;color:#6B6B7A">OÙ</div><div style="padding:9px 0;border-bottom:1px solid #23232D;font-size:11px;font-weight:800;letter-spacing:.2em;color:#6B6B7A">ENVOYÉE ?</div>
+            <div style="padding:9px 0;border-bottom:1px solid #1A1A22">Pseudo</div><div style="padding:9px 0;border-bottom:1px solid #1A1A22;color:#C8C8D2">Ton téléphone</div><div style="padding:9px 0;border-bottom:1px solid #1A1A22;color:#C8C8D2">Non</div>
+            <div style="padding:9px 0;border-bottom:1px solid #1A1A22">Scores, classement, statistiques</div><div style="padding:9px 0;border-bottom:1px solid #1A1A22;color:#C8C8D2">Ton téléphone</div><div style="padding:9px 0;border-bottom:1px solid #1A1A22;color:#C8C8D2">Non</div>
+            <div style="padding:9px 0;border-bottom:1px solid #1A1A22">Réglages (sensibilité, son, vibration)</div><div style="padding:9px 0;border-bottom:1px solid #1A1A22;color:#C8C8D2">Ton téléphone</div><div style="padding:9px 0;border-bottom:1px solid #1A1A22;color:#C8C8D2">Non</div>
+            <div style="padding:9px 0;border-bottom:1px solid #1A1A22">Pseudo et position pendant un duel</div><div style="padding:9px 0;border-bottom:1px solid #1A1A22;color:#C8C8D2">Téléphone de l'autre joueur</div><div style="padding:9px 0;border-bottom:1px solid #1A1A22;color:#C8C8D2">Wi-Fi local</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px"><div style="font-size:19px;font-weight:700">Données gardées sur le téléphone</div><p style="margin:0;font-size:16px;line-height:1.65;color:#C8C8D2">Ton pseudo, tes 10 meilleurs scores avec leur date, tes statistiques (parties jouées, temps de jeu, meilleure série, victoires et défaites en duel) et tes réglages. Ces informations sont enregistrées dans l'espace privé de l'application. Elles ne sont jamais copiées sur un serveur, ni partagées avec Nexora ou quelqu'un d'autre.</p></div>
+          <div style="display:flex;flex-direction:column;gap:8px"><div style="font-size:19px;font-weight:700">Pendant un duel</div><p style="margin:0;font-size:16px;line-height:1.65;color:#C8C8D2">Les deux téléphones communiquent directement sur votre réseau Wi-Fi local, le temps de la partie : pseudos, position des raquettes et de la balle, score. Tilto annonce aussi la partie créée sur ce réseau pour que l'autre joueur la trouve. Rien ne passe par Internet ni par nos serveurs : nous n'en avons pas. Quand la partie se termine, rien n'est conservé, à part ton bilan victoires et défaites.</p></div>
+          <div style="display:flex;flex-direction:column;gap:8px"><div style="font-size:19px;font-weight:700">Ce que Tilto n'utilise pas</div><p style="margin:0;font-size:16px;line-height:1.65;color:#C8C8D2">Pas de compte, pas de publicité, pas d'outil de mesure d'audience, pas de rapport de plantage automatique, pas de localisation, pas d'identifiant publicitaire. Tilto ne lit ni tes contacts, ni tes photos, ni tes fichiers.</p></div>
+          <div style="display:flex;flex-direction:column;gap:8px"><div style="font-size:19px;font-weight:700">Autorisations Android</div><p style="margin:0;font-size:16px;line-height:1.65;color:#C8C8D2"><b style="color:#F2F2F5">Accès au réseau et Wi-Fi :</b> trouver et rejoindre une partie en duel. <b style="color:#F2F2F5">Appareils à proximité :</b> demandée par certaines versions d'Android pour détecter les parties sur le réseau local, elle ne sert à rien d'autre. <b style="color:#F2F2F5">Vibration :</b> le retour à chaque renvoi. Le capteur de mouvement qui déplace la raquette ne demande pas d'autorisation.</p></div>
+          <div style="display:flex;flex-direction:column;gap:8px"><div style="font-size:19px;font-weight:700">Enfants</div><p style="margin:0;font-size:16px;line-height:1.65;color:#C8C8D2">Comme Tilto ne collecte aucune donnée, il peut être utilisé par des enfants sans risque d'envoi d'informations. Le pseudo peut être un simple prénom ou un surnom.</p></div>
+          <div style="display:flex;flex-direction:column;gap:8px"><div style="font-size:19px;font-weight:700">Effacer tes données</div><p style="margin:0;font-size:16px;line-height:1.65;color:#C8C8D2">Désinstalle Tilto, ou va dans Paramètres Android › Applications › Tilto › Stockage › Effacer les données. Tes scores, statistiques et réglages disparaissent immédiatement : il n'en existe aucune autre copie.</p></div>
+          <div style="display:flex;flex-direction:column;gap:8px"><div style="font-size:19px;font-weight:700">Changements et contact</div><p style="margin:0;font-size:16px;line-height:1.65;color:#C8C8D2">Si une future version change quoi que ce soit (par exemple un mode en ligne), cette page sera mise à jour avant la sortie, et la nouveauté sera expliquée dans les notes de version. Une question ? Écris-nous depuis la page Contact. Tilto est un jeu de Nexora.</p></div>
+        </div>
+        <div></div>
+      </div>
+      <div style="padding:28px 56px 0;border-top:1px solid #16161E;display:grid;grid-template-columns:minmax(0,1.4fr) repeat(4,minmax(0,1fr));gap:32px;font-size:13px;line-height:1.5">
+        <div style="display:flex;flex-direction:column;gap:10px"><span style="font-size:18px;font-weight:900;letter-spacing:.32em">TILTO</span><div style="width:132px;height:26px;border-radius:6px;background:repeating-linear-gradient(45deg,#15151C 0 6px,#1C1C26 6px 12px);display:flex;align-items:center;justify-content:center;font-family:ui-monospace,monospace;font-size:10px;color:#9E9EAB">logo Nexora blanc</div></div>
+        <div style="display:flex;flex-direction:column;gap:7px"><span style="font-size:11px;font-weight:800;letter-spacing:.22em;color:#6B6B7A">LE JEU</span><span style="color:#C8C8D2">Solo et Duel</span><span style="color:#C8C8D2">Comment jouer</span></div>
+        <div style="display:flex;flex-direction:column;gap:7px"><span style="font-size:11px;font-weight:800;letter-spacing:.22em;color:#6B6B7A">AIDE</span><span style="color:#C8C8D2">Questions fréquentes</span><span style="color:#C8C8D2">Installer l'APK</span></div>
+        <div style="display:flex;flex-direction:column;gap:7px"><span style="font-size:11px;font-weight:800;letter-spacing:.22em;color:#6B6B7A">TÉLÉCHARGER</span><span style="color:#C8C8D2">Google Play</span><span style="color:#C8C8D2">APK v2.0.0</span></div>
+        <div style="display:flex;flex-direction:column;gap:7px"><span style="font-size:11px;font-weight:800;letter-spacing:.22em;color:#6B6B7A">NEXORA</span><span style="color:#C8C8D2">Contact</span><span style="color:#F2F2F5;font-weight:600">Confidentialité</span></div>
+      </div>
+      <div style="margin:24px 56px 0;padding:16px 0 20px;border-top:1px solid #16161E;display:flex;justify-content:space-between;font-size:12px;color:#6B6B7A"><span>Un jeu de Nexora · © 2026 Nexora · Tilto 2.0.0</span><span>Android est une marque de Google LLC.</span></div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  field(w, top, bottom, pw) {
+    const h = React.createElement, tx = (w - pw) + 'px';
+    const pad = (y, c, g) => h('div', { key: 'p' + y, style: { position: 'absolute', left: 0, top: y, width: pw, height: 14, borderRadius: 7, background: c, boxShadow: '0 0 16px ' + g, '--tx': tx, animation: 'tiltoX 2.35s linear -0.2s infinite alternate', willChange: 'transform' } });
+    return h('div', { style: { position: 'absolute', inset: 0, pointerEvents: 'none' } },
+      pad(top, '#4CAF50', 'rgba(76,175,80,.55)'), pad(bottom, '#2196F3', 'rgba(33,150,243,.6)'),
+      h('div', { key: 'b', style: { position: 'absolute', left: pw / 2 - 10, top: top + 14, width: 20, '--tx': tx, animation: 'tiltoX 2.35s linear infinite alternate', willChange: 'transform' } },
+        h('div', { style: { width: 20, height: 20, borderRadius: 10, background: '#fff', boxShadow: '0 0 12px rgba(255,255,255,.8),0 0 32px rgba(255,255,255,.3)', '--ty': (bottom - top - 34) + 'px', animation: 'tiltoY 1.5s linear infinite alternate', willChange: 'transform' } })));
+  }
+  renderVals() {
+    if (!this._f) this._f = { heroD: this.field(560, 40, 386, 96), heroM: this.field(326, 24, 182, 64) };
+    return this._f;
+  }
+}
+</script>
+</body>
+</html>
