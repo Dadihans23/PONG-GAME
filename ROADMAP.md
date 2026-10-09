@@ -155,7 +155,7 @@ Décidé avec le propriétaire. Développé sur la branche `feature-sensibilite`
 - [x] Curseur de 0 à 100 dans les Réglages, à la place des 5 crans (anciens crans convertis : « Normale » → 50)
 - [x] Le curseur règle ensemble la vitesse maximale (1,2 à 3,0 unités/s) et l'inclinaison nécessaire (60° à 20°) ; 0 reste jouable
 - [x] Courbe de réponse (exposant 1,5) : petites inclinaisons plus douces pour garder la précision
-- [~] Valeur par défaut 50 (environ deux fois plus vive qu'avant à 30°), à régler au ressenti avec le propriétaire
+- [x] Vitesses multipliées par 1,5 après test (1,8 à 4,5 unités/s, plafond du duel 4,5) ; valeur par défaut 50 ; validé par le propriétaire en solo
 - [x] Zone d'essai dans les Réglages : mini-raquette qui suit l'inclinaison
 - [x] Duel : chaque joueur garde sa propre vitesse (comme au tennis) ; le Client annonce son réglage dans `join`, l'Host applique un plafond commun (3,0)
 - [x] Tests (calcul, conversion, plafond en duel, protocole) : 411 tests
