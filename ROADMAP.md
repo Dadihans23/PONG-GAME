@@ -213,6 +213,20 @@ Décisions :
 - [ ] Administration v2 : à vérifier par le propriétaire en local puis à déployer (dépôt d'un vrai APK avec la barre de progression, copie du lien et de l'empreinte, thème clair sur téléphone)
 - [ ] Mise à jour des actions GitHub (avertissements Node.js 20 et Ubuntu 26) lors d'une prochaine modification du workflow
 
+### Référencement du site (audit SEO de tilto.fun)
+- [x] Adresse fixe `SITE_URL` (jamais l'hôte de la requête) pour toutes les URL absolues
+- [x] `robots.txt` « recherche oui, entraînement non » (robots d'entraînement des IA refusés, robots de recherche des assistants autorisés), `sitemap.xml`, `/.well-known/security.txt`
+- [x] URL canonique sans paramètres et Open Graph / Twitter sur les pages publiques ; `noindex` sur `/contact/merci` et les pages d'erreur ; pas de description sur la 404
+- [x] Titre et description de l'accueil (« Tilto : le Pong qu'on joue en inclinant son téléphone (Android) ») ; descriptions de Contact, Confidentialité, Mentions légales
+- [x] Données structurées JSON-LD (WebSite, Organization, MobileApplication, FAQPage), sans note ni avis inventés
+- [x] Polices en WOFF2 sous-ensemble latin (1,1 Mo → 166 Ko), seule la graisse du titre préchargée ; accueil 1,19 Mo → 0,38 Mo (0,25 Mo avec le logo réduit)
+- [x] Dimensions du logo du pied de page ; logo initial réduit pour les nouvelles installations ; CSS et JS versionnés (`?v=`)
+- [ ] Image de partage `og-tilto.png` (`tool/og_image.cjs`) à valider par le propriétaire
+- [ ] Remplacer le logo en ligne (1561 × 339, 144 Ko) par une version réduite dans Administration › Studio (`site/app/seed/nexora_logo_light.png`, 221 × 48)
+- [ ] Sous-titre visible sous le h1 avec « jeu de Pong gratuit pour Android » (textes proposés, à saisir dans l'administration par le propriétaire)
+- [ ] Nginx (en attente de l'accès du propriétaire) : redirection `www` → `tilto.fun`, gzip, cache long sur `/static/`, limites, `server_tokens off`
+- [ ] Google Search Console et Bing Webmaster Tools : validation par DNS, envoi du sitemap
+
 ### Publication sur le Play Store
 
 Attention : l'APK actuel est signé avec la clé de debug (`signingConfig signingConfigs.debug`) ; la version Play Store aura une autre signature, donc pas de mise à jour par-dessus un APK installé à la main.

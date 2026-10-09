@@ -13,7 +13,9 @@ site/
 │   ├── security.py        mot de passe scrypt, CSRF, limitation, taille des requêtes, en-têtes
 │   ├── uploads.py         vérification et enregistrement des images et des APK
 │   ├── render.py          gabarits et filtres (taille, date, date courte, texte enrichi)
-│   ├── routes_public.py   /, /confidentialite, /mentions-legales, /contact, /telecharger, /media/…, /sante
+│   ├── routes_public.py   /, /confidentialite, /mentions-legales, /contact, /telecharger, /media/…, /sante,
+│   │                      /robots.txt, /sitemap.xml, /.well-known/security.txt
+│   ├── seo.py             robots.txt, sitemap.xml, security.txt, titre et description de l'accueil, JSON-LD
 │   ├── routes_admin.py    /admin/…
 │   ├── contact.py         formulaire de contact : jeton, délai, validation
 │   ├── mailer.py          notification SMTP facultative des messages de contact
@@ -21,7 +23,7 @@ site/
 │   ├── hashpw.py          génération du hachage du mot de passe et de la clé secrète
 │   ├── templates/         gabarits HTML (publics, et admin/)
 │   ├── seed/              logo initial du studio, copié dans les données au premier démarrage
-│   └── static/            css/site.css (site), css/admin.css (administration), js/ (theme.js partagé, admin.js), fonts/ (Archivo)
+│   └── static/            css/site.css (site), css/admin.css (administration), js/ (theme.js partagé, admin.js), fonts/ (Archivo, WOFF2), img/ (favicons, og-tilto.png)
 ├── tests/                 pytest
 ├── Dockerfile, docker-compose.yml, .env.example
 └── requirements.txt (production), requirements-dev.txt (tests)
@@ -172,6 +174,20 @@ sudo nginx -t && sudo systemctl reload nginx
 
 Les étapes d'installation (`spec_row`, groupe `install`) ont deux colonnes : `label` = titre, `value` = précision. Au démarrage, une étape qui a encore exactement l'ancien texte par défaut d'une seule colonne est découpée (`db.INSTALL_SPLIT`, par exemple « Télécharge le fichier » / « Depuis ton téléphone Android. ») ; une étape modifiée par le propriétaire n'est pas touchée (sa précision reste vide, à remplir dans Administration › Installation). `python -m app.reseed_v2` propose aussi de remplacer les étapes par celles de la v2.
 
+## Référencement (SEO)
+
+- **Adresse fixe** : `SITE_URL` (`.env`, défaut `https://tilto.fun`, sans « / » final ni chemin, vérifié au démarrage). Toutes les URL absolues en partent (canonique, Open Graph, sitemap, robots.txt, security.txt, JSON-LD), jamais l'hôte de la requête.
+- **`/robots.txt`** (`seo.robots_txt`) : politique « recherche oui, entraînement non ». Tout le monde peut tout lire sauf `/telecharger`, `/contact/merci` et `/sante` ; les robots d'entraînement des IA (GPTBot, ClaudeBot, Google-Extended, Applebot-Extended, CCBot, meta-externalagent, Bytespider) sont refusés partout ; les robots de recherche des assistants (OAI-SearchBot, ChatGPT-User, PerplexityBot, Claude-SearchBot…) suivent la règle générale. `/admin` n'y figure pas (le fichier est public) : ses pages portent `noindex`.
+- **`/sitemap.xml`** : `/`, `/contact`, `/confidentialite`, `/mentions-legales`. `lastmod` : date de l'APK courant pour l'accueil (absente sans APK), `privacy_updated` et `legal_updated` (si remplie). Ni `priority` ni `changefreq`.
+- **`/.well-known/security.txt`** (RFC 9116) : contact = page Contact, expire le 1er octobre 2027 (à prolonger avant).
+- **Balises** (`base.html`) : une route passe `canonical_path` à `site_context` pour les pages indexables ; la page reçoit alors `<link rel="canonical">` (sans paramètres), Open Graph (`og:type`, `og:site_name`, `og:locale` fr_FR, `og:url`, `og:title`, `og:description`, `og:image` 1200 × 630 + `alt`) et `twitter:card` `summary_large_image`. Sans `canonical_path` (message envoyé, erreurs) : `<meta name="robots" content="noindex">`. Le bloc `description` d'un gabarit donne la meta description ; vide (404, message envoyé), il n'y en a pas.
+- **Accueil** : titre et description dans `seo.HOME_TITLE_SUFFIX` / `seo.HOME_DESCRIPTION` (textes fixes, pas dans l'administration). Données structurées JSON-LD (`seo.home_json_ld`) : WebSite, Organization (studio, logo), MobileApplication (Android 5.0 ou plus, gratuit, version et lien de téléchargement seulement si un APK est en ligne, captures seulement celles qui ont une image) et FAQPage (texte exact de la FAQ). Jamais de note ni d'avis. Bloc `<script type="application/ld+json">` : données non exécutées, compatibles avec la CSP ; `tojson` échappe `<`, `>` et `&`.
+- **Image de partage** : `app/static/img/og-tilto.png` (1200 × 630, ~70 Ko), générée par `node tool/og_image.cjs` (Playwright/Chromium, polices de `assets/fonts/`). Modifier le script puis relancer, jamais l'image à la main.
+- **Polices** : Archivo en WOFF2, sous-ensemble latin + latin étendu (accents, œ, « », ’, …, ·, ×, flèches, €), ~28 Ko par graisse au lieu de ~190 Ko en TTF, partagées par `site.css` et `admin.css`. Seule la graisse 900 (titre de l'accueil) est préchargée. Régénérer avec `tool/site_fonts.py` (fonttools + brotli dans un venv à part, pas dans `requirements.txt`) ; les TTF source sont ceux de l'app (`assets/fonts/`). ↗, ʳ, ᵉ et l'espace fine insécable ne sont pas dans Archivo : le navigateur les prend dans une police de secours (comme avant).
+- **Statiques versionnés** : dans les gabarits, `static_url('css/site.css')` donne `/static/css/site.css?v=<10 caractères du SHA-256>`, calculé une fois par démarrage. Les CSS et JS changent donc d'URL à chaque déploiement qui les modifie : un cache long (`Cache-Control: max-age=31536000, immutable`) peut être posé sur `/static/` dans Nginx. Les polices (appelées depuis les CSS) et les favicons ne sont pas versionnés : leur garder un cache plus court, ou changer leur nom si on les modifie.
+- **Logo du pied de page** : `width`/`height` calculés d'après le fichier (hauteur 24 px, pas de décalage au chargement). Le logo initial (`app/seed/`, copié aux nouvelles installations) est réduit à 221 × 48 (~9 Ko) par `tool/site_seed_logo.py` ; un site déjà en ligne garde le logo déposé dans l'administration (à remplacer par une version réduite).
+- Hors de l'application (Nginx, voir plus haut) : redirection de `www`, compression gzip, cache des statiques.
+
 ## Sécurité, en bref
 
 - Mot de passe unique, stocké uniquement sous forme de hachage scrypt (N = 2^16, r = 8), vérifié en temps constant ; 5 échecs par IP en 15 minutes bloquent la connexion (réglable).
@@ -274,7 +290,7 @@ Autres pages :
 | `/contact/merci` | `contact_sent.html` | variables communes |
 | Erreurs | `error.html` | `status`, `message` (sans `site` : le pied de page affiche des liens fixes) |
 
-La CSP interdit le JavaScript et les styles en ligne (`style="…"`) ainsi que toute ressource externe : scripts dans `app/static/js/` chargés par `<script src>`, polices dans `app/static/fonts/`. Les éléments purement décoratifs de la maquette (classement d'exemple, curseur Douce / Vive, téléphones de Léa et Tom, partie de démonstration) relèvent du gabarit, pas de la base.
+La CSP interdit le JavaScript et les styles en ligne (`style="…"`) ainsi que toute ressource externe : scripts dans `app/static/js/` chargés par `<script src>`, polices dans `app/static/fonts/` (WOFF2). Dans les gabarits, les CSS et JS passent par `static_url('…')` (URL versionnée). Les éléments purement décoratifs de la maquette (classement d'exemple, curseur Douce / Vive, téléphones de Léa et Tom, partie de démonstration) relèvent du gabarit, pas de la base.
 
 ## Déploiement automatique (branche `prod`)
 
