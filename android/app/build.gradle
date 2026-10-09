@@ -23,7 +23,19 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+// Clé de signature de Tilto (APK du site et envoi au Play Store) : lue dans
+// android/key.properties, jamais versionné (voir android/.gitignore). Sans ce
+// fichier (CI, autre poste), la version release est signée avec la clé de debug.
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.withReader('UTF-8') { reader ->
+        keystoreProperties.load(reader)
+    }
+}
+
 android {
+    // Paquet du code Kotlin ; l'identifiant publié est applicationId plus bas.
     namespace "com.example.pong_game"
     compileSdk 34
     ndkVersion flutter.ndkVersion
@@ -42,8 +54,8 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId "com.example.pong_game"
+        // Identifiant public (Play Store, installation) : ne plus jamais le changer.
+        applicationId "com.nexora.tilto"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         minSdkVersion 21
@@ -52,11 +64,20 @@ android {
         versionName flutterVersionName
     }
 
+    signingConfigs {
+        release {
+            if (keystorePropertiesFile.exists()) {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig signingConfigs.debug
+            signingConfig keystorePropertiesFile.exists() ? signingConfigs.release : signingConfigs.debug
         }
     }
 }
