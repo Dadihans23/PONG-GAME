@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <!-- Tilto, icône 2a « Raquette inclinée ». Généré par tool/app_icon.cjs : ne pas modifier à la main. -->
+  <defs>
+    <radialGradient id="bg" gradientUnits="userSpaceOnUse" cx="54" cy="48.237" r="55.163">
+      <stop offset="0" stop-color="#1C1C28"/>
+      <stop offset="0.7" stop-color="#0B0B10"/>
+    </radialGradient>
+  </defs>
+  <rect width="108" height="108" fill="url(#bg)"/>
+</svg>

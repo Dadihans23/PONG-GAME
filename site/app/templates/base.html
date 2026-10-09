@@ -7,7 +7,9 @@
   <meta name="theme-color" content="#0B0B10">
   <title>{% block title %}{{ site.game_name if site else "Tilto" }}{% endblock %}</title>
   <meta name="description" content="{% block description %}{{ site.tagline if site else "" }}{% endblock %}">
+  <link rel="icon" href="/static/img/favicon.ico" sizes="16x16 32x32 48x48">
   <link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/static/img/apple-touch-icon.png">
   <link rel="preload" href="/static/fonts/Archivo-Black.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="stylesheet" href="/static/css/site.css">
   {% block scripts %}{% endblock %}

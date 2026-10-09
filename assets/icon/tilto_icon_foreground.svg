@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <!-- Tilto, icône 2a « Raquette inclinée ». Généré par tool/app_icon.cjs : ne pas modifier à la main. -->
+  <defs>
+    <filter id="glowPaddle" filterUnits="userSpaceOnUse" x="-108" y="-108" width="324" height="324"><feGaussianBlur stdDeviation="3.78"/></filter>
+    <filter id="glowBall" filterUnits="userSpaceOnUse" x="-108" y="-108" width="324" height="324"><feGaussianBlur stdDeviation="3.24"/></filter>
+  </defs>
+  <g transform="translate(17.982 17.982) scale(0.667)">
+    <rect x="29.16" y="64.8" width="49.68" height="10.8" rx="5.4" fill="rgba(233,30,99,.65)" filter="url(#glowPaddle)" transform="rotate(-16 54 70.2)"/>
+    <rect x="29.16" y="64.8" width="49.68" height="10.8" rx="5.4" fill="#E91E63" transform="rotate(-16 54 70.2)"/>
+    <circle cx="59.94" cy="38.34" r="9.18" fill="rgba(255,255,255,.55)" filter="url(#glowBall)"/>
+    <circle cx="59.94" cy="38.34" r="9.18" fill="#FFFFFF"/>
+  </g>
+</svg>

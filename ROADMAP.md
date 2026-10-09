@@ -189,7 +189,7 @@ Décisions :
 - [x] Intro studio (1,5 s, passable d'un toucher) avant le chargement, raccourci à 4,5 s : 6 s au total comme avant
 - [x] « Un jeu de Nexora » en bas des Réglages et de l'Aide
 - [x] Nom affiché sous l'icône : « Tilto » ; « TILTO » dans l'app
-- [ ] Icône de l'app (aujourd'hui celle de Flutter par défaut) : en attente des propositions de Claude Design
+- [ ] Icône de l'app : 2a « Raquette inclinée » fabriquée (`tool/app_icon.cjs`, `assets/icon/`, icône adaptative Android à l'échelle 0,667 pour reproduire les aperçus masqués de la maquette, Play Store 512, iOS, site) ; à valider à l'œil sur téléphone par le propriétaire
 
 ### Nouvel écran d'accueil
 - [x] Prompt Claude Design (`design_prompt_accueil.md`) : directions d'accueil, icône et site — maquettes en attente

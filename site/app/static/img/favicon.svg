@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <defs>
-    <radialGradient id="f" cx="50%" cy="42%" r="70%"><stop offset="0" stop-color="#1C1C28"/><stop offset="1" stop-color="#0B0B10"/></radialGradient>
+    <radialGradient id="f" gradientUnits="userSpaceOnUse" cx="32" cy="26.88" r="49.009"><stop offset="0" stop-color="#1C1C28"/><stop offset="0.7" stop-color="#0B0B10"/></radialGradient>
   </defs>
   <rect width="64" height="64" rx="14" fill="url(#f)"/>
   <rect x="17.3" y="38.4" width="29.4" height="6.4" rx="3.2" fill="#E91E63" transform="rotate(-16 32 41.6)"/>

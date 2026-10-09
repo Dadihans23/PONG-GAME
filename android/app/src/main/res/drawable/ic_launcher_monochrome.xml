@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Silhouette pour les icônes thématiques d'Android 13 : la raquette et la balle
+     de assets/icon/tilto_icon_foreground.svg, sans halo. Le système choisit la teinte.
+     Généré par tool/app_icon.cjs : ne pas modifier à la main. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:pivotX="54"
+        android:pivotY="54"
+        android:scaleX="0.667"
+        android:scaleY="0.667">
+        <group
+            android:pivotX="54"
+            android:pivotY="70.2"
+            android:rotation="-16">
+            <path
+                android:fillColor="#FFFFFFFF"
+                android:pathData="M34.56,64.8H73.44A5.4,5.4 0,0 1,73.44 75.6H34.56A5.4,5.4 0,0 1,34.56 64.8Z"/>
+        </group>
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M59.94,29.16A9.18,9.18 0,1 1,59.94 47.52A9.18,9.18 0,1 1,59.94 29.16Z"/>
+    </group>
+</vector>
