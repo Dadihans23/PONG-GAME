@@ -38,6 +38,13 @@ def client(settings):
         yield c
 
 
+def visible(html: str) -> str:
+    """Texte d'une page tel qu'on le lit : les titres en deux graisses (filtre accent,
+    balises <b>) sont recollés, les entités décodées."""
+    from html import unescape
+    return unescape(re.sub(r"</?b>", "", html))
+
+
 def csrf_from(html: str) -> str:
     match = re.search(r'name="csrf_token" value="([^"]+)"', html)
     assert match, "jeton CSRF absent du formulaire"

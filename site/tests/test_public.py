@@ -1,4 +1,5 @@
 from html import unescape
+from conftest import visible
 
 from app.config import ConfigError, Settings
 from app.render import rich_text
@@ -8,7 +9,7 @@ from app.security import hash_password, verify_password
 def test_home_shows_initial_content(client):
     r = client.get("/")
     assert r.status_code == 200
-    page = unescape(r.text)
+    page = visible(r.text)
     # Contenu initial aligné sur la maquette (planche 3a).
     assert "<h1>TILTO</h1>" in page
     assert "Le Pong qu'on joue en inclinant son téléphone." in page

@@ -39,7 +39,7 @@
 
   function apply(theme) {
     root.setAttribute("data-theme", theme);
-    var metas = document.querySelectorAll('meta[name="theme-color"]');
+    var metas = document.querySelectorAll('meta[name="theme-color"]:not([data-fixed])');
     for (var i = 0; i < metas.length; i++) {
       metas[i].setAttribute("content", COLORS[theme]);
     }

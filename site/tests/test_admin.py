@@ -1,6 +1,6 @@
 from html import unescape
 
-from conftest import PNG_1PX, admin_csrf, csrf_from, login, make_apk
+from conftest import PNG_1PX, admin_csrf, csrf_from, login, make_apk, visible
 
 
 # --- Connexion -------------------------------------------------------------------
@@ -74,11 +74,11 @@ def test_edit_texts_reflected_on_home(admin):
     assert r.status_code == 303
     home = admin.get("/").text
     assert "TILTO PRO" in home
-    assert "Nouvelle &lt;b&gt;accroche&lt;/b&gt;" in home  # échappé
+    assert "Nouvelle <b>&lt;b&gt;accroche&lt;/b&gt;</b>" in home  # échappé (fin en gras)
     assert "https://play.google.com/store/apps/details?id=x" in home
     assert "mailto:contact@example.com" in admin.get("/contact").text
     for expected in ("Gratuit · Android 8+", "Récupère Tilto", "Phrase finale modifiée."):
-        assert expected in unescape(home)
+        assert expected in visible(home)
 
 
 def test_edit_texts_validation(admin):

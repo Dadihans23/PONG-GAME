@@ -14,7 +14,7 @@ from app import db, reseed_v2
 from app.config import Settings, SmtpConfig
 from app.main import create_app
 from app.render import date_short
-from conftest import admin_csrf, csrf_from, make_apk
+from conftest import admin_csrf, csrf_from, make_apk, visible
 
 
 class FakeClock:
@@ -35,7 +35,7 @@ def clock(client):
 # --- Page d'accueil : contenu initial v2 --------------------------------------------
 
 def test_home_v2_initial_content(client):
-    page = unescape(client.get("/").text)
+    page = visible(client.get("/").text)
     assert '<p class="kicker">PONG VERTICAL · ANDROID · SOLO ET DUEL LOCAL</p>' in page
     assert "Ta raquette est en bas, celle de l'adversaire en haut." in page
     for label, value in [("MODES", "Solo · Duel"), ("JOUEURS", "1 ou 2"),
@@ -84,7 +84,7 @@ def test_admin_texts_sections_reflected(admin):
         "compare_title": "Comparer les modes", "footer_text": "Pied de page test.",
         "install_note": "Phrase Play Store test."}, follow_redirects=False)
     assert r.status_code == 303
-    page = unescape(admin.get("/").text)
+    page = visible(admin.get("/").text)
     for expected in ("SUR-TITRE TEST", "Vos questions", "Comparer les modes", "Pied de page test."):
         assert expected in page
     # Les champs non envoyés ne sont pas vidés.
