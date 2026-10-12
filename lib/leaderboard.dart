@@ -173,23 +173,28 @@ class _RankRow extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 14),
+              // Un pseudo long se coupe par « … » ; la date reste toujours visible.
               Expanded(
-                child: Text.rich(
-                  TextSpan(
-                    text: name,
-                    children: [
-                      if (date != null)
-                        TextSpan(
-                          text: ' · $date',
-                          style: PongText.caption.copyWith(
-                              fontSize: 12, color: PongColors.textTertiary),
-                        ),
-                    ],
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: PongText.cardTitle
-                      .copyWith(fontSize: 15, fontWeight: FontWeight.w600),
+                child: Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: PongText.cardTitle.copyWith(
+                            fontSize: 15, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                    if (date != null)
+                      Text(
+                        ' · $date',
+                        maxLines: 1,
+                        softWrap: false,
+                        style: PongText.caption.copyWith(
+                            fontSize: 12, color: PongColors.textTertiary),
+                      ),
+                  ],
                 ),
               ),
               const SizedBox(width: PongSpacing.sm),

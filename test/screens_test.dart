@@ -254,6 +254,29 @@ void main() {
         expect(find.textContaining('Joueur 1 '), findsNothing);
         expect(find.textContaining('Joueur 0'), findsNothing);
       });
+
+      testWidgets(
+          'pseudo long : la date reste visible, ${size.width.toInt()} dp',
+          (tester) async {
+        const longName = 'Un pseudo vraiment très très long pour la ligne';
+        // Le pseudo long en 4ᵉ position (ligne compacte) : score 970.
+        await tester.runAsync(() => Hive.box('leaderboard').put('entries', [
+              for (var i = 0; i < 10; i++)
+                _entry(i == 3 ? longName : 'Joueur $i', 1000 - 10 * i,
+                    '2026-09-${(i + 1).toString().padLeft(2, '0')}'),
+            ]));
+        await _pump(tester, const LeaderboardPage(), size);
+
+        final nameText = tester.widget<Text>(find.text(longName));
+        expect(nameText.overflow, TextOverflow.ellipsis);
+        final date = find.text(' · 04/09/2026');
+        expect(date, findsOneWidget);
+        // La date est entièrement dans la ligne, à gauche du score.
+        final dateRect = tester.getRect(date);
+        final scoreRect = tester.getRect(find.text('970'));
+        expect(dateRect.right, lessThanOrEqualTo(scoreRect.left));
+        expect(tester.takeException(), isNull);
+      });
     }
   });
 
@@ -338,8 +361,8 @@ void main() {
     expect(format.number(0), '0');
     expect(format.number(950), '950');
     expect(format.number(2400), '2${PongFormat.nbsp}400');
-    expect(format.number(1234567),
-        '1${PongFormat.nbsp}234${PongFormat.nbsp}567');
+    expect(
+        format.number(1234567), '1${PongFormat.nbsp}234${PongFormat.nbsp}567');
     expect(format.duration(45000), '45s');
     expect(format.duration(200000), '3m 20s');
     expect(format.duration(4325000), '1h 12m 5s');
