@@ -14,7 +14,12 @@ import 'package:pong_game/studio/studio_http.dart';
 import 'package:pong_game/studio/studio_info.dart';
 import 'package:pong_game/studio/studio_repository.dart';
 
-final Uri _api = Uri.parse(Brand.studioApiUrl);
+/// Adresse appelée par une app en français (langue par défaut du dépôt).
+final Uri _api = Uri.parse('${Brand.studioApiUrl}?lang=fr');
+
+/// La même, pour une app en anglais ou en espagnol.
+Uri _apiIn(String language) =>
+    Uri.parse('${Brand.studioApiUrl}?lang=$language');
 final Uri _logoUrl = Uri.parse('https://tilto.fun/media/logo-v2.png');
 
 /// Faux logo : son contenu importe peu, le décodeur factice l'accepte.
@@ -109,7 +114,8 @@ void main() {
     logs = [];
   });
 
-  StudioRepository repo({Uri? apiUrl, StudioLogoDecoder? decode}) =>
+  StudioRepository repo(
+          {Uri? apiUrl, StudioLogoDecoder? decode, String language = 'fr'}) =>
       StudioRepository(
         box,
         http: http,
@@ -118,6 +124,7 @@ void main() {
         log: logs.add,
         notifier: notifier,
         apiUrl: apiUrl,
+        language: language,
       );
 
   void serveValid({Map<String, dynamic>? body, String? etag = '"v1"'}) {
@@ -371,6 +378,81 @@ void main() {
       expect(repo().readCache().name, 'Orbis');
       expect(repo().readCache().logo, _logoBytes);
       expect(repo().isDue, isTrue);
+    });
+  });
+
+  group('langue', () {
+    test('la langue de l\'app est envoyée au site (?lang=)', () async {
+      http.on(_apiIn('es'), () => _json(_payload()));
+      http.on(_logoUrl, () => _png(_logoBytes));
+      await repo(language: 'es').refreshIfDue();
+      expect(http.calls.first.url, _apiIn('es'));
+      expect(box.get(StudioRepository.languageKey), 'es');
+      expect(notifier.value.name, 'Orbis');
+    });
+
+    test('changement de langue : nouvelle vérification avant 24 h, sans '
+        'l\'ETag de l\'autre langue', () async {
+      serveValid();
+      await repo().refreshIfDue();
+      now = now.add(const Duration(hours: 1));
+      expect(repo().isDue, isFalse);
+
+      // Le joueur passe l'app en anglais : vérification au lancement suivant
+      final english = repo(language: 'en');
+      expect(english.isDue, isTrue);
+      http.on(_apiIn('en'), () => _json(_payload(name: 'Orbis EN'),
+          etag: '"en1"'));
+      http.calls.clear();
+      await english.refreshIfDue();
+      expect(http.calls.first.url, _apiIn('en'));
+      expect(http.calls.first.ifNoneMatch, isNull);
+      expect(notifier.value.name, 'Orbis EN');
+      expect(box.get(StudioRepository.etagKey), '"en1"');
+      expect(english.isDue, isFalse);
+
+      // Retour au français : nouvelle vérification, sans l'ETag anglais
+      final french = repo();
+      expect(french.isDue, isTrue);
+      http.calls.clear();
+      await french.refreshIfDue();
+      expect(http.calls.first.ifNoneMatch, isNull);
+    });
+
+    test('même langue : l\'ETag est renvoyé', () async {
+      http.on(_apiIn('en'), () => _json(_payload()));
+      http.on(_logoUrl, () => _png(_logoBytes));
+      await repo(language: 'en').refreshIfDue();
+      now = now.add(const Duration(hours: 25));
+      http.calls.clear();
+      http.on(
+          _apiIn('en'),
+          () => StudioHttpResponse(
+              statusCode: 304, body: Uint8List(0), etag: '"v1"'));
+      await repo(language: 'en').refreshIfDue();
+      expect(http.calls.single.ifNoneMatch, '"v1"');
+    });
+
+    test('cache d\'avant la 1.1.0 (sans langue) : compté comme français',
+        () async {
+      await box.putAll({
+        StudioRepository.nameKey: 'Orbis',
+        StudioRepository.etagKey: '"v0"',
+        StudioRepository.lastCheckKey: now.millisecondsSinceEpoch,
+      });
+      expect(repo().isDue, isFalse);
+      expect(repo(language: 'es').isDue, isTrue);
+    });
+
+    test('réponse ignorée dans une nouvelle langue : l\'ancien ETag est '
+        'oublié, la suivante attend 24 h', () async {
+      serveValid();
+      await repo().refreshIfDue();
+      http.on(_apiIn('en'), () => _json(_payload(schema: 2)));
+      await repo(language: 'en').refreshIfDue();
+      expect(box.get(StudioRepository.etagKey), isNull);
+      expect(box.get(StudioRepository.languageKey), 'en');
+      expect(repo(language: 'en').isDue, isFalse);
     });
   });
 

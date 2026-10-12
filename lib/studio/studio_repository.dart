@@ -13,7 +13,12 @@
 //   remplacer celui du cache ;
 // - toute erreur (pas de réseau, délai, 5xx, JSON illisible, format
 //   inconnu) laisse le cache tel quel, sans rien montrer au joueur ; le
-//   journal `tilto.studio` en garde la trace.
+//   journal `tilto.studio` en garde la trace ;
+// - la présentation est demandée dans la langue de l'app
+//   (`?lang=fr|en|es`). Le cache retient la langue de sa dernière
+//   vérification : si la langue de l'app change, la vérification suivante
+//   (au prochain lancement) a lieu même avant 24 h, et l'ETag d'une autre
+//   langue n'est jamais renvoyé.
 //
 // Format de l'API : voir le contrat dans site/ (GET /api/app/studio).
 import 'dart:async';
@@ -66,6 +71,7 @@ class StudioRepository {
     StudioLogger? log,
     ValueNotifier<StudioInfo>? notifier,
     Uri? apiUrl,
+    this.language = defaultLanguage,
   })  : _http = http ?? const IoStudioHttp(),
         _now = now ?? DateTime.now,
         _decodeLogo = decodeLogo ?? decodeStudioLogo,
@@ -85,6 +91,19 @@ class StudioRepository {
   /// Adresse de l'API (les tests en essaient une autre pour vérifier
   /// qu'elle est refusée).
   final Uri apiUrl;
+
+  /// Langue de l'app (`fr`, `en` ou `es`), envoyée au site.
+  final String language;
+
+  /// Langue des présentations enregistrées avant la version 1.1.0 (le site
+  /// ne parlait que français).
+  static const String defaultLanguage = 'fr';
+
+  /// Adresse appelée : [apiUrl] avec la langue (`?lang=en`).
+  Uri get requestUrl => apiUrl.replace(queryParameters: {
+        ...apiUrl.queryParameters,
+        'lang': language,
+      });
 
   /// Nom de la boîte Hive, ouverte dans `main()`.
   static const String boxName = 'studio';
@@ -113,6 +132,10 @@ class StudioRepository {
 
   /// Dernière vérification réussie (millisecondes depuis l'époque).
   static const String lastCheckKey = 'lastCheck';
+
+  /// Langue de la dernière vérification (et de l'ETag gardé). Absente :
+  /// [defaultLanguage].
+  static const String languageKey = 'language';
 
   bool _refreshing = false;
 
@@ -144,9 +167,14 @@ class StudioRepository {
   /// Publie le cache dans [notifier] (au démarrage).
   void loadCache() => notifier.value = readCache();
 
+  /// Langue de la dernière vérification.
+  String get _checkedLanguage => _string(languageKey) ?? defaultLanguage;
+
   /// Vrai si aucune vérification n'a réussi depuis [refreshInterval]
-  /// (ou si l'horloge du téléphone a reculé depuis).
+  /// (ou si l'horloge du téléphone a reculé depuis), ou si la dernière a
+  /// été faite dans une autre langue.
   bool get isDue {
+    if (_checkedLanguage != language) return true;
     final last = _box.get(lastCheckKey);
     if (last is! int) return true;
     final elapsed = _now().millisecondsSinceEpoch - last;
@@ -172,8 +200,10 @@ class StudioRepository {
       _log('adresse refusée : $apiUrl');
       return;
     }
-    final cachedEtag = _string(etagKey);
-    final response = await _http.get(apiUrl,
+    // L'ETag ne vaut que pour la langue dans laquelle il a été reçu
+    final cachedEtag =
+        _checkedLanguage == language ? _string(etagKey) : null;
+    final response = await _http.get(requestUrl,
         ifNoneMatch: cachedEtag, maxBytes: maxJsonBytes);
 
     if (response.statusCode == 304 && cachedEtag != null) {
@@ -242,6 +272,7 @@ class StudioRepository {
       etagKey: logoUpdated ? response.etag : null,
       ...logoValues,
       lastCheckKey: _now().millisecondsSinceEpoch,
+      languageKey: language,
     });
     _log('présentation mise à jour (${payload.updatedAt ?? 'sans date'})');
     loadCache();
@@ -286,8 +317,13 @@ class StudioRepository {
     return (bytes: bytes, width: size.width, height: size.height);
   }
 
-  Future<void> _markChecked() =>
-      _box.put(lastCheckKey, _now().millisecondsSinceEpoch);
+  /// Vérification faite sans nouvelle présentation : la prochaine attendra
+  /// 24 h. Dans une nouvelle langue, l'ETag de l'ancienne est oublié.
+  Future<void> _markChecked() => _box.putAll({
+        lastCheckKey: _now().millisecondsSinceEpoch,
+        if (_checkedLanguage != language) etagKey: null,
+        languageKey: language,
+      });
 
   String? _string(String key) {
     final value = _box.get(key);
