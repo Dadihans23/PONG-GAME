@@ -643,7 +643,8 @@ def test_footer_links_are_real_pages(client):
         footer = footer_html(unescape(client.get(path).text))
         assert 'href="/#' not in footer, path  # aucune ancre de l'accueil
         hrefs = re.findall(r'href="([^"]+)"', footer)
-        assert hrefs == ["/", "/contact", "/confidentialite", "/mentions-legales"], path
+        # Les trois pages sans autre accès, puis la signature TILTO (accueil).
+        assert hrefs == ["/contact", "/confidentialite", "/mentions-legales", "/"], path
         assert "/telecharger" not in footer  # pas d'APK en ligne
 
 
@@ -652,14 +653,20 @@ def test_footer_marks_current_page(client):
     assert 'href="/mentions-legales" aria-current="page"' in footer
 
 
-def test_footer_download_links_when_available(admin):
+def test_footer_never_repeats_downloads(admin):
+    """Les téléchargements sont dans l'en-tête, le héros et la section Télécharge :
+    le pied de page ne les répète pas, même quand l'APK et Google Play existent."""
     token = admin_csrf(admin, "/admin/apk")
     admin.post("/admin/apk/deposer", data={"csrf_token": token, "version": "1.0.0",
                                            "make_current": "1"},
                files={"apk": ("a.apk", make_apk(), "application/octet-stream")})
     admin.post("/admin/textes", data={"csrf_token": token,
                                       "play_store_url": "https://play.google.com/store/apps/details?id=x"})
-    footer = footer_html(unescape(admin.get("/").text))
-    assert 'href="/telecharger">Télécharger l\'APK v1.0.0</a>' in footer
-    assert 'href="https://play.google.com/store/apps/details?id=x" rel="noopener">Google Play</a>' in footer
+    home = unescape(admin.get("/").text)
+    footer = footer_html(home)
+    assert "Télécharger" not in footer and "/telecharger" not in footer
+    assert "play.google.com" not in footer and "Google Play" not in footer
     assert 'href="/#' not in footer
+    assert "Tilto 1.0.0" in footer  # la version reste dans la ligne de crédit
+    # Google Play reste proposé ailleurs : boutons du héros et de la section Télécharge.
+    assert home.count('href="https://play.google.com/store/apps/details?id=x"') == 2

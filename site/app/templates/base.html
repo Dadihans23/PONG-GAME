@@ -44,9 +44,10 @@
   {% block scripts %}{% endblock %}
 </head>
 {# Les seules icônes du site : flèche de téléchargement (_icons.html), soleil / lune du
-   thème, +/− de la FAQ, chevron de l'empreinte et flèche de Contact, en SVG en ligne. #}
+   thème, +/− de la FAQ, chevron de l'empreinte, flèche de Contact et flèche du retour
+   en haut, en SVG en ligne. #}
 {% from "_icons.html" import icon_download %}
-<body class="{% block body_class %}{% endblock %}">
+<body id="haut" class="{% block body_class %}{% endblock %}">
   {% set game = site.game_name if site else "Tilto" %}
   <a class="skip-link" href="#contenu">Aller au contenu</a>
 
@@ -61,8 +62,9 @@
     {% if steps is not defined or steps %}<a class="{{ cls }}" href="/#comment-jouer" data-section="comment-jouer">Comment jouer</a>{% endif %}
     {% if screenshots is not defined or screenshots %}<a class="{{ cls }}" href="/#captures" data-section="captures">Captures</a>{% endif %}
     {% if faq %}<a class="{{ cls }}" href="/#faq" data-section="faq">FAQ</a>{% endif %}
-    {% if apk %}<a class="{{ cls }}" href="/#installer-apk" data-section="telecharger">Installer l'APK</a>{% endif %}
   {% endmacro %}
+  {# Pas de lien « Installer l'APK » dans les menus : le bouton Télécharger mène à la
+     section qui contient ce mode d'emploi (#installer-apk), seul endroit où il figure. #}
 
   {# En-tête sombre dans les deux thèmes (maquette « Néon magenta »). Collant :
      la bande utilitaire défile, la barre principale reste en haut. #}
@@ -106,7 +108,8 @@
           <svg class="theme-toggle__moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/></svg>
           <svg class="theme-toggle__sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg>
         </button>
-        <a class="topbar__cta" href="/#telecharger">{{ icon_download() }}<span class="topbar__cta-text">Télécharger</span></a>
+        {# data-section : dans la section Télécharge, aucune pastille du menu ne reste allumée. #}
+        <a class="topbar__cta" href="/#telecharger" data-section="telecharger">{{ icon_download() }}<span class="topbar__cta-text">Télécharger</span></a>
         {# Menu des petits écrans : <details> natif, fonctionne sans JavaScript ;
            nav.js le referme après un choix, avec Échap ou un clic à côté. #}
         <details class="menu">
@@ -128,32 +131,32 @@
     {% block content %}{% endblock %}
   </main>
 
+  {# Pied de page : la moitié de terrain du joueur. Il s'ouvre sur la ligne médiane en
+     tirets (la balle vient de la franchir) et se termine par la signature : le nom du
+     jeu en très grand, penché comme le téléphone. Aucun doublon de la navigation : ni
+     téléchargement (en-tête, héros, section Télécharge), ni ancre de l'accueil ;
+     seulement les pages qui n'ont pas d'autre accès. #}
   <footer class="footer">
+    <div class="footer__net" aria-hidden="true"><span class="footer__ball"></span></div>
     <div class="footer__top">
       <div class="footer__brand">
-        <div class="footer__brand-row">
-          <a class="footer__name" href="/">{{ game|upper }}</a>
-          {% if site and site.studio_logo_url %}
-          <img src="{{ site.studio_logo_url }}" alt="{{ site.studio_name }}" class="studio-logo"{% if site.studio_logo_size %} width="{{ site.studio_logo_size[0] }}" height="{{ site.studio_logo_size[1] }}"{% else %} height="24"{% endif %}>
-          {% endif %}
-        </div>
+        {% if site and site.studio_logo_url %}
+        <img src="{{ site.studio_logo_url }}" alt="{{ site.studio_name }}" class="studio-logo"{% if site.studio_logo_size %} width="{{ site.studio_logo_size[0] }}" height="{{ site.studio_logo_size[1] }}"{% else %} height="24"{% endif %}>
+        {% endif %}
         {% if site and site.footer_text %}<p class="footer__about">{{ site.footer_text }}</p>{% endif %}
       </div>
-      {# Seulement de vraies destinations (routes_public.footer_links) :
-         téléchargements s'ils existent, Contact, Confidentialité, Mentions
-         légales. Les sections de l'accueil restent dans la navigation du haut.
-         Le premier lien de téléchargement est la pastille rose. #}
       <nav class="footer__nav" aria-label="Pied de page">
         <ul class="footer__links">
-          {% for l in footer_links or [
+          {% for l in [
                {"label": "Contact", "href": "/contact"},
                {"label": "Politique de confidentialité", "href": "/confidentialite"},
                {"label": "Mentions légales", "href": "/mentions-legales"}] %}
-          <li><a class="footer__link{% if loop.first and (l.external or l.href == '/telecharger') %} footer__link--primary{% endif %}" href="{{ l.href }}"{% if l.external %} rel="noopener"{% endif %}{% if l.href == request.url.path %} aria-current="page"{% endif %}>{{ l.label }}</a></li>
+          <li><a class="footer__link" href="{{ l.href }}"{% if l.href == request.url.path %} aria-current="page"{% endif %}>{{ l.label }}</a></li>
           {% endfor %}
         </ul>
       </nav>
     </div>
+    <a class="footer__mark" href="/" aria-label="{{ game }}, accueil"><span aria-hidden="true">{{ game|upper }}</span></a>
     {% if site %}
     <div class="footer__bottom">
       <p class="footer__credit">Un jeu de {{ site.studio_name }} · © {{ year }}{% if apk %} · {{ site.game_name }} {{ apk.version }}{% endif %}</p>
@@ -162,5 +165,11 @@
     </div>
     {% endif %}
   </footer>
+  {# Retour en haut : caché tant que nav.js ne l'a pas activé (sans script, le bouton
+     n'apparaît jamais ; le lien #haut resterait valable). Il se montre après un écran
+     de défilement. #}
+  <a class="to-top" href="#haut" aria-label="Revenir en haut de la page" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 19V6M6 11l6-6 6 6"/></svg>
+  </a>
 </body>
 </html>

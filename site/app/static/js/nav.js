@@ -122,3 +122,57 @@
   window.addEventListener("resize", queue, { passive: true });
   update();
 })();
+
+// Bouton « Revenir en haut de la page » : visible après un écran de défilement, caché en
+// haut. Défilement doux, sauf si le système réduit les animations ; le focus revient
+// ensuite sur la marque de l'en-tête (navigation au clavier).
+(function () {
+  "use strict";
+
+  var button = document.querySelector(".to-top");
+  if (!button) {
+    return;
+  }
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)");
+  var shown = false;
+  var queued = false;
+  button.hidden = false;
+
+  function update() {
+    queued = false;
+    var show = window.pageYOffset > window.innerHeight;
+    if (show !== shown) {
+      shown = show;
+      button.classList.toggle("is-shown", show);
+    }
+  }
+
+  function queue() {
+    if (!queued) {
+      queued = true;
+      window.requestAnimationFrame(update);
+    }
+  }
+
+  button.addEventListener("click", function (event) {
+    event.preventDefault();
+    var instant = reduce && reduce.matches;
+    try {
+      window.scrollTo({ top: 0, behavior: instant ? "instant" : "smooth" });
+    } catch (e) {
+      window.scrollTo(0, 0);
+    }
+    var brand = document.querySelector(".brand");
+    if (brand) {
+      try {
+        brand.focus({ preventScroll: true });
+      } catch (e) {
+        brand.focus();
+      }
+    }
+  });
+
+  window.addEventListener("scroll", queue, { passive: true });
+  window.addEventListener("resize", queue, { passive: true });
+  update();
+})();

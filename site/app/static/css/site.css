@@ -47,6 +47,9 @@
   /* Hauteur de la barre collante (ancres et défilement) */
   --bar-h: 60px;
 
+  /* Polices : Archivo (celle de l'app) pour la marque, les titres et les sur-titres. */
+  --font-display: "Archivo", system-ui, sans-serif;
+
   /* Couleurs du jeu, identiques dans les deux thèmes */
   --accent: #E91E63;          /* rose de l'action principale */
   --accent-strong: #D81B60;   /* fond des boutons roses : texte blanc à 4,6:1 */
@@ -280,7 +283,7 @@ body {
   min-height: 100vh;
   background: var(--bg);
   color: var(--text);
-  font: 400 1rem/1.6 "Archivo", system-ui, sans-serif;
+  font: 400 1rem/1.6 var(--font-display);
   -webkit-font-smoothing: antialiased;
   overflow-x: clip;
 }
@@ -988,34 +991,88 @@ main:focus { outline: none; }
 .notes__list li::before { content: ""; position: absolute; left: 0; top: 8px; width: 6px; height: 6px; border-radius: 50%; background: #FF5C93; }
 
 
-/* ---------- Pied de page (sombre) ---------- */
+/* ---------- Pied de page (sombre) : la moitié de terrain du joueur ----------
+   Ligne médiane en tirets en haut (la balle vient de la franchir), le logo du studio et
+   la phrase du jeu, les trois pages sans autre accès, puis la signature : TILTO en très
+   grand, penché comme le téléphone, en filigrane. Rien n'y répète la navigation. */
 
-.footer { padding: var(--sp-9) var(--pad-x) 0; background: var(--n-deep); color: var(--n-text); }
-.footer__top { display: grid; gap: var(--sp-6); padding-bottom: var(--sp-7); }
-.footer__brand { display: flex; flex-direction: column; gap: 14px; }
-.footer__brand-row { display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-4); }
-.footer__name { min-height: 44px; display: inline-flex; align-items: center; font-size: 22px; font-weight: 900; letter-spacing: .3em; color: var(--n-text); }
-.footer__name:hover { color: var(--n-text); }
-.footer__about { font-size: 14px; line-height: 1.6; color: var(--n-muted); max-width: 460px; text-wrap: pretty; }
+.footer {
+  /* La signature penchée déborde : rognée ici (pas de défilement en plus sous la page). */
+  position: relative; overflow: hidden;
+  padding: 0 var(--pad-x); background: var(--n-deep); color: var(--n-text);
+}
+.footer__net {
+  /* 7 px sous le bord : la balle (12 px) tient entière dans le pied de page. */
+  position: relative; height: 2px; margin: 7px calc(-1 * var(--pad-x)) 0;
+  background: repeating-linear-gradient(90deg, var(--n-chip-line) 0 14px, transparent 14px 26px);
+}
+.footer__ball {
+  position: absolute; left: 68%; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px;
+  border-radius: 50%; background: var(--scr-ball); box-shadow: var(--scr-glow-ball);
+}
+.footer__top { display: grid; gap: var(--sp-6); padding: var(--sp-9) 0 var(--sp-6); }
+.footer__brand { display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-4); }
+.footer__about { font-size: 17px; line-height: 1.55; color: var(--n-text-2); max-width: 440px; text-wrap: pretty; }
 /* Logo du studio (version claire, texte blanc) : le pied de page est sombre, aucune plaque. */
 .studio-logo { height: 24px; width: auto; }
 .footer__nav { min-width: 0; }
-.footer__links { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.footer__links { display: flex; flex-direction: column; }
 .footer__link {
-  min-height: 44px; padding: 0 16px; border-radius: 22px;
-  display: inline-flex; align-items: center;
-  border: 1px solid rgba(255, 255, 255, .18);
-  font-size: 14px; font-weight: 600; line-height: 1.3; color: var(--n-nav);
+  min-height: 44px; display: inline-flex; align-items: center;
+  font-size: 15px; font-weight: 600; line-height: 1.3; color: var(--n-nav);
+  text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 5px; text-decoration-thickness: 2px;
 }
-.footer__link:hover { color: var(--n-text); border-color: rgba(255, 255, 255, .4); }
-.footer__link--primary { background: var(--accent-strong); border-color: var(--accent-strong); color: var(--on-accent); font-weight: 800; }
-.footer__link--primary:hover { color: var(--on-accent); border-color: var(--accent-strong); box-shadow: var(--n-glow); }
-.footer__link[aria-current="page"] { background: rgba(255, 255, 255, .1); color: var(--n-text); border-color: rgba(255, 255, 255, .4); }
+.footer__link:hover { color: var(--n-text); text-decoration-color: var(--accent); }
+.footer__link[aria-current="page"] { color: var(--n-text); text-decoration-color: var(--n-link); }
+@media (prefers-reduced-motion: no-preference) { .footer__link { transition: color .15s, text-decoration-color .15s; } }
+/* Signature : le nom du jeu sur toute la largeur, penché de 4°, dégradé magenta en filigrane.
+   Logotype (lien vers l'accueil) : son contraste réduit est voulu, le nom est lu par aria-label. */
+.footer__mark {
+  display: block; margin: var(--sp-2) 0 var(--sp-1);
+  font-family: var(--font-display); font-weight: 900; line-height: .8; letter-spacing: .1em;
+  font-size: min(24vw, 250px); text-align: center; white-space: nowrap;
+  transform: rotate(-4deg); transform-origin: 50% 60%;
+}
+.footer__mark span {
+  display: inline-block; margin-right: -.1em;
+  background: linear-gradient(180deg, rgba(255, 92, 147, .3), rgba(155, 43, 176, .1) 75%, rgba(155, 43, 176, .04));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.footer__mark:hover span { background-image: linear-gradient(180deg, rgba(255, 92, 147, .55), rgba(155, 43, 176, .18) 75%, rgba(155, 43, 176, .06)); }
+.footer__mark:focus-visible { outline-offset: -4px; }
 .footer__bottom {
-  padding: var(--sp-4) 0 var(--sp-5); border-top: 1px solid rgba(255, 255, 255, .08);
+  position: relative; padding: var(--sp-4) 0 var(--sp-5); border-top: 1px solid var(--n-line);
   display: flex; flex-direction: column; gap: var(--sp-1);
   font-size: 12px; line-height: 1.5; color: var(--n-faint);
 }
+
+/* ---------- Retour en haut : rond sombre à bordure néon, en bas à droite ----------
+   Affiché par nav.js après un écran de défilement (is-shown), caché en haut de page.
+   Cible de 48 px, au-dessus de la zone système des téléphones (safe-area). */
+
+.to-top {
+  position: fixed; z-index: 15;
+  right: max(var(--sp-4), env(safe-area-inset-right));
+  bottom: calc(var(--sp-4) + env(safe-area-inset-bottom));
+  width: 48px; height: 48px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--n-head); color: var(--n-text);
+  border: 1px solid rgba(255, 92, 147, .6);
+  box-shadow: 0 0 16px rgba(233, 30, 99, .35), 0 6px 18px rgba(0, 0, 0, .35);
+  opacity: 0; visibility: hidden; transform: translateY(8px);
+  --link: var(--n-link);
+}
+.to-top[hidden] { display: none; }
+.to-top svg { width: 22px; height: 22px; }
+.to-top.is-shown { opacity: 1; visibility: visible; transform: none; }
+.to-top:hover { color: var(--on-accent); background: var(--accent-strong); border-color: var(--accent-strong); box-shadow: var(--n-glow); }
+.to-top:focus-visible { outline: 2px solid var(--n-link); outline-offset: 3px; border-radius: 50%; }
+@media (prefers-reduced-motion: no-preference) {
+  .to-top { transition: opacity .2s, transform .2s, visibility .2s, background-color .15s; }
+}
+@media (prefers-reduced-motion: reduce) { .to-top { transform: none; } }
+/* La ligne de crédit garde une marge à droite : le bouton ne la recouvre jamais. */
+.footer__bottom { padding-right: 64px; }
 
 /* ---------- Pages courtes : contact, mentions légales, confidentialité ----------
    Mobile et tablette : une colonne de lecture centrée. Ordinateur (1024 px) : mise en page
@@ -1238,7 +1295,6 @@ main:focus { outline: none; }
   .download { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .download__main { grid-column: 1 / -1; max-width: 560px; }
 
-  .footer { padding-top: var(--sp-9); }
   .footer__bottom { flex-direction: row; flex-wrap: wrap; justify-content: space-between; gap: var(--sp-1) var(--sp-6); }
 
   .page { padding: var(--sp-10) var(--gutter) var(--sp-12); gap: var(--sp-8); }
@@ -1326,9 +1382,10 @@ main:focus { outline: none; }
   .download__main { grid-column: auto; max-width: none; }
   .download .display { font-size: 48px; line-height: 1.02; }
 
-  /* Marque et texte à gauche, liens en pastilles à droite. */
-  .footer__top { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: var(--sp-10); align-items: start; padding-bottom: 36px; }
-  .footer__links { justify-content: flex-end; align-content: flex-start; }
+  /* Logo et phrase à gauche, les trois pages en colonne à droite. */
+  .footer__top { grid-template-columns: minmax(0, 1fr) auto; gap: var(--sp-10); align-items: start; padding: var(--sp-11) 0 var(--sp-4); }
+  .footer__about { font-size: 18px; }
+  .footer__links { align-items: flex-end; }
 
   /* Pages courtes : pleine largeur du conteneur, mise en page horizontale. */
   .page, .page--contact, .page--sent {

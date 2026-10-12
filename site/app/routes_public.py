@@ -61,24 +61,6 @@ def release_info(row: sqlite3.Row | None, game_name: str) -> dict | None:
     return info
 
 
-def footer_links(site: dict, apk: dict | None) -> list[dict]:
-    """Liens du pied de page : seulement de vraies destinations, jamais d'ancre
-    de l'accueil (la navigation du haut s'en charge). Téléchargements d'abord,
-    s'ils existent, puis les pages du studio. [{label, href, external}]."""
-    def link(label: str, href: str, external: bool = False) -> dict:
-        return {"label": label, "href": href, "external": external}
-
-    links = []
-    if site.get("play_store_url"):
-        links.append(link("Google Play", site["play_store_url"], external=True))
-    if apk:
-        links.append(link(f"Télécharger l'APK v{apk['version']}", "/telecharger"))
-    links += [link("Contact", "/contact"),
-              link("Politique de confidentialité", "/confidentialite"),
-              link("Mentions légales", "/mentions-legales")]
-    return links
-
-
 # Hauteur d'affichage du logo du studio dans le pied de page (CSS .studio-logo).
 LOGO_HEIGHT = 24
 
@@ -104,10 +86,9 @@ def site_context(request: Request, conn: sqlite3.Connection,
         "site": site,
         "year": datetime.now().year,
         # L'APK courant sert au héros, au bloc final, aux notes de version et
-        # au pied de page.
+        # à la ligne de crédit du pied de page.
         "apk": apk,
         "faq": faq,
-        "footer_links": footer_links(site, apk),
         "canonical_path": canonical_path,
     }
 
