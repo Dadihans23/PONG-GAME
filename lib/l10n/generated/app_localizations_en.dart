@@ -331,7 +331,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get helpPauseText => 'Tap the pause button at the top right. No pausing in multiplayer.';
 
   @override
-  String get helpMultiplayerText => 'Get on the same Wi‑Fi (or one player\'s hotspot). One creates the game, the other joins it. First to 5 points wins.';
+  String get helpMultiplayerText => 'Connect both phones to the same Wi‑Fi (or to one player\'s hotspot). One creates the game, the other joins it. First to 5 points wins.';
 
   @override
   String get settingsTitle => 'Settings';
@@ -564,7 +564,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lobbyVisible => 'Players nearby can see your game.';
 
   @override
-  String get lobbyHintAlone => 'Available once a player joins you';
+  String get lobbyHintAlone => 'Available as soon as someone joins';
 
   @override
   String lobbyHintOtherReady(String name) {
@@ -656,7 +656,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String rematchIAsked(String name) {
-    return 'You want a rematch · $name hasn\'t answered yet';
+    return 'Rematch requested · $name hasn\'t answered yet';
   }
 
   @override
@@ -703,7 +703,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get incidentConnectionFailedTitle => 'Couldn\'t connect';
 
   @override
-  String get incidentConnectionFailedMessage => 'Check that you\'re on the same Wi‑Fi, then try again.';
+  String get incidentConnectionFailedMessage => 'Check that you\'re both on the same Wi‑Fi, then try again.';
 
   @override
   String get incidentRetry => 'Try again';

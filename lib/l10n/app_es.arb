@@ -171,7 +171,7 @@
   "resultDetail": "{duration} · intercambio más largo: {rally}",
   "resultCloseLoss": "¡Casi! ¿La revancha?",
   "resultLoss": "¿La revancha?",
-  "rematchIAsked": "Quieres la revancha · {name} aún no responde",
+  "rematchIAsked": "Revancha pedida · {name} aún no responde",
   "rematchOpponentAsked": "{name} quiere la revancha",
   "opponentLeftGame": "{name} salió de la partida",
   "resultRematch": "Revancha",

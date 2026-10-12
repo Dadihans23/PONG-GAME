@@ -10,7 +10,7 @@ Décisions déjà prises :
 - Le jeu reste en **vertical** : raquettes en haut et en bas, coordonnées -1 → 1.
 - Duel : le premier à **5 points** gagne.
 - Duel : chaque joueur appuie sur **Prêt** avant le démarrage.
-- Tous les textes restent en **français**.
+- Langues : **français** (langue d'origine), **anglais**, **espagnol** (neutre, « tú »). L'app suit la langue du téléphone, l'anglais sinon ; choix manuel dans Réglages (voir « Langues »).
 - **Pas de pause** en duel pour le MVP.
 
 ---
@@ -240,6 +240,40 @@ Attention : l'APK actuel est signé avec la clé de debug (`signingConfig signin
 - [ ] Clé de signature créée et sauvegardée
 - [ ] Mise à jour des outils Android exigée par Google (SDK cible), format AAB
 - [ ] Fiche du store : icône, captures, description, classification, formulaire sur les données, URL de politique de confidentialité
+
+## Langues : français, anglais, espagnol
+
+Décisions du propriétaire : la langue du téléphone par défaut (fr, en ou es quel que soit le pays), l'anglais sinon ; choix dans Réglages (Automatique, Français, English, Español) ; espagnol neutre au tutoiement ; traductions relues par des personnes qui parlent couramment l'anglais et l'espagnol.
+
+### Étape 1 — L'app (version 1.1.0+3)
+
+- [x] `flutter_localizations` + `intl` 0.19.0, textes dans `lib/l10n/app_{fr,en,es}.arb` (198 chaînes, chacune décrite pour les relecteurs), classe `AppLocalizations` générée (`l10n.yaml`)
+- [x] Tous les écrans traduits : chargement, accueil, partie, pause, fin de partie, classement, statistiques, aide, réglages, page « Le studio », tout le multijoueur (menu, recherche, salon, 3-2-1, duel, fin, incidents), libellés d'accessibilité
+- [x] Valeurs internes inchangées (difficultés, nom de partie annoncé sur le réseau, pseudo par défaut, clés Hive) : deux téléphones dans deux langues jouent ensemble
+- [x] Choix de la langue dans Réglages, enregistré (`settings/language`), appliqué sans redémarrer ; « Automatique » suit un changement de langue du téléphone
+- [x] Nombres, dates du classement et rangs selon la langue ; pluriels ICU
+- [x] Page « Le studio » : l'app demande `/api/app/studio?lang=fr|en|es` ; le cache retient la langue (nouvelle vérification au lancement qui suit un changement de langue, pas d'ETag d'une autre langue)
+- [x] iOS : `CFBundleLocalizations` (fr, en, es)
+- [x] Tests : mêmes clés et placeholders dans les trois langues, résolution de la langue, choix manuel, 44 écrans en fr/en/es à 320 et 360 dp sans débordement ni texte coupé, police Archivo complète pour les trois langues
+- [x] Glossaire `lib/l10n/GLOSSAIRE.md` et fichiers de relecture `lib/l10n/RELECTURE.md` / `relecture.csv` (`python tool/l10n_review.py`)
+- [ ] Relecture de l'anglais et de l'espagnol par des locuteurs courants, corrections reportées dans les `.arb`
+- [ ] Vérification sur téléphone par le propriétaire : changer la langue du téléphone, puis le choix manuel dans Réglages
+
+### Étape 2 — Site tilto.fun
+
+- [ ] Français à la racine, anglais sous `/en/`, espagnol sous `/es/`
+- [ ] Balises `hreflang` (fr, en, es) et `x-default` vers `/en/` ; sitemap avec les trois langues
+- [ ] Pas de redirection forcée selon la langue du navigateur : un bandeau discret propose la version dans sa langue
+- [ ] Polices WOFF2 du site régénérées avec ñ ¿ ¡ (et accents espagnols) dans le sous-ensemble
+
+### Étape 3 — Administration et API
+
+- [ ] Administration : onglets par langue pour les textes (studio, pages), repli sur le français quand une traduction manque
+- [ ] API `/api/app/studio?lang=` : présentation dans la langue demandée, repli sur le français (l'app envoie déjà le paramètre)
+
+### Étape 4 — Play Store
+
+- [ ] Fiche du store en anglais et en espagnol (titre, descriptions, captures dans chaque langue)
 
 ## Phase 3 — Multijoueur en ligne (plus tard)
 

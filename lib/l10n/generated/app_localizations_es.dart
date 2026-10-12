@@ -653,7 +653,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String rematchIAsked(String name) {
-    return 'Quieres la revancha · $name aún no responde';
+    return 'Revancha pedida · $name aún no responde';
   }
 
   @override

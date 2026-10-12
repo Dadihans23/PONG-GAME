@@ -21,12 +21,18 @@ Autres règles :
 - **Titres espacés** : on écrit « Classement », le composant affiche « CLASSEMENT » avec
   `letterSpacing`. Jamais d'espaces entre les lettres.
 - **Chiffres qui changent** : styles tabulaires (`gameScore`, `keyFigure`, `listValue`, `figure`).
-- **Textes** : tutoiement, phrases courtes qui disent quoi faire, en français.
+- **Textes** : tutoiement, phrases courtes qui disent quoi faire. Jamais écrits dans un écran :
+  ils viennent de `context.l10n` (`lib/l10n/`, français, anglais, espagnol). Un libellé passé
+  à un composant est déjà traduit ; les composants traduisent seulement leurs textes propres
+  (« Retour », lectures d'écran).
 - **Zones tactiles** ≥ 48 px : tous les composants les respectent.
 - `onPressed: null` / `onTap: null` = désactivé, sur tous les composants tactiles.
 - **Fond sélectionné opaque** (`pinkTintSolid`, `pinkTintSoftSolid`) : Flutter peint le halo
   sous l'élément (CSS, non) ; un fond translucide le laisserait transparaître.
-- Les titres d'écran rétrécissent au lieu d'être tronqués (« STATISTIQUES » à 320 dp).
+- Les titres d'écran rétrécissent au lieu d'être tronqués (« STATISTIQUES » à 320 dp,
+  « CLASIFICACIÓN » en espagnol). Tout texte espacé en grand (`PongSpacedText`) hors d'un
+  composant se met dans un `FittedBox(fit: BoxFit.scaleDown)` : l'espagnol est souvent 20 à
+  30 % plus long que le français.
 
 ## Jetons
 
@@ -36,7 +42,7 @@ Autres règles :
 | `pong_text.dart` | `PongText` : logo, screenTitle, buttonLabel, buttonLabelPlain, overline, cardTitle, dialogTitle, headline, body, caption, gameScore, hudLabel, keyFigure, listValue, figure, pillLabel, statusLabel, segmentLabel, tileLabel. |
 | `pong_tokens.dart` | `PongSpacing` (4·8·12·16·24·32, marge écran 20), `PongRadii` (12·14·16·18·24), `PongSizes` (48, 56, 64…), `PongShadows` (halos), `PongDurations`. |
 | `pong_theme.dart` | `PongTheme.dark()` : `ThemeData` sombre branché dans `MaterialApp`. |
-| `pong_format.dart` | `PongFormat` : `number` (« 2 400 »), `date` (jj/mm/aaaa), `duration` (« 1h 12m 5s »), `count` (« 23 renvois »). |
+| `pong_format.dart` | `PongFormat.of(context)` : `number` (« 2 400 », « 2,400 » en anglais), `date` (selon la langue et le pays), `duration` (« 1h 12m 5s »). Les quantités avec un mot (« 23 renvois ») sont des pluriels de `lib/l10n/`. |
 
 ## Quel composant pour quel usage
 
