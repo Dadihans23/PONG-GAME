@@ -81,24 +81,9 @@
   {# Pas de lien « Installer l'APK » dans les menus : le bouton Télécharger mène à la
      section qui contient ce mode d'emploi (#installer-apk), seul endroit où il figure. #}
 
-  {# En-tête sombre dans les deux thèmes (maquette « Néon magenta »). Collant :
-     la bande utilitaire défile, la barre principale reste en haut. #}
+  {# En-tête sombre dans les deux thèmes (maquette « Néon magenta »), collant en haut. #}
   <header class="masthead">
-    {# Niveau 1 (ordinateur) : repères rapides et liens utilitaires. #}
-    {% if site %}
-    <div class="utility">
-      <p class="utility__facts">
-        {% if site.hero_note %}<strong>{{ site.hero_note }}</strong>{% endif %}
-        {% if apk %}<span>{{ t('utility_version', version=apk.version, size=apk.size_bytes|filesize(lang), date=apk.date|date_short(lang)) }}</span>{% endif %}
-      </p>
-      <nav class="utility__links" aria-label="{{ t.utility_aria }}">
-        {% if apk and apk.notes %}<a class="utility__news" href="{{ home }}#nouveautes">{{ t('news', version=apk.version) }}</a>{% endif %}
-        <a href="{{ urls.contact }}"{% if request.url.path == urls.contact %} aria-current="page"{% endif %}>{{ t.contact }}</a>
-      </nav>
-    </div>
-    {% endif %}
-
-    {# Niveau 2 : marque, sections de l'accueil, langues, thème, téléchargement. #}
+    {# Marque, sections de l'accueil, langues, thème, téléchargement. #}
     <div class="topbar">
       <a class="brand" href="{{ home }}" aria-label="{{ t('home_aria', game=game) }}">
         <span class="brand__mark" aria-hidden="true"></span>

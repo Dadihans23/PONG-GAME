@@ -238,7 +238,7 @@ def test_real_apk_accepted_and_downloadable(admin):
                    files={"apk": ("whatever name.apk", apk, "application/octet-stream")})
     assert "Version 1.2.0 déposée et publiée" in unescape(r.text)
     home = admin.get("/").text
-    assert "Version 1.2.0" in home
+    assert "v1.2.0" in home
     d = admin.get("/telecharger")
     assert d.status_code == 200
     assert d.headers["content-type"] == "application/vnd.android.package-archive"

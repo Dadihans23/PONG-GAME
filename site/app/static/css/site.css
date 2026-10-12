@@ -337,7 +337,7 @@ main:focus { outline: none; }
    du jeu, boutons et menus. Tout le reste (paragraphes, cartes, FAQ, tableau, formulaires,
    pied de page) est en --font-text, hérité de body. */
 h1, h2, h3, .display, .kicker, .section-title, .page__kicker, .page__title, .page__intro p,
-.brand, .utility__links, .topbar__link, .menu__link, .lang, .topbar__cta, .btn__label, .faq__contact,
+.brand, .topbar__link, .menu__link, .lang, .topbar__cta, .btn__label, .faq__contact,
 .hero__badge, .hero__tagline, .specs--hero dt, .court, .court__demo, .scr,
 .feature__num, .step__num, .records__label, .records__best, .records__rank, .records__pts, .sense__ends,
 .duel__vs, .duel__label, .duel__score, .compare__table thead th,
@@ -355,16 +355,7 @@ h1, h2, h3, .display, .kicker, .section-title, .page__kicker, .page__title, .pag
   background: var(--n-head); color: var(--n-text);
 }
 
-/* Niveau 1 (ordinateur seulement) : repères et liens utilitaires ; défile hors de l'écran. */
-.utility { display: none; }
-.utility__facts { display: flex; gap: var(--sp-4); }
-.utility__facts strong { color: var(--n-text); font-weight: 700; }
-.utility__links { display: flex; gap: var(--sp-5); font-weight: 700; }
-.utility__links a { min-height: 36px; display: inline-flex; align-items: center; color: var(--n-nav); }
-.utility__links a.utility__news { color: var(--n-link); }
-.utility__links a:hover, .utility__links a[aria-current="page"] { color: var(--n-text); }
-
-/* Niveau 2 : marque, sections, actions. */
+/* Barre principale : marque, sections, actions. */
 .topbar {
   height: var(--bar-h); padding-inline: var(--pad-x);
   display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3);
@@ -1364,13 +1355,6 @@ h1, h2, h3, .display, .kicker, .section-title, .page__kicker, .page__title, .pag
   .wide-only { display: inline; }
   .narrow-only { display: none; }
 
-  /* La bande utilitaire défile ; la barre principale reste collée en haut. */
-  .masthead { top: -36px; }
-  .utility {
-    height: 36px; padding-inline: var(--pad-x);
-    display: flex; align-items: center; justify-content: space-between; gap: var(--sp-6);
-    background: var(--n-deep); font-size: 12px; color: var(--n-muted); white-space: nowrap;
-  }
   .topbar { gap: var(--sp-5); }
   .brand__name { font-size: 19px; }
 
