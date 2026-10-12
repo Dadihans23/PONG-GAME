@@ -248,10 +248,11 @@ def test_json_ld_cannot_close_script(admin):
 # --- Polices, logo, statiques ---------------------------------------------------------
 
 def test_woff2_fonts_served_and_referenced(client):
-    for css in ("site.css", "admin.css"):
+    # Site : 6 graisses d'Archivo + les 3 polices de texte candidates ; administration : Archivo.
+    for css, count in (("site.css", 9), ("admin.css", 6)):
         text = client.get(f"/static/css/{css}").text
         assert ".ttf" not in text
-        assert text.count('format("woff2")') == 6
+        assert text.count('format("woff2")') == count
     r = client.get("/static/fonts/Archivo-Black.woff2")
     assert r.status_code == 200
     assert r.headers["content-type"] == "font/woff2"

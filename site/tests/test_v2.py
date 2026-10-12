@@ -187,7 +187,8 @@ def test_faq_admin(admin):
         "csrf_token": token, "question": "Internet est-il nécessaire ?", "answer": "Non.",
         "anchor": "internet"})
     home = unescape(admin.get("/").text)
-    assert "Internet est-il nécessaire ?" in home and 'id="internet"' in home
+    # Espace insécable avant « ? » (filtre nbsp) : le signe ne passe jamais seul à la ligne.
+    assert "Internet est-il nécessaire\u00a0?" in home and 'id="internet"' in home
     admin.post(f"/admin/faq/{ids[0]}/deplacer", data={"csrf_token": token, "direction": "down"})
     home = unescape(admin.get("/").text)
     assert home.index('id="iphone"') < home.index('id="internet"')

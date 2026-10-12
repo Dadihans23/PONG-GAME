@@ -51,3 +51,24 @@ def test_back_to_top_button(client):
     assert ".to-top" in js and "prefers-reduced-motion" in js
     css = client.get("/static/css/site.css").text
     assert ".to-top" in css and "safe-area-inset-bottom" in css
+
+
+def test_text_font_declared_and_served(client):
+    css = client.get("/static/css/site.css").text
+    # Une variable choisit la police du texte courant ; Archivo garde les titres.
+    assert '--font-text: "Atkinson Hyperlegible Next", "Archivo"' in css
+    assert '--font-display: "Archivo"' in css
+    assert "font: 400 1rem/1.6 var(--font-text)" in css
+    for family, file in (("Atkinson Hyperlegible Next", "AtkinsonHyperlegibleNext"),
+                         ("Instrument Sans", "InstrumentSans"),
+                         ("Bricolage Grotesque", "BricolageGrotesque")):
+        assert (f'@font-face {{ font-family: "{family}"; src: url("../fonts/{file}.woff2") '
+                'format("woff2"); font-weight: 400 700; font-display: swap; }') in css
+        r = client.get(f"/static/fonts/{file}.woff2")
+        assert r.status_code == 200 and r.headers["content-type"] == "font/woff2"
+        assert r.content[:4] == b"wOF2" and len(r.content) < 45_000
+    assert client.get("/static/fonts/OFL-AtkinsonHyperlegibleNext.txt").status_code == 200
+    # L'administration reste en Archivo.
+    assert "Atkinson" not in client.get("/static/css/admin.css").text
+    # Aucune police externe.
+    assert "fonts.googleapis" not in client.get("/").text and "http" not in css

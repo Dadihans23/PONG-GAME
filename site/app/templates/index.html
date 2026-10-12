@@ -336,10 +336,10 @@
   <div class="faq__list">
     {% for q in faq %}
     <details class="faq__item" id="{{ q.anchor }}">
-      <summary><span class="faq__q">{{ q.question }}</span><svg class="faq__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path class="faq__plus" d="M12 5v14"/></svg></summary>
+      <summary><span class="faq__q">{{ q.question|nbsp }}</span><svg class="faq__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path class="faq__plus" d="M12 5v14"/></svg></summary>
       <div class="faq__a">
-        <p class="faq__long{% if q.short_answer %} has-short{% endif %}">{{ q.answer }}</p>
-        {% if q.short_answer %}<p class="faq__short">{{ q.short_answer }}</p>{% endif %}
+        <p class="faq__long{% if q.short_answer %} has-short{% endif %}">{{ q.answer|nbsp }}</p>
+        {% if q.short_answer %}<p class="faq__short">{{ q.short_answer|nbsp }}</p>{% endif %}
       </div>
     </details>
     {% endfor %}

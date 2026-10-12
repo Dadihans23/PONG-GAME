@@ -19,6 +19,12 @@
 @font-face { font-family: "Archivo"; src: url("../fonts/Archivo-Bold.woff2") format("woff2"); font-weight: 700; font-display: swap; }
 @font-face { font-family: "Archivo"; src: url("../fonts/Archivo-ExtraBold.woff2") format("woff2"); font-weight: 800; font-display: swap; }
 @font-face { font-family: "Archivo"; src: url("../fonts/Archivo-Black.woff2") format("woff2"); font-weight: 900; font-display: swap; }
+/* Polices de texte : les trois candidates comparées (planches dans le compte rendu), une
+   police variable 400-700 chacune. Seule celle que nomme --font-text est téléchargée :
+   un navigateur ne charge pas une @font-face qu'aucun texte n'utilise. */
+@font-face { font-family: "Atkinson Hyperlegible Next"; src: url("../fonts/AtkinsonHyperlegibleNext.woff2") format("woff2"); font-weight: 400 700; font-display: swap; }
+@font-face { font-family: "Instrument Sans"; src: url("../fonts/InstrumentSans.woff2") format("woff2"); font-weight: 400 700; font-display: swap; }
+@font-face { font-family: "Bricolage Grotesque"; src: url("../fonts/BricolageGrotesque.woff2") format("woff2"); font-weight: 400 700; font-display: swap; }
 
 /* ---------- Jetons communs aux deux thèmes ---------- */
 
@@ -47,8 +53,13 @@
   /* Hauteur de la barre collante (ancres et défilement) */
   --bar-h: 60px;
 
-  /* Polices : Archivo (celle de l'app) pour la marque, les titres et les sur-titres. */
+  /* Polices : Archivo (celle de l'app) pour la marque, les titres, les sur-titres, les
+     chiffres du jeu et les boutons ; --font-text pour tout le texte courant. Pour essayer
+     une autre candidate, remplacer le premier nom par "Instrument Sans" ou
+     "Bricolage Grotesque" (déjà déclarées plus haut). Archivo reste en secours pour les
+     rares signes absents de la police de texte (→). */
   --font-display: "Archivo", system-ui, sans-serif;
+  --font-text: "Atkinson Hyperlegible Next", "Archivo", system-ui, sans-serif;
 
   /* Couleurs du jeu, identiques dans les deux thèmes */
   --accent: #E91E63;          /* rose de l'action principale */
@@ -283,7 +294,7 @@ body {
   min-height: 100vh;
   background: var(--bg);
   color: var(--text);
-  font: 400 1rem/1.6 var(--font-display);
+  font: 400 1rem/1.6 var(--font-text);
   -webkit-font-smoothing: antialiased;
   overflow-x: clip;
 }
@@ -321,6 +332,17 @@ main:focus { outline: none; }
 .display { font-size: 32px; font-weight: 300; line-height: 1.08; letter-spacing: -.01em; text-wrap: balance; }
 .display b { font-weight: 900; }
 .display--md { font-size: 30px; }
+
+/* Archivo, la police de l'app : marque, titres, sur-titres en capitales espacées, chiffres
+   du jeu, boutons et menus. Tout le reste (paragraphes, cartes, FAQ, tableau, formulaires,
+   pied de page) est en --font-text, hérité de body. */
+h1, h2, h3, .display, .kicker, .section-title, .page__kicker, .page__title, .page__intro p,
+.brand, .utility__links, .topbar__link, .menu__link, .lang, .topbar__cta, .btn__label, .faq__contact,
+.hero__badge, .hero__tagline, .specs--hero dt, .court, .court__demo, .scr,
+.feature__num, .step__num, .records__label, .records__best, .records__rank, .records__pts, .sense__ends,
+.duel__vs, .duel__label, .duel__score, .compare__table thead th,
+.scoring__title, .specs--score dd, .capture figcaption, .install__steps li::before,
+.footer__mark, .skip-link { font-family: var(--font-display); }
 
 /* Section claire (suit le thème). */
 .light { background: var(--bg); color: var(--text); }
@@ -420,7 +442,7 @@ main:focus { outline: none; }
 .menu__link {
   min-height: 48px; display: flex; align-items: center;
   border-bottom: 1px solid var(--n-line);
-  font-size: 16px; font-weight: 600; color: var(--n-text);
+  font-size: 16px; font-weight: 700; color: var(--n-text);
 }
 .menu__link:hover, .menu__link.is-active { color: var(--n-link); }
 .menu__facts { padding-top: var(--sp-4); font-size: 13px; color: var(--n-faint); }
@@ -432,7 +454,7 @@ main:focus { outline: none; }
   min-height: 56px; padding: 0 var(--sp-6); border-radius: 28px;
   display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
   background: var(--surface); border: 1px solid var(--border);
-  color: var(--text); font: inherit; font-size: 16px; font-weight: 800; line-height: 1.25; text-align: center;
+  color: var(--text); font: inherit; font-family: var(--font-display); font-size: 16px; font-weight: 800; line-height: 1.25; text-align: center;
   cursor: pointer;
   transition: box-shadow .2s ease, border-color .2s ease, transform .2s ease;
 }
@@ -441,7 +463,7 @@ main:focus { outline: none; }
 .btn--primary:hover { color: var(--on-accent); border-color: var(--accent-strong); box-shadow: var(--glow-pink-hover); }
 .btn:active { transform: translateY(1px); }
 .btn__label { display: inline-flex; align-items: center; gap: var(--sp-2); font-size: 16px; font-weight: 800; }
-.btn__meta { font-size: 12px; font-weight: 400; color: var(--muted); }
+.btn__meta { font-family: var(--font-text); font-size: 12px; font-weight: 400; color: var(--muted); }
 .btn--primary .btn__meta { color: var(--on-accent); }
 /* Sur les surfaces néon : rose lumineux, secondaire en verre. */
 .hero .btn, .download .btn { min-height: 60px; border-radius: 30px; }
@@ -1143,7 +1165,7 @@ main:focus { outline: none; }
   width: 100%; min-height: 50px; padding: var(--sp-3) var(--sp-4);
   border: 1px solid var(--border); border-radius: var(--sp-3);
   background: var(--surface); color: var(--text);
-  font: 400 16px/1.5 "Archivo", system-ui, sans-serif;
+  font: 400 16px/1.5 var(--font-text);
   transition: border-color .2s ease, box-shadow .2s ease;
 }
 .field textarea { min-height: 168px; resize: vertical; }
