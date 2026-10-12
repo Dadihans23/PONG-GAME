@@ -18,7 +18,8 @@ final Uri _api = Uri.parse(Brand.studioApiUrl);
 final Uri _logoUrl = Uri.parse('https://tilto.fun/media/logo-v2.png');
 
 /// Faux logo : son contenu importe peu, le décodeur factice l'accepte.
-final Uint8List _logoBytes = Uint8List.fromList(List.generate(300, (i) => i % 251));
+final Uint8List _logoBytes =
+    Uint8List.fromList(List.generate(300, (i) => i % 251));
 final String _logoSha = crypto.sha256.convert(_logoBytes).toString();
 
 Map<String, dynamic> _payload({
@@ -163,10 +164,10 @@ void main() {
       expect(cached.logo, _logoBytes);
       expect(box.get(StudioRepository.etagKey), '"v1"');
       expect(box.get(StudioRepository.logoShaKey), _logoSha);
-      expect(box.get(StudioRepository.updatedAtKey),
-          '2026-10-12T10:00:00+00:00');
-      expect(box.get(StudioRepository.lastCheckKey),
-          now.millisecondsSinceEpoch);
+      expect(
+          box.get(StudioRepository.updatedAtKey), '2026-10-12T10:00:00+00:00');
+      expect(
+          box.get(StudioRepository.lastCheckKey), now.millisecondsSinceEpoch);
     });
 
     test('304 : le cache reste, If-None-Match envoyé', () async {
@@ -174,15 +175,17 @@ void main() {
       await repo().refreshIfDue();
       now = now.add(const Duration(hours: 25));
       http.calls.clear();
-      http.on(_api, () => StudioHttpResponse(
-          statusCode: 304, body: Uint8List(0), etag: '"v1"'));
+      http.on(
+          _api,
+          () => StudioHttpResponse(
+              statusCode: 304, body: Uint8List(0), etag: '"v1"'));
 
       await repo().refreshIfDue();
       expect(http.calls.single.ifNoneMatch, '"v1"');
       expect(repo().readCache().name, 'Orbis');
       expect(repo().readCache().logo, _logoBytes);
-      expect(box.get(StudioRepository.lastCheckKey),
-          now.millisecondsSinceEpoch);
+      expect(
+          box.get(StudioRepository.lastCheckKey), now.millisecondsSinceEpoch);
     });
 
     test('même empreinte : le logo n\'est pas retéléchargé', () async {
@@ -204,8 +207,10 @@ void main() {
       expect(notifier.value.logo, isNotNull);
 
       now = now.add(const Duration(days: 1));
-      http.on(_api,
-          () => _json(_payload(name: Brand.studioName, logo: null), etag: '"v2"'));
+      http.on(
+          _api,
+          () => _json(_payload(name: Brand.studioName, logo: null),
+              etag: '"v2"'));
       await repo().refreshIfDue();
       expect(notifier.value.logo, isNull);
       expect(notifier.value.usesBuiltInLogo, isTrue);
@@ -229,11 +234,15 @@ void main() {
 
       // Nouveau logo annoncé, mais les octets reçus ne correspondent pas
       final newLogo = Uri.parse('https://tilto.fun/media/logo-v3.png');
-      http.on(_api, () => _json(_payload(name: 'Orbis 2', logo: {
-            'url': newLogo.toString(),
-            'sha256': 'ab' * 32,
-            'content_type': 'image/png',
-          }), etag: '"v3"'));
+      http.on(
+          _api,
+          () => _json(
+              _payload(name: 'Orbis 2', logo: {
+                'url': newLogo.toString(),
+                'sha256': 'ab' * 32,
+                'content_type': 'image/png',
+              }),
+              etag: '"v3"'));
       http.on(newLogo, () => _png(Uint8List.fromList([1, 2, 3])));
       await repo().refreshIfDue();
 
@@ -273,15 +282,13 @@ void main() {
       expect(logs, contains('logo refusé : image illisible'));
     });
 
-    test('vrai décodeur : un PNG passe, des octets quelconques non',
-        () async {
+    test('vrai décodeur : un PNG passe, des octets quelconques non', () async {
       TestWidgetsFlutterBinding.ensureInitialized();
       final png = File('assets/brand/nexora_mark.png').readAsBytesSync();
       final size = await decodeStudioLogo(png);
       expect(size, isNotNull);
       expect(size!.width, greaterThan(0));
-      expect(await decodeStudioLogo(Uint8List.fromList([1, 2, 3, 4])),
-          isNull);
+      expect(await decodeStudioLogo(Uint8List.fromList([1, 2, 3, 4])), isNull);
     });
   });
 
@@ -289,11 +296,13 @@ void main() {
     test('logo hors de tilto.fun : réponse refusée, rien de téléchargé',
         () async {
       final evil = Uri.parse('https://evil.example/logo.png');
-      http.on(_api, () => _json(_payload(logo: {
-            'url': evil.toString(),
-            'sha256': _logoSha,
-            'content_type': 'image/png',
-          })));
+      http.on(
+          _api,
+          () => _json(_payload(logo: {
+                'url': evil.toString(),
+                'sha256': _logoSha,
+                'content_type': 'image/png',
+              })));
       http.on(evil, () => _png(_logoBytes));
       await repo().refreshIfDue();
       expect(http.callsTo(evil), 0);
@@ -336,19 +345,23 @@ void main() {
       serveValid();
       await repo().refreshIfDue();
       now = now.add(const Duration(days: 1));
-      http.on(_api, () => StudioHttpResponse(
-          statusCode: 200, body: Uint8List.fromList(utf8.encode('{oups'))));
+      http.on(
+          _api,
+          () => StudioHttpResponse(
+              statusCode: 200, body: Uint8List.fromList(utf8.encode('{oups'))));
       await repo().refreshIfDue();
       expect(repo().readCache().name, 'Orbis');
     });
 
-    test('erreur 500 et réseau absent : silencieux, cache gardé, réessai '
+    test(
+        'erreur 500 et réseau absent : silencieux, cache gardé, réessai '
         'au prochain lancement', () async {
       serveValid();
       await repo().refreshIfDue();
       now = now.add(const Duration(days: 1));
 
-      http.on(_api, () => StudioHttpResponse(statusCode: 500, body: Uint8List(0)));
+      http.on(
+          _api, () => StudioHttpResponse(statusCode: 500, body: Uint8List(0)));
       await repo().refreshIfDue();
       expect(repo().readCache().name, 'Orbis');
       expect(repo().isDue, isTrue);
@@ -396,7 +409,8 @@ void main() {
 
   group('nettoyage des textes', () {
     test('nom : une ligne, 60 caractères au plus', () {
-      expect(StudioPayload.cleanName('  Orbis\n\tStudio\u0007 '), 'Orbis Studio');
+      expect(
+          StudioPayload.cleanName('  Orbis\n\tStudio\u0007 '), 'Orbis Studio');
       expect(StudioPayload.cleanName('x' * 80)!.length, 60);
       expect(StudioPayload.cleanName('   '), isNull);
       expect(StudioPayload.cleanName(42), isNull);

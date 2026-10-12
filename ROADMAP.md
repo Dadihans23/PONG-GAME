@@ -182,15 +182,17 @@ Décidé avec le propriétaire. Le site a été lancé sans attendre le test du 
 Décisions :
 - Nom du jeu : **Tilto** (« Pong » est une marque d'Atari et trop générique). Studio : **Nexora** (nom susceptible de changer).
 - Logo : `assets/nexora.png` (fond transparent, symbole « N » bleu dégradé, texte bleu nuit). Couleurs du studio : noir et blanc.
-- Nom et logo du studio regroupés dans un seul fichier de l'app ; pas de configuration à distance pour l'instant.
+- Nom et logo du studio regroupés dans un seul fichier de l'app (valeurs de secours) ; depuis la 1.0.1, le nom, le logo et la présentation viennent du site (administration), l'app ne contacte tilto.fun que pour ça.
 - Distribution : APK en téléchargement direct et Play Store (compte Play Console existant). Site sur le VPS du propriétaire, domaine **tilto.fun**.
 - Version de l'app : **1.0.0** (première version publique sous le nom Tilto).
 
 ### Signature visuelle
 - [x] Nom et logo du studio dans un seul fichier (`lib/brand.dart`)
 - [x] Version blanche du logo pour les fonds sombres (`assets/brand/`, générée par `tool/brand_logos.py`)
-- [x] Intro studio (1,5 s, passable d'un toucher) avant le chargement, raccourci à 4,5 s : 6 s au total comme avant
-- [x] « Un jeu de Nexora » en bas des Réglages et de l'Aide
+- [x] Intro studio retirée à la demande du propriétaire : l'app s'ouvre sur le chargement (4,5 s)
+- [x] « Un jeu de Nexora » en bas des Réglages et de l'Aide, touchable : ouvre la page « Le studio » (logo, présentation, « Visiter le site », « Écrire au studio », version)
+- [x] Studio piloté par le site (`lib/studio/`) : nom, logo et présentation lus sur `https://tilto.fun/api/app/studio` au démarrage, au plus une fois par 24 h, cache Hive `studio` ; `url_launcher` 6.3.2 (Android 6.3.14) ; version 1.0.1+2
+- [ ] Propriétaire : vérifier sur téléphone la page « Le studio », l'ouverture du site et du contact, puis la mise à jour du nom ou du logo depuis l'administration (au lancement suivant, 24 h après la dernière vérification ou après effacement des données)
 - [x] Nom affiché sous l'icône : « Tilto » ; « TILTO » dans l'app
 - [ ] Icône de l'app : 2a « Raquette inclinée » fabriquée (`tool/app_icon.cjs`, `assets/icon/`, icône adaptative Android à l'échelle 0,667 pour reproduire les aperçus masqués de la maquette, Play Store 512, iOS, site) ; à valider à l'œil sur téléphone par le propriétaire
 

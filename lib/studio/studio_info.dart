@@ -161,8 +161,7 @@ class StudioPayload {
 
     final name = cleanName(studio['name']);
     final about = cleanAbout(studio['about']);
-    final website =
-        cleanLink(studio['website']) ?? StudioInfo.fallback.website;
+    final website = cleanLink(studio['website']) ?? StudioInfo.fallback.website;
     final contact =
         cleanLink(studio['contact_url']) ?? StudioInfo.fallback.contactUrl;
     final updatedAt = json['updated_at'];
@@ -184,9 +183,8 @@ class StudioPayload {
       website: website,
       contactUrl: contact,
       logo: logo,
-      updatedAt: updatedAt is String && updatedAt.length <= 64
-          ? updatedAt
-          : null,
+      updatedAt:
+          updatedAt is String && updatedAt.length <= 64 ? updatedAt : null,
     );
   }
 
@@ -231,10 +229,7 @@ class StudioPayload {
         .replaceAll(_control, ' ')
         .split('\n')
         .map((line) => line.replaceAll(RegExp(r'[ \t ]+'), ' ').trim());
-    final text = lines
-        .join('\n')
-        .replaceAll(RegExp(r'\n{3,}'), '\n\n')
-        .trim();
+    final text = lines.join('\n').replaceAll(RegExp(r'\n{3,}'), '\n\n').trim();
     if (text.length <= StudioInfo.maxAboutLength) return text;
     final cut = text.substring(0, StudioInfo.maxAboutLength - 1);
     final lastSpace = cut.lastIndexOf(RegExp(r'\s'));

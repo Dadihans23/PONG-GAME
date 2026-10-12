@@ -68,8 +68,8 @@ class IoStudioHttp implements StudioHttp {
     }
   }
 
-  Future<StudioHttpResponse> _get(HttpClient client, Uri url,
-      String? ifNoneMatch, int maxBytes) async {
+  Future<StudioHttpResponse> _get(
+      HttpClient client, Uri url, String? ifNoneMatch, int maxBytes) async {
     final request = await client.getUrl(url);
     request.followRedirects = false;
     if (ifNoneMatch != null) {

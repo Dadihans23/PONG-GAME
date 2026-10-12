@@ -63,7 +63,8 @@ Autres règles :
 | Icône dans une pastille | `PongIconBadge(icon, color?, background?, size?, iconSize?, circular?)` |
 | Saisie | `PongTextField(controller?, label?, hintText?, errorText?, shakeTrigger?, …)` |
 | Logo texte du jeu (nom de `lib/brand.dart` en majuscules) | `PongLogo(fontSize?)` |
-| Signature du studio (bas des Réglages et de l'Aide, jamais en jeu) | `PongStudioSignature(caption?)` |
+| Signature du studio (pied de page des Réglages et de l'Aide, jamais en jeu) | `PongStudioSignature(caption?, onTap?, studio?)` : « Un jeu de » + logo + chevron, ligne touchable de 48 px qui ouvre `StudioPage` ; suit `Studio.current` (lib/studio/) |
+| Logo du studio à une hauteur donnée | `PongStudioLogo(info, height, maxWidth?, opacity?)` : logo du site, sinon logo intégré, sinon le nom en texte |
 | Titre d'écran | `PongScreenTitle(text)` (placé par `PongHeaderBar`) |
 | Sur-titre de section | `PongOverline(text, color?)` |
 | Texte espacé centré | `PongSpacedText(text, style)` |

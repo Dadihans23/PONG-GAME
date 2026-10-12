@@ -9,6 +9,7 @@ import 'package:pong_game/game/paddle_sensitivity.dart';
 import 'package:pong_game/game/tilt_control.dart';
 import 'package:pong_game/game_sound.dart';
 import 'package:pong_game/settings/pong_settings.dart';
+import 'package:pong_game/studio/studio_page.dart';
 import 'package:pong_game/ui/pong_ui.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 
@@ -26,10 +27,6 @@ class SettingsPage extends StatefulWidget {
   /// Mesures de l'accéléromètre pour la zone d'essai (tests) ; par défaut
   /// le capteur du téléphone.
   final Stream<AccelerometerEvent>? accelerometer;
-
-  /// Version affichée en bas : la même que `version:` dans pubspec.yaml
-  /// (vérifié par test/settings_test.dart).
-  static const String appVersion = '1.0.0';
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -156,8 +153,10 @@ class _SettingsPageState extends State<SettingsPage> {
           const SizedBox(height: PongSpacing.sm),
           _PseudoCard(pseudo: _pseudo, onEdit: _editPseudo),
           const SizedBox(height: PongSpacing.xl),
-          const PongStudioSignature(
-            caption: '${Brand.gameName} · version ${SettingsPage.appVersion}',
+          // Pied de page : la signature ouvre la page « Le studio »
+          PongStudioSignature(
+            caption: '${Brand.gameName} · version ${Brand.appVersion}',
+            onTap: () => StudioPage.open(context),
           ),
         ],
       ),

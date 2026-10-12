@@ -15,6 +15,7 @@ import 'package:pong_game/game/paddle_sensitivity.dart';
 import 'package:pong_game/game_sound.dart';
 import 'package:pong_game/settings/pong_settings.dart';
 import 'package:pong_game/settings/settings_page.dart';
+import 'package:pong_game/studio/studio_page.dart';
 import 'package:pong_game/ui/pong_ui.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 
@@ -169,7 +170,7 @@ void main() {
       final pubspec = File('pubspec.yaml').readAsStringSync();
       final match =
           RegExp(r'^version:\s*([^+\s]+)', multiLine: true).firstMatch(pubspec);
-      expect(match?.group(1), SettingsPage.appVersion);
+      expect(match?.group(1), Brand.appVersion);
     });
   });
 
@@ -238,10 +239,15 @@ void main() {
 
         // Signature du studio et version, tout en bas
         await tester.scrollUntilVisible(
-            find.text('${Brand.gameName} · version 1.0.0'), 50);
+            find.text('${Brand.gameName} · version 1.0.1'), 50);
         expect(find.byType(PongStudioSignature), findsOneWidget);
         expect(find.text(Brand.signaturePrefix), findsOneWidget);
         expect(tester.takeException(), isNull);
+
+        // La signature ouvre la page « Le studio »
+        await tester.tap(find.text(Brand.signaturePrefix));
+        await tester.pumpAndSettle();
+        expect(find.byType(StudioPage), findsOneWidget);
       });
     }
 

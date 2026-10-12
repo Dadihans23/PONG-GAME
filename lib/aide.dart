@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pong_game/studio/studio_page.dart';
 import 'package:pong_game/ui/pong_ui.dart';
 
 /// Aide (maquette A1). Les icônes reprennent les couleurs de sens du jeu
@@ -67,9 +68,10 @@ class AidePage extends StatelessWidget {
             if (index > 0) const SizedBox(height: PongSpacing.xs),
             section,
           ],
-          // Signature du studio, en retrait sous les règles
+          // Signature du studio, en retrait sous les règles : elle ouvre la
+          // page « Le studio »
           const SizedBox(height: PongSpacing.xl),
-          const PongStudioSignature(),
+          PongStudioSignature(onTap: () => StudioPage.open(context)),
         ],
       ),
     );
