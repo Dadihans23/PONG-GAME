@@ -31,8 +31,11 @@
     return media && media.matches ? "light" : "dark";
   }
 
+  // Libellés dans la langue de la page (data-label-light / data-label-dark du bouton).
   function label(button, theme) {
-    var text = theme === "dark" ? "Passer en mode clair" : "Passer en mode sombre";
+    var text = theme === "dark"
+      ? button.getAttribute("data-label-light") || "Passer en mode clair"
+      : button.getAttribute("data-label-dark") || "Passer en mode sombre";
     button.setAttribute("aria-label", text);
     button.setAttribute("title", text);
   }

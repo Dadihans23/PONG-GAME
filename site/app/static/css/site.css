@@ -383,11 +383,34 @@ h1, h2, h3, .display, .kicker, .section-title, .page__kicker, .page__title, .pag
 .topbar__nav { display: none; }
 .topbar__actions { display: flex; align-items: center; gap: var(--sp-1); }
 
-/* Sélecteur de langue (affiché quand des langues existent). */
+/* Sélecteur de langue FR · EN · ES : dans la barre à partir de 720 px, dans le menu en dessous. */
 .lang { display: flex; padding: 3px; border-radius: 22px; background: var(--n-chip); font-size: 12px; font-weight: 800; }
 .lang__item { min-width: 40px; height: 38px; padding: 0 10px; border-radius: 19px; display: inline-flex; align-items: center; justify-content: center; color: var(--n-faint); }
 .lang__item:hover { color: var(--n-text); }
 .lang__item[aria-current="true"] { background: rgba(255, 255, 255, .16); color: var(--n-text); }
+.lang--bar { display: none; }
+.lang--menu { align-self: flex-start; margin-top: var(--sp-4); }
+.lang--menu .lang__item { min-width: 48px; height: 44px; font-size: 14px; }
+
+/* Bandeau « Cette page existe aussi en … » (lang.js), sous l'en-tête : sombre dans les
+   deux thèmes, comme l'en-tête ; il défile avec la page. */
+.langbar {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3);
+  padding: var(--sp-2) var(--pad-x);
+  background: var(--n-deep); color: var(--n-text-2); border-bottom: 1px solid var(--n-line);
+  font-size: 14px; line-height: 1.4;
+}
+.langbar__text { margin: 0; min-width: 0; }
+.langbar__link { color: var(--n-link); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.langbar__link:hover { color: var(--n-text); }
+.langbar__close {
+  width: 44px; height: 44px; flex: none; padding: 0; margin-right: -10px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 0; border-radius: 50%; background: transparent; color: var(--n-muted); cursor: pointer;
+}
+.langbar__close:hover { color: var(--n-text); background: var(--n-chip); }
+.langbar__close:focus-visible { outline: 2px solid var(--n-link); outline-offset: -2px; }
+.langbar__close svg { width: 18px; height: 18px; }
 
 /* Bascule clair / sombre : affichée seulement si theme.js tourne (classe posée sur <html>). */
 .theme-toggle {
@@ -1111,6 +1134,9 @@ h1, h2, h3, .display, .kicker, .section-title, .page__kicker, .page__title, .pag
 .page__title { font-size: 24px; font-weight: 800; line-height: 1.25; letter-spacing: -.01em; color: var(--text); text-wrap: balance; }
 .page__text { font-size: 15px; line-height: 1.6; color: var(--text-2); text-wrap: pretty; }
 .page__updated { font-size: 14px; color: var(--faint); }
+/* Traduction des pages légales : la version française fait foi. */
+.page__official { font-size: 14px; line-height: 1.5; color: var(--faint); max-width: 46ch; }
+.page__official a { font-weight: 700; }
 .page__main { min-width: 0; display: flex; flex-direction: column; gap: var(--sp-5); }
 .page__note { font-size: 13px; line-height: 1.55; color: var(--muted); }
 .page__intro p { font-size: 22px; font-weight: 700; line-height: 1.35; color: var(--text); text-wrap: pretty; }
@@ -1249,6 +1275,7 @@ h1, h2, h3, .display, .kicker, .section-title, .page__kicker, .page__title, .pag
 
 @media (min-width: 720px) {
   :root { --gutter: 32px; --section-y: var(--sp-11); --bar-h: 64px; }
+  .lang--bar { display: flex; }
 
   .display { font-size: 40px; }
   .display--md { font-size: 36px; }

@@ -1,14 +1,18 @@
 {% extends "admin/base.html" %}
 {# Tableau de lignes ordonnées (fiche technique, Solo / Duel, barème, installation).
    Un seul formulaire : l'en-tête et toutes les lignes s'enregistrent ensemble ; les
-   boutons monter, descendre, supprimer et « Ajouter une ligne » enregistrent d'abord. #}
+   boutons monter, descendre, supprimer et « Ajouter une ligne » enregistrent d'abord.
+   Onglets English / Español : les textes traduits de chaque ligne, le français en
+   référence ; ni ajout, ni déplacement, ni suppression. #}
+{% set tlang = lang if lang != "fr" else none %}
 {% block content %}
 <form method="post" action="/admin/tableaux/{{ slug }}" class="page-form" id="f-table" novalidate>
   <input type="hidden" name="csrf_token" value="{{ csrf }}">
+  {{ ui.lang_input(lang) }}
   {# Bouton par défaut (touche Entrée) : enregistrer, pas monter la première ligne. #}
   <button type="submit" name="action" value="save" class="sr-only" tabindex="-1" aria-hidden="true">Enregistrer</button>
 
-  {{ ui.setting_groups(groups, vals, errors) }}
+  {{ ui.setting_groups(groups, vals, errors, fallbacks=fallbacks, tlang=tlang) }}
 
   <section class="rows" aria-labelledby="rows-title">
     <div class="group__head">
@@ -16,42 +20,46 @@
       <p class="group__help">{{ conf.rows_help }}</p>
     </div>
     <div class="rows__cols" aria-hidden="true">
-      {% for col, label, max_len, area in conf.cols %}<span>{{ label }}</span>{% endfor %}
+      {% for col, label, max_len, area in cols %}<span>{{ label }}</span>{% endfor %}
     </div>
     <ol class="rows__list">
       {% for row in rows %}
-      {% set first = row[conf.cols[0][0]] or "cette ligne" %}
+      {% set first = row[cols[0][0]] or (row.fr[cols[0][0]] if row.fr else "") or "cette ligne" %}
       {% set n = loop.index %}
       <li class="trow" id="ligne-{{ row.id }}">
         <span class="trow__n" aria-hidden="true">{{ loop.index }}</span>
         <div class="trow__cells">
-          {% for col, label, max_len, area in conf.cols %}
+          {% for col, label, max_len, area in cols %}
           {% set name = "row-" ~ row.id ~ "-" ~ col %}
           {% set err = errors.get(name, "") %}
-          <div class="cell{% if err %} has-error{% endif %}">
-            <label class="sr-only" for="{{ name }}">{{ label }}, ligne {{ n }}</label>
+          {% set source = row.fr[col] if row.fr else none %}
+          <div class="cell{% if err %} has-error{% endif %}{% if source and not row[col] %} is-untranslated{% endif %}">
+            <label class="sr-only" for="{{ name }}">{{ label }}, ligne {{ n }}{% if source is not none %} ({{ lang_name }}), en français : {{ source }}{% endif %}</label>
             {% if area %}
-            <textarea class="control" id="{{ name }}" name="{{ name }}" rows="2" maxlength="{{ max_len }}"{% if err %} aria-invalid="true" aria-describedby="e-{{ name }}"{% endif %}>{{ row[col] }}</textarea>
+            <textarea class="control" id="{{ name }}" name="{{ name }}" rows="2" maxlength="{{ max_len }}"{% if tlang %} lang="{{ tlang }}" placeholder="{{ source }}"{% endif %}{% if err %} aria-invalid="true" aria-describedby="e-{{ name }}"{% endif %}>{{ row[col] }}</textarea>
             {% else %}
-            <input class="control" type="text" id="{{ name }}" name="{{ name }}" value="{{ row[col] }}" maxlength="{{ max_len }}"{% if err %} aria-invalid="true" aria-describedby="e-{{ name }}"{% endif %}>
+            <input class="control" type="text" id="{{ name }}" name="{{ name }}" value="{{ row[col] }}" maxlength="{{ max_len }}"{% if tlang %} lang="{{ tlang }}" placeholder="{{ source }}"{% endif %}{% if err %} aria-invalid="true" aria-describedby="e-{{ name }}"{% endif %}>
             {% endif %}
+            {% if source is not none %}<p class="field__source" lang="fr" aria-hidden="true"><span class="field__source-label">FR</span> {{ source or "(vide)" }}{% if source and not row[col] %} <span class="tag tag--warn">Non traduit</span>{% endif %}</p>{% endif %}
             {% if err %}<p class="field__err" id="e-{{ name }}">{{ err }}</p>{% endif %}
           </div>
           {% endfor %}
         </div>
+        {% if lang == "fr" %}
         <div class="trow__actions">
           {{ ui.icon_btn("up", "Monter la ligne « " ~ first ~ " »", "action", "up:" ~ row.id, disabled=loop.first) }}
           {{ ui.icon_btn("down", "Descendre la ligne « " ~ first ~ " »", "action", "down:" ~ row.id, disabled=loop.last) }}
           {{ ui.icon_btn("delete", "Supprimer la ligne « " ~ first ~ " »", "action", "delete:" ~ row.id, danger=True,
                          confirm=("Supprimer la ligne « " ~ first ~ " » ?", "Elle disparaît du site dès la confirmation. Les autres modifications de la page sont enregistrées en même temps.")) }}
         </div>
+        {% endif %}
       </li>
       {% endfor %}
       {% if add_open %}
       <li class="trow trow--new" id="nouvelle-ligne">
         <span class="trow__n" aria-hidden="true">{{ rows|length + 1 }}</span>
         <div class="trow__cells">
-          {% for col, label, max_len, area in conf.cols %}
+          {% for col, label, max_len, area in cols %}
           {% set name = "new-" ~ col %}
           {% set err = errors.get(name, "") %}
           <div class="cell{% if err %} has-error{% endif %}">
@@ -72,9 +80,11 @@
     {% if not rows and not add_open %}
     <p class="rows__empty">Aucune ligne : ce bloc est masqué sur le site.</p>
     {% endif %}
+    {% if lang == "fr" %}
     <div class="rows__add">
       <button type="submit" name="action" value="add" class="btn btn--secondary">+ Ajouter une ligne</button>
     </div>
+    {% endif %}
   </section>
 
   {{ ui.savebar(conf.save_note or ui.saved_note(saved_at)) }}

@@ -25,15 +25,21 @@
     {% set nerr = errors.get("release_date", "") if not upload_vals else "" %}
     <form method="post" action="/admin/apk/{{ notes_apk.id }}/notes" class="notes-form" id="notes" novalidate>
       <input type="hidden" name="csrf_token" value="{{ csrf }}">
+      {{ ui.lang_input(lang) }}
       <h2 class="overline">Notes de version {{ notes_apk.version }}</h2>
+      {% if notes_tabs %}{{ ui.lang_tabs(notes_tabs) }}{% endif %}
+      {% if lang == "fr" %}
       <div class="field field--date{% if nerr %} has-error{% endif %}">
         <label class="field__label" for="f-release_date">Date de sortie</label>
         <input class="control" type="date" id="f-release_date" name="release_date" value="{{ notes_vals.release_date }}"{% if nerr %} aria-invalid="true" aria-describedby="e-f-release_date h-f-release_date"{% else %} aria-describedby="h-f-release_date"{% endif %}>
         {% if nerr %}<p class="field__err" id="e-f-release_date">{{ nerr }}</p>{% endif %}
         <p class="field__help" id="h-f-release_date">Vide = date du dépôt ({{ notes_apk.uploaded_at|date_short }}).</p>
       </div>
-      {{ ui.field("release_notes", "Nouveautés", notes_vals.release_notes, max=5000, area=True, rows=7, counter=False,
-                  mark=None,
+      {% else %}
+      <p class="langnote">Notes en {{ lang_name }} : vide = le site affiche les notes en français. La date de sortie est commune aux trois langues (onglet Français).</p>
+      {% endif %}
+      {{ ui.field("release_notes", "Nouveautés", notes_vals.release_notes, max=(5000 if lang == "fr" else 6500), area=True, rows=7, counter=False,
+                  mark=None, fallback=(notes_apk.release_notes if lang != "fr" else none), tlang=(lang if lang != "fr" else none),
                   help=("S'affichent sur le site sous « " ~ (site.notes_title or "Nouveautés") ~ " " ~ notes_apk.version ~ " », tant que cette version est proposée. Une nouveauté par ligne."
                         if notes_apk.is_current else
                         "Elles s'afficheront sur le site quand cette version sera proposée. Une nouveauté par ligne.")) }}

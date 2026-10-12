@@ -160,8 +160,8 @@ def test_no_external_resources(admin):
         page = admin.get(path).text
         for tag in re.findall(r"<(?:script|img|link)\b[^>]*>", page):
             url = re.search(r'(?:src|href)="([^"]*)"', tag)
-            if not url or 'rel="canonical"' in tag:
-                continue
+            if not url or 'rel="canonical"' in tag or 'rel="alternate"' in tag:
+                continue  # URL absolues sur SITE_URL (canonique, hreflang)
             assert url.group(1).startswith("/"), (path, tag)
         assert "fonts.googleapis" not in page and "Material Symbols" not in page
         assert " style=" not in page  # CSP « style-src 'self' » : aucun style en ligne
@@ -169,10 +169,10 @@ def test_no_external_resources(admin):
     assert "@import" not in css and "http" not in css
 
 
-def test_no_language_selector_yet(client):
-    for path in ("/", "/contact"):
+def test_language_selector_on_every_page(client):
+    for path in ("/", "/contact", "/en/", "/es/contacto"):
         page = client.get(path).text
-        assert 'class="lang"' not in page and "hreflang" not in page
+        assert 'class="lang lang--bar"' in page and 'class="lang lang--menu"' in page
 
 
 def test_hero_bubble_uses_first_real_screenshot(client, settings):

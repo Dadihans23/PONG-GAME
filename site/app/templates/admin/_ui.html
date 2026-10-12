@@ -31,39 +31,64 @@
 {%- endmacro %}
 
 {# Champ de formulaire : libellé, compteur n / max, contrôle, erreur, aide.
-   mark : "required" -> « (obligatoire) », "optional" -> « (facultatif) ». #}
-{% macro field(name, label, value="", max=None, area=False, mark=None, help="", err="", type="text", id=None, rows=3, placeholder="", required=False, form=None, wide=False, mono=False, extra_class="", counter=True) -%}
+   mark : "required" -> « (obligatoire) », "optional" -> « (facultatif) ».
+   fallback (onglets English / Español) : le texte français du champ, montré en
+   référence sous le champ ; un champ vide est signalé « non traduit » (le site
+   affiche alors le français). tlang : langue du texte saisi (attribut lang). #}
+{% macro field(name, label, value="", max=None, area=False, mark=None, help="", err="", type="text", id=None, rows=3, placeholder="", required=False, form=None, wide=False, mono=False, extra_class="", counter=True, fallback=None, tlang=None) -%}
 {%- set fid = id or ("f-" ~ name) -%}
-{%- set described = [("e-" ~ fid) if err, ("h-" ~ fid) if help]|select|join(" ") -%}
-<div class="field{% if area or wide %} field--wide{% endif %}{% if err %} has-error{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}">
+{%- set untranslated = fallback is not none and fallback|trim and not (value or "")|trim -%}
+{%- set described = [("e-" ~ fid) if err, ("s-" ~ fid) if fallback, ("h-" ~ fid) if help]|select|join(" ") -%}
+<div class="field{% if area or wide %} field--wide{% endif %}{% if err %} has-error{% endif %}{% if untranslated %} is-untranslated{% endif %}{% if extra_class %} {{ extra_class }}{% endif %}">
   <div class="field__top">
-    <label class="field__label" for="{{ fid }}">{{ label }}{% if mark == "required" %} <span class="field__mark">(obligatoire)</span>{% elif mark == "optional" %} <span class="field__mark">(facultatif)</span>{% endif %}</label>
+    <label class="field__label" for="{{ fid }}">{{ label }}{% if mark == "required" %} <span class="field__mark">(obligatoire)</span>{% elif mark == "optional" %} <span class="field__mark">(facultatif)</span>{% endif %}{% if untranslated %} <span class="tag tag--warn">Non traduit</span>{% endif %}</label>
     {%- if max and counter %}<span class="field__count" data-count-for="{{ fid }}">{{ (value or "")|length }} / {{ max }}</span>{% endif %}
   </div>
   {%- if area %}
   <textarea class="control{% if mono %} control--mono{% endif %}" id="{{ fid }}" name="{{ name }}" rows="{{ rows }}"
+    {%- if tlang %} lang="{{ tlang }}"{% endif %}
     {%- if max %} maxlength="{{ max }}"{% endif %}{% if form %} form="{{ form }}"{% endif %}{% if placeholder %} placeholder="{{ placeholder }}"{% endif %}
     {%- if required %} required{% endif %}{% if err %} aria-invalid="true"{% endif %}{% if described %} aria-describedby="{{ described }}"{% endif %}>{{ value or "" }}</textarea>
   {%- else %}
   <input class="control" type="{{ type }}" id="{{ fid }}" name="{{ name }}" value="{{ value or "" }}"
+    {%- if tlang %} lang="{{ tlang }}"{% endif %}
     {%- if max %} maxlength="{{ max }}"{% endif %}{% if form %} form="{{ form }}"{% endif %}{% if placeholder %} placeholder="{{ placeholder }}"{% endif %}
     {%- if required %} required{% endif %}{% if err %} aria-invalid="true"{% endif %}{% if described %} aria-describedby="{{ described }}"{% endif %}>
   {%- endif %}
   {%- if err %}<p class="field__err" id="e-{{ fid }}">{{ err }}</p>{% endif %}
+  {%- if fallback is not none %}<p class="field__source" id="s-{{ fid }}" lang="fr"><span class="field__source-label">Français</span> {{ fallback or "(vide)" }}</p>{% endif %}
   {%- if help %}<p class="field__help" id="h-{{ fid }}">{{ help }}</p>{% endif %}
 </div>
 {%- endmacro %}
 
+{# Onglets de langue des écrans de textes. #}
+{% macro lang_tabs(tabs) -%}
+<nav class="langtabs" aria-label="Langue des textes">
+  {% for tab in tabs %}
+  <a class="langtabs__tab" href="{{ tab.href }}"{% if tab.current %} aria-current="page"{% endif %} lang="{{ tab.code }}">
+    <span class="langtabs__code" aria-hidden="true">{{ tab.code|upper }}</span> {{ tab.label }}
+    {%- if tab.code != "fr" %}{% if tab.missing %} <span class="langtabs__count" lang="fr">{{ tab.missing }} non traduit{{ "s" if tab.missing > 1 }}</span>{% else %} <span class="langtabs__ok" lang="fr">traduit</span>{% endif %}{% endif %}
+  </a>
+  {% endfor %}
+</nav>
+{%- endmacro %}
+
+{# Langue modifiée par un formulaire (onglets). #}
+{% macro lang_input(lang) -%}
+<input type="hidden" name="lang" value="{{ lang or 'fr' }}">
+{%- endmacro %}
+
 {# Réglage de la table setting (voir routes_admin.TEXT_FIELDS). #}
-{% macro setting(f, vals, errors, form=None) -%}
+{% macro setting(f, vals, errors, form=None, fallbacks=None, tlang=None) -%}
 {{ field(f.key, f.label, vals.get(f.key, ""), max=f.max, area=f.area,
          mark=("required" if f.required else ("optional" if f.opt else None)),
          help=f.help, err=errors.get(f.key, ""), type=f.kind, rows=(5 if f.max > 500 else 3),
-         form=form, required=f.required) }}
+         form=form, required=f.required,
+         fallback=(fallbacks.get(f.key, "") if fallbacks is not none else none), tlang=tlang) }}
 {%- endmacro %}
 
 {# Groupes de réglages : intertitre, aide, grille de champs. #}
-{% macro setting_groups(groups, vals, errors, form=None) -%}
+{% macro setting_groups(groups, vals, errors, form=None, fallbacks=None, tlang=None) -%}
 {% for g in groups %}
 <section class="group" aria-labelledby="g-{{ loop.index }}-{{ g.title|lower|replace(' ', '-') }}">
   <div class="group__head">
@@ -71,7 +96,7 @@
     {%- if g.help %}<p class="group__help">{{ g.help }}</p>{% endif %}
   </div>
   <div class="fields">
-    {% for f in g.fields %}{{ setting(f, vals, errors, form) }}{% endfor %}
+    {% for f in g.fields %}{{ setting(f, vals, errors, form, fallbacks, tlang) }}{% endfor %}
   </div>
 </section>
 {% endfor %}

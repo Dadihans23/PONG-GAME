@@ -14,11 +14,12 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import RedirectResponse
 
-from . import contact, db, render
+from . import contact, db, i18n, render
 from .config import Settings
 from .routes_admin import LoginRequired
 from .routes_admin import router as admin_router
 from .routes_api import router as api_router
+from .routes_public import lang_context
 from .routes_public import router as public_router
 from .security import BodySizeLimitMiddleware, LoginLimiter, SecurityHeadersMiddleware
 
@@ -77,7 +78,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         BodySizeLimitMiddleware,
         default_limit=settings.max_image_bytes + form_margin,
         path_limits={"/admin/apk/deposer": settings.max_apk_bytes + form_margin,
-                     "/contact": contact.MAX_BODY_BYTES},
+                     **{i18n.path("contact", lang): contact.MAX_BODY_BYTES
+                        for lang in i18n.LANGS}},
     )
     app.add_middleware(SecurityHeadersMiddleware, hsts=settings.cookie_secure)
 
@@ -87,21 +89,17 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @app.exception_handler(StarletteHTTPException)
     async def _http_error(request: Request, exc: StarletteHTTPException):
-        messages = {
-            403: "Action refusée. Rechargez la page et réessayez.",
-            404: "Cette page n'existe pas.",
-            405: "Méthode non autorisée.",
-            429: "Trop de tentatives. Réessayez plus tard.",
-        }
-        # Les messages par défaut de Starlette (« Not Found »…) sont en anglais :
-        # on ne garde que ceux écrits par l'application.
+        # Page d'erreur dans la langue de l'adresse (/en/… en anglais, /es/… en
+        # espagnol, français ailleurs). Les messages par défaut de Starlette
+        # (« Not Found »…) sont remplacés par ceux du catalogue ; un message écrit
+        # par l'application (detail) est gardé tel quel.
+        context = lang_context(request)
+        t = context["t"]
+        key = f"err_{exc.status_code}"
+        default = t(key) if key in i18n.UI else t.err_other
         message = exc.detail if exc.detail != HTTPStatus(exc.status_code).phrase else None
-        return render.page(
-            request, "error.html",
-            {"status": exc.status_code,
-             "message": message or messages.get(exc.status_code, "Erreur.")},
-            status_code=exc.status_code,
-            headers=getattr(exc, "headers", None),
-        )
+        context.update(status=exc.status_code, message=message or default)
+        return render.page(request, "error.html", context, status_code=exc.status_code,
+                           headers=getattr(exc, "headers", None))
 
     return app

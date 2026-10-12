@@ -212,7 +212,7 @@ Décisions :
 - [x] Retouches de l'accueil Néon : pied de page refait (ligne médiane et balle, logo Nexora, trois pages, signature TILTO penchée, plus aucun lien de téléchargement), « Installer l'APK » retiré des menus (une seule fois, bloc `#installer-apk`), bouton « Revenir en haut de la page », texte courant en Atkinson Hyperlegible Next (Archivo garde titres et boutons ; Instrument Sans et Bricolage Grotesque prêtes via `--font-text`), insécables dans la FAQ ; tests pytest
 - [ ] Propriétaire : choisir la police du texte sur les planches (Atkinson par défaut, ou Instrument Sans / Bricolage Grotesque : une ligne dans `site.css`) ; vérifier sur téléphone le bouton retour en haut et le pied de page
 - [ ] Propriétaire : valider l'accueil Néon en local (clair, sombre, téléphone), puis déployer ; après déploiement, vérifier que les textes en ligne (déjà relevés pour la maquette) donnent de bons titres en deux graisses
-- [ ] Sélecteur de langue FR · EN · ES de la maquette : place prête dans `base.html` (liste `languages`), à afficher à l'étape 2 des langues
+- [x] Sélecteur de langue FR · EN · ES de la maquette : affiché (étape 2 des langues)
 - [ ] **En attente d'accord du propriétaire** : `reseed_v2 --apply` sur le site en ligne (simulation faite : 14 changements — accroche, phrase de téléchargement, 4 arguments, 3 étapes, légendes des 3 captures + 4e « Fin du duel », section contact de la confidentialité). Commande : `ssh hans@79.143.190.190 "cd ~/tilto-site && docker compose exec tilto-site python -m app.reseed_v2 --apply"` (demande « oui »)
 - [ ] Mentions légales à remplir par le propriétaire (éditeur, forme, immatriculation, adresse, e-mail, directeur de la publication, adresse et téléphone de Contabo) ; **pays d'édition à demander** pour adapter la liste
 - [ ] SMTP facultatif pour recevoir les messages de contact par e-mail
@@ -266,15 +266,23 @@ Décisions du propriétaire : la langue du téléphone par défaut (fr, en ou es
 
 ### Étape 2 — Site tilto.fun
 
-- [ ] Français à la racine, anglais sous `/en/`, espagnol sous `/es/`
-- [ ] Balises `hreflang` (fr, en, es) et `x-default` vers `/en/` ; sitemap avec les trois langues
-- [ ] Pas de redirection forcée selon la langue du navigateur : un bandeau discret propose la version dans sa langue
-- [ ] Polices WOFF2 du site régénérées avec ñ ¿ ¡ (et accents espagnols) dans le sous-ensemble
+- [x] Français à la racine (adresses inchangées), anglais sous `/en/`, espagnol sous `/es/`, slugs traduits (`/en/privacy`, `/es/aviso-legal`…), variantes en 301 (`site/app/i18n.py`)
+- [x] `<html lang>`, canonique par langue, `hreflang` réciproques fr/en/es et `x-default` vers la racine française (décision : français, pas `/en/`), `og:locale` + alternates, JSON-LD `inLanguage`, sitemap des trois langues avec `xhtml:link`
+- [x] Pas de redirection forcée selon la langue du navigateur : bandeau discret (`lang.js`, choix retenu en localStorage) qui propose la langue du navigateur ; sélecteur FR · EN · ES dans l'en-tête et le menu mobile
+- [x] Polices WOFF2 : ñ ¿ ¡ et accents espagnols déjà présents (vérifié, rien à régénérer)
+- [x] Textes fixes de l'interface dans un catalogue par langue (`i18n.UI`), textes de la base traduits avec repli sur le français (table `translation`), pages d'erreur dans la langue du préfixe, formulaire de contact dans les trois langues (langue enregistrée avec le message), mentions légales et confidentialité traduites (« la version française fait foi »)
+- [x] Traductions EN/ES rédigées d'après les textes en ligne ; fichiers de relecture `site/RELECTURE.md` / `site/relecture.csv` (`python -m app.relecture`)
+- [x] Vérifié en local (Playwright) à 360, 1180 et 1440 px, trois langues, thèmes sombre et clair : aucun débordement
+- [ ] **À faire après le déploiement, avec l'accord du propriétaire** (sauvegarde du volume `tilto-data` d'abord) : `python -m app.reseed_i18n` (simulation) puis `--apply` sur le serveur
+- [ ] Relecture de l'anglais et de l'espagnol du site par des locuteurs courants (`site/RELECTURE.md`)
+- [ ] Propriétaire : vérifier sur téléphone le bandeau de langue et le sélecteur, et les pages en anglais et en espagnol
+- [ ] Quand l'APK 1.1.0 (traduit) est en ligne : `seo.APP_LANGUAGES = ["fr", "en", "es"]` (aujourd'hui l'app publiée n'est qu'en français, ce que les pages anglaise et espagnole ne disent pas)
 
 ### Étape 3 — Administration et API
 
-- [ ] Administration : onglets par langue pour les textes (studio, pages), repli sur le français quand une traduction manque
-- [ ] API `/api/app/studio?lang=` : présentation dans la langue demandée, repli sur le français (l'app envoie déjà le paramètre)
+- [x] Administration : onglets Français / English / Español sur tous les écrans de textes (textes, sections, tableaux, listes, captures, confidentialité, mentions légales, studio, notes de version), champs non traduits signalés, repli sur le français ; état des traductions au tableau de bord
+- [x] API `/api/app/studio?lang=` : présentation dans la langue demandée, repli sur le français, langue inconnue = français, ETag propre à chaque langue
+- [x] Migration `python -m app.reseed_i18n` (simulation, `--apply` avec « oui », idempotente, ne touche jamais au français)
 
 ### Étape 4 — Play Store
 

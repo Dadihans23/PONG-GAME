@@ -44,6 +44,7 @@
   --mu2: #80808E;
   --ln: #FF5C93;
   --ok: #66BB6A;
+  --warn: #FFB74D;            /* « Non traduit » */
   --okbg: rgba(102, 187, 106, .08);
   --okbd: rgba(102, 187, 106, .35);
   --err: #FF6B6B;
@@ -71,6 +72,8 @@
     --mu2: #63636F;
     --ln: #C2185B;
     --ok: #2E7D32;
+  --warn: #8A4B00;
+    --warn: #8A4B00;
     --okbg: rgba(46, 125, 50, .07);
     --okbd: rgba(46, 125, 50, .35);
     --err: #C62828;
@@ -628,3 +631,25 @@ input[type="date"].control { padding-right: 8px; }
 @media (prefers-reduced-motion: no-preference) {
   .btn, .icon-btn, .side__link { transition: background-color .15s, color .15s, border-color .15s; }
 }
+
+/* ---------- Langues des textes (onglets Français / English / Español) ---------- */
+
+.langtabs { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px; border-radius: 14px; background: var(--sf); border: 1px solid var(--bd); max-width: 860px; }
+.langtabs__tab {
+  min-height: 44px; padding: 6px 14px; border-radius: 10px; flex: 1 1 auto;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap;
+  font-size: 14px; font-weight: 700; color: var(--mu); text-decoration: none; text-align: center;
+}
+.langtabs__tab:hover { color: var(--fg); background: var(--sf2); }
+.langtabs__tab[aria-current="page"] { background: var(--sf2); color: var(--fg); box-shadow: inset 0 -2px 0 var(--pink); }
+.langtabs__code { font-size: 11px; letter-spacing: .08em; color: var(--mu2); }
+.langtabs__count { font-size: 12px; font-weight: 700; color: var(--warn); }
+.langtabs__ok { font-size: 12px; font-weight: 700; color: var(--ok); }
+.langnote { font-size: 13px; line-height: 1.45; color: var(--mu); max-width: 860px; }
+.tag { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 9px; font-size: 11px; font-weight: 800; letter-spacing: .02em; vertical-align: 1px; }
+.tag--warn { color: var(--warn); border: 1px solid currentColor; }
+.lang-badge { font-size: 11px; font-weight: 800; letter-spacing: .06em; color: var(--mu); border: 1px solid var(--bd); border-radius: 6px; padding: 0 5px; }
+.is-untranslated .control { border-style: dashed; }
+.field__source { font-size: 12px; line-height: 1.45; color: var(--mu); white-space: pre-line; overflow-wrap: anywhere; }
+.field__source-label { font-weight: 800; letter-spacing: .04em; text-transform: uppercase; font-size: 10px; margin-right: 4px; color: var(--mu2); }
+.source-text { padding: 12px 14px; border-radius: 12px; border: 1px solid var(--bd); background: var(--sf); font-size: 13px; line-height: 1.5; color: var(--mu); white-space: pre-wrap; overflow-wrap: anywhere; max-height: 420px; overflow-y: auto; }

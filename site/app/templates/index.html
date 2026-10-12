@@ -4,9 +4,10 @@
 {# Accueil, maquette « Tilto Landing Neon » (planche 6a, direction Néon magenta).
    Sections sombres (en-tête, héros, Face-à-face, téléchargement, pied de page) et
    claires (Le jeu, Comment jouer, Captures, FAQ) alternent ; en thème sombre, les
-   claires passent sur les fonds sombres du site. Tous les textes viennent de la base. #}
+   claires passent sur les fonds sombres du site. Tous les textes viennent de la base
+   (dans la langue de la page, repli sur le français) ou du catalogue i18n (`t`). #}
 
-{% block title %}{{ site.game_name }} : {{ home_title_suffix }}{% endblock %}
+{% block title %}{{ t('home_title', game=site.game_name, suffix=home_title_suffix) }}{% endblock %}
 {% block description %}{{ home_description }}{% endblock %}
 {% block scripts %}<script src="{{ static_url('js/site.js') }}" defer></script>
   {# Données structurées (schema.org, voir app/seo.py). Bloc de données : le
@@ -21,39 +22,44 @@
 {% macro download_buttons(where) %}
   <div class="downloads downloads--{{ where }}">
     {% if site.play_store_url %}
-    <a class="btn btn--primary" href="{{ site.play_store_url }}" rel="noopener">Télécharger sur Google Play</a>
+    <a class="btn btn--primary" href="{{ site.play_store_url }}" rel="noopener">{{ t.gp_download }}</a>
     {% endif %}
     {% if apk %}
     <a class="btn btn--apk{% if not site.play_store_url %} btn--primary{% endif %}" href="/telecharger" download>
-      <span class="btn__label">{% if not site.play_store_url %}{{ icon_download() }}{% endif %}Télécharger l'APK</span>
+      <span class="btn__label">{% if not site.play_store_url %}{{ icon_download() }}{% endif %}{{ t.apk_download }}</span>
       {% if where == "hero" %}
-      <span class="btn__meta apk-meta">v{{ apk.version }} · {{ apk.size_bytes|filesize }} · sans Play Store</span>
+      <span class="btn__meta apk-meta">v{{ apk.version }} · {{ apk.size_bytes|filesize(lang) }} · {{ t.no_play_store }}</span>
       {% else %}
-      <span class="btn__meta apk-meta">{{ apk.download_name }} · {{ apk.size_bytes|filesize }}</span>
+      <span class="btn__meta apk-meta">{{ apk.download_name }} · {{ apk.size_bytes|filesize(lang) }}</span>
       {% endif %}
     </a>
     {% endif %}
     {% if not site.play_store_url %}
     <a class="btn btn--soon" role="link" aria-disabled="true">
-      <span class="btn__label">Google Play</span>
+      <span class="btn__label">{{ t.google_play }}</span>
       {% if site.play_soon_text %}<span class="btn__meta">{{ site.play_soon_text }}</span>{% endif %}
     </a>
     {% endif %}
   </div>
 {% endmacro %}
 
+{# Les deux joueurs du duel dessiné (réglages de la scène Face-à-face) : chaque
+   téléphone montre son propriétaire en bas, en bleu, et l'autre en haut, en vert. #}
+{% set p1 = site.duel_left_name or "Léa" %}
+{% set p2 = site.duel_right_name or "Tom" %}
+
 {# Écrans dessinés dans les téléphones décoratifs (360 × 800, mis à l'échelle en CSS).
    Toujours le thème sombre du jeu ; le joueur du téléphone est en bas, en bleu. #}
 {% macro screen_game() %}
 <div class="scr scr--game">
   <div class="scr__bar">
-    <span class="scr__speed"><i class="on"></i><i class="on"></i><i></i><i></i><b>VITESSE 3</b></span>
+    <span class="scr__speed"><i class="on"></i><i class="on"></i><i></i><i></i><b>{{ t.scr_speed }}</b></span>
     <span class="scr__pause"><i></i><i></i></span>
   </div>
   <div class="scr__frame"></div>
   <div class="scr__mid"></div>
-  <div class="scr__record">RECORD 2 400</div>
-  <div class="scr__score"><b>1 250</b><span>LÉA</span></div>
+  <div class="scr__record">{{ t('scr_record', score=2400|number(lang)) }}</div>
+  <div class="scr__score"><b>{{ 1250|number(lang) }}</b><span>{{ p1|upper }}</span></div>
   <div class="scr__pad scr__pad--top"></div>
   <div class="scr__pad scr__pad--me scr__pad--hit"></div>
   <div class="scr__ball"></div>
@@ -65,7 +71,7 @@
 
 {% macro screen_duel(me, other, mine, theirs, variant) %}
 <div class="scr scr--duel scr--{{ variant }}">
-  <div class="scr__bar"><span class="scr__label">DUEL · PREMIER À 5</span></div>
+  <div class="scr__bar"><span class="scr__label">{{ t.scr_duel }}</span></div>
   <div class="scr__frame"></div>
   <div class="scr__mid"></div>
   <div class="scr__duel scr__duel--them"><span class="scr__who">{{ other|upper }}{{ pips(theirs, 'them') }}</span><b>{{ theirs }}</b></div>
@@ -76,10 +82,6 @@
 </div>
 {% endmacro %}
 
-{# Les deux joueurs du duel dessiné (réglages de la scène Face-à-face) : chaque
-   téléphone montre son propriétaire en bas, en bleu, et l'autre en haut, en vert. #}
-{% set p1 = site.duel_left_name or "Léa" %}
-{% set p2 = site.duel_right_name or "Tom" %}
 {% set s1 = [site.duel_left_score|int(0), 5]|min %}
 {% set s2 = [site.duel_right_score|int(0), 5]|min %}
 {% macro duel_phones(cls) %}
@@ -98,16 +100,16 @@
   {% elif n == 3 %}
   <div class="demo demo--sense" aria-hidden="true">
     <div class="sense__track"><i class="sense__fill"></i><i class="sense__thumb"></i></div>
-    <div class="sense__ends"><span>Douce</span><span>Vive</span></div>
+    <div class="sense__ends"><span>{{ t.sense_low }}</span><span>{{ t.sense_high }}</span></div>
   </div>
   {% elif n == 4 %}
   <div class="demo demo--records" aria-hidden="true">
-    <p class="records__label">TON RECORD</p>
-    <p class="records__best">2 650</p>
+    <p class="records__label">{{ t.records_label }}</p>
+    <p class="records__best">{{ 2650|number(lang) }}</p>
     <ol class="records__list">
-      <li><span class="records__rank">1</span><span class="records__name">Léa</span><span class="records__pts">2 650</span></li>
-      <li><span class="records__rank">2</span><span class="records__name">Tom</span><span class="records__pts">2 400</span></li>
-      <li><span class="records__rank">3</span><span class="records__name">Inès</span><span class="records__pts">1 950</span></li>
+      <li><span class="records__rank">1</span><span class="records__name">{{ p1 }}</span><span class="records__pts">{{ 2650|number(lang) }}</span></li>
+      <li><span class="records__rank">2</span><span class="records__name">{{ p2 }}</span><span class="records__pts">{{ 2400|number(lang) }}</span></li>
+      <li><span class="records__rank">3</span><span class="records__name">Inès</span><span class="records__pts">{{ 1950|number(lang) }}</span></li>
     </ol>
   </div>
   {% endif %}
@@ -137,14 +139,14 @@
   <figure class="hero__demo">
     <div class="hero__stage">
       <div class="court" aria-hidden="true">
-        <span class="court__tag court__tag--them">ORDINATEUR</span>
-        <span class="court__tag court__tag--me">TOI</span>
+        <span class="court__tag court__tag--them">{{ t.court_them }}</span>
+        <span class="court__tag court__tag--me">{{ t.court_me }}</span>
         <div class="court__line"></div>
         <div class="court__pad court__pad--top"></div>
         <div class="court__pad court__pad--bottom"></div>
         <div class="court__ballx"><div class="court__ball"></div></div>
       </div>
-      <span class="court__demo" aria-hidden="true">DÉMO<span class="wide-only"> · SOLO NORMAL</span></span>
+      <span class="court__demo" aria-hidden="true">{{ t.court_demo }}<span class="wide-only">{{ t.court_demo_mode }}</span></span>
       {# Bulle : la première vraie capture (l'accueil de l'app), sinon rien. #}
       {% for shot in screenshots if shot.filename %}{% if loop.first %}
       <span class="hero__bubble"><img src="/media/{{ shot.filename }}" alt="" width="92" height="186"></span>
@@ -161,7 +163,7 @@
   <header class="section-head section-head--split">
     <div>
       {% if site.features_kicker %}<p class="kicker">{{ site.features_kicker }}</p>{% endif %}
-      <h2 class="display" id="titre-le-jeu">{{ (site.features_title or "Le jeu")|accent }}</h2>
+      <h2 class="display" id="titre-le-jeu">{{ (site.features_title or t.t_features)|accent }}</h2>
     </div>
     {% if site.features_intro %}<p class="section-head__intro">{{ site.features_intro }}</p>{% endif %}
   </header>
@@ -205,7 +207,7 @@
     <div class="duel__stage">
       <div class="duel__phones" aria-hidden="true">
         {{ duel_phones("phone--face") }}
-        <span class="duel__vs">VS</span>
+        <span class="duel__vs">{{ t.vs }}</span>
       </div>
       <div class="duel__side duel__side--left">
         {% if site.duel_left_label %}<p class="duel__label">{{ site.duel_left_label }}</p>{% endif %}
@@ -227,15 +229,15 @@
   <div class="compare">
     <div class="compare__head">
       {% if site.compare_kicker %}<p class="kicker">{{ site.compare_kicker }}</p>{% endif %}
-      <h2 class="display display--md" id="titre-solo-duel">{{ (site.compare_title or "Solo ou Duel")|accent }}</h2>
+      <h2 class="display display--md" id="titre-solo-duel">{{ (site.compare_title or t.t_compare)|accent }}</h2>
     </div>
     {# Sur mobile, les lignes passent en grille (CSS) : les rôles posés sur le tableau
        et ses lignes aident les navigateurs qui perdraient la sémantique de tableau. #}
     <div class="compare__box">
       <table class="compare__table" role="table">
-        <caption class="sr-only">Comparatif des modes Solo et Duel</caption>
+        <caption class="sr-only">{{ t.compare_caption }}</caption>
         <thead role="rowgroup">
-          <tr role="row"><td></td><th scope="col" class="compare__solo">Solo</th><th scope="col" class="compare__duel">Duel</th></tr>
+          <tr role="row"><td></td><th scope="col" class="compare__solo">{{ t.col_solo }}</th><th scope="col" class="compare__duel">{{ t.col_duel }}</th></tr>
         </thead>
         <tbody role="rowgroup">
           {% for row in compare %}
@@ -253,7 +255,7 @@
 {% if steps or scoring %}
 <section class="play light" id="comment-jouer" aria-labelledby="titre-comment-jouer">
   <div class="steps">
-    <h2 class="display" id="titre-comment-jouer">{{ (site.steps_title or "Comment jouer")|accent }}</h2>
+    <h2 class="display" id="titre-comment-jouer">{{ (site.steps_title or t.t_steps)|accent }}</h2>
     {% if steps %}
     <ol class="steps__list">
       {% for s in steps %}
@@ -270,7 +272,7 @@
   </div>
   {% if scoring %}
   <div class="scoring" id="bareme">
-    <h3 class="scoring__title">{{ site.scoring_title or "Barème" }}</h3>
+    <h3 class="scoring__title">{{ site.scoring_title or t.t_scoring }}</h3>
     <dl class="specs specs--score">
       {% for row in scoring %}<div{% if row.value[:1] not in "+-0123456789" %} class="is-text"{% endif %}><dt>{{ row.label }}</dt><dd>{{ row.value }}</dd></div>{% endfor %}
     </dl>
@@ -285,22 +287,22 @@
   <header class="section-head shots__head">
     <div>
       {% if site.screens_intro %}
-      <p class="kicker">{{ site.screens_title or "Captures" }}</p>
+      <p class="kicker">{{ site.screens_title or t.t_screens }}</p>
       <h2 class="display display--md" id="titre-captures">{{ site.screens_intro|accent }}</h2>
       {% else %}
-      <h2 class="display display--md" id="titre-captures">{{ site.screens_title or "Captures" }}</h2>
+      <h2 class="display display--md" id="titre-captures">{{ site.screens_title or t.t_screens }}</h2>
       {% endif %}
     </div>
     {% if site.screens_note %}<p class="shots__note">{{ site.screens_note }}</p>{% endif %}
   </header>
-  <ul class="shots__list" aria-label="Captures d'écran">
+  <ul class="shots__list" aria-label="{{ t.shots_aria }}">
     {% for shot in screenshots %}
     <li class="shots__item">
       <figure class="capture">
         <div class="phone phone--shot">
           <div class="phone__screen">
             {% if shot.filename %}
-            <img src="/media/{{ shot.filename }}" alt="{{ shot.caption or ('Capture de ' ~ site.game_name) }}" loading="lazy" width="360" height="800">
+            <img src="/media/{{ shot.filename }}" alt="{{ shot.caption or t('shot_alt', game=site.game_name) }}" loading="lazy" width="360" height="800">
             {% else %}
             <div class="shot-placeholder" aria-hidden="true">
               <i class="capture__empty-pad capture__empty-pad--top"></i>
@@ -325,13 +327,13 @@
 <section class="faq light" id="faq" aria-labelledby="titre-faq">
   <header class="faq__head">
     {% if site.faq_subtitle %}
-    <p class="kicker">{{ site.faq_title or "Questions fréquentes" }}</p>
+    <p class="kicker">{{ site.faq_title or t.t_faq }}</p>
     <h2 class="display display--md" id="titre-faq">{{ site.faq_subtitle|accent }}</h2>
     {% else %}
-    <h2 class="display display--md" id="titre-faq">{{ site.faq_title or "Questions fréquentes" }}</h2>
+    <h2 class="display display--md" id="titre-faq">{{ site.faq_title or t.t_faq }}</h2>
     {% endif %}
     {% if site.faq_text %}<p class="faq__more">{{ site.faq_text }}</p>{% endif %}
-    <a class="faq__contact" href="/contact">Contact<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    <a class="faq__contact" href="{{ urls.contact }}">{{ t.contact }}<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
   </header>
   <div class="faq__list">
     {% for q in faq %}
@@ -350,27 +352,27 @@
 {# ---------- Téléchargement, installation de l'APK, nouveautés (dégradé) ---------- #}
 <section class="download" id="telecharger" aria-labelledby="titre-telecharger">
   <div class="download__main">
-    <h2 class="display" id="titre-telecharger">{{ (site.download_title or ("Télécharge " ~ site.game_name))|accent }}</h2>
+    <h2 class="display" id="titre-telecharger">{{ (site.download_title or t('t_download', game=site.game_name))|accent }}</h2>
     {% if site.download_text %}<p class="download__text">{{ site.download_text }}</p>{% endif %}
     {{ download_buttons("final") }}
   </div>
   {% if apk %}
   <div class="install panel" id="installer-apk">
-    <h3 class="section-title">{{ site.install_title or "Installer l'APK" }}</h3>
+    <h3 class="section-title">{{ site.install_title or t.t_install }}</h3>
     {% if install_steps %}
     <ol class="install__steps">{% for row in install_steps %}<li><span class="install__step"><strong>{{ row.label }}</strong>{% if row.value %}<span>{{ row.value }}</span>{% endif %}</span></li>{% endfor %}</ol>
     {% endif %}
     {% if site.install_note %}<p class="install__note">{{ site.install_note }}</p>{% endif %}
     {# Empreinte abrégée ; l'empreinte complète s'ouvre au toucher (et se sélectionne d'un coup). #}
     <details class="sha">
-      <summary><span>SHA-256 <span class="sha__short">{{ apk.sha256[:8] }}…{{ apk.sha256[-8:] }}</span></span> <span class="sha__more">Empreinte complète<svg class="sha__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></span></summary>
+      <summary><span>SHA-256 <span class="sha__short">{{ apk.sha256[:8] }}…{{ apk.sha256[-8:] }}</span></span> <span class="sha__more">{{ t.sha_more }}<svg class="sha__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></span></summary>
       <p class="sha__full"><code>{{ apk.sha256 }}</code></p>
-      <p class="sha__file">Fichier : {{ apk.download_name }}</p>
+      <p class="sha__file">{{ t('sha_file', name=apk.download_name) }}</p>
     </details>
   </div>
   {% if apk.notes %}
   <div class="notes panel" id="nouveautes">
-    <h3 class="section-title">{{ site.notes_title or "Nouveautés" }} {{ apk.version }} · <time datetime="{{ apk.date }}">{{ apk.date|date_short }}</time></h3>
+    <h3 class="section-title">{{ site.notes_title or t.t_notes }} {{ apk.version }} · <time datetime="{{ apk.date }}">{{ apk.date|date_short(lang) }}</time></h3>
     <ul class="notes__list">{% for line in apk.notes %}<li>{{ line }}</li>{% endfor %}</ul>
   </div>
   {% endif %}

@@ -2,7 +2,16 @@
 légales, messages de contact.
 
 Gabarits dans templates/admin/ (maquette « Tilto Admin v2 »). Formulaires HTML
-classiques : chaque envoi recharge la page. Un envoi refusé n'enregistre rien et
+classiques : chaque envoi recharge la page.
+
+Langues : les écrans de textes (textes, sections, tableaux, listes, captures,
+confidentialité, mentions légales, studio, notes de version) ont des onglets
+Français / English / Español (`?lang=en`, champ caché `lang` dans les formulaires).
+Le français se modifie comme avant ; en anglais et en espagnol, seuls les textes
+traduisibles s'affichent, avec le texte français en référence, et un champ vide
+signifie « non traduit : le site affiche le français ». La structure (ajouter,
+déplacer, supprimer, images, liens, dates) ne se change que dans l'onglet Français.
+L'administration elle-même reste en français. Un envoi refusé n'enregistre rien et
 réaffiche la page avec les valeurs saisies, un bandeau en haut et le message sous
 le champ fautif (`errors` : nom du champ -> message). Un envoi réussi redirige
 (303) avec un message de retour (render.flash).
@@ -10,6 +19,7 @@ le champ fautif (`errors` : nom du champ -> message). Un envoi réussi redirige
 
 from __future__ import annotations
 
+import math
 import re
 import sqlite3
 import time
@@ -22,7 +32,7 @@ from fastapi.responses import RedirectResponse
 from starlette.concurrency import run_in_threadpool
 from starlette.datastructures import UploadFile
 
-from . import db, render
+from . import db, i18n, render
 from .routes_public import SECTION_ANCHORS, download_name, get_conn, release_notes_lines
 from .security import csrf_token, csrf_valid, password_fingerprint, verify_password
 from .uploads import VERSION_RE, UploadError, delete_file, save_apk, save_image
@@ -79,6 +89,70 @@ NAV: list[tuple[str, list[str]]] = [
     ("", ["apk", "studio"]),
     ("Pages légales", ["confidentialite", "mentions"]),
 ]
+
+
+# --- Langues des textes --------------------------------------------------------------
+
+LANG_NAMES = {"fr": "Français", "en": "English", "es": "Español"}
+# Une traduction peut être un peu plus longue que le français (l'espagnol l'est de
+# 20 à 30 %) : limite des champs multipliée par ce facteur.
+TRANSLATION_FACTOR = 1.3
+
+
+def edit_lang(value) -> str:
+    """Langue modifiée : « en », « es », sinon « fr »."""
+    return value if isinstance(value, str) and value in db.TRANSLATION_LANGS else "fr"
+
+
+def query_lang(request: Request) -> str:
+    return edit_lang(request.query_params.get("lang"))
+
+
+def form_lang(form) -> str:
+    return edit_lang(form.get("lang"))
+
+
+def tmax(max_len: int, lang: str) -> int:
+    return max_len if lang == "fr" else math.ceil(max_len * TRANSLATION_FACTOR)
+
+
+def with_lang(url: str, lang: str) -> str:
+    """Adresse d'une page d'administration dans l'onglet de la langue."""
+    if lang == "fr":
+        return url
+    base, sep, fragment = url.partition("#")
+    base += ("&" if "?" in base else "?") + f"lang={lang}"
+    return base + (sep + fragment if sep else "")
+
+
+def lang_tabs(conn: sqlite3.Connection, url: str, lang: str,
+              refs: list[tuple[str, int, str]]) -> list[dict]:
+    """Onglets Français / English / Español ; `missing` = textes non traduits de la
+    page (refs : textes français non vides)."""
+    tabs = []
+    for code in ("fr", "en", "es"):
+        missing = 0
+        if code != "fr":
+            done = db.translated_refs(conn, code)
+            missing = sum(1 for ref in refs if ref not in done)
+        tabs.append({"code": code, "label": LANG_NAMES[code], "href": with_lang(url, code),
+                     "current": code == lang, "missing": missing})
+    return tabs
+
+
+def setting_refs(site: dict, keys) -> list[tuple[str, int, str]]:
+    return [("setting", 0, key) for key in keys
+            if key in db.TRANSLATABLE_SETTINGS and site.get(key, "").strip()]
+
+
+def row_refs(rows, tbl: str, fields=None) -> list[tuple[str, int, str]]:
+    fields = fields or db.TRANSLATABLE_COLUMNS[tbl]
+    return [(tbl, row["id"], field) for row in rows for field in fields
+            if field in db.TRANSLATABLE_COLUMNS[tbl] and (row[field] or "").strip()]
+
+
+def setting_translations(conn: sqlite3.Connection, lang: str) -> dict[str, str]:
+    return {key: value for (_, key), value in db.translations(conn, lang, "setting").items()}
 
 
 # --- Textes de la page (table setting) ------------------------------------------
@@ -227,9 +301,11 @@ def validate_settings(values: dict[str, str]) -> dict[str, str]:
     return errors
 
 
-def setting_values(form, keys) -> dict[str, str]:
-    """Réglages envoyés (seuls les champs présents dans le formulaire)."""
-    return {key: text(form, key, TEXT_FIELDS[key]["max"]) for key in keys if key in form}
+def setting_values(form, keys, lang: str = "fr") -> dict[str, str]:
+    """Réglages envoyés (seuls les champs présents dans le formulaire) ; en anglais et
+    en espagnol, seulement les réglages traduisibles."""
+    return {key: text(form, key, tmax(TEXT_FIELDS[key]["max"], lang)) for key in keys
+            if key in form and (lang == "fr" or key in db.TRANSLATABLE_SETTINGS)}
 
 
 def page_keys(page: str) -> list[str]:
@@ -326,8 +402,13 @@ def nav_groups(active: str | None, unread: int) -> list[dict]:
 
 def admin_page(request: Request, name: str, context: dict | None = None,
                status_code: int = 200, page: str | None = None):
-    """Rend une page d'administration : menu, en-tête de page, bandeau, erreurs."""
+    """Rend une page d'administration : menu, en-tête de page, onglets de langue
+    (`tabs`), bandeau, erreurs."""
     context = dict(context or {})
+    context.setdefault("lang", "fr")
+    context.setdefault("lang_name", LANG_NAMES[context["lang"]])
+    context.setdefault("tabs", None)
+    context.setdefault("fallbacks", None)
     context["csrf"] = csrf_token(request)
     host = request.url.netloc
     context["host"] = host
@@ -424,6 +505,26 @@ async def logout(request: Request):
 
 # --- Tableau de bord ----------------------------------------------------------
 
+def untranslated(conn: sqlite3.Connection, lang: str) -> int:
+    done = db.translated_refs(conn, lang)
+    return sum(1 for tbl, row_id, field, _ in db.translatable_texts(conn)
+               if (tbl, row_id, field) not in done)
+
+
+def all_translated(conn: sqlite3.Connection) -> bool:
+    return all(untranslated(conn, lang) == 0 for lang in db.TRANSLATION_LANGS)
+
+
+def translation_summary(conn: sqlite3.Connection) -> str:
+    """« anglais : tout est traduit · espagnol : 3 textes en français »."""
+    parts = []
+    for lang, name in (("en", "anglais"), ("es", "espagnol")):
+        n = untranslated(conn, lang)
+        parts.append(f"{name} : " + ("tout est traduit" if n == 0 else
+                                       plural(n, "texte affiché en français",
+                                              "textes affichés en français")))
+    return " · ".join(parts)
+
 def site_state(conn: sqlite3.Connection, site: dict) -> dict:
     """Ce qu'il reste à faire et l'état de chaque section, d'après la base."""
     apk = db.current_apk(conn)
@@ -497,6 +598,9 @@ def site_state(conn: sqlite3.Connection, site: dict) -> dict:
                 else "logo présent, pas affiché dans l'app (SVG ou GIF)")
                if site.get("studio_logo") else "sans logo"),
             PAGES["studio"][3], "Modifier"),
+        row("Traductions", translation_summary(conn),
+            "/admin/textes?lang=en", "Traduire",
+            "" if all_translated(conn) else "empty"),
         row("Confidentialité",
             f"mise à jour le {render.date_short(site.get('privacy_updated', ''))}"
             if site.get("privacy_updated") else "date non renseignée",
@@ -518,39 +622,74 @@ def dashboard(request: Request, conn: sqlite3.Connection = Depends(get_conn)):
 
 # --- Textes et en-têtes des sections -------------------------------------------
 
-def groups_for(page: str) -> list[dict]:
-    return [{"title": title, "help": help_text,
-             "fields": [dict(TEXT_FIELDS[key], key=key) for key in keys]}
-            for title, help_text, keys in SETTING_GROUPS.get(page, [])]
+def groups_for(page: str, lang: str = "fr") -> list[dict]:
+    """Groupes de réglages d'une page ; en anglais et en espagnol, seulement les
+    réglages traduisibles, jamais obligatoires (vide = repli sur le français)."""
+    groups = []
+    for title, help_text, keys in SETTING_GROUPS.get(page, []):
+        if lang != "fr":
+            keys = [key for key in keys if key in db.TRANSLATABLE_SETTINGS]
+        if not keys:
+            continue
+        fields = [dict(TEXT_FIELDS[key], key=key) for key in keys]
+        if lang != "fr":
+            for f in fields:
+                f.update(max=tmax(f["max"], lang), required=False, opt=False)
+        groups.append({"title": title, "help": help_text, "fields": fields})
+    return groups
+
+
+def header_context(conn: sqlite3.Connection, page: str, lang: str,
+                   posted: dict | None = None) -> dict:
+    """Valeurs des réglages d'une page dans la langue : en français, les réglages ;
+    sinon les traductions, et le français en référence (`fallbacks`)."""
+    site = db.get_settings(conn)
+    if lang == "fr":
+        return {"vals": {**site, **(posted or {})}, "fallbacks": None}
+    return {"vals": {**setting_translations(conn, lang), **(posted or {})}, "fallbacks": site}
+
+
+def save_settings(conn: sqlite3.Connection, values: dict[str, str], lang: str) -> None:
+    if lang == "fr":
+        db.set_settings(conn, values)
+    else:
+        db.set_setting_translations(conn, lang, values)
+
+
+def saved_message(what: str, lang: str) -> str:
+    return what + ("" if lang == "fr" else f" ({LANG_NAMES[lang]})") + "."
 
 
 def texts_view(request: Request, conn: sqlite3.Connection, vals: dict | None = None,
-               errors: dict | None = None, status_code: int = 200):
-    site = {**db.get_settings(conn), **(vals or {})}
+               errors: dict | None = None, status_code: int = 200, lang: str = "fr"):
+    site = db.get_settings(conn)
     return admin_page(request, "admin/texts.html", {
-        "vals": site, "groups": groups_for("textes"), "errors": errors or {},
-        "saved_at": db.get_internal(conn, "_saved:textes"),
+        **header_context(conn, "textes", lang, vals),
+        "groups": groups_for("textes", lang), "errors": errors or {},
+        "saved_at": db.get_internal(conn, "_saved:textes"), "lang": lang,
+        "tabs": lang_tabs(conn, "/admin/textes", lang, setting_refs(site, page_keys("textes"))),
     }, status_code=status_code, page="textes")
 
 
 @router.get("/textes")
 def texts_page(request: Request, conn: sqlite3.Connection = Depends(get_conn)):
     require_admin(request)
-    return texts_view(request, conn)
+    return texts_view(request, conn, lang=query_lang(request))
 
 
 @router.post("/textes")
 def texts_save(request: Request, form=Depends(admin_form),
                conn: sqlite3.Connection = Depends(get_conn)):
+    lang = form_lang(form)
     # Seuls les champs envoyés sont modifiés.
-    values = setting_values(form, TEXT_FIELDS)
-    errors = validate_settings(values)
+    values = setting_values(form, TEXT_FIELDS, lang)
+    errors = validate_settings(values) if lang == "fr" else {}
     if errors:
         return texts_view(request, conn, values, errors, status_code=400)
-    db.set_settings(conn, values)
+    save_settings(conn, values, lang)
     stamp(conn, "textes")
-    render.flash(request, "Textes enregistrés.")
-    return back("/admin/textes")
+    render.flash(request, saved_message("Textes enregistrés", lang))
+    return back(with_lang("/admin/textes", lang))
 
 
 # En-tête d'une section affichée sous forme de liste (arguments, étapes, captures, FAQ).
@@ -562,15 +701,16 @@ def header_save(page: str, request: Request, form=Depends(admin_form),
                 conn: sqlite3.Connection = Depends(get_conn)):
     if page not in HEADER_PAGES:
         raise HTTPException(404)
-    values = setting_values(form, page_keys(page))
-    errors = validate_settings(values)
+    lang = form_lang(form)
+    values = setting_values(form, page_keys(page), lang)
+    errors = validate_settings(values) if lang == "fr" else {}
     if errors:
         return PAGE_VIEWS[page](request, conn, header_vals=values, errors=errors,
                                 status_code=400)
-    db.set_settings(conn, values)
+    save_settings(conn, values, lang)
     stamp(conn, page)
-    render.flash(request, "En-tête enregistré.")
-    return back(PAGES[page][3])
+    render.flash(request, saved_message("En-tête enregistré", lang))
+    return back(with_lang(PAGES[page][3], lang))
 
 
 # --- Studio -----------------------------------------------------------------------
@@ -579,28 +719,43 @@ def header_save(page: str, request: Request, form=Depends(admin_form),
 STUDIO_ABOUT_MAX = 800
 
 def studio_view(request: Request, conn: sqlite3.Connection, vals: dict | None = None,
-                errors: dict | None = None, banner=None, status_code: int = 200):
-    site = {**db.get_settings(conn), **(vals or {})}
+                errors: dict | None = None, banner=None, status_code: int = 200,
+                lang: str = "fr"):
+    saved = db.get_settings(conn)
+    site = {**saved, **(vals or {})}
     site["studio_logo_url"] = f"/media/{site['studio_logo']}" if site.get("studio_logo") else ""
+    translated = setting_translations(conn, lang) if lang != "fr" else {}
     return admin_page(request, "admin/studio.html", {
         "vals": site, "errors": errors or {}, "banner": banner,
         "max_image_mb": request.app.state.settings.max_image_mb,
-        "about_max": STUDIO_ABOUT_MAX,
+        "about_max": tmax(STUDIO_ABOUT_MAX, lang),
         "saved_at": db.get_internal(conn, "_saved:studio"),
-        "year": date.today().year, "apk": db.current_apk(conn),
+        "year": date.today().year, "apk": db.current_apk(conn), "lang": lang,
+        "about_value": (vals or {}).get("studio_about", translated.get("studio_about", ""))
+        if lang != "fr" else site.get("studio_about", ""),
+        "tabs": lang_tabs(conn, "/admin/studio", lang, setting_refs(saved, ["studio_about"])),
     }, status_code=status_code, page="studio")
 
 
 @router.get("/studio")
 def studio_page(request: Request, conn: sqlite3.Connection = Depends(get_conn)):
     require_admin(request)
-    return studio_view(request, conn)
+    return studio_view(request, conn, lang=query_lang(request))
 
 
 @router.post("/studio")
 def studio_save(request: Request, form=Depends(admin_form),
                 conn: sqlite3.Connection = Depends(get_conn)):
     settings = request.app.state.settings
+    lang = form_lang(form)
+    if lang != "fr":
+        # Onglet English / Español : seule la présentation se traduit (nom et logo
+        # sont les mêmes partout). Vide = l'app reçoit la présentation française.
+        about = text(form, "studio_about", tmax(STUDIO_ABOUT_MAX, lang))
+        db.set_setting_translations(conn, lang, {"studio_about": about})
+        stamp(conn, "studio")
+        render.flash(request, saved_message("Présentation enregistrée", lang))
+        return back(with_lang("/admin/studio", lang))
     current = db.get_settings(conn)
     name = text(form, "studio_name", 60)
     sent = {"studio_name": name}
@@ -637,22 +792,40 @@ def studio_save(request: Request, form=Depends(admin_form),
 # --- Confidentialité ---------------------------------------------------------
 
 def privacy_view(request: Request, conn: sqlite3.Connection, vals: dict | None = None,
-                 errors: dict | None = None, status_code: int = 200):
-    saved = db.get_settings(conn)
+                 errors: dict | None = None, status_code: int = 200, lang: str = "fr"):
+    french = db.get_settings(conn)
+    # Aperçu : la page publique de la langue (traduction, ou le français si vide).
+    saved = db.get_settings(conn, lang)
+    if lang == "fr":
+        values = {**french, **(vals or {})}
+    else:
+        values = {**french, "privacy_policy": setting_translations(conn, lang).get(
+            "privacy_policy", ""), **(vals or {})}
     return admin_page(request, "admin/privacy.html", {
-        "vals": {**saved, **(vals or {})}, "saved": saved, "errors": errors or {},
+        "vals": values, "saved": saved, "french": french, "errors": errors or {},
+        "lang": lang, "public_path": i18n.path("privacy", lang),
+        "tabs": lang_tabs(conn, "/admin/confidentialite", lang,
+                          setting_refs(french, ["privacy_policy"])),
     }, status_code=status_code, page="confidentialite")
 
 
 @router.get("/confidentialite")
 def privacy_page(request: Request, conn: sqlite3.Connection = Depends(get_conn)):
     require_admin(request)
-    return privacy_view(request, conn)
+    return privacy_view(request, conn, lang=query_lang(request))
 
 
 @router.post("/confidentialite")
 def privacy_save(request: Request, form=Depends(admin_form),
                  conn: sqlite3.Connection = Depends(get_conn)):
+    lang = form_lang(form)
+    if lang != "fr":
+        # La date de mise à jour est celle de la version française, qui fait foi.
+        db.set_setting_translations(conn, lang, {
+            "privacy_policy": text(form, "privacy_policy", 50_000)})
+        stamp(conn, "confidentialite")
+        render.flash(request, saved_message("Traduction de la politique enregistrée", lang))
+        return back(with_lang("/admin/confidentialite", lang))
     values = {"privacy_policy": text(form, "privacy_policy", 50_000),
               "privacy_updated": text(form, "privacy_updated", 10)}
     if not valid_date(values["privacy_updated"]):
@@ -667,8 +840,21 @@ def privacy_save(request: Request, form=Depends(admin_form),
 # --- Mentions légales -------------------------------------------------------
 
 def legal_view(request: Request, conn: sqlite3.Connection, vals: dict | None = None,
-               errors: dict | None = None, banner=None, status_code: int = 200):
-    site = {**db.get_settings(conn), **(vals or {})}
+               errors: dict | None = None, banner=None, status_code: int = 200,
+               lang: str = "fr"):
+    french = db.get_settings(conn)
+    tabs = lang_tabs(conn, "/admin/mentions-legales", lang, setting_refs(french, ["legal_extra"]))
+    if lang != "fr":
+        # Onglet English / Español : seul le texte complémentaire se traduit ; les
+        # informations de l'éditeur et de l'hébergeur valent pour les trois langues.
+        extra = (vals or {}).get("legal_extra",
+                                 setting_translations(conn, lang).get("legal_extra", ""))
+        return admin_page(request, "admin/legal.html", {
+            "vals": {"legal_extra": extra}, "french": french, "groups": [], "errors": {},
+            "banner": banner, "extra_max": LEGAL_EXTRA_MAX, "lang": lang, "tabs": tabs,
+            "public_path": i18n.path("legal", lang),
+        }, status_code=status_code, page="mentions")
+    site = {**french, **(vals or {})}
     errors = dict(errors or {})
     missing = legal_missing_keys(db.get_settings(conn))
     if not errors:
@@ -684,19 +870,28 @@ def legal_view(request: Request, conn: sqlite3.Connection, vals: dict | None = N
         for title, help_text, keys in LEGAL_GROUPS]
     return admin_page(request, "admin/legal.html", {
         "vals": site, "groups": groups, "errors": errors, "banner": banner,
-        "extra_max": LEGAL_EXTRA_MAX,
+        "extra_max": LEGAL_EXTRA_MAX, "lang": lang, "tabs": tabs,
+        "public_path": i18n.path("legal", lang),
     }, status_code=status_code, page="mentions")
 
 
 @router.get("/mentions-legales")
 def legal_page(request: Request, conn: sqlite3.Connection = Depends(get_conn)):
     require_admin(request)
-    return legal_view(request, conn)
+    return legal_view(request, conn, lang=query_lang(request))
 
 
 @router.post("/mentions-legales")
 def legal_save(request: Request, form=Depends(admin_form),
                conn: sqlite3.Connection = Depends(get_conn)):
+    lang = form_lang(form)
+    if lang != "fr":
+        db.set_setting_translations(conn, lang, {
+            "legal_extra": text(form, "legal_extra", LEGAL_EXTRA_MAX)})
+        stamp(conn, "mentions")
+        render.flash(request, saved_message("Traduction du texte complémentaire enregistrée",
+                                            lang))
+        return back(with_lang("/admin/mentions-legales", lang))
     values = {key: text(form, key, LEGAL_MAX) for key in db.LEGAL_FIELDS}
     values["legal_extra"] = text(form, "legal_extra", LEGAL_EXTRA_MAX)
     if values["legal_email"] and not EMAIL_RE.match(values["legal_email"]):
@@ -804,23 +999,54 @@ def _list_rows(conn: sqlite3.Connection, conf: dict) -> list[sqlite3.Row]:
     return db.list_items(conn, conf["kind"])
 
 
+def list_table(conf: dict) -> str:
+    return "faq" if conf["kind"] == "faq" else "content_item"
+
+
+def translated_fields(conf: dict, lang: str) -> list[tuple]:
+    """Champs d'un élément dans l'onglet de la langue : en anglais et en espagnol,
+    les textes seulement (pas l'ancre d'une question), jamais obligatoires."""
+    if lang == "fr":
+        return conf["fields"]
+    cols = db.TRANSLATABLE_COLUMNS[list_table(conf)]
+    return [(name, label, tmax(max_len, lang), area, None, help_text)
+            for name, label, max_len, area, _, help_text in conf["fields"] if name in cols]
+
+
 def list_view(request: Request, conn: sqlite3.Connection, slug: str, *,
               open_id: int | None = None, item_vals: dict | None = None,
               add_open: bool = False, add_vals: dict | None = None,
               header_vals: dict | None = None, errors: dict | None = None,
-              banner=None, new_spec: bool = False, status_code: int = 200):
+              banner=None, new_spec: bool = False, status_code: int = 200,
+              lang: str = "fr"):
     """Liste dépliable (arguments, étapes, FAQ). `open_id` : élément ouvert en
-    formulaire ; `item_vals` / `add_vals` : valeurs saisies à réafficher."""
+    formulaire ; `item_vals` / `add_vals` : valeurs saisies à réafficher. En anglais
+    et en espagnol : `data` = traductions, `fallback` = texte français."""
     conf = LISTS[slug]
     rows = _list_rows(conn, conf)
+    tbl = list_table(conf)
     specs = db.rows_by_item(conn, "feature_spec") if conf["specs"] else {}
+    found = db.translations(conn, lang, tbl)
+    spec_found = db.translations(conn, lang, "spec_row") if conf["specs"] else {}
     title_key = "question" if conf["kind"] == "faq" else "title"
+    refs = []
     items = []
     for i, row in enumerate(rows):
-        values = dict(row)
+        refs += row_refs([row], tbl)
+        if lang == "fr":
+            values = dict(row)
+        else:
+            values = {field: found.get((row["id"], field), "")
+                      for field in db.TRANSLATABLE_COLUMNS[tbl]}
         if row["id"] == open_id and item_vals:
             values.update(item_vals)
         item_specs = [dict(s) for s in specs.get(row["id"], [])]
+        refs += row_refs(item_specs, "spec_row", ("label", "value"))
+        if lang != "fr":
+            for spec in item_specs:
+                spec["fr_label"], spec["fr_value"] = spec["label"], spec["value"]
+                spec["label"] = spec_found.get((spec["id"], "label"), "")
+                spec["value"] = spec_found.get((spec["id"], "value"), "")
         if row["id"] == open_id and item_vals and item_vals.get("_specs"):
             posted = item_vals["_specs"]
             for s in item_specs:
@@ -832,20 +1058,36 @@ def list_view(request: Request, conn: sqlite3.Connection, slug: str, *,
         elif conf["kind"] == "faq":
             meta = f"#{row['anchor']}"
         name = (row["kicker"] if conf["kind"] == "feature" and row["kicker"] else row[title_key])
+        # Résumé de l'élément : dans la langue de l'onglet, sinon en français.
+        shown = dict(row)
+        if lang != "fr":
+            shown.update({k: v for k, v in values.items() if isinstance(v, str) and v.strip()})
+            missing = sum(1 for ref in row_refs([row], tbl) if (ref[1], ref[2]) not in found)
+            missing += sum(1 for spec in item_specs
+                           for col in ("label", "value") if spec[f"fr_{col}"].strip()
+                           and not spec[col].strip())
+            meta = (f"{missing} texte{'s' if missing > 1 else ''} non traduit"
+                    f"{'s' if missing > 1 else ''}" if missing else "Traduit")
         items.append({
             "id": row["id"], "n": i + 1, "data": values, "specs": item_specs, "meta": meta,
-            "sur": row["kicker"] if conf["kind"] == "feature" else "",
-            "title": row[title_key], "text": row["answer"] if conf["kind"] == "faq" else row["body"],
+            "fallback": dict(row) if lang != "fr" else None,
+            "sur": shown["kicker"] if conf["kind"] == "feature" else "",
+            "title": shown[title_key],
+            "text": shown["answer"] if conf["kind"] == "faq" else shown["body"],
             "open": row["id"] == open_id,
             "confirm_title": conf["confirm_title"].format(name=name),
             "confirm_text": conf["confirm_text"].format(
                 anchor=row["anchor"] if conf["kind"] == "faq" else ""),
         })
-    site = {**db.get_settings(conn), **(header_vals or {})}
+    french = db.get_settings(conn)
+    refs = setting_refs(french, page_keys(conf["page"])) + refs
     example = rows[0]["anchor"] if conf["kind"] == "faq" and rows else "question"
     return admin_page(request, "admin/items.html", {
-        "slug": slug, "conf": conf, "items": items, "groups": groups_for(conf["page"]),
-        "vals": site, "header_url": f"/admin/en-tete/{conf['page']}",
+        "slug": slug, "conf": conf, "items": items, "groups": groups_for(conf["page"], lang),
+        **header_context(conn, conf["page"], lang, header_vals),
+        "fields": translated_fields(conf, lang), "lang": lang,
+        "tabs": lang_tabs(conn, conf["base"], lang, refs),
+        "header_url": f"/admin/en-tete/{conf['page']}",
         "list_help": conf["list_help"].format(host=request.url.netloc, anchor=example),
         "add_open": add_open or not rows and bool(add_vals),
         "add_vals": add_vals or {}, "new_spec": new_spec, "errors": errors or {},
@@ -858,9 +1100,28 @@ def list_page(slug: str, request: Request, conn: sqlite3.Connection = Depends(ge
     require_admin(request)
     list_conf(slug)
     raw = request.query_params.get("ouvert", "")
+    lang = query_lang(request)
     return list_view(request, conn, slug, open_id=int(raw) if raw.isdigit() else None,
-                     add_open=request.query_params.get("ajout") == "1",
-                     new_spec=request.query_params.get("carac") == "1")
+                     add_open=lang == "fr" and request.query_params.get("ajout") == "1",
+                     new_spec=request.query_params.get("carac") == "1", lang=lang)
+
+
+def save_item_translations(request: Request, conn: sqlite3.Connection, form, conf: dict,
+                           item_id: int, lang: str):
+    """Onglet English / Español d'un élément : enregistre ses textes traduits (et ceux
+    de ses caractéristiques) ; un champ vide revient au français."""
+    tbl = list_table(conf)
+    values = [(tbl, item_id, name, text(form, name, max_len))
+              for name, _, max_len, *_ in translated_fields(conf, lang) if name in form]
+    if conf["specs"]:
+        for row in db.list_rows(conn, "feature_spec", item_id):
+            for col, _, max_len in SPEC_COLS:
+                key = f"spec-{row['id']}-{col}"
+                if key in form:
+                    values.append(("spec_row", row["id"], col, text(form, key, tmax(max_len, lang))))
+    db.set_translations(conn, lang, values)
+    render.flash(request, saved_message(conf["saved"].rstrip("."), lang))
+    return back(with_lang(f"{conf['base']}#item-{item_id}", lang))
 
 
 def _item_values(form, conf: dict) -> dict[str, str]:
@@ -910,6 +1171,9 @@ def list_edit(slug: str, item_id: int, request: Request, form=Depends(admin_form
                           (item_id, conf["kind"])).fetchone()
     if exists is None:
         raise HTTPException(404)
+    lang = form_lang(form)
+    if lang != "fr":
+        return save_item_translations(request, conn, form, conf, item_id, lang)
     values = _item_values(form, conf)
     specs = _spec_values(form, item_id, conn) if conf["specs"] else {}
     new_spec = ({col: text(form, f"spec-new-{col}", max_len) for col, _, max_len in SPEC_COLS}
@@ -1058,18 +1322,31 @@ def _row_scope(conn: sqlite3.Connection, conf: dict, row_id: int) -> tuple[str, 
 def table_view(request: Request, conn: sqlite3.Connection, slug: str, *,
                row_vals: dict | None = None, new_vals: dict | None = None,
                header_vals: dict | None = None, errors: dict | None = None,
-               add_open: bool = False, status_code: int = 200):
+               add_open: bool = False, status_code: int = 200, lang: str = "fr"):
+    """Tableau ; en anglais et en espagnol, chaque ligne montre ses traductions
+    (`row[col]`) et le français en référence (`row.fr`), sans ajout ni déplacement."""
     conf = TABLES[slug]
+    found = db.translations(conn, lang, "spec_row")
+    cols = [c[0] for c in conf["cols"]]
+    source = db.list_rows(conn, conf["grp"])
     rows = []
-    for row in db.list_rows(conn, conf["grp"]):
+    for row in source:
         values = dict(row)
+        if lang != "fr":
+            values["fr"] = dict(row)
+            for col in cols:
+                values[col] = found.get((row["id"], col), "")
         values.update((row_vals or {}).get(row["id"], {}))
         rows.append(values)
-    site = {**db.get_settings(conn), **(header_vals or {})}
+    french = db.get_settings(conn)
+    refs = setting_refs(french, page_keys(conf["page"])) + row_refs(source, "spec_row", cols)
     return admin_page(request, "admin/table.html", {
-        "slug": slug, "conf": conf, "rows": rows, "groups": groups_for(conf["page"]),
-        "vals": site, "errors": errors or {}, "add_open": add_open or bool(new_vals),
+        "slug": slug, "conf": conf, "rows": rows, "groups": groups_for(conf["page"], lang),
+        **header_context(conn, conf["page"], lang, header_vals),
+        "errors": errors or {}, "add_open": lang == "fr" and (add_open or bool(new_vals)),
         "new_vals": new_vals or {}, "saved_at": db.get_internal(conn, f"_saved:{slug}"),
+        "cols": [(c, label, tmax(m, lang), area) for c, label, m, area in conf["cols"]],
+        "lang": lang, "tabs": lang_tabs(conn, f"/admin/tableaux/{slug}", lang, refs),
     }, status_code=status_code, page=conf["page"])
 
 
@@ -1079,7 +1356,8 @@ def table_page(slug: str, request: Request, conn: sqlite3.Connection = Depends(g
     conf = table_conf(slug)
     if conf.get("parent"):
         return back(conf["back"])
-    return table_view(request, conn, slug, add_open=request.query_params.get("ajout") == "1")
+    return table_view(request, conn, slug, add_open=request.query_params.get("ajout") == "1",
+                      lang=query_lang(request))
 
 
 @router.post("/tableaux/{slug}")
@@ -1090,6 +1368,21 @@ def table_save(slug: str, request: Request, form=Depends(admin_form),
     conf = table_conf(slug)
     if conf.get("parent"):
         raise HTTPException(404)
+    lang = form_lang(form)
+    if lang != "fr":
+        # Onglet English / Español : en-tête et textes des lignes ; vide = français.
+        db.set_setting_translations(conn, lang,
+                                    setting_values(form, page_keys(conf["page"]), lang))
+        values = []
+        for row in db.list_rows(conn, conf["grp"]):
+            for col, _, max_len, _ in conf["cols"]:
+                key = f"row-{row['id']}-{col}"
+                if key in form:
+                    values.append(("spec_row", row["id"], col, text(form, key, tmax(max_len, lang))))
+        db.set_translations(conn, lang, values)
+        stamp(conn, slug)
+        render.flash(request, saved_message(conf["saved"].rstrip("."), lang))
+        return back(with_lang(f"/admin/tableaux/{slug}", lang))
     header = setting_values(form, page_keys(conf["page"]))
     errors = validate_settings(header)
     first = conf["cols"][0][1]
@@ -1248,8 +1541,10 @@ def faq_view(request: Request, conn: sqlite3.Connection, **kwargs):
 def faq_page(request: Request, conn: sqlite3.Connection = Depends(get_conn)):
     require_admin(request)
     raw = request.query_params.get("ouvert", "")
+    lang = query_lang(request)
     return faq_view(request, conn, open_id=int(raw) if raw.isdigit() else None,
-                    add_open=request.query_params.get("ajout") == "1")
+                    add_open=lang == "fr" and request.query_params.get("ajout") == "1",
+                    lang=lang)
 
 
 @router.post("/faq/ajouter")
@@ -1275,6 +1570,9 @@ def faq_edit(faq_id: int, request: Request, form=Depends(admin_form),
              conn: sqlite3.Connection = Depends(get_conn)):
     if conn.execute("SELECT 1 FROM faq WHERE id = ?", (faq_id,)).fetchone() is None:
         raise HTTPException(404)
+    lang = form_lang(form)
+    if lang != "fr":
+        return save_item_translations(request, conn, form, LISTS["faq"], faq_id, lang)
     values, errors = _faq_values(form, conn, faq_id)
     if errors:
         return faq_view(request, conn, open_id=faq_id, item_vals=values, errors=errors,
@@ -1309,16 +1607,26 @@ def faq_move(faq_id: int, request: Request, form=Depends(admin_form),
 
 def screens_view(request: Request, conn: sqlite3.Connection, *, header_vals: dict | None = None,
                  shot_vals: dict | None = None, add_vals: dict | None = None,
-                 errors: dict | None = None, banner=None, status_code: int = 200):
+                 errors: dict | None = None, banner=None, status_code: int = 200,
+                 lang: str = "fr"):
+    found = db.translations(conn, lang, "screenshot")
+    source = db.list_screenshots(conn)
     shots = []
-    for n, row in enumerate(db.list_screenshots(conn), 1):
+    for n, row in enumerate(source, 1):
         values = dict(row)
+        if lang != "fr":
+            values["fr"] = dict(row)
+            for col in ("caption", "description"):
+                values[col] = found.get((row["id"], col), "")
         values.update((shot_vals or {}).get(row["id"], {}))
         values["n"] = n
         shots.append(values)
+    refs = setting_refs(db.get_settings(conn), page_keys("captures")) + row_refs(source, "screenshot")
     return admin_page(request, "admin/screenshots.html", {
-        "shots": shots, "groups": groups_for("captures"),
-        "vals": {**db.get_settings(conn), **(header_vals or {})},
+        "shots": shots, "groups": groups_for("captures", lang),
+        **header_context(conn, "captures", lang, header_vals),
+        "lang": lang, "tabs": lang_tabs(conn, "/admin/captures", lang, refs),
+        "caption_max": tmax(120, lang), "description_max": tmax(500, lang),
         "header_url": "/admin/en-tete/captures", "add_vals": add_vals or {},
         "errors": errors or {}, "banner": banner,
         "max_image_mb": request.app.state.settings.max_image_mb,
@@ -1328,7 +1636,7 @@ def screens_view(request: Request, conn: sqlite3.Connection, *, header_vals: dic
 @router.get("/captures")
 def screens_page(request: Request, conn: sqlite3.Connection = Depends(get_conn)):
     require_admin(request)
-    return screens_view(request, conn)
+    return screens_view(request, conn, lang=query_lang(request))
 
 
 def _screenshot_image(request: Request, form) -> str | None:
@@ -1376,6 +1684,14 @@ def screens_edit(shot_id: int, request: Request, form=Depends(admin_form),
     row = next((r for r in rows if r["id"] == shot_id), None)
     if row is None:
         raise HTTPException(404)
+    lang = form_lang(form)
+    if lang != "fr":
+        # Onglet English / Español : légende et description seulement (l'image est commune).
+        db.set_translations(conn, lang, [
+            ("screenshot", shot_id, "caption", text(form, "caption", tmax(120, lang))),
+            ("screenshot", shot_id, "description", text(form, "description", tmax(500, lang)))])
+        render.flash(request, saved_message(f"Capture {numbers[shot_id]} enregistrée", lang))
+        return back(with_lang(f"/admin/captures#capture-{shot_id}", lang))
     caption, description = text(form, "caption", 120), text(form, "description", 500)
     try:
         name = _screenshot_image(request, form)
@@ -1431,15 +1747,25 @@ def _release_fields(form) -> tuple[str, str, str | None]:
 
 def apk_view(request: Request, conn: sqlite3.Connection, *, notes_id: int | None = None,
              upload_vals: dict | None = None, notes_vals: dict | None = None,
-             errors: dict | None = None, banner=None, status_code: int = 200):
+             errors: dict | None = None, banner=None, status_code: int = 200,
+             lang: str = "fr"):
     apks = db.list_apks(conn)
     current = next((a for a in apks if a["is_current"]), None)
     shown = next((a for a in apks if a["id"] == notes_id), None) or current
     site = db.get_settings(conn)
     settings = request.app.state.settings
+    notes = shown["release_notes"] if shown else ""
+    if shown and lang != "fr":
+        notes = db.translations(conn, lang, "apk_release").get((shown["id"], "release_notes"), "")
+    tabs_url = "/admin/apk" + (f"?version={shown['id']}" if shown and not shown["is_current"]
+                               else "") + "#notes"
     return admin_page(request, "admin/apk.html", {
-        "apks": apks, "current": current, "notes_apk": shown,
-        "notes_vals": notes_vals or ({"release_notes": shown["release_notes"],
+        "apks": apks, "current": current, "notes_apk": shown, "lang": lang,
+        # Onglets de langue du formulaire des notes seulement (le reste de la page,
+        # fichier et version, est commun aux trois langues).
+        "notes_tabs": lang_tabs(conn, tabs_url, lang,
+                          row_refs([shown], "apk_release") if shown else []) if shown else None,
+        "notes_vals": notes_vals or ({"release_notes": notes,
                                       "release_date": shown["release_date"]} if shown else {}),
         "upload_vals": upload_vals or {}, "site": site,
         "max_mb": settings.max_apk_mb, "max_bytes": settings.max_apk_bytes,
@@ -1456,7 +1782,8 @@ def apk_view(request: Request, conn: sqlite3.Connection, *, notes_id: int | None
 def apk_page(request: Request, conn: sqlite3.Connection = Depends(get_conn)):
     require_admin(request)
     raw = request.query_params.get("version", "")
-    return apk_view(request, conn, notes_id=int(raw) if raw.isdigit() else None)
+    return apk_view(request, conn, notes_id=int(raw) if raw.isdigit() else None,
+                    lang=query_lang(request))
 
 
 @router.post("/apk/deposer")
@@ -1523,6 +1850,15 @@ def apk_notes(apk_id: int, request: Request, form=Depends(admin_form),
                        (apk_id,)).fetchone()
     if row is None:
         raise HTTPException(404)
+    lang = form_lang(form)
+    if lang != "fr":
+        # Onglet English / Español : les notes seulement (la date est commune).
+        db.set_translations(conn, lang, [("apk_release", apk_id, "release_notes",
+                                          text(form, "release_notes", tmax(5000, lang)))])
+        render.flash(request, saved_message(f"Notes de la version {row['version']} enregistrées",
+                                            lang))
+        url = "/admin/apk" if row["is_current"] else f"/admin/apk?version={apk_id}"
+        return back(with_lang(url + "#notes", lang))
     notes, release_date, error = _release_fields(form)
     if error:
         return apk_view(request, conn, notes_id=apk_id,
@@ -1579,9 +1915,13 @@ def _message(conn: sqlite3.Connection, message_id: int) -> sqlite3.Row:
     return row
 
 
+# Langue de la page d'où un message a été envoyé (colonne contact_message.lang).
+MESSAGE_LANGS = {"fr": "français", "en": "anglais", "es": "espagnol"}
+
+
 def messages_view(request: Request, conn: sqlite3.Connection, current: sqlite3.Row | None):
     return admin_page(request, "admin/messages.html", {
-        "messages": db.list_messages(conn), "m": current,
+        "messages": db.list_messages(conn), "m": current, "message_langs": MESSAGE_LANGS,
         "reply_url": reply_link(current) if current else "",
     }, page="messages")
 

@@ -1,95 +1,90 @@
 {% extends "base.html" %}
-{% block title %}Contact · {{ site.game_name }}{% endblock %}
-{% block description %}Une question, un souci ou une idée sur {{ site.game_name }}, le Pong qu'on joue en inclinant son téléphone ? Écris à l'équipe de {{ site.studio_name }} : on te répond par e-mail.{% endblock %}
+{% block title %}{{ t('contact_title', game=site.game_name) }}{% endblock %}
+{% block description %}{{ t('contact_desc', game=site.game_name, studio=site.studio_name) }}{% endblock %}
 {% block body_class %}page-contact{% endblock %}
 {% block scripts %}<script src="{{ static_url('js/contact.js') }}" defer></script>{% endblock %}
 {% block content %}
-{# Les erreurs arrivent en liste (contact.py) : on rattache chacune à son champ
-   d'après son texte ; celles qui ne visent aucun champ (formulaire expiré,
-   envoi trop rapide, trop d'envois) restent en tête du formulaire. #}
-{% set err = namespace(email=[], subject=[], message=[], other=[]) %}
-{% for e in form.errors %}
-  {% set l = e|lower %}
-  {% if "adresse e-mail" in l %}{% set err.email = err.email + [e] %}
-  {% elif "sujet" in l %}{% set err.subject = err.subject + [e] %}
-  {% elif l.startswith("écris ton message") or "message est trop long" in l %}{% set err.message = err.message + [e] %}
-  {% else %}{% set err.other = err.other + [e] %}{% endif %}
-{% endfor %}
-{% set field_errors = err.email + err.subject + err.message %}
+{# Erreurs : form.field_errors (champ -> message, dans la langue de la page) et
+   form.errors (formulaire expiré, envoi trop rapide, trop d'envois), en tête du
+   formulaire. #}
+{% set fe = form.field_errors %}
+{% set field_errors = [fe.email, fe.subject, fe.message]|select|list %}
 
 {# Ordinateur : présentation à gauche (titre, FAQ, note de confidentialité en bas),
    formulaire à droite ; le tout tient sans défiler en 1280 × 800. Mobile : une colonne. #}
 <article class="page page--contact">
   <header class="page__head">
-    <h1 class="page__kicker">Contact</h1>
-    <p class="page__title">{{ "Une question, un problème, une idée ? Écris-nous : on te répond par"|nbsp }} <span class="nowrap">e-mail</span>.</p>
-    <p class="page__text">Avant d'écrire, jette un œil aux <a href="/#faq">questions fréquentes</a>.</p>
-    {% if site.contact_email %}<p class="page__text">Tu peux aussi écrire directement à <a href="mailto:{{ site.contact_email }}">{{ site.contact_email }}</a>.</p>{% endif %}
+    <h1 class="page__kicker">{{ t.contact }}</h1>
+    <p class="page__title">{{ t.contact_lead|nbsp }} <span class="nowrap">{{ t.contact_lead_end }}</span>.</p>
+    <p class="page__text">{{ t.contact_faq_before }}<a href="{{ urls.home }}#faq">{{ t.contact_faq_link }}</a>.</p>
+    {% if site.contact_email %}<p class="page__text">{{ t.contact_direct }}<a href="mailto:{{ site.contact_email }}">{{ site.contact_email }}</a>.</p>{% endif %}
   </header>
 
   <div class="page__main">
-    {% if form.errors %}
+    {% if form.has_errors %}
     <div class="form-alert" role="alert" tabindex="-1" id="form-alert">
-      {% for e in err.other %}<p>{{ e }}</p>{% endfor %}
+      {% for e in form.errors %}<p>{{ e }}</p>{% endfor %}
       {% if field_errors %}
-      <p>{% if field_errors|length == 1 %}Un champ est à corriger :{% else %}{{ field_errors|length }} champs sont à corriger :{% endif %}</p>
+      <p>{% if field_errors|length == 1 %}{{ t.errors_one }}{% else %}{{ t('errors_many', n=field_errors|length) }}{% endif %}</p>
       <ul>
-        {% if err.email %}<li><a href="#contact-email">{{ err.email[0] }}</a></li>{% endif %}
-        {% if err.subject %}<li><a href="#contact-subject">{{ err.subject[0] }}</a></li>{% endif %}
-        {% if err.message %}<li><a href="#contact-message">{{ err.message[0] }}</a></li>{% endif %}
+        {% if fe.email %}<li><a href="#contact-email">{{ fe.email }}</a></li>{% endif %}
+        {% if fe.subject %}<li><a href="#contact-subject">{{ fe.subject }}</a></li>{% endif %}
+        {% if fe.message %}<li><a href="#contact-message">{{ fe.message }}</a></li>{% endif %}
       </ul>
       {% endif %}
     </div>
     {% endif %}
 
-    <form method="post" action="/contact" class="contact-form" novalidate>
+    <form method="post" action="{{ urls.contact }}" class="contact-form" novalidate>
       <input type="hidden" name="csrf_token" value="{{ contact_token }}">
 
       <div class="contact-form__row">
         <div class="field">
-          <label for="contact-name">Ton nom <span class="field__opt">(facultatif)</span></label>
+          <label for="contact-name">{{ t.f_name }} <span class="field__opt">{{ t.optional }}</span></label>
           <input id="contact-name" type="text" name="name" value="{{ form.name }}" maxlength="80" autocomplete="name">
         </div>
 
-        <div class="field{% if err.email %} field--error{% endif %}">
-          <label for="contact-email">Ton adresse e-mail</label>
+        <div class="field{% if fe.email %} field--error{% endif %}">
+          <label for="contact-email">{{ t.f_email }}</label>
           <input id="contact-email" type="email" name="email" value="{{ form.email }}" maxlength="254" autocomplete="email" inputmode="email" spellcheck="false" required
-            {% if err.email %}aria-describedby="contact-email-error" aria-invalid="true"{% endif %}>
-          {% if err.email %}<p class="field__error" id="contact-email-error">{{ err.email|join(" ") }}</p>{% endif %}
+            {% if fe.email %}aria-describedby="contact-email-error" aria-invalid="true"{% endif %}>
+          {% if fe.email %}<p class="field__error" id="contact-email-error">{{ fe.email }}</p>{% endif %}
         </div>
       </div>
 
-      <div class="field{% if err.subject %} field--error{% endif %}">
-        <label for="contact-subject">Sujet</label>
+      <div class="field{% if fe.subject %} field--error{% endif %}">
+        <label for="contact-subject">{{ t.f_subject }}</label>
         <div class="select">
-          <select id="contact-subject" name="subject"{% if err.subject %} aria-invalid="true" aria-describedby="contact-subject-error"{% endif %}>
-            {% for s in subjects %}<option value="{{ s }}"{% if s == form.subject %} selected{% endif %}>{{ s }}</option>{% endfor %}
+          <select id="contact-subject" name="subject"{% if fe.subject %} aria-invalid="true" aria-describedby="contact-subject-error"{% endif %}>
+            {% for s in subjects %}<option value="{{ s.value }}"{% if s.value == form.subject %} selected{% endif %}>{{ s.label }}</option>{% endfor %}
           </select>
         </div>
-        {% if err.subject %}<p class="field__error" id="contact-subject-error">{{ err.subject|join(" ") }}</p>{% endif %}
+        {% if fe.subject %}<p class="field__error" id="contact-subject-error">{{ fe.subject }}</p>{% endif %}
       </div>
 
-      <div class="field{% if err.message %} field--error{% endif %}">
-        <label for="contact-message">Message</label>
+      <div class="field{% if fe.message %} field--error{% endif %}">
+        <label for="contact-message">{{ t.f_message }}</label>
         <textarea id="contact-message" name="message" rows="6" maxlength="{{ max_message }}" required
-          aria-describedby="{% if err.message %}contact-message-error {% endif %}contact-message-count"{% if err.message %} aria-invalid="true"{% endif %}>{{ form.message }}</textarea>
-        {% if err.message %}<p class="field__error" id="contact-message-error">{{ err.message|join(" ") }}</p>{% endif %}
-        {# Compteur : mis à jour par contact.js ; sans JavaScript, il annonce la limite. #}
-        <p class="field__count" id="contact-message-count" data-max="{{ max_message }}">{{ max_message }} caractères au maximum.</p>
+          aria-describedby="{% if fe.message %}contact-message-error {% endif %}contact-message-count"{% if fe.message %} aria-invalid="true"{% endif %}>{{ form.message }}</textarea>
+        {% if fe.message %}<p class="field__error" id="contact-message-error">{{ fe.message }}</p>{% endif %}
+        {# Compteur : mis à jour par contact.js (textes dans data-*) ; sans JavaScript, il
+           annonce la limite. #}
+        <p class="field__count" id="contact-message-count" data-max="{{ max_message }}"
+           data-live="{{ t.count_live }}" data-full="{{ t.count_full }}" data-left="{{ t.count_left }}">{{ t('count_static', max=max_message) }}</p>
       </div>
 
       {# Champ piège : caché aux humains (classe contact-hp), rempli par les robots. #}
       <p class="contact-hp" aria-hidden="true">
-        <label for="contact-{{ honeypot }}">Ne pas remplir ce champ</label>
+        <label for="contact-{{ honeypot }}">{{ t.honeypot }}</label>
         <input id="contact-{{ honeypot }}" type="text" name="{{ honeypot }}" value="" tabindex="-1" autocomplete="off">
       </p>
 
       <div class="contact-form__submit">
-        <button type="submit" class="btn btn--primary">Envoyer le message</button>
+        <button type="submit" class="btn btn--primary">{{ t.send }}</button>
       </div>
     </form>
   </div>
 
-  <p class="page__note">Ton adresse et ton message servent uniquement à te répondre. Voir la <a href="/confidentialite">politique de confidentialité</a>.</p>
+  <p class="page__note">{{ t.contact_note_before }}<a href="{{ urls.privacy }}">{{ t.privacy|lower }}</a>{{ t.contact_note_after }}</p>
 </article>
 {% endblock %}

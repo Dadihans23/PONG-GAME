@@ -2,8 +2,13 @@
 {% block content %}
 <form method="post" action="/admin/textes" class="page-form page-form--single" novalidate>
   <input type="hidden" name="csrf_token" value="{{ csrf }}">
-  {{ ui.setting_groups(groups, vals, errors) }}
+  {{ ui.lang_input(lang) }}
+  {{ ui.setting_groups(groups, vals, errors, fallbacks=fallbacks, tlang=(lang if lang != "fr" else none)) }}
+  {% if lang == "fr" %}
   <p class="page-form__more">Les titres des autres sections se règlent sur leur page : Fiche technique, Arguments, Solo / Duel, Comment jouer, Barème, Captures, FAQ, Installation.</p>
+  {% else %}
+  <p class="page-form__more">Le nom du jeu, le lien Play Store et l'adresse de contact sont les mêmes dans les trois langues : ils se modifient dans l'onglet Français. Les titres des autres sections se traduisent sur leur page.</p>
+  {% endif %}
   {{ ui.savebar(ui.saved_note(saved_at)) }}
 </form>
 {% endblock %}

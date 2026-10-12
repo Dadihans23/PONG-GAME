@@ -68,7 +68,8 @@ def test_headers_cache_etag_no_cookie(client):
     assert "set-cookie" not in r.headers
     assert "access-control-allow-origin" not in r.headers
     etag = r.headers["etag"]
-    assert etag == '"' + hashlib.sha256(r.content).hexdigest()[:32] + '"'
+    # Empreinte de la langue (français par défaut) et du corps.
+    assert etag == '"' + hashlib.sha256(b"fr|" + r.content).hexdigest()[:32] + '"'
     again = client.get(API, headers={"If-None-Match": etag})
     assert again.status_code == 304 and again.content == b""
     assert again.headers["etag"] == etag

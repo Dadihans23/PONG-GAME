@@ -71,6 +71,10 @@
         </header>
         {% endif %}
         {% endblock %}
+        {% if tabs %}
+        {{ ui.lang_tabs(tabs) }}
+        {% if lang != "fr" %}<p class="langnote">Onglet {{ lang_name }} : un champ vide affiche le texte français sur le site. Ajouter, déplacer, supprimer, les images, les liens et les dates se font dans l'onglet Français.</p>{% endif %}
+        {% endif %}
         {{ ui.banners(flashes, banner) }}
         {% block content %}{% endblock %}
       </div>

@@ -19,6 +19,9 @@ log = logging.getLogger("tilto.mailer")
 
 SMTP_TIMEOUT = 20
 
+# Langue de la page Contact d'où le message a été envoyé.
+LANGS = {"fr": "français", "en": "anglais", "es": "espagnol"}
+
 
 def build_notification(cfg: SmtpConfig, message: dict, site_name: str,
                        admin_url: str = "") -> EmailMessage:
@@ -36,6 +39,7 @@ def build_notification(cfg: SmtpConfig, message: dict, site_name: str,
         f"Nom : {message.get('name') or '(non indiqué)'}",
         f"E-mail : {message['email']}",
         f"Sujet : {message['subject']}",
+        f"Langue de la page : {LANGS.get(message.get('lang', 'fr'), 'français')}",
         "",
         message["message"],
         "",

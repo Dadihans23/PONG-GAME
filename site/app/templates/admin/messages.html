@@ -13,7 +13,7 @@
     <li>
       <a class="mail__item{% if not msg.is_read %} is-unread{% endif %}{% if m and m.id == msg.id %} is-selected{% endif %}" href="/admin/messages/{{ msg.id }}"{% if m and m.id == msg.id %} aria-current="true"{% endif %}>
         <span class="mail__top"><span class="mail__name">{{ msg.name or "Sans nom" }}{% if not msg.is_read %}<span class="sr-only"> (non lu)</span>{% endif %}</span>{{ ui.time_of(msg.created_at) }}</span>
-        <span class="mail__meta">{{ msg.subject }} · {{ msg.email }}</span>
+        <span class="mail__meta">{{ msg.subject }} · {{ msg.email }}{% if msg.lang and msg.lang != "fr" %} · <span class="lang-badge" title="Envoyé depuis la page en {{ message_langs.get(msg.lang, msg.lang) }}">{{ msg.lang|upper }}</span>{% endif %}</span>
         <span class="mail__ex">{{ msg.message }}</span>
       </a>
     </li>
@@ -26,7 +26,7 @@
     <header class="reader__head">
       <p class="overline">{{ m.subject }}</p>
       <h2 class="reader__name" id="reader-name">{{ m.name or "Sans nom" }}</h2>
-      <p class="reader__meta">{{ m.email }} · {{ ui.time_of(m.created_at, "long") }}</p>
+      <p class="reader__meta">{{ m.email }} · {{ ui.time_of(m.created_at, "long") }} · page en {{ message_langs.get(m.lang, "français") }}</p>
     </header>
     <div class="reader__body">{{ m.message|rich_text }}</div>
     <div class="reader__actions">

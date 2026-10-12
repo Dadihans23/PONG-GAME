@@ -2,6 +2,10 @@
 {% block content %}
 <form method="post" action="/admin/mentions-legales" class="page-form" novalidate>
   <input type="hidden" name="csrf_token" value="{{ csrf }}">
+  {{ ui.lang_input(lang) }}
+  {% if lang != "fr" %}
+  <p class="muted">Les informations de l'éditeur, du directeur de la publication et de l'hébergeur sont les mêmes dans les trois langues (onglet Français) ; leurs intitulés sont traduits sur la page. La page {{ lang_name }} rappelle que la version française fait foi. Seul le texte complémentaire se traduit ici.</p>
+  {% endif %}
   {% for g in groups %}
   <section class="group" aria-labelledby="legal-{{ loop.index }}">
     <div class="group__head">
@@ -23,9 +27,11 @@
       <p class="group__help">Propriété intellectuelle, crédits… Une ligne vide sépare les paragraphes ; « ## Titre » crée un intertitre.</p>
     </div>
     <div class="fields">
-      {{ ui.field("legal_extra", "Texte libre", vals.legal_extra, max=extra_max, area=True, rows=6, mark="optional") }}
+      {{ ui.field("legal_extra", "Texte libre", vals.legal_extra, max=extra_max, area=True, rows=6,
+                  mark=("optional" if lang == "fr" else none),
+                  fallback=(french.legal_extra if lang != "fr" else none), tlang=(lang if lang != "fr" else none)) }}
     </div>
   </section>
-  {{ ui.savebar(ui.published(host, "/mentions-legales", "Publiées")) }}
+  {{ ui.savebar(ui.published(host, public_path, "Publiées")) }}
 </form>
 {% endblock %}

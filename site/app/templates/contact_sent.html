@@ -1,6 +1,6 @@
 {% extends "base.html" %}
-{% block title %}Message envoyé · {{ site.game_name }}{% endblock %}
-{# Page de confirmation : noindex (pas de canonical_path), pas de description. #}
+{% block title %}{{ t('sent_title', game=site.game_name) }}{% endblock %}
+{# Page de confirmation : noindex (pas d'URL canonique), pas de description. #}
 {% block description %}{% endblock %}
 {% block body_class %}page-contact{% endblock %}
 {% block content %}
@@ -8,12 +8,12 @@
    celle du formulaire. #}
 <article class="page page--sent">
   <header class="page__head">
-    <p class="page__kicker">Contact</p>
-    <h1 class="page__title">Message envoyé</h1>
-    <p class="page__text">{{ "Merci ! Ton message est bien arrivé."|nbsp }} On te répondra à l'adresse <span class="nowrap">e-mail</span> que tu as indiquée.</p>
+    <p class="page__kicker">{{ t.contact }}</p>
+    <h1 class="page__title">{{ t.sent_h1 }}</h1>
+    <p class="page__text">{{ t.sent_thanks|nbsp }} {{ t.sent_reply }}</p>
     <div class="page__actions">
-      <a class="btn btn--primary" href="/">Retour à l'accueil</a>
-      {% if faq %}<a class="btn" href="/#faq">Questions fréquentes</a>{% endif %}
+      <a class="btn btn--primary" href="{{ urls.home }}">{{ t.back_home }}</a>
+      {% if faq %}<a class="btn" href="{{ urls.home }}#faq">{{ t.faq_button }}</a>{% endif %}
     </div>
   </header>
   <div class="page__main done__court" aria-hidden="true">

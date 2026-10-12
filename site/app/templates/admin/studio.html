@@ -1,8 +1,20 @@
 {% extends "admin/base.html" %}
 {% block content %}
 {% set lerr = errors.get("logo", "") %}
+{% if lang != "fr" %}
+<form method="post" action="/admin/studio" class="page-form page-form--narrow" novalidate>
+  <input type="hidden" name="csrf_token" value="{{ csrf }}">
+  {{ ui.lang_input(lang) }}
+  <p class="muted">Le nom et le logo du studio sont les mêmes dans les trois langues (onglet Français). Seule la présentation se traduit : l'app en {{ lang_name }} la demande au site dans sa langue (<code>/api/app/studio?lang={{ lang }}</code>) et reçoit la présentation française tant que ce champ est vide.</p>
+  {{ ui.field("studio_about", "Présentation du studio", about_value, max=about_max, area=True, rows=6,
+              fallback=vals.studio_about, tlang=lang,
+              help="Affichée dans l'app, sur la page Le studio. Paragraphes séparés par une ligne vide.") }}
+  {{ ui.savebar(ui.saved_note(saved_at)) }}
+</form>
+{% else %}
 <form method="post" action="/admin/studio" enctype="multipart/form-data" class="page-form page-form--narrow" novalidate>
   <input type="hidden" name="csrf_token" value="{{ csrf }}">
+  {{ ui.lang_input(lang) }}
   {# Bouton par défaut (touche Entrée) : enregistrer, jamais « Retirer le logo ». #}
   <button type="submit" class="sr-only" tabindex="-1" aria-hidden="true">Enregistrer</button>
   {{ ui.field("studio_name", "Nom du studio", vals.studio_name, max=60, mark="required", required=True,
@@ -57,4 +69,5 @@
 
   {{ ui.savebar(ui.saved_note(saved_at)) }}
 </form>
+{% endif %}
 {% endblock %}

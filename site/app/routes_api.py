@@ -1,8 +1,11 @@
 """API lue par l'application mobile.
 
-GET /api/app/studio : nom, présentation et logo du studio, que l'app affiche
-(page Le studio) et met en cache. Lecture seule, sans cookie, sans effet de bord.
-Contrat fixé avec l'app (schema 1) : ne pas renommer ni retirer de champ.
+GET /api/app/studio?lang=fr|en|es : nom, présentation et logo du studio, que
+l'app affiche (page Le studio) et met en cache. Lecture seule, sans cookie, sans
+effet de bord. Contrat fixé avec l'app (schema 1) : ne pas renommer ni retirer de
+champ. La présentation est servie dans la langue demandée (repli sur le français
+si elle n'est pas traduite ; langue absente ou inconnue : français), et les liens
+mènent aux pages de cette langue.
 
 Toutes les URL absolues partent de `Settings.site_url` (réglage SITE_URL),
 jamais de l'hôte de la requête.
@@ -20,7 +23,7 @@ from pathlib import Path
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import Response
 
-from . import db
+from . import db, i18n
 from .routes_public import get_conn
 from .uploads import IMAGE_TYPES, STORED_NAME, image_size
 
@@ -89,16 +92,25 @@ def _updated_at(conn: sqlite3.Connection, images_dir: Path, logo_name: str) -> s
     return FALLBACK_UPDATED_AT
 
 
-def studio_payload(conn: sqlite3.Connection, images_dir: Path, site_url: str) -> dict:
-    site = db.get_settings(conn)
+def api_lang(value: str | None) -> str:
+    """Langue demandée par l'app ; absente ou inconnue : français."""
+    value = (value or "").strip().lower()
+    return value if value in i18n.LANGS else i18n.DEFAULT_LANG
+
+
+def studio_payload(conn: sqlite3.Connection, images_dir: Path, site_url: str,
+                   lang: str = "fr") -> dict:
+    site = db.get_settings(conn, lang)
     logo_name = site.get("studio_logo", "")
+    home = i18n.path("home", lang)
     return {
         "schema": SCHEMA_VERSION,
         "studio": {
             "name": site.get("studio_name", "").strip() or "Nexora",
             "about": site.get("studio_about", "").strip(),
-            "website": site_url,
-            "contact_url": f"{site_url}/contact",
+            # Français : l'adresse d'origine du site (sans « / »), inchangée.
+            "website": site_url if home == "/" else site_url + home,
+            "contact_url": site_url + i18n.path("contact", lang),
         },
         "logo": logo_info(images_dir, logo_name, site_url),
         "updated_at": _updated_at(conn, images_dir, logo_name),
@@ -118,9 +130,11 @@ def _etag_matches(header: str | None, etag: str) -> bool:
 @router.api_route("/app/studio", methods=["GET", "HEAD"])
 def app_studio(request: Request, conn: sqlite3.Connection = Depends(get_conn)):
     settings = request.app.state.settings
-    payload = studio_payload(conn, settings.images_dir, settings.site_url)
+    lang = api_lang(request.query_params.get("lang"))
+    payload = studio_payload(conn, settings.images_dir, settings.site_url, lang)
     body = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
-    etag = '"' + hashlib.sha256(body).hexdigest()[:32] + '"'
+    # L'ETag dépend de la langue : jamais de 304 avec le cache d'une autre langue.
+    etag = '"' + hashlib.sha256(lang.encode() + b"|" + body).hexdigest()[:32] + '"'
     headers = {"Cache-Control": CACHE_CONTROL, "ETag": etag, "X-Robots-Tag": "noindex"}
     if _etag_matches(request.headers.get("if-none-match"), etag):
         return Response(status_code=304, headers=headers)

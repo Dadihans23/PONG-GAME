@@ -12,8 +12,10 @@ site/
 │   ├── db.py              schéma SQLite, contenu initial, requêtes
 │   ├── security.py        mot de passe scrypt, CSRF, limitation, taille des requêtes, en-têtes
 │   ├── uploads.py         vérification et enregistrement des images et des APK
-│   ├── render.py          gabarits et filtres (taille, date, date courte, texte enrichi)
-│   ├── routes_public.py   /, /confidentialite, /mentions-legales, /contact, /telecharger, /media/…, /sante,
+│   ├── render.py          gabarits et filtres (taille, date, date courte, texte enrichi, nombres), selon la langue
+│   ├── i18n.py            langues : adresses des pages (/, /en/, /es/), redirections, textes fixes de l'interface
+│   ├── content_i18n.py    traductions anglaises et espagnoles des textes de la base (contenu initial et textes en ligne)
+│   ├── routes_public.py   /, /confidentialite, /mentions-legales, /contact (et /en/…, /es/…), /telecharger, /media/…, /sante,
 │   │                      /robots.txt, /sitemap.xml, /.well-known/security.txt
 │   ├── seo.py             robots.txt, sitemap.xml, security.txt, titre et description de l'accueil, JSON-LD
 │   ├── routes_admin.py    /admin/…
@@ -22,6 +24,8 @@ site/
 │   ├── mailer.py          notification SMTP facultative des messages de contact
 │   ├── reseed_v2.py       commande facultative : textes v1 → textes v2 (voir plus bas)
 │   ├── reseed_studio.py   commande : section « Nom et logo du studio » dans la politique en base
+│   ├── reseed_i18n.py     commande : traductions anglaises et espagnoles d'une base existante (voir « Langues »)
+│   ├── relecture.py       commande : RELECTURE.md et relecture.csv (relecture des traductions)
 │   ├── hashpw.py          génération du hachage du mot de passe et de la clé secrète
 │   ├── templates/         gabarits HTML (publics, et admin/)
 │   ├── seed/              logo initial du studio, copié dans les données au premier démarrage
@@ -176,14 +180,52 @@ sudo nginx -t && sudo systemctl reload nginx
 
 Les étapes d'installation (`spec_row`, groupe `install`) ont deux colonnes : `label` = titre, `value` = précision. Au démarrage, une étape qui a encore exactement l'ancien texte par défaut d'une seule colonne est découpée (`db.INSTALL_SPLIT`, par exemple « Télécharge le fichier » / « Depuis ton téléphone Android. ») ; une étape modifiée par le propriétaire n'est pas touchée (sa précision reste vide, à remplir dans Administration › Installation). `python -m app.reseed_v2` propose aussi de remplacer les étapes par celles de la v2.
 
+## Langues : français, anglais, espagnol
+
+Le site existe en **français à la racine** (adresses inchangées), en **anglais sous `/en/`** et en **espagnol sous `/es/`**. Une seule adresse canonique par page et par langue (`app/i18n.py`, `PAGES`) ; slugs traduits pour être lisibles dans la langue du visiteur :
+
+| Page | Français | English | Español |
+|---|---|---|---|
+| Accueil | `/` | `/en/` | `/es/` |
+| Contact | `/contact` | `/en/contact` | `/es/contacto` |
+| Confidentialité | `/confidentialite` | `/en/privacy` | `/es/privacidad` |
+| Mentions légales | `/mentions-legales` | `/en/legal-notice` | `/es/aviso-legal` |
+| Message envoyé (noindex) | `/contact/merci` | `/en/contact/thanks` | `/es/contacto/gracias` |
+
+- **Variantes → 301** (`i18n.redirects`) : `/en` → `/en/`, `/fr…` → racine, « / » final retiré, slug d'une autre langue sous un préfixe (`/en/confidentialite` → `/en/privacy`), slug étranger sans préfixe → page française (`/privacy` → `/confidentialite`). Les paramètres sont gardés.
+- **Aucune redirection** selon `Accept-Language` ou le pays. `static/js/lang.js` affiche un **bandeau** sous l'en-tête quand la langue préférée diffère de celle de la page : dernier choix retenu (`localStorage` `tilto-lang`, lu et écrit dans des `try/catch`), sinon la première langue du navigateur que parle le site, sinon l'anglais (comme l'app). Cliquer FR · EN · ES ou le lien du bandeau retient la langue ; fermer le bandeau retient la langue de la page (il ne revient plus). Le texte vient d'un `<template id="lang-suggest">` (inerte, hors de `<main>`, `data-nosnippet`), écrit dans la langue proposée ; jamais montré aux robots (user-agent).
+- **Sélecteur FR · EN · ES** : dans la barre à partir de 720 px (`.lang--bar`), dans le menu mobile en dessous (`.lang--menu`) ; il mène à la même page dans l'autre langue (l'accueil depuis une page d'erreur).
+- **Langue d'une requête** : lue dans l'adresse (`i18n.lang_of_path`), y compris pour les pages d'erreur (`/en/xyz` → 404 en anglais).
+- **Textes fixes de l'interface** (lien d'évitement, aria-label, boutons, libellés et erreurs du formulaire, pages d'erreur, intitulés des mentions légales, éléments dessinés) : catalogue `i18n.UI`, une valeur par langue, `t.cle` ou `t("cle", x=…)` dans les gabarits. Aucun texte français écrit en dur dans les gabarits publics. Les scripts lisent leurs textes dans des attributs `data-*` posés par les gabarits (bouton du thème, menu, compteur du message).
+- **Textes modifiables** : le français reste dans ses tables ; les traductions sont dans la table `translation` (`lang`, `tbl`, `row_id`, `field`, `value` ; `tbl` = `setting` ou le nom de la table). `db.get_settings(conn, lang)` et `db.localize(conn, rows, tbl, lang)` remplacent un texte par sa traduction quand elle existe, **sinon le français reste (repli)**. Traduisibles : `db.TRANSLATABLE_SETTINGS` (textes des sections, pied de page, présentation du studio, politique de confidentialité, texte complémentaire des mentions légales) et `db.TRANSLATABLE_COLUMNS` (arguments, étapes, lignes des tableaux, FAQ, captures, notes de version). Communs aux trois langues : nom du jeu, liens, adresse de contact, pseudos et scores de la scène du duel, nom et logo du studio, dates, données des mentions légales, ancres de la FAQ, images. Un texte supprimé emporte ses traductions (déclencheurs SQLite).
+- **Mise en forme** : dates (`date_fr(lang)`, `date_short(lang)`), tailles (`filesize(lang)` : Mo / MB), milliers (`number(lang)`).
+- **Pages légales traduites** : une phrase indique que la version française fait foi, avec un lien vers elle.
+- **Administration** (reste en français) : onglets Français / English / Español sur Textes, Fiche technique, Arguments, Solo / Duel, Comment jouer, Barème, Captures, FAQ, Installation, Confidentialité, Mentions légales, Studio et les notes de version (APK). `?lang=en` dans l'adresse, champ caché `lang` dans les formulaires. En anglais et en espagnol : seuls les textes traduisibles, le français en référence sous chaque champ, « Non traduit » sur un champ vide, nombre de textes non traduits dans l'onglet ; une traduction peut être 30 % plus longue que la limite française ; ajouter, déplacer, supprimer, images, liens et dates restent dans l'onglet Français. Le tableau de bord résume l'état des traductions.
+- **Contact** : formulaire dans les trois langues (erreurs dans la langue de la page) ; cookie `tilto_contact` limité au chemin de la page Contact de la langue ; le sujet est enregistré en français, la **langue de la page** dans `contact_message.lang` (pastille EN / ES dans Messages, « page en anglais » à la lecture, ligne « Langue de la page » dans la notification).
+- **Polices** : les WOFF2 (Archivo, Atkinson Hyperlegible Next) couvrent déjà ñ ¿ ¡ á é í ó ú ü (vérifié).
+- **Traductions** : rédigées à partir des textes en ligne le 2026-10-12, vocabulaire de l'app (`lib/l10n/GLOSSAIRE.md`). Relecture par des locuteurs courants : `RELECTURE.md` et `relecture.csv` (générés par `python -m app.relecture`).
+
+### Mise en ligne du multilingue (base existante)
+
+Au démarrage, la base existante reçoit la table `translation` et la colonne `contact_message.lang` (sans rien effacer). Ses pages `/en/` et `/es/` affichent alors l'interface traduite mais les textes de la base en français, jusqu'à :
+
+```bash
+docker run --rm -v tilto-data:/data -v "$PWD":/backup alpine \
+  tar czf /backup/tilto-data-$(date +%F).tar.gz -C /data .                   # sauvegarde d'abord
+docker compose exec tilto-site python -m app.reseed_i18n            # liste les traductions à ajouter, ne modifie rien
+docker compose exec tilto-site python -m app.reseed_i18n --apply    # demande « oui », puis applique
+```
+
+La commande ajoute seulement les traductions qui manquent, pour les textes français qu'elle connaît mot pour mot (`app/content_i18n.py` : contenu initial et textes relevés sur le site en ligne). Elle ne modifie **jamais** un texte français ni une traduction déjà saisie ; un texte réécrit par le propriétaire est listé « sans traduction connue » et reste en français (à traduire dans l'administration). Relancée, elle ne fait rien. Une base neuve reçoit ces traductions à sa création.
+
 ## Référencement (SEO)
 
 - **Adresse fixe** : `SITE_URL` (`.env`, défaut `https://tilto.fun`, sans « / » final ni chemin, vérifié au démarrage). Toutes les URL absolues en partent (canonique, Open Graph, sitemap, robots.txt, security.txt, JSON-LD), jamais l'hôte de la requête.
-- **`/robots.txt`** (`seo.robots_txt`) : politique « recherche oui, entraînement non ». Tout le monde peut tout lire sauf `/telecharger`, `/contact/merci`, `/sante` et `/api/` ; les robots d'entraînement des IA (GPTBot, ClaudeBot, Google-Extended, Applebot-Extended, CCBot, meta-externalagent, Bytespider) sont refusés partout ; les robots de recherche des assistants (OAI-SearchBot, ChatGPT-User, PerplexityBot, Claude-SearchBot…) suivent la règle générale. `/admin` n'y figure pas (le fichier est public) : ses pages portent `noindex`.
-- **`/sitemap.xml`** : `/`, `/contact`, `/confidentialite`, `/mentions-legales`. `lastmod` : date de l'APK courant pour l'accueil (absente sans APK), `privacy_updated` et `legal_updated` (si remplie). Ni `priority` ni `changefreq`.
+- **`/robots.txt`** (`seo.robots_txt`) : politique « recherche oui, entraînement non ». Tout le monde peut tout lire sauf `/telecharger`, les pages « message envoyé » des trois langues (`/contact/merci`, `/en/contact/thanks`, `/es/contacto/gracias`), `/sante` et `/api/` ; les robots d'entraînement des IA (GPTBot, ClaudeBot, Google-Extended, Applebot-Extended, CCBot, meta-externalagent, Bytespider) sont refusés partout ; les robots de recherche des assistants (OAI-SearchBot, ChatGPT-User, PerplexityBot, Claude-SearchBot…) suivent la règle générale. `/admin` n'y figure pas (le fichier est public) : ses pages portent `noindex`.
+- **`/sitemap.xml`** : accueil, contact, confidentialité et mentions légales dans les trois langues (12 adresses), chacune avec ses `xhtml:link rel="alternate" hreflang` (fr, en, es, x-default = français). `lastmod` : date de l'APK courant pour l'accueil (absente sans APK), `privacy_updated` et `legal_updated` (si remplie). Ni `priority` ni `changefreq`.
 - **`/.well-known/security.txt`** (RFC 9116) : contact = page Contact, expire le 1er octobre 2027 (à prolonger avant).
-- **Balises** (`base.html`) : une route passe `canonical_path` à `site_context` pour les pages indexables ; la page reçoit alors `<link rel="canonical">` (sans paramètres), Open Graph (`og:type`, `og:site_name`, `og:locale` fr_FR, `og:url`, `og:title`, `og:description`, `og:image` 1200 × 630 + `alt`) et `twitter:card` `summary_large_image`. Sans `canonical_path` (message envoyé, erreurs) : `<meta name="robots" content="noindex">`. Le bloc `description` d'un gabarit donne la meta description ; vide (404, message envoyé), il n'y en a pas.
-- **Accueil** : titre et description dans `seo.HOME_TITLE_SUFFIX` / `seo.HOME_DESCRIPTION` (textes fixes, pas dans l'administration). Données structurées JSON-LD (`seo.home_json_ld`) : WebSite, Organization (studio, logo), MobileApplication (Android 5.0 ou plus, gratuit, version et lien de téléchargement seulement si un APK est en ligne, captures seulement celles qui ont une image) et FAQPage (texte exact de la FAQ). Jamais de note ni d'avis. Bloc `<script type="application/ld+json">` : données non exécutées, compatibles avec la CSP ; `tojson` échappe `<`, `>` et `&`.
+- **Balises** (`base.html`) : `<html lang>` de la page ; une page indexable (clé de `i18n.INDEXABLE` passée à `site_context`) reçoit `<link rel="canonical">` dans sa langue (sans paramètres), les `hreflang` réciproques fr, en, es et `x-default` (racine française), Open Graph (`og:type`, `og:site_name`, `og:locale` fr_FR / en_US / es_ES et `og:locale:alternate` des deux autres, `og:url`, `og:title`, `og:description`, `og:image` 1200 × 630 + `alt`) et `twitter:card` `summary_large_image`. Sans `canonical_path` (message envoyé, erreurs) : `<meta name="robots" content="noindex">`. Le bloc `description` d'un gabarit donne la meta description ; vide (404, message envoyé), il n'y en a pas.
+- **Accueil** : titre et description dans `seo.HOME_TITLE_SUFFIXES` / `seo.HOME_DESCRIPTIONS`, par langue (textes fixes, pas dans l'administration). Données structurées JSON-LD (`seo.home_json_ld`, `inLanguage` = langue de la page) : WebSite, Organization (studio, logo, même `@id` dans les trois langues), MobileApplication (`inLanguage` = langues de l'APK publié, `seo.APP_LANGUAGES`, `fr` tant que la 1.1.0 n'est pas en ligne ; Android 5.0 ou plus, gratuit, version et lien de téléchargement seulement si un APK est en ligne, captures seulement celles qui ont une image) et FAQPage (texte exact de la FAQ). Jamais de note ni d'avis. Bloc `<script type="application/ld+json">` : données non exécutées, compatibles avec la CSP ; `tojson` échappe `<`, `>` et `&`.
 - **Image de partage** : `app/static/img/og-tilto.png` (1200 × 630, ~70 Ko), générée par `node tool/og_image.cjs` (Playwright/Chromium, polices de `assets/fonts/`). Modifier le script puis relancer, jamais l'image à la main.
 - **Polices** : deux rôles, deux variables CSS en tête de `site.css`.
   - `--font-display` = **Archivo** (la police de l'app) : marque TILTO, titres, sur-titres en capitales espacées, chiffres du jeu, boutons, menus (liste des sélecteurs sous « Archivo, la police de l'app » dans `site.css`). WOFF2 ~28 Ko par graisse au lieu de ~190 Ko en TTF, partagés par `site.css` et `admin.css`. Seule la graisse 900 (titre de l'accueil) est préchargée. TTF source : ceux de l'app (`assets/fonts/`).
@@ -225,7 +267,7 @@ La notification part en tâche de fond après la réponse au visiteur ; son « R
 
 ## API de l'app : `GET /api/app/studio`
 
-Seul appel de l'app mobile au site : au lancement, au plus une fois par jour, elle demande le nom, la présentation et le logo du studio (page « Le studio », depuis Réglages ou Aide), et garde la dernière réponse pour fonctionner sans Internet. Le contrat est fixé avec l'app : ne renommer ni retirer aucun champ (un changement incompatible passe par `schema: 2`).
+Seul appel de l'app mobile au site : au lancement, au plus une fois par jour, elle demande (`?lang=fr|en|es`, langue de l'app) le nom, la présentation et le logo du studio (page « Le studio », depuis Réglages ou Aide), et garde la dernière réponse pour fonctionner sans Internet. Le contrat est fixé avec l'app : ne renommer ni retirer aucun champ (un changement incompatible passe par `schema: 2`).
 
 ```json
 {
@@ -236,10 +278,11 @@ Seul appel de l'app mobile au site : au lancement, au plus une fois par jour, el
 }
 ```
 
+- Langue : `?lang=en` ou `es` sert la présentation traduite (Administration › Studio, onglets), sinon la française ; langue absente ou inconnue = français. `website` et `contact_url` mènent aux pages de la langue (`https://tilto.fun/en/`, `…/en/contact`) ; en français, `https://tilto.fun` et `https://tilto.fun/contact` comme avant. Même format JSON (`schema: 1`).
 - Données : réglages `studio_name`, `studio_about` (Administration › Studio, « Présentation du studio », 800 caractères, vide par défaut ; paragraphes séparés par une ligne vide) et `studio_logo`. `website` = `SITE_URL`, `contact_url` = `SITE_URL/contact` ; toutes les URL partent de `SITE_URL`, jamais de l'hôte de la requête.
 - `logo` vaut `null` sans logo, si le fichier manque, ou si le logo est en SVG ou GIF (l'app n'affiche que PNG, JPEG, WebP ; l'administration le signale). `sha256`, `width` et `height` sont lus dans le fichier (empreinte gardée en mémoire tant que le fichier ne change pas).
 - `updated_at` : dernier enregistrement de la page Studio (réglage interne `_saved:studio`) ; à défaut, date du fichier du logo ; à défaut, une date fixe. Jamais l'heure de l'appel.
-- En-têtes : `Cache-Control: public, max-age=3600`, `ETag` (hachage du corps) avec réponse 304 sur `If-None-Match`, `X-Robots-Tag: noindex`, aucun cookie, pas de CORS. Lecture seule. Exclue de `robots.txt`, absente du sitemap.
+- En-têtes : `Cache-Control: public, max-age=3600`, `ETag` (hachage de la langue et du corps : jamais le même d'une langue à l'autre) avec réponse 304 sur `If-None-Match`, `X-Robots-Tag: noindex`, aucun cookie, pas de CORS. Lecture seule. Exclue de `robots.txt`, absente du sitemap.
 
 La politique de confidentialité par défaut décrit cet appel (section « Nom et logo du studio », `db.PRIVACY_STUDIO_SECTION`, et phrase des autorisations). Une base existante garde sa politique : pour l'y ajouter, après une sauvegarde de la base :
 
@@ -288,6 +331,7 @@ Variables communes à toutes les pages publiques (`routes_public.site_context`) 
 
 | Variable | Contenu |
 |---|---|
+| `lang`, `t`, `urls`, `languages` | langue de la page (`fr`, `en`, `es`), textes fixes (`t.skip`, `t("credit", studio=…, year=…)`), adresses des pages dans cette langue (`urls.home`, `urls.contact`, `urls.privacy`, `urls.legal`), liens du sélecteur FR · EN · ES |
 | `site` | tous les réglages (clés ci-dessous), plus `site.studio_logo_url` (vide sans logo) |
 | `year` | année en cours |
 | `apk` | APK courant ou `None` : `version`, `size_bytes` (`\|filesize`), `sha256` (empreinte complète), `uploaded_at`, `date` (date de version, ou de dépôt, AAAA-MM-JJ ; `\|date_short` → « 9 oct. 2026 », `\|date_fr` → « 9 octobre 2026 »), `notes` (liste des nouveautés, une par ligne saisie), `download_name` (ex. `Tilto-1.0.0.apk`) |
@@ -323,7 +367,7 @@ Autres pages :
 | `/mentions-legales` | `legal.html` | `legal_sections` : `[{title, rows: [{label, value}]}]` (Éditeur du site, Directeur de la publication, Hébergeur ; champs vides omis), `site.legal_extra\|rich_text`, `site.legal_updated`, ou directement `site.legal_publisher`, `legal_form`, `legal_registration`, `legal_address`, `legal_email`, `legal_phone`, `legal_director`, `legal_host_name`, `legal_host_address`, `legal_host_phone` |
 | `/contact` | `contact.html` | `form` (`name`, `email`, `subject`, `message`, `errors` : liste de messages en français), `subjects`, `max_message`, `contact_token` (champ caché `csrf_token`, obligatoire), `honeypot` (nom du champ piège, à garder invisible avec la classe `contact-hp` définie à la fin de `site.css`), `site.contact_email` (adresse affichée si remplie) |
 | `/contact/merci` | `contact_sent.html` | variables communes |
-| Erreurs | `error.html` | `status`, `message` (sans `site` : le pied de page affiche des liens fixes) |
+| Erreurs | `error.html` | `status`, `message`, variables de langue (`lang`, `t`, `urls`, `languages`) |
 
 La CSP interdit le JavaScript et les styles en ligne (`style="…"`) ainsi que toute ressource externe : scripts dans `app/static/js/` chargés par `<script src>`, polices dans `app/static/fonts/` (WOFF2). Dans les gabarits, les CSS et JS passent par `static_url('…')` (URL versionnée). Les éléments purement décoratifs de la maquette (classement d'exemple, curseur Douce / Vive, écrans dessinés dans les téléphones, partie de démonstration, « VS ») relèvent du gabarit, pas de la base. Icônes : seulement des SVG en ligne fonctionnels (`_icons.html` pour la flèche de téléchargement ; soleil / lune, +/− de la FAQ, chevron de l'empreinte, flèche de Contact), aucune police d'icônes.
 

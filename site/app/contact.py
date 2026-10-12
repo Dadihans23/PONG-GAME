@@ -16,11 +16,16 @@ from dataclasses import dataclass, field
 
 from itsdangerous import BadSignature, URLSafeSerializer
 
+from .i18n import ui
+
 COOKIE_NAME = "tilto_contact"
+# Chemin du cookie : la page Contact de la langue (/contact, /en/contact, /es/contacto).
 COOKIE_PATH = "/contact"
 TOKEN_MAX_AGE = 2 * 3600  # un formulaire affiché depuis plus longtemps a expiré
 MAX_BODY_BYTES = 32 * 1024
 
+# Valeurs envoyées et enregistrées (en français : l'administration est en français) ;
+# le libellé affiché est traduit (i18n, clés subject_…).
 SUBJECTS = ["Question", "Problème technique", "Suggestion", "Autre"]
 MAX_NAME = 80
 MAX_EMAIL = 254
@@ -81,7 +86,10 @@ class ContactForm:
     email: str = ""
     subject: str = SUBJECTS[0]
     message: str = ""
+    # Erreurs qui ne visent aucun champ (formulaire expiré, envoi trop rapide…).
     errors: list[str] = field(default_factory=list)
+    # Erreurs par champ (email, subject, message), dans la langue de la page.
+    field_errors: dict[str, str] = field(default_factory=dict)
 
     @classmethod
     def from_form(cls, form) -> "ContactForm":
@@ -97,18 +105,22 @@ class ContactForm:
         message = _CONTROL.sub("", get("message").replace("\r\n", "\n")).strip()
         return cls(name=name, email=email, subject=get("subject").strip(), message=message)
 
-    def validate(self) -> bool:
-        self.errors = []
+    @property
+    def has_errors(self) -> bool:
+        return bool(self.errors or self.field_errors)
+
+    def validate(self, lang: str = "fr") -> bool:
+        errors = {}
         if not self.email:
-            self.errors.append("Indique ton adresse e-mail, pour qu'on puisse te répondre.")
+            errors["email"] = ui("err_email_missing", lang)
         elif not valid_email(self.email):
-            self.errors.append("L'adresse e-mail n'est pas valide.")
+            errors["email"] = ui("err_email_invalid", lang)
         if self.subject not in SUBJECTS:
-            self.errors.append("Choisis un sujet dans la liste.")
+            errors["subject"] = ui("err_subject", lang)
         if not self.message:
-            self.errors.append("Écris ton message.")
+            errors["message"] = ui("err_message_missing", lang)
         elif len(self.message) > MAX_MESSAGE:
-            self.errors.append(
-                f"Ton message est trop long ({len(self.message)} caractères, "
-                f"{MAX_MESSAGE} au maximum).")
-        return not self.errors
+            errors["message"] = ui("err_message_long", lang, n=len(self.message),
+                                   max=MAX_MESSAGE)
+        self.field_errors = errors
+        return not errors

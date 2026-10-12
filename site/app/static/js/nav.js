@@ -20,9 +20,12 @@
     }
   }
 
+  // Libellés dans la langue de la page (data-label-open / data-label-close).
   function sync() {
     if (button) {
-      button.setAttribute("aria-label", menu.open ? "Fermer le menu" : "Menu");
+      var open = button.getAttribute("data-label-open") || "Menu";
+      var close = button.getAttribute("data-label-close") || "Fermer le menu";
+      button.setAttribute("aria-label", menu.open ? close : open);
     }
   }
 

@@ -15,31 +15,66 @@ MONTHS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet",
           "août", "septembre", "octobre", "novembre", "décembre"]
 
 
-def filesize(num: int) -> str:
+MONTHS_EN = ["January", "February", "March", "April", "May", "June", "July", "August",
+             "September", "October", "November", "December"]
+MONTHS_ES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto",
+             "septiembre", "octubre", "noviembre", "diciembre"]
+
+
+def filesize(num: int, lang: str = "fr") -> str:
+    """« 25,1 Mo » ; « 25.1 MB » en anglais, « 25,1 MB » en espagnol."""
+    unit_mb, unit_kb = ("Mo", "Ko") if lang == "fr" else ("MB", "KB")
     if num >= 1024 * 1024:
-        return f"{num / (1024 * 1024):.1f} Mo".replace(".", ",")
-    return f"{max(1, round(num / 1024))} Ko"
+        text = f"{num / (1024 * 1024):.1f} {unit_mb}"
+        return text if lang == "en" else text.replace(".", ",")
+    return f"{max(1, round(num / 1024))} {unit_kb}"
 
 
-def date_fr(value: str) -> str:
+def _date(value: str):
     try:
-        d = datetime.fromisoformat(value)
+        return datetime.fromisoformat(value)
     except (TypeError, ValueError):
+        return None
+
+
+def date_fr(value: str, lang: str = "fr") -> str:
+    """Date en toutes lettres : « 9 octobre 2026 », « October 9, 2026 »,
+    « 9 de octubre de 2026 »."""
+    d = _date(value)
+    if d is None:
         return value or ""
+    if lang == "en":
+        return f"{MONTHS_EN[d.month - 1]} {d.day}, {d.year}"
+    if lang == "es":
+        return f"{d.day} de {MONTHS_ES[d.month - 1]} de {d.year}"
     return f"{d.day} {MONTHS[d.month - 1]} {d.year}"
 
 
 MONTHS_SHORT = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.",
                 "août", "sept.", "oct.", "nov.", "déc."]
+MONTHS_SHORT_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct",
+                   "Nov", "Dec"]
+MONTHS_SHORT_ES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sept", "oct",
+                   "nov", "dic"]
 
 
-def date_short(value: str) -> str:
-    """« 9 oct. 2026 » (barre de navigation, notes de version)."""
-    try:
-        d = datetime.fromisoformat(value)
-    except (TypeError, ValueError):
+def date_short(value: str, lang: str = "fr") -> str:
+    """« 9 oct. 2026 » (barre de navigation, notes de version) ; « Oct 9, 2026 » ;
+    « 9 oct 2026 »."""
+    d = _date(value)
+    if d is None:
         return value or ""
+    if lang == "en":
+        return f"{MONTHS_SHORT_EN[d.month - 1]} {d.day}, {d.year}"
+    if lang == "es":
+        return f"{d.day} {MONTHS_SHORT_ES[d.month - 1]} {d.year}"
     return f"{d.day} {MONTHS_SHORT[d.month - 1]} {d.year}"
+
+
+def number(value: int, lang: str = "fr") -> str:
+    """Milliers : « 2 400 » (français, espagnol : espace insécable), « 2,400 » (anglais)."""
+    text = f"{int(value):,}"
+    return text if lang == "en" else text.replace(",", "\u00a0")
 
 
 def accent(value: str) -> Markup:
@@ -180,6 +215,7 @@ def make_templates(directory: Path, static_dir: Path | None = None,
         static_dir or directory.parent / "static")
     templates.env.globals["SITE_URL"] = site_url
     templates.env.filters["filesize"] = filesize
+    templates.env.filters["number"] = number
     templates.env.filters["date_fr"] = date_fr
     templates.env.filters["date_short"] = date_short
     templates.env.filters["rich_text"] = rich_text

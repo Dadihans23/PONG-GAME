@@ -70,7 +70,8 @@ def test_robots_txt(client):
     # Groupe général : tout est permis sauf quatre chemins.
     general = text.split("User-agent: *\n", 1)[1].split("\n\n", 1)[0]
     assert general.splitlines() == ["Allow: /", "Disallow: /telecharger",
-                                    "Disallow: /contact/merci", "Disallow: /sante",
+                                    "Disallow: /contact/merci", "Disallow: /en/contact/thanks",
+                                    "Disallow: /es/contacto/gracias", "Disallow: /sante",
                                     "Disallow: /api/"]
     # Robots d'entraînement : un seul groupe, User-agent consécutifs, tout refusé.
     group = re.search(r"((?:User-agent: [^*\n]+\n)+)Disallow: /\n", text)
@@ -94,8 +95,14 @@ def test_sitemap_xml_absolute_urls_on_fixed_base(client):
     root = ET.fromstring(r.content)
     urls = {u.find(f"{SITEMAP_NS}loc").text: u.find(f"{SITEMAP_NS}lastmod")
             for u in root.findall(f"{SITEMAP_NS}url")}
-    assert list(urls) == ["https://tilto.fun/", "https://tilto.fun/contact",
-                          "https://tilto.fun/confidentialite", "https://tilto.fun/mentions-legales"]
+    # Chaque page dans les trois langues (français, anglais, espagnol).
+    assert list(urls) == [
+        "https://tilto.fun/", "https://tilto.fun/en/", "https://tilto.fun/es/",
+        "https://tilto.fun/contact", "https://tilto.fun/en/contact", "https://tilto.fun/es/contacto",
+        "https://tilto.fun/confidentialite", "https://tilto.fun/en/privacy",
+        "https://tilto.fun/es/privacidad",
+        "https://tilto.fun/mentions-legales", "https://tilto.fun/en/legal-notice",
+        "https://tilto.fun/es/aviso-legal"]
     assert "pirate.example" not in r.text
     # Pas d'APK : pas de date pour l'accueil ; confidentialité datée ; mentions vides.
     assert urls["https://tilto.fun/"] is None
@@ -127,7 +134,7 @@ def test_security_txt(client):
     assert r.text.splitlines() == [
         "Contact: https://tilto.fun/contact",
         "Expires: 2027-10-01T00:00:00.000Z",
-        "Preferred-Languages: fr, en",
+        "Preferred-Languages: fr, en, es",
         "Canonical: https://tilto.fun/.well-known/security.txt",
     ]
 

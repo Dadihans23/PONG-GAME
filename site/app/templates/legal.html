@@ -1,17 +1,19 @@
 {% extends "base.html" %}
-{% block title %}Mentions légales · {{ site.game_name }}{% endblock %}
-{% block description %}Mentions légales du site de {{ site.game_name }}, le jeu de Pong gratuit pour Android du studio {{ site.studio_name }} : éditeur du site, directeur de la publication et hébergeur.{% endblock %}
+{% block title %}{{ t('legal_title', game=site.game_name) }}{% endblock %}
+{% block description %}{{ t('legal_desc', game=site.game_name, studio=site.studio_name) }}{% endblock %}
 {% block body_class %}page-legal{% endblock %}
 {% block content %}
 {# Ordinateur : les blocs Éditeur, Directeur de la publication et Hébergeur côte à
    côte (autant de colonnes que de blocs remplis), le complément et le contact
-   dessous ; tient sans défiler en 1440 × 900. Mobile : une colonne. #}
+   dessous ; tient sans défiler en 1440 × 900. Mobile : une colonne. En anglais et en
+   espagnol, une phrase rappelle que la version française fait foi. #}
 <article class="page page--legal">
   <header class="page__head">
-    <h1 class="page__kicker">Mentions légales</h1>
+    <h1 class="page__kicker">{{ t.legal }}</h1>
     {% if site.legal_updated %}
-    <p class="page__updated">Dernière mise à jour : {{ site.legal_updated|date_fr }}</p>
+    <p class="page__updated">{{ t('updated', date=site.legal_updated|date_fr(lang)) }}</p>
     {% endif %}
+    {% if t.official_note %}<p class="page__official">{{ t.official_note }} <a href="/mentions-legales" hreflang="fr" lang="fr">{{ t.official_link }}</a></p>{% endif %}
   </header>
   {# legal_sections : [{title, rows: [{label, value}]}], champs vides omis. #}
   {% if legal_sections %}
@@ -31,7 +33,7 @@
   {% endif %}
   <div class="page__foot">
     {% if site.legal_extra %}<div class="page__extra">{{ site.legal_extra|rich_text(typo=True) }}</div>{% endif %}
-    <p class="page__contact">Pour toute question, utilise le <a href="/contact">formulaire de contact</a>.</p>
+    <p class="page__contact">{{ t.legal_contact_before }}<a href="{{ urls.contact }}">{{ t.legal_contact_link }}</a>{{ t.legal_contact_after }}</p>
   </div>
 </article>
 {% endblock %}

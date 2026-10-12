@@ -13,6 +13,8 @@ from collections.abc import Iterator
 from datetime import datetime, timezone
 from pathlib import Path
 
+from . import content_i18n
+
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS setting (
     key   TEXT PRIMARY KEY,
@@ -95,6 +97,32 @@ CREATE TABLE IF NOT EXISTS contact_message (
     message    TEXT NOT NULL,
     is_read    INTEGER NOT NULL DEFAULT 0
 );
+
+-- Traductions anglaise et espagnole des textes modifiables. Le français reste
+-- dans les tables d'origine et sert de repli : une traduction vide n'est pas
+-- enregistrée. tbl = 'setting' (row_id 0, field = clé du réglage) ou le nom de la
+-- table du texte (row_id = son id, field = sa colonne).
+CREATE TABLE IF NOT EXISTS translation (
+    lang   TEXT NOT NULL CHECK (lang IN ('en', 'es')),
+    tbl    TEXT NOT NULL,
+    row_id INTEGER NOT NULL DEFAULT 0,
+    field  TEXT NOT NULL,
+    value  TEXT NOT NULL,
+    PRIMARY KEY (lang, tbl, row_id, field)
+);
+
+-- Un texte supprimé emporte ses traductions (y compris les caractéristiques
+-- supprimées en cascade avec leur argument).
+CREATE TRIGGER IF NOT EXISTS translation_content_item AFTER DELETE ON content_item
+BEGIN DELETE FROM translation WHERE tbl = 'content_item' AND row_id = OLD.id; END;
+CREATE TRIGGER IF NOT EXISTS translation_spec_row AFTER DELETE ON spec_row
+BEGIN DELETE FROM translation WHERE tbl = 'spec_row' AND row_id = OLD.id; END;
+CREATE TRIGGER IF NOT EXISTS translation_faq AFTER DELETE ON faq
+BEGIN DELETE FROM translation WHERE tbl = 'faq' AND row_id = OLD.id; END;
+CREATE TRIGGER IF NOT EXISTS translation_screenshot AFTER DELETE ON screenshot
+BEGIN DELETE FROM translation WHERE tbl = 'screenshot' AND row_id = OLD.id; END;
+CREATE TRIGGER IF NOT EXISTS translation_apk_release AFTER DELETE ON apk_release
+BEGIN DELETE FROM translation WHERE tbl = 'apk_release' AND row_id = OLD.id; END;
 """
 
 # Colonnes ajoutées après la création d'une table : (table, colonne, définition).
@@ -106,6 +134,8 @@ MIGRATIONS: list[tuple[str, str, str]] = [
     ("screenshot", "description", "TEXT NOT NULL DEFAULT ''"),
     ("apk_release", "release_notes", "TEXT NOT NULL DEFAULT ''"),
     ("apk_release", "release_date", "TEXT NOT NULL DEFAULT ''"),
+    # Site multilingue : langue de la page d'où le message a été envoyé.
+    ("contact_message", "lang", "TEXT NOT NULL DEFAULT 'fr'"),
 ]
 
 SEED_DIR = Path(__file__).resolve().parent / "seed"
@@ -279,6 +309,35 @@ DEFAULT_SETTINGS = {
     "legal_host_name": "Contabo GmbH",
     "legal_extra": "",
     "legal_updated": "",
+}
+
+# --- Langues -----------------------------------------------------------------------
+
+# Langues des traductions (le français est dans les tables d'origine).
+TRANSLATION_LANGS = ("en", "es")
+
+# Réglages traduisibles. Les autres valent pour les trois langues : nom du jeu,
+# liens, adresse de contact, pseudos et scores de la scène du duel (des noms et
+# des chiffres), nom et logo du studio, dates, données des mentions légales.
+TRANSLATABLE_SETTINGS = (
+    "hero_kicker", "tagline", "hero_text", "hero_text_short", "hero_demo_text", "hero_note",
+    "hero_badge", "features_kicker", "features_title", "features_intro",
+    "duel_kicker", "duel_title", "duel_title_accent", "duel_left_label", "duel_left_text",
+    "duel_right_label", "duel_right_text", "duel_chip_1", "duel_chip_2", "duel_chip_3",
+    "compare_kicker", "compare_title", "steps_title", "scoring_title",
+    "screens_title", "screens_intro", "screens_note", "faq_title", "faq_subtitle", "faq_text",
+    "download_title", "download_text", "install_title", "install_note", "notes_title",
+    "play_soon_text", "footer_text", "footer_note", "footer_trademark",
+    "studio_about", "privacy_policy", "legal_extra",
+)
+
+# Colonnes traduisibles des tables (le reste : ordre, ancres, fichiers, dates).
+TRANSLATABLE_COLUMNS: dict[str, tuple[str, ...]] = {
+    "content_item": ("kicker", "title", "body", "short_body"),
+    "spec_row": ("label", "value", "value2"),
+    "faq": ("question", "answer", "short_answer"),
+    "screenshot": ("caption", "description"),
+    "apk_release": ("release_notes",),
 }
 
 # Réglages internes (non modifiables depuis l'administration).
@@ -610,6 +669,11 @@ def init_db(db_path: Path, images_dir: Path) -> None:
             if SEED_V2_MARKER not in existing:
                 _seed_v2(conn)
             _split_install_steps(conn)
+            if first_run:
+                # Base neuve : traductions du contenu initial. Une base existante
+                # les reçoit avec python -m app.reseed_i18n (après simulation).
+                for lang, tbl, row_id, field, _, translated in missing_translations(conn):
+                    _write_translation(conn, lang, tbl, row_id, field, translated)
     finally:
         conn.close()
 
@@ -624,9 +688,109 @@ def get_db(db_path: Path) -> Iterator[sqlite3.Connection]:
 
 # --- Lecture -----------------------------------------------------------------
 
-def get_settings(conn: sqlite3.Connection) -> dict[str, str]:
-    return {r["key"]: r["value"] for r in conn.execute("SELECT key, value FROM setting")
+def get_settings(conn: sqlite3.Connection, lang: str = "fr") -> dict[str, str]:
+    """Réglages ; pour l'anglais ou l'espagnol, la traduction remplace le français
+    quand elle existe (sinon le français reste : repli)."""
+    site = {r["key"]: r["value"] for r in conn.execute("SELECT key, value FROM setting")
             if not r["key"].startswith("_")}
+    if lang in TRANSLATION_LANGS:
+        for (_, key), value in translations(conn, lang, "setting").items():
+            if key in site and value.strip():
+                site[key] = value
+    return site
+
+
+def translations(conn: sqlite3.Connection, lang: str, tbl: str) -> dict[tuple[int, str], str]:
+    """Traductions d'une table : {(row_id, colonne): texte}."""
+    if lang not in TRANSLATION_LANGS:
+        return {}
+    return {(r["row_id"], r["field"]): r["value"] for r in conn.execute(
+        "SELECT row_id, field, value FROM translation WHERE lang = ? AND tbl = ?", (lang, tbl))}
+
+
+def localize(conn: sqlite3.Connection, rows, tbl: str, lang: str) -> list[dict]:
+    """Lignes d'une table, traduites quand une traduction existe (repli sur le français)."""
+    out = [dict(r) for r in rows]
+    found = translations(conn, lang, tbl)
+    if found:
+        for row in out:
+            for field in TRANSLATABLE_COLUMNS[tbl]:
+                value = found.get((row["id"], field))
+                if value and value.strip():
+                    row[field] = value
+    return out
+
+
+def _write_translation(conn: sqlite3.Connection, lang: str, tbl: str, row_id: int,
+                       field: str, value: str) -> None:
+    """Écrit (ou efface, si vide) une traduction ; à appeler dans une transaction."""
+    if lang not in TRANSLATION_LANGS:
+        raise ValueError(lang)
+    if tbl == "setting":
+        if field not in TRANSLATABLE_SETTINGS:
+            raise KeyError(field)
+    elif field not in TRANSLATABLE_COLUMNS.get(tbl, ()):
+        raise KeyError(f"{tbl}.{field}")
+    if (value or "").strip():
+        conn.execute(
+            "INSERT INTO translation (lang, tbl, row_id, field, value) VALUES (?, ?, ?, ?, ?)"
+            " ON CONFLICT(lang, tbl, row_id, field) DO UPDATE SET value = excluded.value",
+            (lang, tbl, row_id, field, value))
+    else:
+        conn.execute("DELETE FROM translation WHERE lang = ? AND tbl = ? AND row_id = ?"
+                     " AND field = ?", (lang, tbl, row_id, field))
+
+
+def set_translations(conn: sqlite3.Connection, lang: str,
+                     values: list[tuple[str, int, str, str]]) -> None:
+    """Enregistre des traductions [(tbl, row_id, colonne, texte)] ; texte vide = repli."""
+    with conn:
+        for tbl, row_id, field, value in values:
+            _write_translation(conn, lang, tbl, row_id, field, value)
+
+
+def set_setting_translations(conn: sqlite3.Connection, lang: str,
+                             values: dict[str, str]) -> None:
+    set_translations(conn, lang, [("setting", 0, key, value) for key, value in values.items()])
+
+
+def translatable_texts(conn: sqlite3.Connection) -> list[tuple[str, int, str, str]]:
+    """Tous les textes français traduisibles et non vides : [(tbl, row_id, colonne, français)]."""
+    out = []
+    site = get_settings(conn)
+    for key in TRANSLATABLE_SETTINGS:
+        if site.get(key, "").strip():
+            out.append(("setting", 0, key, site[key]))
+    for tbl, fields in TRANSLATABLE_COLUMNS.items():
+        for row in conn.execute(f"SELECT id, {', '.join(fields)} FROM {tbl} ORDER BY id"):
+            for field in fields:
+                if (row[field] or "").strip():
+                    out.append((tbl, row["id"], field, row[field]))
+    return out
+
+
+def translated_refs(conn: sqlite3.Connection, lang: str) -> set[tuple[str, int, str]]:
+    """Textes qui ont une traduction dans cette langue : {(tbl, row_id, colonne)}."""
+    if lang not in TRANSLATION_LANGS:
+        return set()
+    return {(r["tbl"], r["row_id"], r["field"]) for r in conn.execute(
+        "SELECT tbl, row_id, field FROM translation WHERE lang = ?", (lang,))}
+
+
+def missing_translations(conn: sqlite3.Connection) -> list[tuple[str, str, int, str, str, str]]:
+    """Traductions connues (content_i18n) des textes français qui n'en ont pas encore :
+    [(lang, tbl, row_id, colonne, français, traduction)]. Ne modifie rien."""
+    out = []
+    texts = translatable_texts(conn)
+    for lang in TRANSLATION_LANGS:
+        existing = translated_refs(conn, lang)
+        for tbl, row_id, field, french in texts:
+            if (tbl, row_id, field) in existing:
+                continue
+            translated = content_i18n.translate(french, lang)
+            if translated:
+                out.append((lang, tbl, row_id, field, french, translated))
+    return out
 
 
 def set_settings(conn: sqlite3.Connection, values: dict[str, str]) -> None:

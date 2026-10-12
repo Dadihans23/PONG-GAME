@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Erreur {{ status }}{% endblock %}
+{% block title %}{{ t('error_kicker', status=status) }}{% endblock %}
 {# Ni meta description ni URL canonique ; noindex posé par base.html. #}
 {% block description %}{% endblock %}
 {% block body_class %}page-error{% endblock %}
@@ -11,8 +11,8 @@
     <i class="oops__pad"></i>
     <i class="oops__ball"></i>
   </div>
-  <p class="kicker">Erreur {{ status }}</p>
+  <p class="kicker">{{ t('error_kicker', status=status) }}</p>
   <h1>{{ message }}</h1>
-  <a class="btn btn--primary" href="/">Retour à l'accueil</a>
+  <a class="btn btn--primary" href="{{ urls.home }}">{{ t.back_home }}</a>
 </section>
 {% endblock %}
