@@ -12,7 +12,7 @@ INFORMATIONS DU JEU (toutes vérifiées)
 - Nom de l'app : Tilto
 - Identifiant (fixé par le fichier AAB) : com.nexora.tilto
 - Éditeur / studio : Nexora
-- Version : 1.0.0 (code de version 1)
+- Version : 1.0.1 (code de version 2)
 - Langue par défaut : français (France) – fr-FR
 - Type : Jeu ; Gratuit (attention : une app gratuite ne pourra jamais devenir payante, c'est voulu)
 - Catégorie : Arcade
@@ -20,7 +20,7 @@ INFORMATIONS DU JEU (toutes vérifiées)
 - Règles de confidentialité : https://tilto.fun/confidentialite
 - E-mail de contact public : demande-moi lequel utiliser avant de le saisir (il sera visible sur la fiche)
 - Android 5.0 et plus, téléphone en portrait
-- Pas de publicité, pas d'achat intégré, pas de compte, pas de connexion à un serveur. Le solo marche hors ligne. Le duel passe uniquement par le Wi-Fi local (ou le partage de connexion) entre les deux téléphones, sans Internet.
+- Pas de publicité, pas d'achat intégré, pas de compte. Le jeu fonctionne sans Internet ; s'il y a une connexion, l'app récupère seulement le nom et le logo du studio sur tilto.fun (aucune donnée personnelle envoyée). Le solo marche hors ligne. Le duel passe uniquement par le Wi-Fi local (ou le partage de connexion) entre les deux téléphones, sans Internet.
 
 ÉTAPE 1 — Créer l'application
 « Créer une application » : nom Tilto, langue français (France), Jeu, Gratuit. Les cases de déclarations (règles du programme, lois d'exportation des États-Unis) : arrête-toi et laisse-moi les cocher moi-même.
@@ -68,7 +68,7 @@ Catégorie de l'app : Jeu › Arcade. E-mail : celui que je t'aurai donné. Site
 - Public cible et contenu : ARRÊTE-TOI et laisse-moi choisir les tranches d'âge (je pense à « 13 ans et plus », mais je décide). Si je coche des âges de moins de 13 ans, signale-moi les obligations qui s'ajoutent.
 - Sécurité des données (Data safety) :
   · L'app collecte-t-elle ou partage-t-elle des données utilisateur ? Non.
-  · Justification à garder en tête : tout est stocké uniquement sur le téléphone (pseudo, scores, statistiques, réglages). Aucune donnée n'est envoyée au développeur ni à un serveur. En duel, le pseudo et l'état de la partie passent directement d'un téléphone à l'autre sur le réseau local, à l'initiative des joueurs, sans passer par Internet.
+  · Justification à garder en tête : tout est stocké uniquement sur le téléphone (pseudo, scores, statistiques, réglages). Aucune donnée utilisateur n'est envoyée au développeur ni à un serveur. S'il y a une connexion, l'app télécharge seulement depuis tilto.fun le nom, le logo et la présentation du studio, au plus une fois par jour : cette demande ne contient ni identifiant, ni pseudo, ni score, ni aucune donnée personnelle (comme toute requête web, le serveur voit l'adresse IP ; elle n'est ni associée à un joueur ni utilisée par l'app). C'est un simple téléchargement de contenu, pas une collecte : la réponse reste « Non ». En duel, le pseudo et l'état de la partie passent directement d'un téléphone à l'autre sur le réseau local, à l'initiative des joueurs, sans passer par Internet.
   · Si le formulaire insiste sur un point non couvert ici, arrête-toi et demande-moi.
 - Application gouvernementale : Non. Fonctionnalités financières : aucune. Santé : aucune. Application d'actualités : Non. Identifiant publicitaire : Non, l'app ne l'utilise pas.
 
@@ -80,14 +80,16 @@ Quand la console propose la « signature d'application par Google Play » (Play 
 
 ÉTAPE 7 — Premier envoi en test (PAS en production)
 - Va dans Tests › Tests internes (ou Tests fermés si la console l'impose) › Créer une version.
-- Fichier à envoyer : C:\Users\HP I7\Desktop\git_project\APP MOBILE\pong_game\store\play\tilto-1.0.0.aab
-- Nom de la version : 1.0.0
+- Fichier à envoyer : C:\Users\HP I7\Desktop\git_project\APP MOBILE\pong_game\store\play\tilto-1.0.1.aab
+- Nom de la version : 1.0.1
 - Notes de version (fr-FR) :
 Première version de Tilto.
 Solo contre l'ordinateur, sur trois niveaux : Facile, Normal, Difficile.
 Mode Duel : deux téléphones sur le même Wi-Fi, premier à 5 points.
 Classement des 10 meilleurs scores et statistiques, depuis l'accueil.
 Réglages : sensibilité, musique, effets sonores et vibration.
+Page Le studio, depuis Réglages et Aide.
+Démarrage rapide, sans écran d'introduction.
 - Testeurs : arrête-toi et demande-moi les adresses e-mail des testeurs.
 - Si la console affiche une erreur sur le fichier (niveau d'API cible trop bas, signature, identifiant déjà pris, autre), NE contourne rien : recopie-moi le message exact et arrête-toi.
 - Si la console indique qu'il faut un test fermé avec un nombre minimum de testeurs pendant un nombre de jours avant d'accéder à la production, recopie-moi exactement l'exigence.
