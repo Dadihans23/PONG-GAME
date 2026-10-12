@@ -17,9 +17,11 @@ site/
 │   │                      /robots.txt, /sitemap.xml, /.well-known/security.txt
 │   ├── seo.py             robots.txt, sitemap.xml, security.txt, titre et description de l'accueil, JSON-LD
 │   ├── routes_admin.py    /admin/…
+│   ├── routes_api.py      /api/app/studio, lu par l'app mobile (voir « API de l'app »)
 │   ├── contact.py         formulaire de contact : jeton, délai, validation
 │   ├── mailer.py          notification SMTP facultative des messages de contact
 │   ├── reseed_v2.py       commande facultative : textes v1 → textes v2 (voir plus bas)
+│   ├── reseed_studio.py   commande : section « Nom et logo du studio » dans la politique en base
 │   ├── hashpw.py          génération du hachage du mot de passe et de la clé secrète
 │   ├── templates/         gabarits HTML (publics, et admin/)
 │   ├── seed/              logo initial du studio, copié dans les données au premier démarrage
@@ -177,7 +179,7 @@ Les étapes d'installation (`spec_row`, groupe `install`) ont deux colonnes : `l
 ## Référencement (SEO)
 
 - **Adresse fixe** : `SITE_URL` (`.env`, défaut `https://tilto.fun`, sans « / » final ni chemin, vérifié au démarrage). Toutes les URL absolues en partent (canonique, Open Graph, sitemap, robots.txt, security.txt, JSON-LD), jamais l'hôte de la requête.
-- **`/robots.txt`** (`seo.robots_txt`) : politique « recherche oui, entraînement non ». Tout le monde peut tout lire sauf `/telecharger`, `/contact/merci` et `/sante` ; les robots d'entraînement des IA (GPTBot, ClaudeBot, Google-Extended, Applebot-Extended, CCBot, meta-externalagent, Bytespider) sont refusés partout ; les robots de recherche des assistants (OAI-SearchBot, ChatGPT-User, PerplexityBot, Claude-SearchBot…) suivent la règle générale. `/admin` n'y figure pas (le fichier est public) : ses pages portent `noindex`.
+- **`/robots.txt`** (`seo.robots_txt`) : politique « recherche oui, entraînement non ». Tout le monde peut tout lire sauf `/telecharger`, `/contact/merci`, `/sante` et `/api/` ; les robots d'entraînement des IA (GPTBot, ClaudeBot, Google-Extended, Applebot-Extended, CCBot, meta-externalagent, Bytespider) sont refusés partout ; les robots de recherche des assistants (OAI-SearchBot, ChatGPT-User, PerplexityBot, Claude-SearchBot…) suivent la règle générale. `/admin` n'y figure pas (le fichier est public) : ses pages portent `noindex`.
 - **`/sitemap.xml`** : `/`, `/contact`, `/confidentialite`, `/mentions-legales`. `lastmod` : date de l'APK courant pour l'accueil (absente sans APK), `privacy_updated` et `legal_updated` (si remplie). Ni `priority` ni `changefreq`.
 - **`/.well-known/security.txt`** (RFC 9116) : contact = page Contact, expire le 1er octobre 2027 (à prolonger avant).
 - **Balises** (`base.html`) : une route passe `canonical_path` à `site_context` pour les pages indexables ; la page reçoit alors `<link rel="canonical">` (sans paramètres), Open Graph (`og:type`, `og:site_name`, `og:locale` fr_FR, `og:url`, `og:title`, `og:description`, `og:image` 1200 × 630 + `alt`) et `twitter:card` `summary_large_image`. Sans `canonical_path` (message envoyé, erreurs) : `<meta name="robots" content="noindex">`. Le bloc `description` d'un gabarit donne la meta description ; vide (404, message envoyé), il n'y en a pas.
@@ -215,6 +217,33 @@ Notification facultative, variables de `.env` (voir `.env.example`) :
 | `CONTACT_MAX_PER_HOUR`, `CONTACT_GLOBAL_PER_HOUR`, `CONTACT_MIN_SECONDS` | limitations (3, 30, 3 par défaut) |
 
 La notification part en tâche de fond après la réponse au visiteur ; son « Répondre » écrit directement au visiteur (`Reply-To`). Un échec (serveur injoignable, mauvais mot de passe) est écrit dans `docker compose logs` (`ERROR tilto.mailer: …`) et le message reste en base. Sans `SMTP_HOST`, `SMTP_FROM` et `CONTACT_NOTIFY_TO`, rien n'est envoyé.
+
+## API de l'app : `GET /api/app/studio`
+
+Seul appel de l'app mobile au site : au lancement, au plus une fois par jour, elle demande le nom, la présentation et le logo du studio (page « Le studio », depuis Réglages ou Aide), et garde la dernière réponse pour fonctionner sans Internet. Le contrat est fixé avec l'app : ne renommer ni retirer aucun champ (un changement incompatible passe par `schema: 2`).
+
+```json
+{
+  "schema": 1,
+  "studio": {"name": "Nexora", "about": "…", "website": "https://tilto.fun", "contact_url": "https://tilto.fun/contact"},
+  "logo": {"url": "https://tilto.fun/media/<nom>.png", "sha256": "<64 hex>", "width": 221, "height": 48, "content_type": "image/png"},
+  "updated_at": "2026-10-12T10:00:00+00:00"
+}
+```
+
+- Données : réglages `studio_name`, `studio_about` (Administration › Studio, « Présentation du studio », 800 caractères, vide par défaut ; paragraphes séparés par une ligne vide) et `studio_logo`. `website` = `SITE_URL`, `contact_url` = `SITE_URL/contact` ; toutes les URL partent de `SITE_URL`, jamais de l'hôte de la requête.
+- `logo` vaut `null` sans logo, si le fichier manque, ou si le logo est en SVG ou GIF (l'app n'affiche que PNG, JPEG, WebP ; l'administration le signale). `sha256`, `width` et `height` sont lus dans le fichier (empreinte gardée en mémoire tant que le fichier ne change pas).
+- `updated_at` : dernier enregistrement de la page Studio (réglage interne `_saved:studio`) ; à défaut, date du fichier du logo ; à défaut, une date fixe. Jamais l'heure de l'appel.
+- En-têtes : `Cache-Control: public, max-age=3600`, `ETag` (hachage du corps) avec réponse 304 sur `If-None-Match`, `X-Robots-Tag: noindex`, aucun cookie, pas de CORS. Lecture seule. Exclue de `robots.txt`, absente du sitemap.
+
+La politique de confidentialité par défaut décrit cet appel (section « Nom et logo du studio », `db.PRIVACY_STUDIO_SECTION`, et phrase des autorisations). Une base existante garde sa politique : pour l'y ajouter, après une sauvegarde de la base :
+
+```bash
+docker compose exec tilto-site python -m app.reseed_studio            # affiche les changements, ne modifie rien
+docker compose exec tilto-site python -m app.reseed_studio --apply    # demande « oui », puis applique
+```
+
+La commande ajoute la section si elle manque (avant « Ce que Tilto n'utilise pas », sinon avant « Ce site », sinon à la fin), remplace la phrase des autorisations seulement si elle est encore mot pour mot celle d'origine, et met `privacy_updated` à la date du jour. Rien d'autre n'est touché ; relancée, elle ne fait rien. Depuis le poste : `ssh -t hans@79.143.190.190 "cd ~/tilto-site && docker compose exec tilto-site python -m app.reseed_studio --apply"` (`-t` : la question « oui » a besoin d'un terminal).
 
 ## Mise à jour vers le site v2 : ce qui change en production
 

@@ -212,6 +212,9 @@ Décisions :
 - [x] Administration v2 intégrée d'après la maquette (`Tilto Admin v2.dc.html` + `TiltoAdmin2.dc.html`, décisions du 2026-10-09) : menu latéral groupé, tableau de bord calculé (à faire, état du site), messages en liste + lecture, erreurs sous le champ, tableaux enregistrés d'un bloc, listes dépliables, confirmation `<dialog>`, mode clair, mobile 360 px sans débordement, étapes d'installation en titre + précision (migration du texte par défaut) ; corrige `--surface-2` et les tableaux qui débordaient
 - [ ] Administration v2 : à vérifier par le propriétaire en local puis à déployer (dépôt d'un vrai APK avec la barre de progression, copie du lien et de l'empreinte, thème clair sur téléphone)
 - [ ] Mise à jour des actions GitHub (avertissements Node.js 20 et Ubuntu 26) lors d'une prochaine modification du workflow
+- [x] API de l'app `GET /api/app/studio` (nom, présentation, logo PNG/JPEG/WebP du studio ; cache 1 h, ETag/304, sans cookie, hors robots.txt et sitemap), champ « Présentation du studio » dans Administration › Studio, section « Nom et logo du studio » dans la politique par défaut, commande `python -m app.reseed_studio` ; tests pytest
+- [ ] **À faire après le déploiement, avec l'accord du propriétaire** (sauvegarde du volume `tilto-data` d'abord) : `ssh -t hans@79.143.190.190 "cd ~/tilto-site && docker compose exec tilto-site python -m app.reseed_studio --apply"` (demande « oui » ; ajoute la section à la politique en ligne et met sa date à jour) ; à faire avant la publication de l'app qui appelle l'API
+- [ ] Propriétaire : saisir la présentation du studio et déposer le logo en PNG clair (le logo en ligne est un PNG 1561 × 339 : il s'affiche, mais une version réduite est conseillée)
 
 ### Référencement du site (audit SEO de tilto.fun)
 - [x] Adresse fixe `SITE_URL` (jamais l'hôte de la requête) pour toutes les URL absolues
