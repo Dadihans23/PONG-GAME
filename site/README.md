@@ -390,7 +390,7 @@ Les scores acceptent un chiffre de 0 à 5.
 
 ## Déploiement automatique (branche `prod`)
 
-Chaque push sur la branche `prod` lance `.github/workflows/deploy-prod.yml` : analyse et tests de l'app Flutter, tests du site, puis copie de `site/` sur le VPS (rsync) et `docker compose up -d --build`. Le `.env` et le volume `tilto-data` restent sur le serveur et ne sont jamais écrasés. Un déploiement peut aussi être relancé à la main (onglet Actions › Déploiement prod › Run workflow).
+Le développement se fait sur `main` ; la mise en ligne = `git push origin main:prod`. Chaque push sur la branche `prod` lance `.github/workflows/deploy-prod.yml` : analyse et tests de l'app Flutter, tests du site, puis copie de `site/` sur le VPS (rsync) et `docker compose up -d --build`. Le `.env` et le volume `tilto-data` restent sur le serveur et ne sont jamais écrasés. Un déploiement peut aussi être relancé à la main (onglet Actions › Déploiement prod › Run workflow).
 
 ### Mise en place (une seule fois)
 

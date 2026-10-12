@@ -150,7 +150,7 @@ Isolée du moteur, pour pouvoir la remplacer plus tard par un serveur en ligne.
 
 ### 2.6 bis Sensibilité de la raquette de 0 à 100
 
-Décidé avec le propriétaire. Développé sur la branche `feature-sensibilite`, à tester après le duel.
+Décidé avec le propriétaire. Développé sur l'ancienne branche `feature-sensibilite` (aujourd'hui dans `main`), à tester après le duel.
 
 - [x] Curseur de 0 à 100 dans les Réglages, à la place des 5 crans (anciens crans convertis : « Normale » → 50)
 - [x] Le curseur règle ensemble la vitesse maximale (1,2 à 3,0 unités/s) et l'inclinaison nécessaire (60° à 20°) ; 0 reste jouable
@@ -177,7 +177,7 @@ Décidé avec le propriétaire. Développé sur la branche `feature-sensibilite`
 
 Décidé avec le propriétaire. Le site a été lancé sans attendre le test du duel (accord du propriétaire).
 
-**Branches (état au 2026-10-09)** : tout le travail est sur `feature-sensibilite` (contient `phase-2-multijoueur` + sensibilité + signature + icône + site + CI/CD). `prod` = copie de `feature-sensibilite`, déployée sur https://tilto.fun. `main` (sur GitHub) n'a que la phase 1 : la fusion dans `main` attend le test du duel sur deux téléphones.
+**Branches (depuis le 2026-10-12)** : deux branches seulement. `main` = développement (tout le travail, phases 1 et 2, site, CI/CD) ; `prod` = ce qui est en ligne sur https://tilto.fun, mis à jour par `git push origin main:prod`. Les anciennes branches (`feature-sensibilite`, `phase-1-solo`, `phase-2-multijoueur`) ont été supprimées, leur contenu est dans `main`. Le test du duel sur deux téléphones reste à faire avant la publication de l'app.
 
 Décisions :
 - Nom du jeu : **Tilto** (« Pong » est une marque d'Atari et trop générique). Studio : **Nexora** (nom susceptible de changer).
