@@ -12,6 +12,8 @@
 // ```
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
+
 import '../pong_colors.dart';
 import '../pong_tokens.dart';
 import 'pong_buttons.dart';
@@ -63,7 +65,7 @@ class PongHeaderBar extends StatelessWidget implements PreferredSizeWidget {
                 child: showBack
                     ? PongIconButton(
                         icon: Icons.arrow_back_rounded,
-                        tooltip: 'Retour',
+                        tooltip: context.l10n.commonBack,
                         color: PongColors.textPrimary,
                         onPressed:
                             onBack ?? () => Navigator.of(context).maybePop(),

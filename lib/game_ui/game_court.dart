@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:pong_game/game/pong_engine.dart';
+import 'package:pong_game/l10n/l10n.dart';
 import 'package:pong_game/ui/pong_ui.dart';
 
 /// Effets passagers du terrain, calculés par l'écran de jeu à chaque image.
@@ -204,14 +205,17 @@ class _CourtBackground extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 20),
                   child: recordBeaten
-                      ? const PongPill.signal(
-                          label: 'Nouveau record',
+                      ? PongPill.signal(
+                          label: context.l10n.courtNewRecord,
                           color: PongColors.record,
                           icon: Icons.star_rounded,
                         )
                       : record > 0
                           ? PongSpacedText(
-                              'RECORD ${PongFormat.number(record)}',
+                              context.l10n
+                                  .courtRecord(
+                                      PongFormat.of(context).number(record))
+                                  .toUpperCase(),
                               style: PongText.hudLabel)
                           : const SizedBox.shrink(),
                 ),
@@ -231,7 +235,7 @@ class _CourtBackground extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        PongFormat.number(score),
+                        PongFormat.of(context).number(score),
                         maxLines: 1,
                         style: PongText.gameScore.copyWith(
                           color: scoreColor,
@@ -269,6 +273,7 @@ class _StartPrompt extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Positioned.fill(
       child: Stack(
         alignment: Alignment.center,
@@ -302,7 +307,7 @@ class _StartPrompt extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   PongSpacedText(
-                    "TAPE L'ÉCRAN",
+                    l10n.courtTapToStart.toUpperCase(),
                     style: PongText.screenTitle.copyWith(
                       fontSize: 20,
                       letterSpacing: 20 * 0.4,
@@ -310,14 +315,14 @@ class _StartPrompt extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 14),
-                  const Row(
+                  Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.screen_rotation_rounded,
+                      const Icon(Icons.screen_rotation_rounded,
                           size: 18, color: PongColors.textSecondary),
-                      SizedBox(width: PongSpacing.xs),
+                      const SizedBox(width: PongSpacing.xs),
                       Flexible(
-                        child: Text('Incline le téléphone pour bouger',
+                        child: Text(l10n.courtTiltHint,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: PongText.caption),
@@ -326,7 +331,10 @@ class _StartPrompt extends StatelessWidget {
                   ),
                   if (record > 0) ...[
                     const SizedBox(height: PongSpacing.xl),
-                    PongSpacedText('RECORD ${PongFormat.number(record)}',
+                    PongSpacedText(
+                        l10n
+                            .courtRecord(PongFormat.of(context).number(record))
+                            .toUpperCase(),
                         style: PongText.hudLabel),
                   ],
                 ],

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:pong_game/l10n/l10n.dart';
 import 'package:pong_game/multiplayer/widgets/duel_avatar.dart';
 import 'package:pong_game/multiplayer/widgets/duel_countdown.dart';
 import 'package:pong_game/multiplayer/widgets/duel_radar.dart';
-import 'package:pong_game/multiplayer/widgets/duel_texts.dart';
 import 'package:pong_game/ui/pong_ui.dart';
 
 import 'multiplayer_view_data.dart';
@@ -46,7 +46,7 @@ class LobbyScreen extends StatelessWidget {
       child: Stack(
         children: [
           PongPageScaffold(
-            title: 'Salon',
+            title: context.l10n.lobbyTitle,
             showBack: false,
             body: _LobbyBody(data: data, dimmed: countdown != null),
             bottomAction: countdown != null
@@ -86,10 +86,11 @@ class _LobbyBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final LobbyPlayerViewData? other = data.other;
+    final l10n = context.l10n;
     final Widget meRow = _PlayerRow(
       player: data.me,
       side: DuelSide.me,
-      subtitle: data.isHost ? 'Toi · hôte' : 'Toi',
+      subtitle: data.isHost ? l10n.lobbyYouHost : l10n.lobbyYou,
     );
     final Widget otherRow = other == null
         ? const _EmptySlot()
@@ -97,10 +98,10 @@ class _LobbyBody extends StatelessWidget {
             player: other,
             side: DuelSide.opponent,
             subtitle: !data.isHost
-                ? 'Hôte'
+                ? l10n.lobbyHost
                 : other.justJoined
-                    ? 'Vient de rejoindre'
-                    : 'Invité',
+                    ? l10n.lobbyJustJoined
+                    : l10n.lobbyGuest,
           );
     // L'hôte d'abord : côté invité, « toi » se retrouve en bas, comme sur
     // le terrain
@@ -121,14 +122,14 @@ class _LobbyBody extends StatelessWidget {
                 Semantics(
                   header: true,
                   child: Text(
-                    DuelTexts.gameOf(data.hostName),
+                    l10n.gameOfName(data.hostName),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: PongText.headline.copyWith(fontSize: 24),
                   ),
                 ),
                 const SizedBox(height: PongSpacing.xxs),
-                Text('Duel · premier à $duelTargetScore points',
+                Text(l10n.lobbyDuelFormat(duelTargetScore),
                     style: PongText.caption
                         .copyWith(fontSize: 14, fontWeight: FontWeight.w400)),
               ],
@@ -164,7 +165,7 @@ class _LobbyBody extends StatelessWidget {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 260),
               child: Text(
-                'Ta partie est visible par les joueurs à proximité.',
+                l10n.lobbyVisible,
                 textAlign: TextAlign.center,
                 style: PongText.body.copyWith(fontSize: 14),
               ),
@@ -230,13 +231,13 @@ class _PlayerRow extends StatelessWidget {
             ),
             const SizedBox(width: PongSpacing.xs),
             player.ready
-                ? const PongPill.status(
-                    label: 'Prêt',
+                ? PongPill.status(
+                    label: context.l10n.lobbyReadyStatus,
                     color: PongColors.success,
                     icon: Icons.check_rounded,
                   )
-                : const PongPill.status(
-                    label: 'En attente',
+                : PongPill.status(
+                    label: context.l10n.lobbyWaitingStatus,
                     icon: Icons.hourglass_top_rounded,
                   ),
           ],
@@ -263,7 +264,7 @@ class _EmptySlot extends StatelessWidget {
               DuelAvatar.placeholder,
               const SizedBox(width: 14),
               Expanded(
-                child: Text("En attente d'un joueur…",
+                child: Text(context.l10n.lobbyWaitingForPlayer,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: PongText.body
@@ -293,18 +294,19 @@ class _LobbyActions extends StatelessWidget {
   Widget build(BuildContext context) {
     final LobbyPlayerViewData? other = data.other;
     final bool meReady = data.me.ready;
+    final l10n = context.l10n;
 
     final String hint;
     Color hintColor = PongColors.textSecondary;
     if (other == null) {
-      hint = "Disponible dès qu'un joueur te rejoint";
+      hint = l10n.lobbyHintAlone;
       hintColor = PongColors.textTertiary;
     } else if (meReady) {
-      hint = DuelTexts.waitingFor(other.name);
+      hint = l10n.waitingForName(other.name);
     } else if (other.ready) {
-      hint = "${other.name} t'attend. À toi !";
+      hint = l10n.lobbyHintOtherReady(other.name);
     } else {
-      hint = 'La partie démarre quand vous êtes prêts tous les deux';
+      hint = l10n.lobbyHintBothReady;
     }
 
     return Column(
@@ -324,18 +326,18 @@ class _LobbyActions extends StatelessWidget {
           child: meReady
               ? PongSecondaryButton(
                   key: const ValueKey('notReady'),
-                  label: 'Je ne suis plus prêt',
+                  label: l10n.lobbyNotReady,
                   onPressed: () => onReadyChanged(false),
                 )
               : PongPrimaryButton(
                   key: const ValueKey('ready'),
-                  label: 'Prêt',
+                  label: l10n.lobbyReady,
                   onPressed: other == null ? null : () => onReadyChanged(true),
                 ),
         ),
         const SizedBox(height: PongSpacing.xs),
         PongTextButton(
-          label: data.isHost ? 'Annuler la partie' : 'Quitter',
+          label: data.isHost ? l10n.lobbyCancelGame : l10n.commonQuit,
           onPressed: onLeave,
         ),
       ],

@@ -4,8 +4,11 @@ import 'package:pong_game/aide.dart';
 import 'package:pong_game/brand.dart';
 import 'package:pong_game/game_sound.dart';
 import 'package:pong_game/hompage.dart';
+import 'package:pong_game/l10n/l10n.dart';
 import 'package:pong_game/leaderboard.dart';
 import 'package:pong_game/multiplayer/screens/multiplayer_route.dart';
+import 'package:pong_game/multiplayer/screens/multiplayer_view_data.dart'
+    show duelTargetScore;
 import 'package:pong_game/settings/pong_settings.dart';
 import 'package:pong_game/settings/settings_page.dart';
 import 'package:pong_game/statistics.dart';
@@ -21,6 +24,8 @@ class NamePage extends StatefulWidget {
   final String? savedPseudo;
 
   /// Difficultés transmises au jeu, telles quelles (`MyHomePage.difficulty`).
+  /// Valeurs internes du moteur, jamais traduites : seul leur libellé l'est
+  /// (`AppLocalizations.difficultyLabel`).
   static const List<String> difficulties = ['Facile', 'Normal', 'Difficile'];
 
   /// Longueur maximale d'un pseudo : il tient sur une ligne du classement.
@@ -84,7 +89,7 @@ class _NamePageState extends State<NamePage> {
     if (playerName.isEmpty) {
       setState(() {
         _editingPseudo = true;
-        _pseudoError = 'Choisis un pseudo pour jouer';
+        _pseudoError = context.l10n.homeNicknameRequired;
         _pseudoShake++;
       });
       return;
@@ -186,6 +191,7 @@ class _NamePageState extends State<NamePage> {
     final gap = MediaQuery.sizeOf(context).height < _compactHeight
         ? PongSpacing.sm
         : PongSpacing.md;
+    final l10n = context.l10n;
     return Scaffold(
       backgroundColor: PongColors.background,
       // Réglages à droite ; la place de gauche (48 px) reste vide pour
@@ -195,7 +201,7 @@ class _NamePageState extends State<NamePage> {
         showBack: false,
         trailing: PongIconButton(
           icon: Icons.settings_rounded,
-          tooltip: 'Réglages',
+          tooltip: l10n.homeSettingsTooltip,
           color: PongColors.textSecondary,
           onPressed: _openSettings,
         ),
@@ -214,7 +220,7 @@ class _NamePageState extends State<NamePage> {
                   children: [
                     _showPseudoField ? _buildPseudoField() : _buildGreeting(),
                     SizedBox(height: gap + PongSpacing.xxs),
-                    const PongOverline('Mode de jeu'),
+                    PongOverline(l10n.homeGameModeTitle),
                     SizedBox(height: gap),
                     _SoloModeCard(
                       selected: _mode == _GameMode.solo,
@@ -236,7 +242,8 @@ class _NamePageState extends State<NamePage> {
                     ),
                     const Spacer(),
                     SizedBox(height: gap),
-                    PongPrimaryButton(label: 'Jouer', onPressed: _startPlaying),
+                    PongPrimaryButton(
+                        label: l10n.homePlay, onPressed: _startPlaying),
                     SizedBox(height: gap),
                     _Shortcuts(onOpen: _open),
                   ],
@@ -253,8 +260,8 @@ class _NamePageState extends State<NamePage> {
     return PongTextField(
       controller: _nameController,
       focusNode: _nameFocus,
-      label: 'Ton pseudo',
-      hintText: 'Entre ton pseudo',
+      label: context.l10n.nicknameFieldLabel,
+      hintText: context.l10n.nicknameFieldHint,
       errorText: _pseudoError,
       shakeTrigger: _pseudoShake,
       maxLength: NamePage.pseudoMaxLength,
@@ -274,7 +281,7 @@ class _NamePageState extends State<NamePage> {
         children: [
           Expanded(
             child: Text(
-              'Bonjour, $_pseudo',
+              context.l10n.homeGreeting(_pseudo ?? ''),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: PongText.headline,
@@ -282,7 +289,7 @@ class _NamePageState extends State<NamePage> {
           ),
           const SizedBox(width: PongSpacing.xs),
           PongTextButton(
-            label: 'Modifier',
+            label: context.l10n.commonEdit,
             icon: Icons.edit_rounded,
             color: PongColors.pinkLight,
             onPressed: _editPseudo,
@@ -319,26 +326,28 @@ class _SoloModeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     if (!selected) {
       return PongChoiceCard(
         icon: Icons.person_rounded,
-        title: 'Solo',
-        subtitle: "Contre l'ordinateur · $difficulty",
+        title: l10n.modeSolo,
+        subtitle: l10n.homeSoloSubtitleWithDifficulty(
+            l10n.difficultyLabel(difficulty)),
         selected: false,
         onTap: onSelect,
       );
     }
     return PongChoiceCard(
       icon: Icons.person_rounded,
-      title: 'Solo',
-      subtitle: "Contre l'ordinateur",
+      title: l10n.modeSolo,
+      subtitle: l10n.homeSoloSubtitle,
       selected: true,
       onTap: onSelect,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (showDetails) ...[
-            Text('Choisis la difficulté',
+            Text(l10n.homeChooseDifficulty,
                 style: PongText.caption.copyWith(fontWeight: FontWeight.w400)),
             const SizedBox(height: PongSpacing.xs),
           ],
@@ -351,7 +360,7 @@ class _SoloModeCard extends StatelessWidget {
                   const SizedBox(width: PongSpacing.xs),
                 Expanded(
                   child: PongSelectableButton(
-                    label: value,
+                    label: l10n.difficultyLabel(value),
                     selected: value == difficulty,
                     onPressed: () => onDifficultyChanged(value),
                   ),
@@ -377,9 +386,10 @@ class _BestScoreRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final value = PongFormat.number(score);
+    final value = PongFormat.of(context).number(score);
+    final l10n = context.l10n;
     return Semantics(
-      label: 'Meilleur score : $value',
+      label: l10n.bestScoreValue(value),
       excludeSemantics: true,
       child: Container(
         padding: const EdgeInsets.only(top: PongSpacing.sm),
@@ -392,7 +402,7 @@ class _BestScoreRow extends StatelessWidget {
                 size: 18, color: PongColors.record),
             const SizedBox(width: PongSpacing.xs),
             Expanded(
-              child: Text('Meilleur score',
+              child: Text(l10n.bestScore,
                   style:
                       PongText.caption.copyWith(fontWeight: FontWeight.w400)),
             ),
@@ -427,11 +437,11 @@ class _MultiplayerModeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return PongChoiceCard(
       icon: Icons.group_rounded,
-      title: 'Multijoueur',
-      // ‑ : trait d'union insécable, « Wi-Fi » ne se coupe pas
-      subtitle: 'À deux, même Wi‑Fi',
+      title: l10n.modeMultiplayer,
+      subtitle: l10n.homeMultiplayerSubtitle,
       selected: selected,
       onTap: onSelect,
       child: !selected
@@ -450,8 +460,7 @@ class _MultiplayerModeCard extends StatelessWidget {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'Duel en 5 points, chacun sur son téléphone. Pas '
-                        "besoin d'Internet.",
+                        l10n.homeMultiplayerDetail(duelTargetScore),
                         style: PongText.caption
                             .copyWith(fontWeight: FontWeight.w400, height: 1.5),
                       ),
@@ -477,8 +486,10 @@ class _DuelRecordRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final format = PongFormat.of(context);
     return Semantics(
-      label: 'Victoires : $wins, défaites : $losses',
+      label: l10n.duelRecordSemantics(wins, losses),
       excludeSemantics: true,
       child: Container(
         padding: const EdgeInsets.only(top: PongSpacing.sm),
@@ -488,20 +499,20 @@ class _DuelRecordRow extends StatelessWidget {
         child: Row(
           children: [
             Expanded(
-              child: Text('Victoires / défaites',
+              child: Text(l10n.homeDuelRecord,
                   style:
                       PongText.caption.copyWith(fontWeight: FontWeight.w400)),
             ),
             Text.rich(
               TextSpan(children: [
                 TextSpan(
-                    text: PongFormat.number(wins),
+                    text: format.number(wins),
                     style: const TextStyle(color: PongColors.success)),
                 const TextSpan(
                     text: ' / ',
                     style: TextStyle(color: PongColors.textDisabled)),
                 TextSpan(
-                    text: PongFormat.number(losses),
+                    text: format.number(losses),
                     style: const TextStyle(color: PongColors.textBody)),
               ]),
               style: PongText.listValue.copyWith(fontSize: 16),
@@ -521,12 +532,13 @@ class _Shortcuts extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Row(
       children: [
         Expanded(
           child: PongTileButton(
             icon: Icons.leaderboard_rounded,
-            label: 'Classement',
+            label: l10n.leaderboardTitle,
             onPressed: () => onOpen(const LeaderboardPage()),
           ),
         ),
@@ -534,7 +546,7 @@ class _Shortcuts extends StatelessWidget {
         Expanded(
           child: PongTileButton(
             icon: Icons.bar_chart_rounded,
-            label: 'Statistiques',
+            label: l10n.statisticsTitle,
             onPressed: () => onOpen(const StatisticsPage()),
           ),
         ),
@@ -542,7 +554,7 @@ class _Shortcuts extends StatelessWidget {
         Expanded(
           child: PongTileButton(
             icon: Icons.help_rounded,
-            label: 'Aide',
+            label: l10n.helpTitle,
             onPressed: () => onOpen(const AidePage()),
           ),
         ),

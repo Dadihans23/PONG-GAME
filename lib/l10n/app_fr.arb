@@ -1,0 +1,1203 @@
+{
+  "@@locale": "fr",
+  "commonBack": "Retour",
+  "@commonBack": {
+    "description": "Tooltip / screen-reader label of the back arrow in every screen header. Max ~12 chars."
+  },
+  "commonEdit": "Modifier",
+  "@commonEdit": {
+    "description": "Small text button next to the nickname (home screen, Settings). Max ~10 chars."
+  },
+  "commonQuit": "Quitter",
+  "@commonQuit": {
+    "description": "Text button: leave the lobby (guest) or the end-of-duel screen; also the \"leave\" button of the \"Leave the duel?\" dialog. Max ~12 chars."
+  },
+  "commonSave": "Enregistrer",
+  "@commonSave": {
+    "description": "Main button of the nickname dialog (Settings). Shown in capitals. Max ~14 chars."
+  },
+  "commonCancel": "Annuler",
+  "@commonCancel": {
+    "description": "Text button closing the nickname dialog without saving. Max ~12 chars."
+  },
+  "commonLabelValue": "{label} : {value}",
+  "@commonLabelValue": {
+    "description": "Screen-reader text for a statistic tile (\"Games played: 12\"). Keep the punctuation of your language (French puts a space before the colon).",
+    "placeholders": {
+      "label": {
+        "type": "String",
+        "example": "Parties jouées"
+      },
+      "value": {
+        "type": "String",
+        "example": "12"
+      }
+    }
+  },
+  "gaugeProgress": "{filled} sur {count}",
+  "@gaugeProgress": {
+    "description": "Screen-reader text for a dot gauge (\"2 of 4\"): hits made towards the next speed-up, or points in a duel.",
+    "placeholders": {
+      "filled": {
+        "type": "int",
+        "example": "2"
+      },
+      "count": {
+        "type": "int",
+        "example": "4"
+      }
+    }
+  },
+  "gaugeProgressLabelled": "{label}, {filled} sur {count}",
+  "@gaugeProgressLabelled": {
+    "description": "Screen-reader text for a labelled dot gauge (\"Speed 3, 2 of 4\").",
+    "placeholders": {
+      "label": {
+        "type": "String",
+        "example": "Vitesse 3"
+      },
+      "filled": {
+        "type": "int",
+        "example": "2"
+      },
+      "count": {
+        "type": "int",
+        "example": "4"
+      }
+    }
+  },
+  "modeSolo": "Solo",
+  "@modeSolo": {
+    "description": "Name of the single-player mode (vs the computer): home mode card, Statistics section title. Max ~12 chars."
+  },
+  "modeMultiplayer": "Multijoueur",
+  "@modeMultiplayer": {
+    "description": "Name of the local two-phone mode: home mode card, screen title, Statistics and Help section titles. Screen titles are shown in spaced capitals. Max ~14 chars."
+  },
+  "difficultyEasy": "Facile",
+  "@difficultyEasy": {
+    "description": "Difficulty of the computer opponent, on a small button (1/3 of the card width). Also shown in capitals in the game header (\"SOLO · EASY\"). Max ~9 chars."
+  },
+  "difficultyNormal": "Normal",
+  "@difficultyNormal": {
+    "description": "Medium difficulty (see difficultyEasy). Max ~9 chars."
+  },
+  "difficultyHard": "Difficile",
+  "@difficultyHard": {
+    "description": "Hardest difficulty (see difficultyEasy). Max ~9 chars."
+  },
+  "splashLoading": "Chargement…",
+  "@splashLoading": {
+    "description": "Under the loading bar of the start screen, next to the percentage. Max ~16 chars."
+  },
+  "splashLoadingLabel": "Chargement",
+  "@splashLoadingLabel": {
+    "description": "Screen-reader name of the loading bar (the percentage is read after it)."
+  },
+  "homeSettingsTooltip": "Réglages",
+  "@homeSettingsTooltip": {
+    "description": "Tooltip / screen-reader label of the gear icon at the top right of the home screen."
+  },
+  "homeGreeting": "Bonjour, {name}",
+  "@homeGreeting": {
+    "description": "Home screen greeting with the player nickname (up to 20 chars, shortened with … if needed).",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Léa"
+      }
+    }
+  },
+  "homeNicknameRequired": "Choisis un pseudo pour jouer",
+  "@homeNicknameRequired": {
+    "description": "Error under the nickname field when the player taps Play with an empty nickname. Max ~32 chars."
+  },
+  "nicknameFieldLabel": "Ton pseudo",
+  "@nicknameFieldLabel": {
+    "description": "Label above the nickname field (home screen) and title of the nickname dialog (Settings). Max ~18 chars."
+  },
+  "nicknameFieldHint": "Entre ton pseudo",
+  "@nicknameFieldHint": {
+    "description": "Placeholder inside the empty nickname field. Max ~24 chars."
+  },
+  "homeGameModeTitle": "Mode de jeu",
+  "@homeGameModeTitle": {
+    "description": "Small section title above the Solo and Multiplayer cards, shown in spaced capitals. Max ~16 chars."
+  },
+  "homeSoloSubtitle": "Contre l'ordinateur",
+  "@homeSoloSubtitle": {
+    "description": "Subtitle of the selected Solo card. Max ~24 chars."
+  },
+  "homeSoloSubtitleWithDifficulty": "Contre l'ordinateur · {difficulty}",
+  "@homeSoloSubtitleWithDifficulty": {
+    "description": "Subtitle of the Solo card when it is not selected: reminds the chosen difficulty. Max ~34 chars.",
+    "placeholders": {
+      "difficulty": {
+        "type": "String",
+        "example": "Normal"
+      }
+    }
+  },
+  "homeChooseDifficulty": "Choisis la difficulté",
+  "@homeChooseDifficulty": {
+    "description": "Line above the three difficulty buttons in the Solo card. Max ~26 chars."
+  },
+  "bestScore": "Meilleur score",
+  "@bestScore": {
+    "description": "Best solo score: line at the bottom of the Solo card (home) and tile title in Statistics (half the screen width). Max ~16 chars."
+  },
+  "bestScoreValue": "Meilleur score : {score}",
+  "@bestScoreValue": {
+    "description": "Screen-reader text of the high score line (home).",
+    "placeholders": {
+      "score": {
+        "type": "String",
+        "example": "2 400"
+      }
+    }
+  },
+  "homeMultiplayerSubtitle": "À deux, même Wi‑Fi",
+  "@homeMultiplayerSubtitle": {
+    "description": "Subtitle of the Multiplayer card on the home screen. Keep \"Wi‑Fi\" with its non-breaking hyphen. Max ~28 chars."
+  },
+  "homeMultiplayerDetail": "Duel en {points} points, chacun sur son téléphone. Pas besoin d'Internet.",
+  "@homeMultiplayerDetail": {
+    "description": "Text inside the selected Multiplayer card (home). Up to 3 lines.",
+    "placeholders": {
+      "points": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "homeDuelRecord": "Victoires / défaites",
+  "@homeDuelRecord": {
+    "description": "Line at the bottom of the Multiplayer card, followed by \"3 / 1\". Max ~22 chars."
+  },
+  "duelRecordSemantics": "Victoires : {wins}, défaites : {losses}",
+  "@duelRecordSemantics": {
+    "description": "Screen-reader text of the duel record line (home).",
+    "placeholders": {
+      "wins": {
+        "type": "int",
+        "example": "3"
+      },
+      "losses": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "homePlay": "Jouer",
+  "@homePlay": {
+    "description": "Main pink button of the home screen (starts the selected mode); also on the empty leaderboard. Shown in capitals. Max ~14 chars."
+  },
+  "leaderboardTitle": "Classement",
+  "@leaderboardTitle": {
+    "description": "Leaderboard (top 10 solo scores): screen title in spaced capitals, home shortcut tile (1/3 of the width) and button on the game-over card. Max ~13 chars."
+  },
+  "statisticsTitle": "Statistiques",
+  "@statisticsTitle": {
+    "description": "Statistics: screen title in spaced capitals, home shortcut tile (1/3 of the width) and button on the game-over card. Max ~13 chars."
+  },
+  "helpTitle": "Aide",
+  "@helpTitle": {
+    "description": "Help screen: title and home shortcut tile. Max ~10 chars."
+  },
+  "hudSoloMode": "Solo · {difficulty}",
+  "@hudSoloMode": {
+    "description": "Game header before the first tap, shown in capitals (\"SOLO · NORMAL\").",
+    "placeholders": {
+      "difficulty": {
+        "type": "String",
+        "example": "Normal"
+      }
+    }
+  },
+  "hudSpeed": "Vitesse {level}",
+  "@hudSpeed": {
+    "description": "Game header during play, next to 4 dots, shown in capitals: current ball speed level. Max ~14 chars.",
+    "placeholders": {
+      "level": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "pauseTooltip": "Pause",
+  "@pauseTooltip": {
+    "description": "Tooltip / screen-reader label of the pause button (top right during a solo game)."
+  },
+  "courtTapToStart": "Tape l'écran",
+  "@courtTapToStart": {
+    "description": "Big instruction in the middle of the court before a solo game starts, in spaced capitals (font 20). Max ~16 chars."
+  },
+  "courtTiltHint": "Incline le téléphone pour bouger",
+  "@courtTiltHint": {
+    "description": "Hint under \"Tap the screen\": the paddle is moved by tilting the phone. One line, max ~34 chars."
+  },
+  "courtRecord": "Record {score}",
+  "@courtRecord": {
+    "description": "Previous high score shown on the court, in spaced capitals (\"RECORD 2 400\"). Max ~16 chars.",
+    "placeholders": {
+      "score": {
+        "type": "String",
+        "example": "2 400"
+      }
+    }
+  },
+  "courtNewRecord": "Nouveau record",
+  "@courtNewRecord": {
+    "description": "Gold badge on the court when the player beats the high score during a game. Max ~16 chars."
+  },
+  "pauseTitle": "Pause",
+  "@pauseTitle": {
+    "description": "Title of the pause overlay, very big spaced capitals. Max ~8 chars."
+  },
+  "pauseScore": "Score {score}",
+  "@pauseScore": {
+    "description": "Under the pause title when there is no high score yet.",
+    "placeholders": {
+      "score": {
+        "type": "String",
+        "example": "1 250"
+      }
+    }
+  },
+  "pauseScoreAndRecord": "Score {score} · Record {record}",
+  "@pauseScoreAndRecord": {
+    "description": "Under the pause title: current score and high score. One line, max ~32 chars.",
+    "placeholders": {
+      "score": {
+        "type": "String",
+        "example": "1 250"
+      },
+      "record": {
+        "type": "String",
+        "example": "2 400"
+      }
+    }
+  },
+  "pauseResume": "Reprendre",
+  "@pauseResume": {
+    "description": "Main button of the pause overlay, in capitals. Max ~14 chars."
+  },
+  "pauseQuit": "Quitter la partie",
+  "@pauseQuit": {
+    "description": "Text button of the pause overlay: back to the home screen, the game is not counted. Max ~22 chars."
+  },
+  "gameOverTitle": "Partie terminée",
+  "@gameOverTitle": {
+    "description": "Small spaced capitals at the top of the game-over card (not a record). Max ~18 chars."
+  },
+  "gameOverNewRecord": "Nouveau record !",
+  "@gameOverNewRecord": {
+    "description": "Gold badge at the top of the game-over card when the high score was beaten. Max ~18 chars."
+  },
+  "gameOverPoints": "points",
+  "@gameOverPoints": {
+    "description": "Under the big final score of the game-over card (no high score yet)."
+  },
+  "gameOverPointsWithRecord": "points · record {record}",
+  "@gameOverPointsWithRecord": {
+    "description": "Under the big final score: reminds the high score.",
+    "placeholders": {
+      "record": {
+        "type": "String",
+        "example": "2 400"
+      }
+    }
+  },
+  "gameOverPointsOverRecord": "points · {gain} sur l'ancien record",
+  "@gameOverPointsOverRecord": {
+    "description": "Under the big final score of a record game; {gain} is shown in gold (\"+250\"). Max ~40 chars.",
+    "placeholders": {
+      "gain": {
+        "type": "String",
+        "example": "+250"
+      }
+    }
+  },
+  "gameOverHits": "{count, plural, one{renvoi} other{renvois}}",
+  "@gameOverHits": {
+    "description": "Label under the number of times the player hit the ball (small tile, 1/3 of the card). Only the word: the number is displayed above it. Max ~10 chars.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "23"
+      }
+    }
+  },
+  "gameOverDuration": "durée",
+  "@gameOverDuration": {
+    "description": "Label under the game duration (\"3m 20s\") on the game-over card (small tile). Max ~10 chars."
+  },
+  "gameOverRank": "classement",
+  "@gameOverRank": {
+    "description": "Label under the leaderboard position (\"2nd\") on the game-over card of a record game (small tile). Max ~10 chars."
+  },
+  "gameOverTopSpeed": "vitesse max",
+  "@gameOverTopSpeed": {
+    "description": "Label under the highest speed level reached (small tile, 1/3 of the card). Max ~11 chars."
+  },
+  "gameOverReplay": "Rejouer",
+  "@gameOverReplay": {
+    "description": "Main pink button of the solo game-over card, in capitals. Max ~16 chars."
+  },
+  "gameOverHome": "Retour à l'accueil",
+  "@gameOverHome": {
+    "description": "Text button at the bottom of the game-over card. Max ~22 chars."
+  },
+  "rankOrdinal": "{rank, select, 1{1er} other{{rank}e}}",
+  "@rankOrdinal": {
+    "description": "Leaderboard position, 1 to 10 only (\"1\" to \"10\"): game-over tile and screen-reader text of the leaderboard. Short ordinal; keep \"{rank, select, ... other{...}}\" (one case per number that needs a special form).",
+    "placeholders": {
+      "rank": {
+        "type": "String",
+        "example": "2"
+      }
+    }
+  },
+  "leaderboardEmptyTitle": "Aucun score enregistré",
+  "@leaderboardEmptyTitle": {
+    "description": "Title of the empty leaderboard. Max ~26 chars."
+  },
+  "leaderboardEmptyMessage": "Joue une partie solo : tes {count} meilleurs scores apparaîtront ici.",
+  "@leaderboardEmptyMessage": {
+    "description": "Text of the empty leaderboard, under the title.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "10"
+      }
+    }
+  },
+  "leaderboardRowSemantics": "{rank}, {name}, {score} points",
+  "@leaderboardRowSemantics": {
+    "description": "Screen-reader text of a leaderboard row without a date. {rank} is an ordinal (\"4th\").",
+    "placeholders": {
+      "rank": {
+        "type": "String",
+        "example": "4e"
+      },
+      "name": {
+        "type": "String",
+        "example": "Léa"
+      },
+      "score": {
+        "type": "String",
+        "example": "1 200"
+      }
+    }
+  },
+  "leaderboardRowSemanticsWithDate": "{rank}, {name}, {score} points, le {date}",
+  "@leaderboardRowSemanticsWithDate": {
+    "description": "Screen-reader text of a leaderboard row with the game date.",
+    "placeholders": {
+      "rank": {
+        "type": "String",
+        "example": "4e"
+      },
+      "name": {
+        "type": "String",
+        "example": "Léa"
+      },
+      "score": {
+        "type": "String",
+        "example": "1 200"
+      },
+      "date": {
+        "type": "String",
+        "example": "03/09/2026"
+      }
+    }
+  },
+  "leaderboardUnknownPlayer": "Inconnu",
+  "@leaderboardUnknownPlayer": {
+    "description": "Shown instead of a nickname when an old leaderboard entry has none."
+  },
+  "statsSoloEmpty": "Joue ta première partie pour remplir ces chiffres.",
+  "@statsSoloEmpty": {
+    "description": "Hint under the Solo section title while no game has been played."
+  },
+  "statsGamesPlayed": "Parties jouées",
+  "@statsGamesPlayed": {
+    "description": "Statistics tile title (half the screen width). Max ~16 chars."
+  },
+  "statsTotalTime": "Temps total de jeu",
+  "@statsTotalTime": {
+    "description": "Statistics row title, followed by a duration on the right (\"7m 29s\"). Max ~22 chars."
+  },
+  "statsBestStreak": "Meilleure série",
+  "@statsBestStreak": {
+    "description": "Statistics row title: most hits in a row in one solo game, followed by \"23 hits\". Max ~18 chars."
+  },
+  "hitsCount": "{count, plural, one{{countText} renvoi} other{{countText} renvois}}",
+  "@hitsCount": {
+    "description": "Number of hits (times a paddle sent the ball back). Keep the non-breaking space after {countText}. {countText} is {count} already formatted (\"1 234\"). Used for the best streak (Statistics) and the longest rally (end of duel).",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "23"
+      },
+      "countText": {
+        "type": "String",
+        "example": "23"
+      }
+    }
+  },
+  "statsMultiplayerEmpty": "Joue ton premier duel pour remplir ces chiffres.",
+  "@statsMultiplayerEmpty": {
+    "description": "Hint under the Multiplayer section title while no duel has been played."
+  },
+  "statsWins": "Victoires",
+  "@statsWins": {
+    "description": "Small label above the number of duels won (Statistics). Max ~12 chars."
+  },
+  "statsLosses": "Défaites",
+  "@statsLosses": {
+    "description": "Small label above the number of duels lost (Statistics). Max ~12 chars."
+  },
+  "duelsCount": "{count, plural, one{{countText} duel} other{{countText} duels}}",
+  "@duelsCount": {
+    "description": "Total number of duels played, between wins and losses (Statistics). {countText} is {count} already formatted.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "19"
+      },
+      "countText": {
+        "type": "String",
+        "example": "19"
+      }
+    }
+  },
+  "statsDuelSemantics": "Victoires : {wins}, défaites : {losses}, {duels}",
+  "@statsDuelSemantics": {
+    "description": "Screen-reader text of the duel record card; {duels} is the duelsCount text (\"19 duels\").",
+    "placeholders": {
+      "wins": {
+        "type": "int",
+        "example": "12"
+      },
+      "losses": {
+        "type": "int",
+        "example": "7"
+      },
+      "duels": {
+        "type": "String",
+        "example": "19 duels"
+      }
+    }
+  },
+  "helpControlsTitle": "Contrôles",
+  "@helpControlsTitle": {
+    "description": "Help card title. Max ~16 chars."
+  },
+  "helpControlsText": "Incline le téléphone à gauche ou à droite pour déplacer ta raquette.",
+  "@helpControlsText": {
+    "description": "Help card text: how to control the paddle."
+  },
+  "helpGoalTitle": "Objectif",
+  "@helpGoalTitle": {
+    "description": "Help card title. Max ~16 chars."
+  },
+  "helpGoalText": "Renvoie la balle le plus longtemps possible. Si elle passe derrière toi, c'est fini.",
+  "@helpGoalText": {
+    "description": "Help card text: the aim of a solo game."
+  },
+  "helpPointsTitle": "Points",
+  "@helpPointsTitle": {
+    "description": "Help card title. Max ~16 chars."
+  },
+  "helpPointsText": "+50 par renvoi, +100 quand l'adversaire rate.",
+  "@helpPointsText": {
+    "description": "Help card text: scoring (50 points per hit, 100 when the computer misses)."
+  },
+  "helpSpeedTitle": "Vitesse",
+  "@helpSpeedTitle": {
+    "description": "Help card title. Max ~16 chars."
+  },
+  "helpSpeedText": "La balle accélère tous les 4 renvois.",
+  "@helpSpeedText": {
+    "description": "Help card text: the ball gets faster every 4 hits."
+  },
+  "helpPauseTitle": "Pause",
+  "@helpPauseTitle": {
+    "description": "Help card title. Max ~16 chars."
+  },
+  "helpPauseText": "Touche le bouton pause en haut à droite. Pas de pause en multijoueur.",
+  "@helpPauseText": {
+    "description": "Help card text: how to pause."
+  },
+  "helpMultiplayerText": "Connectez-vous au même Wi‑Fi (ou au partage de connexion de l'un de vous). L'un crée la partie, l'autre la rejoint. Premier à 5 points.",
+  "@helpMultiplayerText": {
+    "description": "Help card text: how a local duel works (two phones on the same network, no internet)."
+  },
+  "settingsTitle": "Réglages",
+  "@settingsTitle": {
+    "description": "Settings screen title, in spaced capitals. Max ~13 chars."
+  },
+  "settingsSoundSection": "Son",
+  "@settingsSoundSection": {
+    "description": "Settings section title, spaced capitals. Max ~14 chars."
+  },
+  "settingsMusic": "Musique",
+  "@settingsMusic": {
+    "description": "Switch title (Settings). Max ~20 chars."
+  },
+  "settingsMusicSubtitle": "Accueil et pause",
+  "@settingsMusicSubtitle": {
+    "description": "Under \"Music\": where music plays. Max ~26 chars."
+  },
+  "settingsEffects": "Effets sonores",
+  "@settingsEffects": {
+    "description": "Switch title (Settings). Max ~20 chars."
+  },
+  "settingsEffectsSubtitle": "Renvois, record, défaite",
+  "@settingsEffectsSubtitle": {
+    "description": "Under \"Sound effects\": examples of sounds. Max ~28 chars."
+  },
+  "settingsGameSection": "Jeu",
+  "@settingsGameSection": {
+    "description": "Settings section title, spaced capitals. Max ~14 chars."
+  },
+  "settingsVibration": "Vibration",
+  "@settingsVibration": {
+    "description": "Switch title (Settings). Max ~20 chars."
+  },
+  "settingsVibrationSubtitle": "Au renvoi et au record",
+  "@settingsVibrationSubtitle": {
+    "description": "Under \"Vibration\": when the phone vibrates. Max ~28 chars."
+  },
+  "settingsSensitivity": "Sensibilité",
+  "@settingsSensitivity": {
+    "description": "Title of the paddle sensitivity slider (0 to 100) and its screen-reader name. Max ~16 chars."
+  },
+  "settingsSensitivityHint": "Plus vive : la raquette va plus vite et demande moins d'inclinaison.",
+  "@settingsSensitivityHint": {
+    "description": "Explains the sensitivity slider. Must match the words of the slider ends (settingsSensitivityLow / High)."
+  },
+  "settingsSensitivityLow": "Douce",
+  "@settingsSensitivityLow": {
+    "description": "Left end of the sensitivity slider (value 0). Max ~8 chars."
+  },
+  "settingsSensitivityHigh": "Vive",
+  "@settingsSensitivityHigh": {
+    "description": "Right end of the sensitivity slider (value 100). Max ~8 chars."
+  },
+  "settingsTrialZone": "Zone d'essai · penche ton téléphone",
+  "@settingsTrialZone": {
+    "description": "Above a small strip where a paddle follows the phone tilt with the chosen sensitivity. One line, max ~36 chars."
+  },
+  "settingsLanguageSection": "Langue",
+  "@settingsLanguageSection": {
+    "description": "Settings section title, spaced capitals. Max ~14 chars."
+  },
+  "settingsLanguageAutomatic": "Automatique",
+  "@settingsLanguageAutomatic": {
+    "description": "Language choice that follows the phone language (button, 1/2 of the card width). The other choices are the language names, never translated (Français, English, Español). Max ~12 chars."
+  },
+  "settingsLanguageAutomaticHint": "Suit la langue du téléphone : {language}",
+  "@settingsLanguageAutomaticHint": {
+    "description": "Under the language buttons when \"Automatic\" is selected; {language} is the language the app uses now, in its own name (\"English\").",
+    "placeholders": {
+      "language": {
+        "type": "String",
+        "example": "Français"
+      }
+    }
+  },
+  "settingsProfileSection": "Profil",
+  "@settingsProfileSection": {
+    "description": "Settings section title, spaced capitals. Max ~14 chars."
+  },
+  "settingsNickname": "Pseudo",
+  "@settingsNickname": {
+    "description": "Small label above the nickname (Settings). Max ~14 chars."
+  },
+  "settingsNicknameNone": "Aucun",
+  "@settingsNicknameNone": {
+    "description": "Shown instead of the nickname when none is saved."
+  },
+  "settingsNicknameChoose": "Choisir",
+  "@settingsNicknameChoose": {
+    "description": "Text button when no nickname is saved yet. Max ~10 chars."
+  },
+  "settingsVersion": "{game} · version {version}",
+  "@settingsVersion": {
+    "description": "Small line at the bottom of Settings and of the Studio page (\"Tilto · version 1.1.0\"). Do not translate {game}.",
+    "placeholders": {
+      "game": {
+        "type": "String",
+        "example": "Tilto"
+      },
+      "version": {
+        "type": "String",
+        "example": "1.1.0"
+      }
+    }
+  },
+  "nicknameDialogMessage": "Il apparaît dans le classement.",
+  "@nicknameDialogMessage": {
+    "description": "Text of the nickname dialog (Settings), under the title."
+  },
+  "nicknameDialogRequired": "Choisis un pseudo",
+  "@nicknameDialogRequired": {
+    "description": "Error under the field of the nickname dialog when it is empty."
+  },
+  "studioTitle": "Le studio",
+  "@studioTitle": {
+    "description": "Title of the page about the studio that made the game, in spaced capitals. Max ~13 chars."
+  },
+  "studioIntro": "{game} est un jeu de {studio}.",
+  "@studioIntro": {
+    "description": "First sentence of the Studio page; {studio} is shown in bold. Do not translate {game} or {studio}.",
+    "placeholders": {
+      "game": {
+        "type": "String",
+        "example": "Tilto"
+      },
+      "studio": {
+        "type": "String",
+        "example": "Nexora"
+      }
+    }
+  },
+  "studioVisitWebsite": "Visiter le site",
+  "@studioVisitWebsite": {
+    "description": "Button opening the studio website in the browser, in capitals. Max ~22 chars."
+  },
+  "studioContact": "Écrire au studio",
+  "@studioContact": {
+    "description": "Text button opening the contact page in the browser. Max ~22 chars."
+  },
+  "studioLinkFailed": "Le lien ne s'ouvre pas. Va sur {host} depuis ton navigateur.",
+  "@studioLinkFailed": {
+    "description": "Message at the bottom of the screen when the browser cannot be opened; {host} is a web address (\"tilto.fun\").",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "tilto.fun"
+      }
+    }
+  },
+  "studioSignaturePrefix": "Un jeu de",
+  "@studioSignaturePrefix": {
+    "description": "Small signature at the bottom of Settings and Help, followed by the studio logo: \"A game by [logo]\". Max ~14 chars."
+  },
+  "studioSignatureSemantics": "Un jeu de {studio}",
+  "@studioSignatureSemantics": {
+    "description": "Screen-reader text of the signature (the logo is read as the studio name).",
+    "placeholders": {
+      "studio": {
+        "type": "String",
+        "example": "Nexora"
+      }
+    }
+  },
+  "studioSignatureLink": "Le studio, {studio}",
+  "@studioSignatureLink": {
+    "description": "Screen-reader text of the signature when it opens the Studio page.",
+    "placeholders": {
+      "studio": {
+        "type": "String",
+        "example": "Nexora"
+      }
+    }
+  },
+  "mpPlayingAs": "Tu joues en tant que {name}",
+  "@mpPlayingAs": {
+    "description": "Top of the multiplayer menu; {name} (the nickname) is shown in bold. One line.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Léa"
+      }
+    }
+  },
+  "mpCreateTitle": "Créer une partie",
+  "@mpCreateTitle": {
+    "description": "Big card of the multiplayer menu: host a duel. Also quoted in joinTipCreate. Max ~22 chars."
+  },
+  "mpCreateSubtitle": "Ton ami la rejoint depuis son téléphone.",
+  "@mpCreateSubtitle": {
+    "description": "Under \"Create a game\"."
+  },
+  "mpJoinTitle": "Rejoindre une partie",
+  "@mpJoinTitle": {
+    "description": "Big card of the multiplayer menu: find a game nearby. Max ~22 chars."
+  },
+  "mpJoinSubtitle": "Trouve la partie d'un ami à proximité.",
+  "@mpJoinSubtitle": {
+    "description": "Under \"Join a game\"."
+  },
+  "mpNetworkHint": "Soyez sur le même Wi‑Fi, ou connecte-toi au partage de connexion de l'autre. Pas besoin d'Internet.",
+  "@mpNetworkHint": {
+    "description": "Reminder at the bottom of the multiplayer menu: both phones must be on the same local network."
+  },
+  "joinTitle": "Rejoindre",
+  "@joinTitle": {
+    "description": "Title of the \"find a game\" screen, spaced capitals. Max ~13 chars."
+  },
+  "joinRefresh": "Actualiser",
+  "@joinRefresh": {
+    "description": "Button: search for games again, in capitals. Max ~14 chars."
+  },
+  "joinSearching": "Recherche de parties…",
+  "@joinSearching": {
+    "description": "Big text under the radar animation while searching. Max ~24 chars."
+  },
+  "joinSearchingHint": "Reste près de l'autre joueur, sur le même Wi‑Fi.",
+  "@joinSearchingHint": {
+    "description": "Under \"Looking for games…\"."
+  },
+  "joinNoGame": "Aucune partie trouvée",
+  "@joinNoGame": {
+    "description": "Title when the search found nothing. Max ~26 chars."
+  },
+  "joinTipNetwork": "Vérifie que vous êtes sur le même Wi‑Fi ou partage de connexion.",
+  "@joinTipNetwork": {
+    "description": "First numbered tip when no game is found."
+  },
+  "joinTipCreate": "Demande à l'autre joueur de toucher « {action} ».",
+  "@joinTipCreate": {
+    "description": "Second numbered tip when no game is found; {action} is the mpCreateTitle text. Use the quotation marks of your language.",
+    "placeholders": {
+      "action": {
+        "type": "String",
+        "example": "Créer une partie"
+      }
+    }
+  },
+  "joinGamesNearby": "{count, plural, one{{count} partie à proximité} other{{count} parties à proximité}}",
+  "@joinGamesNearby": {
+    "description": "Status line above the list of games found. One line with joinStillSearching.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "joinStillSearching": "{found} · recherche en cours",
+  "@joinStillSearching": {
+    "description": "Status line while the search goes on; {found} is the joinGamesNearby text. One line, max ~40 chars.",
+    "placeholders": {
+      "found": {
+        "type": "String",
+        "example": "2 parties à proximité"
+      }
+    }
+  },
+  "joinGameFull": "Complète",
+  "@joinGameFull": {
+    "description": "Grey badge instead of the Join button when a game already has 2 players. Max ~10 chars."
+  },
+  "joinJoin": "Rejoindre",
+  "@joinJoin": {
+    "description": "Small pink button on a game row. Max ~10 chars."
+  },
+  "joinPlayers": "{count} / {max} joueurs",
+  "@joinPlayers": {
+    "description": "Under the game name in the list (\"1 / 2 players\").",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      },
+      "max": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "joinConnecting": "Connexion…",
+  "@joinConnecting": {
+    "description": "Replaces the Join button while connecting. Max ~12 chars."
+  },
+  "gameOf": "{elision, select, yes{Partie d'{name}} other{Partie de {name}}}",
+  "@gameOf": {
+    "description": "Name of a game, after the nickname of the player who created it. {elision} is only for French (\"d'Inès\" before a vowel): keep \"{elision, select, other{...}}\" around your text.",
+    "placeholders": {
+      "elision": {
+        "type": "String",
+        "example": "other"
+      },
+      "name": {
+        "type": "String",
+        "example": "Tom"
+      }
+    }
+  },
+  "gameOfOpponent": "Partie de ton adversaire",
+  "@gameOfOpponent": {
+    "description": "Name of a game when the host nickname is unknown (rare)."
+  },
+  "lobbyTitle": "Salon",
+  "@lobbyTitle": {
+    "description": "Title of the waiting room before a duel, spaced capitals. Max ~13 chars."
+  },
+  "lobbyDuelFormat": "Duel · premier à {points} points",
+  "@lobbyDuelFormat": {
+    "description": "Under the game name in the lobby.",
+    "placeholders": {
+      "points": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "lobbyYouHost": "Toi · hôte",
+  "@lobbyYouHost": {
+    "description": "Under my nickname in the lobby, when I created the game. Max ~20 chars."
+  },
+  "lobbyYou": "Toi",
+  "@lobbyYou": {
+    "description": "Under my nickname in the lobby, when I joined the game."
+  },
+  "lobbyHost": "Hôte",
+  "@lobbyHost": {
+    "description": "Under the other nickname: the player who created the game."
+  },
+  "lobbyGuest": "Invité",
+  "@lobbyGuest": {
+    "description": "Under the other nickname: the player who joined my game."
+  },
+  "lobbyJustJoined": "Vient de rejoindre",
+  "@lobbyJustJoined": {
+    "description": "Under the other nickname right after they joined. Max ~20 chars."
+  },
+  "lobbyReadyStatus": "Prêt",
+  "@lobbyReadyStatus": {
+    "description": "Green badge on a player row: this player is ready. Max ~10 chars."
+  },
+  "lobbyWaitingStatus": "En attente",
+  "@lobbyWaitingStatus": {
+    "description": "Grey badge on a player row: not ready yet. Max ~12 chars."
+  },
+  "lobbyWaitingForPlayer": "En attente d'un joueur…",
+  "@lobbyWaitingForPlayer": {
+    "description": "Empty slot of the lobby while nobody has joined. One line."
+  },
+  "lobbyVisible": "Ta partie est visible par les joueurs à proximité.",
+  "@lobbyVisible": {
+    "description": "Under the radar animation while the host waits alone."
+  },
+  "lobbyHintAlone": "Disponible dès qu'un joueur te rejoint",
+  "@lobbyHintAlone": {
+    "description": "Above the disabled Ready button while the host is alone."
+  },
+  "lobbyHintOtherReady": "{name} t'attend. À toi !",
+  "@lobbyHintOtherReady": {
+    "description": "Above the Ready button when the other player is already ready.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Tom"
+      }
+    }
+  },
+  "lobbyHintBothReady": "La partie démarre quand vous êtes prêts tous les deux",
+  "@lobbyHintBothReady": {
+    "description": "Above the Ready button when nobody is ready yet."
+  },
+  "waitingFor": "{elision, select, yes{En attente d'{name}…} other{En attente de {name}…}}",
+  "@waitingFor": {
+    "description": "Lobby hint and pending button: waiting for the other player. {elision} is only for French: keep \"{elision, select, other{...}}\" around your text. Max ~30 chars.",
+    "placeholders": {
+      "elision": {
+        "type": "String",
+        "example": "other"
+      },
+      "name": {
+        "type": "String",
+        "example": "Tom"
+      }
+    }
+  },
+  "waitingForOpponent": "En attente de ton adversaire…",
+  "@waitingForOpponent": {
+    "description": "Same as waitingFor when the nickname is unknown (rare)."
+  },
+  "lobbyReady": "Prêt",
+  "@lobbyReady": {
+    "description": "Main pink button of the lobby, in capitals: I am ready to play. Max ~14 chars."
+  },
+  "lobbyNotReady": "Je ne suis plus prêt",
+  "@lobbyNotReady": {
+    "description": "Secondary button replacing Ready once tapped (cancels it), in capitals. Max ~22 chars."
+  },
+  "lobbyCancelGame": "Annuler la partie",
+  "@lobbyCancelGame": {
+    "description": "Text button for the host: close the game. Max ~20 chars."
+  },
+  "countdownVersus": "contre",
+  "@countdownVersus": {
+    "description": "Between the two nicknames above the 3-2-1 countdown, in capitals (\"LÉA  VS  TOM\")."
+  },
+  "countdownGrabPhone": "Prends ton téléphone",
+  "@countdownGrabPhone": {
+    "description": "Under the 3-2-1 countdown, in spaced capitals. Max ~22 chars."
+  },
+  "countdownHint": "À deux mains, prêt à incliner",
+  "@countdownHint": {
+    "description": "Small line at the bottom of the countdown. One line, max ~38 chars."
+  },
+  "duelHudFormat": "Duel · premier à {points}",
+  "@duelHudFormat": {
+    "description": "Duel header, in capitals (\"DUEL · FIRST TO 5\"). Max ~26 chars.",
+    "placeholders": {
+      "points": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "duelConnectionWeak": "Connexion faible",
+  "@duelConnectionWeak": {
+    "description": "Red warning in the duel header when the network is slow. Max ~16 chars."
+  },
+  "duelConnectionGood": "Bonne connexion",
+  "@duelConnectionGood": {
+    "description": "Screen-reader text of the Wi-Fi icon in the duel header when all is fine."
+  },
+  "duelScoreSemantics": "{myName} {myScore}, {opponentName} {opponentScore}",
+  "@duelScoreSemantics": {
+    "description": "Screen-reader text of the duel score (\"Léa 3, Tom 2\").",
+    "placeholders": {
+      "myName": {
+        "type": "String",
+        "example": "Léa"
+      },
+      "myScore": {
+        "type": "int",
+        "example": "3"
+      },
+      "opponentName": {
+        "type": "String",
+        "example": "Tom"
+      },
+      "opponentScore": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "duelPointFor": "Point pour {name}",
+  "@duelPointFor": {
+    "description": "Badge in the middle of the court right after a point. Max ~24 chars with the name.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Léa"
+      }
+    }
+  },
+  "duelResumeIn": "Reprise dans {seconds}…",
+  "@duelResumeIn": {
+    "description": "Under the score after a point, counting down the seconds before the next serve.",
+    "placeholders": {
+      "seconds": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "resultVictory": "Victoire",
+  "@resultVictory": {
+    "description": "Big spaced capitals title of the end-of-duel screen (winner). Max ~10 chars."
+  },
+  "resultDefeat": "Défaite",
+  "@resultDefeat": {
+    "description": "Big spaced capitals title of the end-of-duel screen (loser). Max ~10 chars."
+  },
+  "resultWinner": "{name} gagne !",
+  "@resultWinner": {
+    "description": "Under the title of the end-of-duel screen.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Léa"
+      }
+    }
+  },
+  "resultDetail": "{duration} · plus long échange : {rally}",
+  "@resultDetail": {
+    "description": "Under the final score after a win; {duration} looks like \"2m 14s\", {rally} is the hitsCount text (\"14 hits\").",
+    "placeholders": {
+      "duration": {
+        "type": "String",
+        "example": "2m 14s"
+      },
+      "rally": {
+        "type": "String",
+        "example": "14 renvois"
+      }
+    }
+  },
+  "resultCloseLoss": "Si près ! La revanche ?",
+  "@resultCloseLoss": {
+    "description": "Under the final score after a narrow loss (by 1 or 2 points)."
+  },
+  "resultLoss": "La revanche ?",
+  "@resultLoss": {
+    "description": "Under the final score after a clear loss."
+  },
+  "rematchIAsked": "Tu veux rejouer · {name} n'a pas encore répondu",
+  "@rematchIAsked": {
+    "description": "Status line above the buttons once I asked for a rematch.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Tom"
+      }
+    }
+  },
+  "rematchOpponentAsked": "{name} veut rejouer",
+  "@rematchOpponentAsked": {
+    "description": "Status line when the other player asked for a rematch.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Tom"
+      }
+    }
+  },
+  "opponentLeftGame": "{name} a quitté la partie",
+  "@opponentLeftGame": {
+    "description": "End-of-duel status line and incident title: the other player left.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Tom"
+      }
+    }
+  },
+  "resultRematch": "Rejouer",
+  "@resultRematch": {
+    "description": "Main pink button of the end-of-duel screen (ask for or accept a rematch), in capitals. Max ~16 chars."
+  },
+  "incidentOpponentLostTitle": "Connexion perdue avec {name}",
+  "@incidentOpponentLostTitle": {
+    "description": "Dialog title (host side): the guest phone is gone.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Tom"
+      }
+    }
+  },
+  "incidentOpponentLostMessage": "Ta partie reste ouverte : {name} peut la rejoindre à nouveau.",
+  "@incidentOpponentLostMessage": {
+    "description": "Dialog text under incidentOpponentLostTitle.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Tom"
+      }
+    }
+  },
+  "incidentBackToLobby": "Retour au salon",
+  "@incidentBackToLobby": {
+    "description": "Dialog button, in capitals. Max ~20 chars."
+  },
+  "incidentHostLeftMessage": "La partie est terminée. Tu peux en rejoindre une autre ou créer la tienne.",
+  "@incidentHostLeftMessage": {
+    "description": "Dialog text (guest side) when the host left on purpose."
+  },
+  "incidentBackToMenu": "Retour au menu",
+  "@incidentBackToMenu": {
+    "description": "Dialog button, in capitals. Max ~20 chars."
+  },
+  "incidentConnectionLostTitle": "Connexion perdue",
+  "@incidentConnectionLostTitle": {
+    "description": "Dialog title (guest side): the host stopped answering."
+  },
+  "incidentConnectionLostMessage": "{name} ne répond plus. Vérifie que vous êtes toujours sur le même Wi‑Fi.",
+  "@incidentConnectionLostMessage": {
+    "description": "Dialog text under incidentConnectionLostTitle.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Tom"
+      }
+    }
+  },
+  "incidentConnectionFailedTitle": "Connexion impossible",
+  "@incidentConnectionFailedTitle": {
+    "description": "Dialog title: joining a game failed."
+  },
+  "incidentConnectionFailedMessage": "Vérifie que vous êtes sur le même Wi‑Fi, puis réessaie.",
+  "@incidentConnectionFailedMessage": {
+    "description": "Dialog text under incidentConnectionFailedTitle."
+  },
+  "incidentRetry": "Réessayer",
+  "@incidentRetry": {
+    "description": "Dialog button, in capitals. Max ~16 chars."
+  },
+  "incidentBack": "Retour",
+  "@incidentBack": {
+    "description": "Dialog text button (go back). Max ~12 chars."
+  },
+  "incidentGameFullTitle": "Partie complète",
+  "@incidentGameFullTitle": {
+    "description": "Dialog title: the game already has 2 players."
+  },
+  "incidentGameFullMessage": "{name} joue déjà avec quelqu'un. Choisis une autre partie ou crée la tienne.",
+  "@incidentGameFullMessage": {
+    "description": "Dialog text under incidentGameFullTitle.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Inès"
+      }
+    }
+  },
+  "incidentBackToList": "Retour à la liste",
+  "@incidentBackToList": {
+    "description": "Dialog button, in capitals. Max ~20 chars."
+  },
+  "incidentNoWifiTitle": "Pas de Wi‑Fi",
+  "@incidentNoWifiTitle": {
+    "description": "Dialog title: the phone is on no local network."
+  },
+  "incidentNoWifiMessage": "Connecte-toi à un Wi‑Fi ou au partage de connexion de l'autre joueur, puis réessaie.",
+  "@incidentNoWifiMessage": {
+    "description": "Dialog text under incidentNoWifiTitle."
+  },
+  "incidentLeaveDuelTitle": "Quitter le duel ?",
+  "@incidentLeaveDuelTitle": {
+    "description": "Confirmation dialog title after the Android back button during a duel."
+  },
+  "incidentLeaveDuelMessage": "Le duel s'arrête pour {name} aussi.",
+  "@incidentLeaveDuelMessage": {
+    "description": "Confirmation dialog text.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Tom"
+      }
+    }
+  },
+  "incidentKeepPlaying": "Continuer le duel",
+  "@incidentKeepPlaying": {
+    "description": "Main button of the leave confirmation (the safe choice), in capitals. Max ~20 chars."
+  },
+  "incidentVersionTitle": "Versions différentes",
+  "@incidentVersionTitle": {
+    "description": "Dialog title: the two phones have different app versions."
+  },
+  "incidentVersionMessage": "Installe la même version du jeu sur les deux téléphones, puis réessaie.",
+  "@incidentVersionMessage": {
+    "description": "Dialog text under incidentVersionTitle."
+  },
+  "incidentClosedTitle": "Partie fermée",
+  "@incidentClosedTitle": {
+    "description": "Dialog title: the duel stopped because the app went to the background."
+  },
+  "incidentClosedMessage": "La partie s'arrête quand le jeu passe en arrière-plan. Tu peux en créer ou en rejoindre une autre.",
+  "@incidentClosedMessage": {
+    "description": "Dialog text under incidentClosedTitle."
+  }
+}

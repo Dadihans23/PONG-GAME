@@ -3,9 +3,19 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pong_game/l10n/l10n.dart';
 import 'package:pong_game/ui/pong_ui.dart';
+
+/// Langue des écrans de test : le français, langue d'origine, dans laquelle
+/// les tests cherchent leurs textes. Les tests des autres langues passent
+/// `locale:` à [pumpScreen].
+const Locale testLocale = Locale('fr');
+
+/// Langues de l'app, vérifiées écran par écran.
+const List<Locale> testLocales = [Locale('fr'), Locale('en'), Locale('es')];
 
 /// Écrans vérifiés : le SM-A135F (320 × 713 dp, dont 48 de barre de
 /// navigation) et la maquette (360 × 800 dp).
@@ -28,11 +38,34 @@ Future<void> loadArchivo() async {
   await loader.load();
 }
 
-/// Affiche [page] seule, avec le thème de l'app, sur un écran de [size] dp.
-Future<void> pumpScreen(WidgetTester tester, Widget page, Size size) async {
+/// Affiche [page] seule, avec le thème de l'app, sur un écran de [size] dp,
+/// dans la langue [locale] (le français par défaut).
+Future<void> pumpScreen(WidgetTester tester, Widget page, Size size,
+    {Locale locale = testLocale}) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
-  await tester.pumpWidget(MaterialApp(theme: PongTheme.dark(), home: page));
+  await tester.pumpWidget(MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: locale,
+      theme: PongTheme.dark(),
+      home: page));
   await tester.pump();
+}
+
+/// Échoue si un texte affiché est coupé (« … ») ou dépasse ses lignes :
+/// une traduction plus longue doit tenir, rétrécir ou passer à la ligne.
+/// [allowed] : textes qu'on accepte de couper (un pseudo très long).
+void expectNoTruncatedText(WidgetTester tester,
+    {Set<String> allowed = const {}}) {
+  final truncated = <String>[];
+  for (final element in find.byType(RichText).evaluate()) {
+    final paragraph = element.renderObject;
+    if (paragraph is! RenderParagraph || !paragraph.attached) continue;
+    if (!paragraph.didExceedMaxLines) continue;
+    final text = paragraph.text.toPlainText();
+    if (!allowed.contains(text)) truncated.add(text);
+  }
+  expect(truncated, isEmpty, reason: 'Textes coupés : $truncated');
 }

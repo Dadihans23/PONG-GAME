@@ -1,7 +1,7 @@
 // Incidents du multijoueur (maquettes X1, X2, X3) : un seul gabarit pour
 // tous, celui du dialogue Pong. Une icône, un titre en mots simples, une
 // phrase de cause probable, une action. Jamais de code d'erreur ni
-// d'adresse.
+// d'adresse. Textes dans lib/l10n/ (clés `incident…`).
 //
 // ```dart
 // final action = await showDuelIncident(
@@ -11,6 +11,7 @@
 // if (action == DuelIncidentAction.primary) { /* retour au salon */ }
 // ```
 import 'package:flutter/material.dart';
+import 'package:pong_game/l10n/l10n.dart';
 import 'package:pong_game/ui/pong_ui.dart';
 
 /// Bouton choisi dans un dialogue d'incident.
@@ -22,103 +23,150 @@ enum DuelIncidentAction {
   secondary,
 }
 
-/// Contenu d'un incident. Les constructeurs nommés couvrent les cas prévus
-/// par la maquette et ceux du parcours ; le constructeur par défaut reste
-/// ouvert pour un cas nouveau.
+/// Les incidents prévus par la maquette et le parcours.
+enum DuelIncidentKind {
+  opponentDisconnected,
+  hostLeft,
+  connectionLost,
+  connectionFailed,
+  gameFull,
+  noNetwork,
+  leaveDuel,
+  versionMismatch,
+  closedInBackground,
+}
+
+/// Contenu d'un incident : son cas et, s'il y a lieu, le pseudo de l'autre
+/// joueur. Les textes sont lus dans la langue de ce téléphone au moment de
+/// l'affichage ([title], [message]…) : rien de traduit ne passe par le
+/// réseau.
 class DuelIncident {
-  const DuelIncident({
-    required this.icon,
-    required this.iconColor,
-    required this.title,
-    required this.message,
-    required this.primaryLabel,
-    this.secondaryLabel,
-  });
+  const DuelIncident._(this.kind, [this.name = '']);
 
   /// X1, côté hôte : l'invité a perdu la connexion ou a quitté. La partie
   /// reste ouverte, retour au salon.
   const DuelIncident.opponentDisconnected(String name)
-      : icon = Icons.link_off_rounded,
-        iconColor = PongColors.error,
-        // « Tom s'est déconnecté » dans la maquette : tournure neutre, qui
-        // vaut aussi pour « Inès »
-        title = 'Connexion perdue avec $name',
-        message = 'Ta partie reste ouverte : $name peut la rejoindre à '
-            'nouveau.',
-        primaryLabel = 'Retour au salon',
-        secondaryLabel = null;
+      : this._(DuelIncidentKind.opponentDisconnected, name);
 
   /// X2, côté invité : l'hôte a quitté. Icône neutre : ce n'est pas une
   /// panne, c'est un choix de l'autre joueur.
   const DuelIncident.hostLeft(String name)
-      : icon = Icons.logout_rounded,
-        iconColor = PongColors.textBody,
-        title = '$name a quitté la partie',
-        message = 'La partie est terminée. Tu peux en rejoindre une autre '
-            'ou créer la tienne.',
-        primaryLabel = 'Retour au menu',
-        secondaryLabel = null;
+      : this._(DuelIncidentKind.hostLeft, name);
 
   /// Côté invité : l'hôte ne répond plus (Wi-Fi coupé, app fermée).
   const DuelIncident.connectionLost(String name)
-      : icon = Icons.wifi_off_rounded,
-        iconColor = PongColors.error,
-        title = 'Connexion perdue',
-        message = '$name ne répond plus. Vérifie que vous êtes toujours sur '
-            'le même Wi‑Fi.',
-        primaryLabel = 'Retour au menu',
-        secondaryLabel = null;
+      : this._(DuelIncidentKind.connectionLost, name);
 
   /// X3 : la connexion à une partie trouvée a échoué.
   const DuelIncident.connectionFailed()
-      : icon = Icons.wifi_off_rounded,
-        iconColor = PongColors.error,
-        title = 'Connexion impossible',
-        message = 'Vérifie que vous êtes sur le même Wi‑Fi, puis réessaie.',
-        primaryLabel = 'Réessayer',
-        secondaryLabel = 'Retour';
+      : this._(DuelIncidentKind.connectionFailed);
 
   /// La partie s'est remplie entre la recherche et le toucher.
   const DuelIncident.gameFull(String name)
-      : icon = Icons.group_rounded,
-        iconColor = PongColors.textBody,
-        title = 'Partie complète',
-        message = '$name joue déjà avec quelqu\'un. Choisis une autre '
-            'partie ou crée la tienne.',
-        primaryLabel = 'Retour à la liste',
-        secondaryLabel = null;
+      : this._(DuelIncidentKind.gameFull, name);
 
   /// Le téléphone n'est relié à aucun réseau local : impossible de créer
   /// ou de chercher une partie.
-  const DuelIncident.noNetwork()
-      : icon = Icons.wifi_off_rounded,
-        iconColor = PongColors.error,
-        title = 'Pas de Wi‑Fi',
-        message = "Connecte-toi à un Wi‑Fi ou au partage de connexion de "
-            "l'autre joueur, puis réessaie.",
-        primaryLabel = 'Réessayer',
-        secondaryLabel = 'Retour';
+  const DuelIncident.noNetwork() : this._(DuelIncidentKind.noNetwork);
 
   /// Retour Android pendant le duel : confirmer avant d'abandonner. L'action
   /// principale est la plus sûre (continuer).
   const DuelIncident.leaveDuel(String name)
-      : icon = Icons.logout_rounded,
-        iconColor = PongColors.textBody,
-        title = 'Quitter le duel ?',
-        message = 'Le duel s\'arrête pour $name aussi.',
-        primaryLabel = 'Continuer le duel',
-        secondaryLabel = 'Quitter';
+      : this._(DuelIncidentKind.leaveDuel, name);
 
-  final IconData icon;
-  final Color iconColor;
-  final String title;
+  /// L'hôte a une autre version de l'app.
+  const DuelIncident.versionMismatch()
+      : this._(DuelIncidentKind.versionMismatch);
+
+  /// L'app est passée en arrière-plan : pas de pause en duel.
+  const DuelIncident.closedInBackground()
+      : this._(DuelIncidentKind.closedInBackground);
+
+  final DuelIncidentKind kind;
+
+  /// Pseudo de l'autre joueur (vide si l'incident n'en parle pas).
+  final String name;
+
+  IconData get icon => switch (kind) {
+        DuelIncidentKind.opponentDisconnected => Icons.link_off_rounded,
+        DuelIncidentKind.hostLeft ||
+        DuelIncidentKind.leaveDuel =>
+          Icons.logout_rounded,
+        DuelIncidentKind.connectionLost ||
+        DuelIncidentKind.connectionFailed ||
+        DuelIncidentKind.noNetwork =>
+          Icons.wifi_off_rounded,
+        DuelIncidentKind.gameFull => Icons.group_rounded,
+        DuelIncidentKind.versionMismatch => Icons.system_update_rounded,
+        DuelIncidentKind.closedInBackground =>
+          Icons.pause_circle_outline_rounded,
+      };
+
+  /// Rouge pour une panne, neutre pour un choix de l'autre joueur.
+  Color get iconColor => switch (kind) {
+        DuelIncidentKind.opponentDisconnected ||
+        DuelIncidentKind.connectionLost ||
+        DuelIncidentKind.connectionFailed ||
+        DuelIncidentKind.noNetwork =>
+          PongColors.error,
+        _ => PongColors.textBody,
+      };
+
+  /// Titre en mots simples. « Tom s'est déconnecté » dans la maquette :
+  /// « Connexion perdue avec Tom », tournure neutre qui vaut pour tous.
+  String title(AppLocalizations l10n) => switch (kind) {
+        DuelIncidentKind.opponentDisconnected =>
+          l10n.incidentOpponentLostTitle(name),
+        DuelIncidentKind.hostLeft => l10n.opponentLeftGame(name),
+        DuelIncidentKind.connectionLost => l10n.incidentConnectionLostTitle,
+        DuelIncidentKind.connectionFailed =>
+          l10n.incidentConnectionFailedTitle,
+        DuelIncidentKind.gameFull => l10n.incidentGameFullTitle,
+        DuelIncidentKind.noNetwork => l10n.incidentNoWifiTitle,
+        DuelIncidentKind.leaveDuel => l10n.incidentLeaveDuelTitle,
+        DuelIncidentKind.versionMismatch => l10n.incidentVersionTitle,
+        DuelIncidentKind.closedInBackground => l10n.incidentClosedTitle,
+      };
 
   /// Cause probable, en une phrase qui dit quoi faire.
-  final String message;
-  final String primaryLabel;
+  String message(AppLocalizations l10n) => switch (kind) {
+        DuelIncidentKind.opponentDisconnected =>
+          l10n.incidentOpponentLostMessage(name),
+        DuelIncidentKind.hostLeft => l10n.incidentHostLeftMessage,
+        DuelIncidentKind.connectionLost =>
+          l10n.incidentConnectionLostMessage(name),
+        DuelIncidentKind.connectionFailed =>
+          l10n.incidentConnectionFailedMessage,
+        DuelIncidentKind.gameFull => l10n.incidentGameFullMessage(name),
+        DuelIncidentKind.noNetwork => l10n.incidentNoWifiMessage,
+        DuelIncidentKind.leaveDuel => l10n.incidentLeaveDuelMessage(name),
+        DuelIncidentKind.versionMismatch => l10n.incidentVersionMessage,
+        DuelIncidentKind.closedInBackground => l10n.incidentClosedMessage,
+      };
+
+  String primaryLabel(AppLocalizations l10n) => switch (kind) {
+        DuelIncidentKind.opponentDisconnected => l10n.incidentBackToLobby,
+        DuelIncidentKind.hostLeft ||
+        DuelIncidentKind.connectionLost ||
+        DuelIncidentKind.closedInBackground =>
+          l10n.incidentBackToMenu,
+        DuelIncidentKind.connectionFailed ||
+        DuelIncidentKind.noNetwork =>
+          l10n.incidentRetry,
+        DuelIncidentKind.gameFull ||
+        DuelIncidentKind.versionMismatch =>
+          l10n.incidentBackToList,
+        DuelIncidentKind.leaveDuel => l10n.incidentKeepPlaying,
+      };
 
   /// Bouton texte facultatif (« Retour »).
-  final String? secondaryLabel;
+  String? secondaryLabel(AppLocalizations l10n) => switch (kind) {
+        DuelIncidentKind.connectionFailed ||
+        DuelIncidentKind.noNetwork =>
+          l10n.incidentBack,
+        DuelIncidentKind.leaveDuel => l10n.commonQuit,
+        _ => null,
+      };
 }
 
 /// Carte d'incident, utilisable seule (dans un `Stack` au-dessus d'un écran)
@@ -135,17 +183,18 @@ class DuelIncidentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String? secondary = incident.secondaryLabel;
+    final l10n = context.l10n;
+    final String? secondary = incident.secondaryLabel(l10n);
     return PongDialogCard(
       icon: incident.icon,
       iconColor: incident.iconColor,
-      title: incident.title,
-      message: incident.message,
+      title: incident.title(l10n),
+      message: incident.message(l10n),
       padding: EdgeInsets.fromLTRB(PongSpacing.lg, PongSpacing.lg,
           PongSpacing.lg, secondary == null ? PongSpacing.lg : PongSpacing.sm),
       actions: [
         PongPrimaryButton(
-          label: incident.primaryLabel,
+          label: incident.primaryLabel(l10n),
           onPressed: () => onAction(DuelIncidentAction.primary),
         ),
         if (secondary != null)

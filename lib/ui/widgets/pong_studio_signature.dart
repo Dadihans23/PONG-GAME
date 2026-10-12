@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../brand.dart';
+import '../../l10n/l10n.dart';
 import '../../studio/studio_info.dart';
 import '../pong_colors.dart';
 import '../pong_text.dart';
@@ -47,13 +48,14 @@ class PongStudioSignature extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final caption = this.caption;
+    final l10n = context.l10n;
     return ValueListenableBuilder<StudioInfo>(
       valueListenable: studio ?? Studio.current,
       builder: (context, info, _) {
         final line = Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(Brand.signaturePrefix, style: _style),
+            Text(l10n.studioSignaturePrefix, style: _style),
             const SizedBox(width: PongSpacing.xs),
             Flexible(
               child: PongStudioLogo(
@@ -72,13 +74,13 @@ class PongStudioSignature extends StatelessWidget {
         );
         final signature = onTap == null
             ? Semantics(
-                label: '${Brand.signaturePrefix} ${info.name}',
+                label: l10n.studioSignatureSemantics(info.name),
                 excludeSemantics: true,
                 child: line,
               )
             : PongPressable(
                 onTap: onTap,
-                semanticLabel: 'Le studio, ${info.name}',
+                semanticLabel: l10n.studioSignatureLink(info.name),
                 borderRadius: PongRadii.fieldAll,
                 padding: const EdgeInsets.symmetric(horizontal: PongSpacing.sm),
                 child: ExcludeSemantics(child: line),

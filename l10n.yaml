@@ -1,0 +1,13 @@
+# Langues de l'app : voir lib/l10n/README dans CLAUDE.md (section « Langues »).
+# Le français est la langue d'origine et le modèle ; l'anglais et
+# l'espagnol en sont les traductions.
+arb-dir: lib/l10n
+template-arb-file: app_fr.arb
+output-dir: lib/l10n/generated
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+synthetic-package: false
+nullable-getter: false
+# Toute chaîne du modèle doit exister dans chaque langue : sinon la
+# génération échoue (voir aussi test/l10n_test.dart).
+required-resource-attributes: true

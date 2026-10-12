@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pong_game/multiplayer/widgets/duel_texts.dart';
+import 'package:pong_game/l10n/l10n.dart';
 import 'package:pong_game/ui/pong_ui.dart';
 
 import 'multiplayer_view_data.dart';
@@ -106,6 +106,8 @@ class _Summary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool won = result.won;
+    final l10n = context.l10n;
+    final format = PongFormat.of(context);
     final TextStyle titleStyle = PongText.logo.copyWith(
       letterSpacing: 40 * 0.4,
       color: won ? PongColors.textPrimary : PongColors.textTitle,
@@ -118,14 +120,15 @@ class _Summary extends StatelessWidget {
     );
     final String detail;
     if (won) {
-      detail = '${PongFormat.duration(result.duration.inMilliseconds)} · '
-          'plus long échange : '
-          '${PongFormat.count(result.longestRally, 'renvoi', 'renvois')}';
+      detail = l10n.resultDetail(
+          format.duration(result.duration.inMilliseconds),
+          l10n.hitsCount(
+              result.longestRally, format.number(result.longestRally)));
     } else {
       // Défaite serrée : on encourage la revanche
       detail = result.opponentScore - result.myScore <= 2
-          ? 'Si près ! La revanche ?'
-          : 'La revanche ?';
+          ? l10n.resultCloseLoss
+          : l10n.resultLoss;
     }
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -135,12 +138,15 @@ class _Summary extends StatelessWidget {
           child: FittedBox(
             fit: BoxFit.scaleDown,
             child:
-                PongSpacedText(won ? 'VICTOIRE' : 'DÉFAITE', style: titleStyle),
+                PongSpacedText(
+                    (won ? l10n.resultVictory : l10n.resultDefeat)
+                        .toUpperCase(),
+                    style: titleStyle),
           ),
         ),
         const SizedBox(height: PongSpacing.sm),
         Text(
-          '${result.winnerName} gagne !',
+          l10n.resultWinner(result.winnerName),
           textAlign: TextAlign.center,
           maxLines: 2,
           style: PongText.cardTitle.copyWith(
@@ -150,8 +156,8 @@ class _Summary extends StatelessWidget {
         ),
         const SizedBox(height: 52),
         Semantics(
-          label: '${result.myName} ${result.myScore}, '
-              '${result.opponentName} ${result.opponentScore}',
+          label: l10n.duelScoreSemantics(result.myName, result.myScore,
+              result.opponentName, result.opponentScore),
           excludeSemantics: true,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -254,11 +260,12 @@ class _RematchActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String other = result.opponentName;
+    final l10n = context.l10n;
     final String? status = switch (result.rematch) {
       RematchState.none => null,
-      RematchState.iAsked => "Tu veux rejouer · $other n'a pas encore répondu",
-      RematchState.opponentAsked => '$other veut rejouer',
-      RematchState.opponentLeft => '$other a quitté la partie',
+      RematchState.iAsked => l10n.rematchIAsked(other),
+      RematchState.opponentAsked => l10n.rematchOpponentAsked(other),
+      RematchState.opponentLeft => l10n.opponentLeftGame(other),
     };
     final Color dotColor = switch (result.rematch) {
       RematchState.opponentAsked => PongColors.pink,
@@ -301,12 +308,12 @@ class _RematchActions extends StatelessWidget {
           child: result.rematch == RematchState.iAsked
               ? PongPendingButton(
                   key: const ValueKey('pending'),
-                  label: DuelTexts.waitingFor(other),
+                  label: l10n.waitingForName(other),
                   onPressed: onCancelRematch,
                 )
               : PongPrimaryButton(
                   key: const ValueKey('rematch'),
-                  label: 'Rejouer',
+                  label: l10n.resultRematch,
                   icon: Icons.replay_rounded,
                   onPressed: result.rematch == RematchState.opponentLeft
                       ? null
@@ -314,7 +321,7 @@ class _RematchActions extends StatelessWidget {
                 ),
         ),
         const SizedBox(height: PongSpacing.xs),
-        PongTextButton(label: 'Quitter', onPressed: onQuit),
+        PongTextButton(label: l10n.commonQuit, onPressed: onQuit),
       ],
     );
   }

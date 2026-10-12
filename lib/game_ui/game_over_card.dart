@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pong_game/l10n/l10n.dart';
 import 'package:pong_game/ui/pong_ui.dart';
-
-/// Rang au classement : 1 → « 1er », 2 → « 2e ». Lettres normales : Archivo
-/// n'a pas les exposants « ᵉʳ ».
-String formatRank(int rank) => rank == 1 ? '1er' : '${rank}e';
 
 /// Ce que le joueur choisit sur la carte de fin de partie.
 enum GameOverAction { replay, leaderboard, statistics, home }
@@ -55,6 +52,8 @@ class GameOverCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool gold = summary.isNewRecord;
     final int? rank = summary.rank;
+    final l10n = context.l10n;
+    final format = PongFormat.of(context);
     return PongDialogCard(
       accentColor: gold ? PongColors.record : null,
       padding: const EdgeInsets.fromLTRB(
@@ -64,17 +63,17 @@ class GameOverCard extends StatelessWidget {
         children: [
           if (gold)
             // Réduite plutôt que coupée si la police système est très grande
-            const FittedBox(
+            FittedBox(
               fit: BoxFit.scaleDown,
               child: PongPill.signal(
-                label: 'Nouveau record !',
+                label: l10n.gameOverNewRecord,
                 color: PongColors.record,
                 icon: Icons.star_rounded,
               ),
             )
           else
             PongSpacedText(
-              'PARTIE TERMINÉE',
+              l10n.gameOverTitle.toUpperCase(),
               style: PongText.overline.copyWith(
                 fontSize: 12,
                 letterSpacing: 12 * 0.3,
@@ -85,7 +84,7 @@ class GameOverCard extends StatelessWidget {
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
-              PongFormat.number(summary.score),
+              format.number(summary.score),
               maxLines: 1,
               style: PongText.gameScore.copyWith(
                 height: 1.1,
@@ -102,32 +101,34 @@ class GameOverCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          _subtitle(),
+          _subtitle(l10n, format),
           const SizedBox(height: 18),
           Row(
             children: [
               Expanded(
-                child:
-                    PongFigureTile(value: '${summary.hits}', label: 'renvois'),
+                child: PongFigureTile(
+                    value: format.number(summary.hits),
+                    label: l10n.gameOverHits(summary.hits)),
               ),
               const SizedBox(width: PongSpacing.xs),
               Expanded(
                 child: PongFigureTile(
-                    value: PongFormat.duration(summary.duration.inMilliseconds),
-                    label: 'durée'),
+                    value: format.duration(summary.duration.inMilliseconds),
+                    label: l10n.gameOverDuration),
               ),
               const SizedBox(width: PongSpacing.xs),
               Expanded(
                 // Partie record : la place au classement remplace la vitesse
                 child: gold && rank != null
                     ? PongFigureTile(
-                        value: formatRank(rank),
-                        label: 'classement',
+                        value: l10n.rankLabel(rank),
+                        label: l10n.gameOverRank,
                         valueColor:
                             PongColors.podium(rank) ?? PongColors.textPrimary,
                       )
                     : PongFigureTile(
-                        value: '${summary.maxSpeed}', label: 'vitesse max'),
+                        value: '${summary.maxSpeed}',
+                        label: l10n.gameOverTopSpeed),
               ),
             ],
           ),
@@ -135,7 +136,7 @@ class GameOverCard extends StatelessWidget {
       ),
       actions: [
         PongPrimaryButton(
-          label: 'Rejouer',
+          label: l10n.gameOverReplay,
           icon: Icons.replay_rounded,
           onPressed: () => onAction(GameOverAction.replay),
         ),
@@ -143,7 +144,7 @@ class GameOverCard extends StatelessWidget {
           children: [
             Expanded(
               child: PongSecondaryButton(
-                label: 'Classement',
+                label: l10n.leaderboardTitle,
                 icon: Icons.leaderboard_rounded,
                 compact: true,
                 onPressed: () => onAction(GameOverAction.leaderboard),
@@ -152,7 +153,7 @@ class GameOverCard extends StatelessWidget {
             const SizedBox(width: PongSpacing.xs),
             Expanded(
               child: PongSecondaryButton(
-                label: 'Statistiques',
+                label: l10n.statisticsTitle,
                 icon: Icons.bar_chart_rounded,
                 compact: true,
                 onPressed: () => onAction(GameOverAction.statistics),
@@ -162,7 +163,7 @@ class GameOverCard extends StatelessWidget {
         ),
         Center(
           child: PongTextButton(
-            label: "Retour à l'accueil",
+            label: l10n.gameOverHome,
             onPressed: () => onAction(GameOverAction.home),
           ),
         ),
@@ -171,20 +172,21 @@ class GameOverCard extends StatelessWidget {
   }
 
   // « points · record 2 400 » ou « points · +250 sur l'ancien record »
-  Widget _subtitle() {
+  Widget _subtitle(AppLocalizations l10n, PongFormat format) {
     const TextStyle style = PongText.caption;
     if (summary.isNewRecord) {
+      final gain = '+${format.number(summary.score - summary.previousRecord)}';
+      final parts = splitAround(l10n.gameOverPointsOverRecord, gain);
       return Text.rich(
         TextSpan(
           style: style,
           children: [
-            const TextSpan(text: 'points · '),
+            TextSpan(text: parts.before),
             TextSpan(
-              text:
-                  '+${PongFormat.number(summary.score - summary.previousRecord)}',
+              text: gain,
               style: const TextStyle(color: PongColors.record),
             ),
-            const TextSpan(text: " sur l'ancien record"),
+            TextSpan(text: parts.after),
           ],
         ),
         textAlign: TextAlign.center,
@@ -192,8 +194,8 @@ class GameOverCard extends StatelessWidget {
     }
     return Text(
       summary.record > 0
-          ? 'points · record ${PongFormat.number(summary.record)}'
-          : 'points',
+          ? l10n.gameOverPointsWithRecord(format.number(summary.record))
+          : l10n.gameOverPoints,
       textAlign: TextAlign.center,
       style: style,
     );

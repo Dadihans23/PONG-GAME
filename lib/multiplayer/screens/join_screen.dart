@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:pong_game/l10n/l10n.dart';
 import 'package:pong_game/multiplayer/widgets/duel_avatar.dart';
 import 'package:pong_game/multiplayer/widgets/duel_radar.dart';
-import 'package:pong_game/multiplayer/widgets/duel_texts.dart';
 import 'package:pong_game/ui/pong_ui.dart';
 
 import 'multiplayer_view_data.dart';
@@ -37,12 +37,13 @@ class JoinScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool hasGames = data.games.isNotEmpty;
+    final l10n = context.l10n;
     final Widget body;
     final Widget? bottomAction;
     if (hasGames) {
       body = _GameList(data: data, onJoin: onJoin);
       bottomAction = PongSecondaryButton(
-        label: 'Actualiser',
+        label: l10n.joinRefresh,
         icon: Icons.refresh_rounded,
         onPressed: data.joiningId == null ? onRefresh : null,
       );
@@ -52,13 +53,13 @@ class JoinScreen extends StatelessWidget {
     } else {
       body = const _NoGame();
       bottomAction = PongPrimaryButton(
-        label: 'Actualiser',
+        label: l10n.joinRefresh,
         icon: Icons.refresh_rounded,
         onPressed: onRefresh,
       );
     }
     return PongPageScaffold(
-      title: 'Rejoindre',
+      title: l10n.joinTitle,
       onBack: onBack,
       body: AnimatedSwitcher(
         duration: PongDurations.normal,
@@ -82,6 +83,7 @@ class _Searching extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(40, 0, 40, 96),
@@ -92,13 +94,13 @@ class _Searching extends StatelessWidget {
             const SizedBox(height: PongSpacing.md),
             Semantics(
               liveRegion: true,
-              child: Text('Recherche de parties…',
+              child: Text(l10n.joinSearching,
                   textAlign: TextAlign.center,
                   style: PongText.headline.copyWith(fontSize: 20)),
             ),
             const SizedBox(height: PongSpacing.md),
             Text(
-              "Reste près de l'autre joueur, sur le même Wi‑Fi.",
+              l10n.joinSearchingHint,
               textAlign: TextAlign.center,
               style: PongText.body
                   .copyWith(fontSize: 14, color: PongColors.textSecondary),
@@ -116,6 +118,7 @@ class _NoGame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(
@@ -140,23 +143,18 @@ class _NoGame extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            Text('Aucune partie trouvée',
+            Text(l10n.joinNoGame,
                 textAlign: TextAlign.center,
                 style: PongText.headline.copyWith(fontSize: 20)),
             const SizedBox(height: PongSpacing.lg),
-            const PongCard(
+            PongCard(
               child: Column(
                 children: [
-                  _Tip(
-                    number: 1,
-                    text: 'Vérifie que vous êtes sur le même Wi‑Fi ou '
-                        'partage de connexion.',
-                  ),
-                  SizedBox(height: 14),
+                  _Tip(number: 1, text: l10n.joinTipNetwork),
+                  const SizedBox(height: 14),
                   _Tip(
                     number: 2,
-                    text: "Demande à l'autre joueur de toucher « Créer une "
-                        'partie ».',
+                    text: l10n.joinTipCreate(l10n.mpCreateTitle),
                   ),
                 ],
               ),
@@ -211,8 +209,8 @@ class _GameList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final int count = data.games.length;
-    final String found =
-        '$count ${count == 1 ? 'partie' : 'parties'} à proximité';
+    final l10n = context.l10n;
+    final String found = l10n.joinGamesNearby(count);
     return ListView(
       padding: const EdgeInsets.fromLTRB(PongSpacing.screen, PongSpacing.xxs,
           PongSpacing.screen, PongSpacing.md),
@@ -225,7 +223,7 @@ class _GameList extends StatelessWidget {
               const SizedBox(width: PongSpacing.xs),
               Expanded(
                 child: Text(
-                  data.searching ? '$found · recherche en cours' : found,
+                  data.searching ? l10n.joinStillSearching(found) : found,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: PongText.caption.copyWith(fontWeight: FontWeight.w400),
@@ -336,6 +334,7 @@ class _GameTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool full = game.isFull;
+    final l10n = context.l10n;
     final Widget action;
     if (joining) {
       action = const _JoiningBadge();
@@ -348,12 +347,12 @@ class _GameTile extends StatelessWidget {
           color: PongColors.surfaceDisabled,
           borderRadius: PongRadii.fieldAll,
         ),
-        child: Text('Complète',
+        child: Text(l10n.joinGameFull,
             style: PongText.buttonLabelPlain
                 .copyWith(fontSize: 14, color: PongColors.textDisabled)),
       );
     } else {
-      action = PongCompactButton(label: 'Rejoindre', onPressed: onJoin);
+      action = PongCompactButton(label: l10n.joinJoin, onPressed: onJoin);
     }
     return PongCard(
       padding: const EdgeInsets.fromLTRB(PongSpacing.md, 14, 14, 14),
@@ -373,7 +372,7 @@ class _GameTile extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    DuelTexts.gameOf(game.hostName),
+                    l10n.gameOfName(game.hostName),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: PongText.cardTitle.copyWith(
@@ -393,7 +392,7 @@ class _GameTile extends StatelessWidget {
                       const SizedBox(width: PongSpacing.xxs),
                       Flexible(
                         child: Text(
-                          '${game.playerCount} / ${game.maxPlayers} joueurs',
+                          l10n.joinPlayers(game.playerCount, game.maxPlayers),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: PongText.caption.copyWith(
@@ -440,7 +439,7 @@ class _JoiningBadge extends StatelessWidget {
                 strokeWidth: 2, color: PongColors.pinkLight),
           ),
           const SizedBox(width: PongSpacing.xs),
-          Text('Connexion…',
+          Text(context.l10n.joinConnecting,
               style: PongText.buttonLabelPlain
                   .copyWith(fontSize: 14, color: PongColors.pinkLight)),
         ],

@@ -17,6 +17,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:pong_game/game_ui/game_court.dart';
+import 'package:pong_game/l10n/l10n.dart';
 import 'package:pong_game/multiplayer/screens/multiplayer_view_data.dart';
 import 'package:pong_game/ui/pong_ui.dart';
 
@@ -161,8 +162,8 @@ class _GhostScores extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: '${hud.myName} ${hud.myScore}, '
-          '${hud.opponentName} ${hud.opponentScore}',
+      label: context.l10n.duelScoreSemantics(
+          hud.myName, hud.myScore, hud.opponentName, hud.opponentScore),
       excludeSemantics: true,
       child: Stack(
         children: [
@@ -281,11 +282,11 @@ class _PointPanel extends StatelessWidget {
           )
         : scoreStyle.copyWith(color: side.lightColor);
 
+    final l10n = context.l10n;
     return Semantics(
       liveRegion: true,
-      label: 'Point pour ${hud.nameOf(scorer)}. '
-          '${hud.myName} ${hud.myScore}, '
-          '${hud.opponentName} ${hud.opponentScore}',
+      label: '${l10n.duelPointFor(hud.nameOf(scorer))}. '
+          '${l10n.duelScoreSemantics(hud.myName, hud.myScore, hud.opponentName, hud.opponentScore)}',
       excludeSemantics: true,
       child: Stack(
         children: [
@@ -299,7 +300,7 @@ class _PointPanel extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     _PointPill(
-                        label: 'Point pour ${hud.nameOf(scorer)}',
+                        label: l10n.duelPointFor(hud.nameOf(scorer)),
                         color: scorer.color,
                         textColor: scorer == DuelSide.me
                             ? PongColors.playerFlash
@@ -346,7 +347,7 @@ class _PointPanel extends StatelessWidget {
                     ),
                     if (resumeIn != null) ...[
                       const SizedBox(height: 44),
-                      Text('Reprise dans $resumeIn…',
+                      Text(l10n.duelResumeIn(resumeIn),
                           style: PongText.caption
                               .copyWith(fontWeight: FontWeight.w400)),
                     ],

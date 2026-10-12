@@ -8,6 +8,7 @@ import 'package:pong_game/game/game_tuning.dart';
 import 'package:pong_game/game/paddle_sensitivity.dart';
 import 'package:pong_game/game/tilt_control.dart';
 import 'package:pong_game/game_sound.dart';
+import 'package:pong_game/l10n/l10n.dart';
 import 'package:pong_game/settings/pong_settings.dart';
 import 'package:pong_game/studio/studio_page.dart';
 import 'package:pong_game/ui/pong_ui.dart';
@@ -17,7 +18,8 @@ import 'package:sensors_plus/sensors_plus.dart';
 ///
 /// Chaque réglage s'applique et s'enregistre au toucher : pas de bouton
 /// « Enregistrer », donc pas de rose plein sur l'écran. Ordre : ce qu'on
-/// change le plus souvent d'abord (son), puis le jeu, puis le profil.
+/// change le plus souvent d'abord (son), puis le jeu, le profil, et la
+/// langue, réglée une fois pour toutes.
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key, this.settings, this.accelerometer});
 
@@ -43,6 +45,7 @@ class _SettingsPageState extends State<SettingsPage> {
   late bool _vibration = _settings.vibrationEnabled;
   late int _sensitivity = _settings.paddleSensitivity;
   late String? _pseudo = _settings.pseudo;
+  late AppLanguage _language = _settings.language;
 
   @override
   void dispose() {
@@ -85,6 +88,15 @@ class _SettingsPageState extends State<SettingsPage> {
     _settings.paddleSensitivity = value;
   }
 
+  // Langue : enregistrée et appliquée tout de suite à toute l'app
+  void _setLanguage(AppLanguage value) {
+    if (value == _language) return;
+    setState(() => _language = value);
+    _settings.language = value;
+    AppLanguageSetting.current.value = value;
+    if (_vibration) HapticFeedback.selectionClick();
+  }
+
   Future<void> _editPseudo() async {
     final pseudo = await showPongDialog<String>(
       context: context,
@@ -98,13 +110,14 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return PongPageScaffold(
-      title: 'Réglages',
+      title: l10n.settingsTitle,
       body: ListView(
         padding: const EdgeInsets.fromLTRB(PongSpacing.screen, PongSpacing.xxs,
             PongSpacing.screen, PongSpacing.screen),
         children: [
-          const PongOverline('Son'),
+          PongOverline(l10n.settingsSoundSection),
           const SizedBox(height: PongSpacing.sm),
           PongCard(
             padding: EdgeInsets.zero,
@@ -112,16 +125,16 @@ class _SettingsPageState extends State<SettingsPage> {
               children: [
                 PongSwitchRow(
                   icon: Icons.music_note_rounded,
-                  title: 'Musique',
-                  subtitle: 'Accueil et pause',
+                  title: l10n.settingsMusic,
+                  subtitle: l10n.settingsMusicSubtitle,
                   value: _music,
                   onChanged: _setMusic,
                 ),
                 const PongCardDivider(),
                 PongSwitchRow(
                   icon: Icons.volume_up_rounded,
-                  title: 'Effets sonores',
-                  subtitle: 'Renvois, record, défaite',
+                  title: l10n.settingsEffects,
+                  subtitle: l10n.settingsEffectsSubtitle,
                   value: _effects,
                   onChanged: _setEffects,
                 ),
@@ -129,14 +142,14 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
           const SizedBox(height: PongSpacing.lg),
-          const PongOverline('Jeu'),
+          PongOverline(l10n.settingsGameSection),
           const SizedBox(height: PongSpacing.sm),
           PongCard(
             padding: EdgeInsets.zero,
             child: PongSwitchRow(
               icon: Icons.vibration_rounded,
-              title: 'Vibration',
-              subtitle: 'Au renvoi et au record',
+              title: l10n.settingsVibration,
+              subtitle: l10n.settingsVibrationSubtitle,
               value: _vibration,
               onChanged: _setVibration,
             ),
@@ -149,15 +162,76 @@ class _SettingsPageState extends State<SettingsPage> {
             accelerometer: widget.accelerometer,
           ),
           const SizedBox(height: PongSpacing.lg),
-          const PongOverline('Profil'),
+          PongOverline(l10n.settingsProfileSection),
           const SizedBox(height: PongSpacing.sm),
           _PseudoCard(pseudo: _pseudo, onEdit: _editPseudo),
+          const SizedBox(height: PongSpacing.lg),
+          PongOverline(l10n.settingsLanguageSection),
+          const SizedBox(height: PongSpacing.sm),
+          _LanguageCard(selected: _language, onChanged: _setLanguage),
           const SizedBox(height: PongSpacing.xl),
           // Pied de page : la signature ouvre la page « Le studio »
           PongStudioSignature(
-            caption: '${Brand.gameName} · version ${Brand.appVersion}',
+            caption: l10n.settingsVersion(Brand.gameName, Brand.appVersion),
             onTap: () => StudioPage.open(context),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Langue : Automatique (celle du téléphone), Français, English, Español,
+/// en grille de 2 × 2. Chaque langue est écrite dans sa propre langue, pour
+/// que le joueur reconnaisse la sienne même dans une app qu'il ne lit pas.
+/// Sous « Automatique », la langue que le téléphone donne à l'app.
+class _LanguageCard extends StatelessWidget {
+  const _LanguageCard({required this.selected, required this.onChanged});
+
+  final AppLanguage selected;
+  final ValueChanged<AppLanguage> onChanged;
+
+  Widget _button(BuildContext context, AppLanguage language) {
+    return Expanded(
+      child: PongSelectableButton(
+        key: ValueKey('langue-${language.code}'),
+        label: language.nativeName ?? context.l10n.settingsLanguageAutomatic,
+        selected: language == selected,
+        onPressed: () => onChanged(language),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final String current = AppLanguage.ofLanguageCode(
+            Localizations.localeOf(context).languageCode)
+        .nativeName!;
+    const gap = SizedBox(width: PongSpacing.xs);
+    return PongCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(children: [
+            _button(context, AppLanguage.system),
+            gap,
+            _button(context, AppLanguage.french),
+          ]),
+          const SizedBox(height: PongSpacing.xs),
+          Row(children: [
+            _button(context, AppLanguage.english),
+            gap,
+            _button(context, AppLanguage.spanish),
+          ]),
+          if (selected == AppLanguage.system) ...[
+            const SizedBox(height: PongSpacing.sm),
+            Text(
+              l10n.settingsLanguageAutomaticHint(current),
+              style: PongText.caption
+                  .copyWith(fontSize: 12, fontWeight: FontWeight.w400),
+            ),
+          ],
         ],
       ),
     );
@@ -181,6 +255,7 @@ class _SensitivityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final edgeStyle =
         PongText.caption.copyWith(fontSize: 12, color: PongColors.textTertiary);
     return PongCard(
@@ -198,7 +273,7 @@ class _SensitivityCard extends StatelessWidget {
               ),
               const SizedBox(width: PongSpacing.sm),
               Expanded(
-                child: Text('Sensibilité',
+                child: Text(l10n.settingsSensitivity,
                     style: PongText.cardTitle.copyWith(fontSize: 16)),
               ),
               Text(
@@ -210,8 +285,7 @@ class _SensitivityCard extends StatelessWidget {
           ),
           const SizedBox(height: PongSpacing.sm),
           Text(
-            'Plus vive : la raquette va plus vite et demande moins '
-            "d'inclinaison.",
+            l10n.settingsSensitivityHint,
             style: PongText.caption
                 .copyWith(fontSize: 12, fontWeight: FontWeight.w400),
           ),
@@ -220,7 +294,7 @@ class _SensitivityCard extends StatelessWidget {
             value: value,
             min: PaddleSensitivity.min,
             max: PaddleSensitivity.max,
-            semanticLabel: 'Sensibilité',
+            semanticLabel: l10n.settingsSensitivity,
             onChanged: onChanged,
             onChangeEnd: onChangeEnd,
           ),
@@ -229,9 +303,9 @@ class _SensitivityCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: PongSpacing.xs),
               child: Row(
                 children: [
-                  Text('Douce', style: edgeStyle),
+                  Text(l10n.settingsSensitivityLow, style: edgeStyle),
                   const Spacer(),
-                  Text('Vive', style: edgeStyle),
+                  Text(l10n.settingsSensitivityHigh, style: edgeStyle),
                 ],
               ),
             ),
@@ -353,7 +427,7 @@ class _TiltTrialState extends State<_TiltTrial>
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          "Zone d'essai · penche ton téléphone",
+          context.l10n.settingsTrialZone,
           style: PongText.caption
               .copyWith(fontSize: 12, fontWeight: FontWeight.w400),
         ),
@@ -417,6 +491,7 @@ class _PseudoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pseudo = this.pseudo;
+    final l10n = context.l10n;
     return PongCard(
       padding: const EdgeInsets.fromLTRB(
           PongSpacing.md, PongSpacing.sm, PongSpacing.xxs, PongSpacing.sm),
@@ -434,12 +509,12 @@ class _PseudoCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('Pseudo',
+                Text(l10n.settingsNickname,
                     style: PongText.caption
                         .copyWith(fontSize: 12, fontWeight: FontWeight.w400)),
                 const SizedBox(height: 2),
                 Text(
-                  pseudo ?? 'Aucun',
+                  pseudo ?? l10n.settingsNicknameNone,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: PongText.cardTitle.copyWith(
@@ -453,7 +528,9 @@ class _PseudoCard extends StatelessWidget {
             ),
           ),
           PongTextButton(
-            label: pseudo == null ? 'Choisir' : 'Modifier',
+            label: pseudo == null
+                ? l10n.settingsNicknameChoose
+                : l10n.commonEdit,
             icon: Icons.edit_rounded,
             color: PongColors.pinkLight,
             onPressed: onEdit,
@@ -491,7 +568,7 @@ class _PseudoDialogState extends State<_PseudoDialog> {
     final pseudo = PongSettings.cleanPseudo(_controller.text);
     if (pseudo == null) {
       setState(() {
-        _error = 'Choisis un pseudo';
+        _error = context.l10n.nicknameDialogRequired;
         _shake++;
       });
       return;
@@ -501,13 +578,14 @@ class _PseudoDialogState extends State<_PseudoDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return SingleChildScrollView(
       child: PongDialogCard(
-        title: 'Ton pseudo',
-        message: 'Il apparaît dans le classement.',
+        title: l10n.nicknameFieldLabel,
+        message: l10n.nicknameDialogMessage,
         content: PongTextField(
           controller: _controller,
-          hintText: 'Entre ton pseudo',
+          hintText: l10n.nicknameFieldHint,
           errorText: _error,
           shakeTrigger: _shake,
           autofocus: true,
@@ -520,9 +598,9 @@ class _PseudoDialogState extends State<_PseudoDialog> {
           onSubmitted: (_) => _save(),
         ),
         actions: [
-          PongPrimaryButton(label: 'Enregistrer', onPressed: _save),
+          PongPrimaryButton(label: l10n.commonSave, onPressed: _save),
           PongTextButton(
-            label: 'Annuler',
+            label: l10n.commonCancel,
             onPressed: () => Navigator.of(context).pop(),
           ),
         ],

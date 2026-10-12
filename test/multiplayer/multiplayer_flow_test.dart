@@ -14,6 +14,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pong_game/l10n/l10n.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:pong_game/multiplayer/controller/controller.dart';
 import 'package:pong_game/multiplayer/multiplayer_flow.dart';
@@ -25,6 +26,8 @@ import 'package:pong_game/multiplayer/screens/multiplayer_menu_screen.dart';
 import 'package:pong_game/multiplayer/widgets/duel_countdown.dart';
 import 'package:pong_game/net/net.dart';
 import 'package:pong_game/ui/pong_ui.dart';
+
+import '../support/screen_harness.dart' show testLocale;
 
 const Key hostKey = ValueKey('hôte');
 const Key guestKey = ValueKey('invité');
@@ -66,6 +69,10 @@ Future<void> pressBack(WidgetTester tester) async {
 
 /// Écran d'accueil minimal d'où l'on ouvre le multijoueur, comme `NamePage`.
 Widget app(Key key, MultiplayerFlow Function() flow) => MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: testLocale,
+      
       key: key,
       theme: PongTheme.dark(),
       home: Builder(

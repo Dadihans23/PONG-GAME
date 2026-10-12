@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pong_game/l10n/l10n.dart';
 import 'package:pong_game/ui/pong_ui.dart';
 
 /// Menu multijoueur (maquette M1) : créer une partie ou en rejoindre une.
@@ -37,8 +38,10 @@ class MultiplayerMenuScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final playingAs = splitAround(l10n.mpPlayingAs, playerName);
     return PongPageScaffold(
-      title: 'Multijoueur',
+      title: l10n.modeMultiplayer,
       onBack: onBack,
       body: CustomScrollView(
         slivers: [
@@ -52,7 +55,7 @@ class MultiplayerMenuScreen extends StatelessWidget {
                 children: [
                   Text.rich(
                     TextSpan(
-                      text: 'Tu joues en tant que ',
+                      text: playingAs.before,
                       children: [
                         TextSpan(
                           text: playerName,
@@ -60,6 +63,7 @@ class MultiplayerMenuScreen extends StatelessWidget {
                               color: PongColors.textPrimary,
                               fontWeight: FontWeight.w700),
                         ),
+                        TextSpan(text: playingAs.after),
                       ],
                     ),
                     maxLines: 1,
@@ -73,8 +77,8 @@ class MultiplayerMenuScreen extends StatelessWidget {
                     color: PongColors.pinkLight,
                     tint: PongColors.pinkTint,
                     glow: true,
-                    title: 'Créer une partie',
-                    subtitle: 'Ton ami la rejoint depuis son téléphone.',
+                    title: l10n.mpCreateTitle,
+                    subtitle: l10n.mpCreateSubtitle,
                     busy: creating,
                     onTap: creating ? null : onCreate,
                   ),
@@ -83,17 +87,13 @@ class MultiplayerMenuScreen extends StatelessWidget {
                     icon: Icons.login_rounded,
                     color: PongColors.playerLight,
                     tint: _joinTint,
-                    title: 'Rejoindre une partie',
-                    subtitle: "Trouve la partie d'un ami à proximité.",
+                    title: l10n.mpJoinTitle,
+                    subtitle: l10n.mpJoinSubtitle,
                     onTap: creating ? null : onJoin,
                   ),
                   const Spacer(),
                   const SizedBox(height: PongSpacing.md),
-                  const NetworkHint(
-                    text: "Soyez sur le même Wi‑Fi, ou connecte-toi au "
-                        "partage de connexion de l'autre. Pas besoin "
-                        "d'Internet.",
-                  ),
+                  NetworkHint(text: l10n.mpNetworkHint),
                 ],
               ),
             ),

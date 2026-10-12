@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../brand.dart';
+import '../l10n/l10n.dart';
 import '../ui/pong_ui.dart';
 import 'studio_info.dart';
 
@@ -37,9 +38,6 @@ class StudioPage extends StatelessWidget {
   static Future<void> open(BuildContext context) => Navigator.of(context)
       .push(MaterialPageRoute<void>(builder: (_) => const StudioPage()));
 
-  static const String _versionLine =
-      '${Brand.gameName} · version ${Brand.appVersion}';
-
   Future<void> _open(BuildContext context, String link) async {
     final url = Uri.tryParse(link);
     var opened = false;
@@ -55,8 +53,7 @@ class StudioPage extends StatelessWidget {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(
-        content: Text("Le lien ne s'ouvre pas. Va sur $host depuis ton "
-            'navigateur.'),
+        content: Text(context.l10n.studioLinkFailed(host)),
       ));
   }
 
@@ -64,8 +61,16 @@ class StudioPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder<StudioInfo>(
       valueListenable: studio ?? Studio.current,
-      builder: (context, info, _) => PongPageScaffold(
-        title: 'Le studio',
+      builder: (context, info, _) => _buildPage(context, info),
+    );
+  }
+
+  Widget _buildPage(BuildContext context, StudioInfo info) {
+    final l10n = context.l10n;
+    final intro = splitAround(
+        (studio) => l10n.studioIntro(Brand.gameName, studio), info.name);
+    return PongPageScaffold(
+        title: l10n.studioTitle,
         body: ListView(
           padding: const EdgeInsets.fromLTRB(PongSpacing.screen,
               PongSpacing.xxs, PongSpacing.screen, PongSpacing.lg),
@@ -74,14 +79,14 @@ class StudioPage extends StatelessWidget {
             const SizedBox(height: PongSpacing.lg),
             Text.rich(
               TextSpan(children: [
-                const TextSpan(text: '${Brand.gameName} est un jeu de '),
+                TextSpan(text: intro.before),
                 TextSpan(
                   text: info.name,
                   style: const TextStyle(
                       fontWeight: FontWeight.w800,
                       color: PongColors.textPrimary),
                 ),
-                const TextSpan(text: '.'),
+                TextSpan(text: intro.after),
               ]),
               style: PongText.headline.copyWith(color: PongColors.textBody),
             ),
@@ -95,22 +100,22 @@ class StudioPage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             PongSecondaryButton(
-              label: 'Visiter le site',
+              label: l10n.studioVisitWebsite,
               icon: Icons.open_in_new_rounded,
               onPressed: () => unawaited(_open(context, info.website)),
             ),
             const SizedBox(height: PongSpacing.xxs),
             PongTextButton(
-              label: 'Écrire au studio',
+              label: l10n.studioContact,
               icon: Icons.open_in_new_rounded,
               color: PongColors.pinkLight,
               onPressed: () => unawaited(_open(context, info.contactUrl)),
             ),
             const SizedBox(height: PongSpacing.xs),
-            const Text(
-              _versionLine,
+            Text(
+              l10n.settingsVersion(Brand.gameName, Brand.appVersion),
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontFamily: PongText.fontFamily,
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
@@ -119,8 +124,7 @@ class StudioPage extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 }
 

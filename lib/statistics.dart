@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:pong_game/l10n/l10n.dart';
 import 'package:pong_game/ui/pong_ui.dart';
 
 /// Statistiques (maquette ST1), par section de mode. Grille de 2 colonnes
@@ -21,18 +22,18 @@ class StatisticsPage extends StatelessWidget {
     final duelLosses = stats.get('duelLosses', defaultValue: 0) as int;
     final topScore =
         Hive.box<int>('scores').get('topscore', defaultValue: 0) ?? 0;
+    final l10n = context.l10n;
+    final format = PongFormat.of(context);
 
     return PongPageScaffold(
-      title: 'Statistiques',
+      title: l10n.statisticsTitle,
       body: ListView(
         padding: const EdgeInsets.fromLTRB(PongSpacing.screen, PongSpacing.xxs,
             PongSpacing.screen, PongSpacing.screen),
         children: [
           _StatSection(
-            title: 'Solo',
-            hint: totalGames == 0
-                ? 'Joue ta première partie pour remplir ces chiffres.'
-                : null,
+            title: l10n.modeSolo,
+            hint: totalGames == 0 ? l10n.statsSoloEmpty : null,
             children: [
               IntrinsicHeight(
                 child: Row(
@@ -41,8 +42,8 @@ class StatisticsPage extends StatelessWidget {
                     Expanded(
                       child: PongStatCard(
                         icon: Icons.sports_esports_rounded,
-                        label: 'Parties jouées',
-                        value: PongFormat.number(totalGames),
+                        label: l10n.statsGamesPlayed,
+                        value: format.number(totalGames),
                         color: PongColors.data,
                       ),
                     ),
@@ -50,8 +51,8 @@ class StatisticsPage extends StatelessWidget {
                     Expanded(
                       child: PongStatCard(
                         icon: Icons.emoji_events_rounded,
-                        label: 'Meilleur score',
-                        value: PongFormat.number(topScore),
+                        label: l10n.bestScore,
+                        value: format.number(topScore),
                         color: PongColors.record,
                       ),
                     ),
@@ -60,23 +61,21 @@ class StatisticsPage extends StatelessWidget {
               ),
               PongStatRow(
                 icon: Icons.timer_rounded,
-                label: 'Temps total de jeu',
-                value: PongFormat.duration(totalPlayTimeMs),
+                label: l10n.statsTotalTime,
+                value: format.duration(totalPlayTimeMs),
                 color: PongColors.pinkLight,
               ),
               PongStatRow(
                 icon: Icons.local_fire_department_rounded,
-                label: 'Meilleure série',
-                value: PongFormat.count(bestStreak, 'renvoi', 'renvois'),
+                label: l10n.statsBestStreak,
+                value: l10n.hitsCount(bestStreak, format.number(bestStreak)),
                 color: PongColors.streak,
               ),
             ],
           ),
           _StatSection(
-            title: 'Multijoueur',
-            hint: duelWins + duelLosses == 0
-                ? 'Joue ton premier duel pour remplir ces chiffres.'
-                : null,
+            title: l10n.modeMultiplayer,
+            hint: duelWins + duelLosses == 0 ? l10n.statsMultiplayerEmpty : null,
             children: [_DuelRecordCard(wins: duelWins, losses: duelLosses)],
           ),
         ],
@@ -137,14 +136,16 @@ class _DuelRecordCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final int total = wins + losses;
+    final l10n = context.l10n;
+    final format = PongFormat.of(context);
+    final String duels = l10n.duelsCount(total, format.number(total));
     final TextStyle label =
         PongText.caption.copyWith(fontWeight: FontWeight.w400);
     final TextStyle figure = PongText.keyFigure.copyWith(fontSize: 30);
     return PongCard(
       child: Semantics(
         container: true,
-        label: 'Victoires : $wins, défaites : $losses, '
-            '${PongFormat.count(total, 'duel', 'duels')}',
+        label: l10n.statsDuelSemantics(wins, losses, duels),
         excludeSemantics: true,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -156,25 +157,24 @@ class _DuelRecordCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Victoires', style: label),
+                      Text(l10n.statsWins, style: label),
                       const SizedBox(height: PongSpacing.xxs),
-                      Text(PongFormat.number(wins),
+                      Text(format.number(wins),
                           style: figure.copyWith(color: PongColors.success)),
                     ],
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 6),
-                  child: Text(PongFormat.count(total, 'duel', 'duels'),
-                      style: label),
+                  child: Text(duels, style: label),
                 ),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text('Défaites', style: label),
+                      Text(l10n.statsLosses, style: label),
                       const SizedBox(height: PongSpacing.xxs),
-                      Text(PongFormat.number(losses),
+                      Text(format.number(losses),
                           style: figure.copyWith(color: PongColors.textBody)),
                     ],
                   ),

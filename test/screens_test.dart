@@ -6,6 +6,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pong_game/l10n/l10n.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:pong_game/aide.dart';
 import 'package:pong_game/brand.dart';
@@ -325,7 +326,7 @@ void main() {
         expect(find.textContaining("L'un crée la partie, l'autre la rejoint."),
             findsOneWidget);
         // Signature du studio sous les règles
-        await tester.scrollUntilVisible(find.text(Brand.signaturePrefix), 100);
+        await tester.scrollUntilVisible(find.text('Un jeu de'), 100);
         expect(find.byType(PongStudioSignature), findsOneWidget);
         expect(tester.takeException(), isNull);
       });
@@ -333,16 +334,35 @@ void main() {
   });
 
   test('mise en forme des chiffres', () {
-    expect(PongFormat.number(0), '0');
-    expect(PongFormat.number(950), '950');
-    expect(PongFormat.number(2400), '2${PongFormat.nbsp}400');
-    expect(PongFormat.number(1234567),
+    const format = PongFormat.fr;
+    expect(format.number(0), '0');
+    expect(format.number(950), '950');
+    expect(format.number(2400), '2${PongFormat.nbsp}400');
+    expect(format.number(1234567),
         '1${PongFormat.nbsp}234${PongFormat.nbsp}567');
-    expect(PongFormat.duration(45000), '45s');
-    expect(PongFormat.duration(200000), '3m 20s');
-    expect(PongFormat.duration(4325000), '1h 12m 5s');
-    expect(PongFormat.date(DateTime(2026, 9, 3)), '03/09/2026');
-    expect(
-        PongFormat.count(1, 'renvoi', 'renvois'), '1${PongFormat.nbsp}renvoi');
+    expect(format.duration(45000), '45s');
+    expect(format.duration(200000), '3m 20s');
+    expect(format.duration(4325000), '1h 12m 5s');
+    expect(format.date(DateTime(2026, 9, 3)), '03/09/2026');
+    final fr = lookupAppLocalizations(const Locale('fr'));
+    expect(fr.hitsCount(1, '1'), '1${PongFormat.nbsp}renvoi');
+    expect(fr.hitsCount(0, '0'), '0${PongFormat.nbsp}renvoi');
+    expect(fr.hitsCount(23, '23'), '23${PongFormat.nbsp}renvois');
+  });
+
+  test('mise en forme des chiffres en anglais et en espagnol', () {
+    const en = PongFormat(Locale('en'));
+    const es = PongFormat(Locale('es', 'MX'));
+    expect(en.number(1234567), '1,234,567');
+    expect(es.number(2400), '2${PongFormat.nbsp}400');
+    expect(en.date(DateTime(2026, 9, 3)), '9/3/2026');
+    expect(es.date(DateTime(2026, 9, 3)), '03/09/2026');
+    expect(en.duration(200000), '3m 20s');
+    final enText = lookupAppLocalizations(const Locale('en'));
+    final esText = lookupAppLocalizations(const Locale('es'));
+    expect(enText.hitsCount(1, '1'), '1${PongFormat.nbsp}hit');
+    expect(enText.hitsCount(0, '0'), '0${PongFormat.nbsp}hits');
+    expect(esText.hitsCount(1, '1'), '1${PongFormat.nbsp}golpe');
+    expect(esText.duelsCount(19, '19'), '19${PongFormat.nbsp}duelos');
   });
 }

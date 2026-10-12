@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pong_game/game_ui/game_court.dart';
+import 'package:pong_game/l10n/l10n.dart';
 import 'package:pong_game/multiplayer/widgets/duel_court.dart';
 import 'package:pong_game/ui/pong_ui.dart';
 
@@ -74,6 +75,7 @@ class DuelHud extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool weak = hud.connection == DuelConnection.weak;
+    final l10n = context.l10n;
     return SizedBox(
       height: height,
       child: Padding(
@@ -82,7 +84,7 @@ class DuelHud extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                'DUEL · PREMIER À ${hud.targetScore}',
+                l10n.duelHudFormat(hud.targetScore).toUpperCase(),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: PongText.overline,
@@ -90,7 +92,7 @@ class DuelHud extends StatelessWidget {
             ),
             Semantics(
               liveRegion: true,
-              label: weak ? 'Connexion faible' : 'Connexion bonne',
+              label: weak ? l10n.duelConnectionWeak : l10n.duelConnectionGood,
               excludeSemantics: true,
               child: AnimatedSwitcher(
                 duration: PongDurations.normal,
@@ -99,7 +101,7 @@ class DuelHud extends StatelessWidget {
                         key: const ValueKey('weak'),
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text('Connexion faible',
+                          Text(l10n.duelConnectionWeak,
                               style: PongText.statusLabel
                                   .copyWith(color: PongColors.errorText)),
                           const SizedBox(width: 6),

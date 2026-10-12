@@ -428,7 +428,7 @@ class _MultiplayerFlowState extends State<MultiplayerFlow>
                 hostNameOf(c.joiningGame?.name ?? c.gameName ?? ''));
             primary = c.backToBrowsing;
           case JoinFailure.versionMismatch:
-            incident = _versionMismatch;
+            incident = const DuelIncident.versionMismatch();
             primary = c.backToBrowsing;
           case JoinFailure.unreachable || JoinFailure.refused || null:
             incident = const DuelIncident.connectionFailed();
@@ -440,7 +440,7 @@ class _MultiplayerFlowState extends State<MultiplayerFlow>
         primary = c.retry;
         secondary = c.leave;
       case MultiplayerIncident.closedInBackground:
-        incident = _closedInBackground;
+        incident = const DuelIncident.closedInBackground();
         primary = c.leave;
       case null:
         return const _Blank();
@@ -452,31 +452,13 @@ class _MultiplayerFlowState extends State<MultiplayerFlow>
           : primary(),
     );
   }
-
-  /// L'hôte a une autre version de l'app.
-  static const DuelIncident _versionMismatch = DuelIncident(
-    icon: Icons.system_update_rounded,
-    iconColor: PongColors.textBody,
-    title: 'Versions différentes',
-    message: "Installe la même version du jeu sur les deux téléphones, puis "
-        "réessaie.",
-    primaryLabel: 'Retour à la liste',
-  );
-
-  /// L'app est passée en arrière-plan : pas de pause en duel.
-  static const DuelIncident _closedInBackground = DuelIncident(
-    icon: Icons.pause_circle_outline_rounded,
-    iconColor: PongColors.textBody,
-    title: 'Partie fermée',
-    message: "La partie s'arrête quand le jeu passe en arrière-plan. Tu peux "
-        "en créer ou en rejoindre une autre.",
-    primaryLabel: 'Retour au menu',
-  );
 }
 
-/// Pseudo de l'hôte d'après le nom annoncé (« Partie de Tom » → « Tom »,
-/// « Partie d'Inès » → « Inès »). Un nom d'une autre forme est gardé tel
-/// quel.
+/// Pseudo de l'hôte d'après le nom annoncé sur le réseau (« Partie de
+/// Tom » → « Tom », « Partie d'Inès » → « Inès »). Ce nom reste en français
+/// quelle que soit la langue de l'hôte (protocole inchangé) ; chaque
+/// téléphone le réécrit dans sa langue (`gameOfName`). Un nom d'une autre
+/// forme est gardé tel quel.
 String hostNameOf(String gameName) {
   const prefixes = ['Partie de ', "Partie d'", 'Partie d’'];
   for (final prefix in prefixes) {

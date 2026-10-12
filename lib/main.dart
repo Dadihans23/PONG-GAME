@@ -6,6 +6,7 @@ import 'package:pong_game/brand.dart';
 import 'package:pong_game/entername.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:pong_game/game_sound.dart';
+import 'package:pong_game/l10n/l10n.dart';
 import 'package:pong_game/settings/pong_settings.dart';
 import 'package:pong_game/studio/studio_repository.dart';
 import 'package:pong_game/ui/pong_ui.dart';
@@ -26,6 +27,9 @@ void main() async {
   GameSound.musicEnabled = settings.musicEnabled;
   GameSound.effectsEnabled = settings.soundEffectsEnabled;
 
+  // Langue choisie dans les Réglages (par défaut, celle du téléphone)
+  AppLanguageSetting.current.value = settings.language;
+
   // Migration one-time : ancien topscore vers leaderboard
   final scoresBox = Hive.box<int>('scores');
   final leaderboardBox = Hive.box('leaderboard');
@@ -42,26 +46,47 @@ void main() async {
   }
 
   // Studio : le cache tout de suite, puis le site en arrière-plan (au plus
-  // une fois par 24 h), sans retarder le chargement
-  final studio = StudioRepository(Hive.box(StudioRepository.boxName))
-    ..loadCache();
+  // une fois par 24 h, ou au lancement qui suit un changement de langue),
+  // sans retarder le chargement. La présentation est demandée dans la
+  // langue de l'app.
+  final studio = StudioRepository(
+    Hive.box(StudioRepository.boxName),
+    language: effectiveLanguageCode(
+        settings.language,
+        WidgetsBinding.instance.platformDispatcher.locales),
+  )..loadCache();
   unawaited(studio.refreshIfDue());
 
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({super.key, this.home = const SplashScreen()});
+
+  /// Premier écran (les tests en passent un autre).
+  final Widget home;
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: Brand.gameName,
-      theme: PongTheme.dark(),
-      themeMode: ThemeMode.dark,
-      // Chargement, puis accueil
-      home: const SplashScreen(),
+    // Un changement de langue dans les Réglages reconstruit l'app : tous les
+    // écrans ouverts passent à la nouvelle langue, sans redémarrer.
+    return ValueListenableBuilder<AppLanguage>(
+      valueListenable: AppLanguageSetting.current,
+      builder: (context, language, _) => MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: Brand.gameName,
+        theme: PongTheme.dark(),
+        themeMode: ThemeMode.dark,
+        // `null` (Automatique) : la langue du téléphone, suivie en direct
+        locale: language.locale,
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        // fr, en ou es selon le téléphone, quel que soit le pays ; sinon
+        // l'anglais
+        localeListResolutionCallback: (locales, _) => resolveAppLocale(locales),
+        // Chargement, puis accueil
+        home: home,
+      ),
     );
   }
 }
@@ -203,8 +228,9 @@ class _LoadingBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final percent = (progress * 100).toInt();
+    final l10n = context.l10n;
     return Semantics(
-      label: 'Chargement',
+      label: l10n.splashLoadingLabel,
       value: '$percent${PongFormat.nbsp}%',
       excludeSemantics: true,
       child: Column(
@@ -235,8 +261,8 @@ class _LoadingBar extends StatelessWidget {
           const SizedBox(height: PongSpacing.sm),
           Row(
             children: [
-              const Expanded(
-                child: Text('Chargement…', style: PongText.caption),
+              Expanded(
+                child: Text(l10n.splashLoading, style: PongText.caption),
               ),
               Text(
                 '$percent${PongFormat.nbsp}%',

@@ -21,7 +21,7 @@ abstract final class Brand {
   /// Version affichée (Réglages, page « Le studio ») : la même que
   /// `version:` dans pubspec.yaml, sans le numéro de build (vérifié par
   /// test/settings_test.dart). À changer avec le pubspec.
-  static const String appVersion = '1.0.1';
+  static const String appVersion = '1.1.0';
 
   /// Nom du studio (« Nexora »).
   static const String studioName = 'Nexora';
@@ -38,9 +38,6 @@ abstract final class Brand {
   /// Présentation du studio (nom, logo, texte, liens), modifiable dans
   /// l'administration du site. Voir lib/studio/studio_repository.dart.
   static const String studioApiUrl = 'https://$studioApiHost/api/app/studio';
-
-  /// Début de la signature, suivi du logo (qui contient le nom du studio).
-  static const String signaturePrefix = 'Un jeu de';
 
   /// Logo complet (symbole + nom), texte blanc : pour les fonds sombres.
   static const String logoLight = 'assets/brand/nexora_logo_light.png';

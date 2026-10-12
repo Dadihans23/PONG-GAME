@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pong_game/l10n/l10n.dart';
 import 'package:pong_game/ui/pong_ui.dart';
 
 /// Bande de HUD de 72 px au-dessus du terrain (maquette G1, G2) : rien n'y
@@ -33,6 +34,7 @@ class GameHud extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return SizedBox(
       height: height,
       child: Padding(
@@ -47,10 +49,12 @@ class GameHud extends StatelessWidget {
                     ? PongDotGauge(
                         filled: hitsSinceSpeedUp,
                         count: hitsPerSpeedUp,
-                        label: 'Vitesse $speedLevel',
+                        label: l10n.hudSpeed(speedLevel),
                       )
                     : Text(
-                        'SOLO · ${difficulty.toUpperCase()}',
+                        l10n
+                            .hudSoloMode(l10n.difficultyLabel(difficulty))
+                            .toUpperCase(),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: PongText.overline,
@@ -59,7 +63,7 @@ class GameHud extends StatelessWidget {
             ),
             PongIconButton(
               icon: Icons.pause_rounded,
-              tooltip: 'Pause',
+              tooltip: l10n.pauseTooltip,
               filled: true,
               onPressed: onPause,
             ),

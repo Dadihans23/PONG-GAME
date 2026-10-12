@@ -9,6 +9,8 @@
 // - `PongIconBadge` : icône dans une pastille teintée (cartes, dialogues).
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
+
 import '../pong_colors.dart';
 import '../pong_text.dart';
 import '../pong_tokens.dart';
@@ -182,7 +184,7 @@ class PongStatCard extends StatelessWidget {
     return PongCard(
       child: Semantics(
         container: true,
-        label: '$label : $value',
+        label: context.l10n.commonLabelValue(label, value),
         excludeSemantics: true,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -230,7 +232,7 @@ class PongStatRow extends StatelessWidget {
     return PongCard(
       child: Semantics(
         container: true,
-        label: '$label : $value',
+        label: context.l10n.commonLabelValue(label, value),
         excludeSemantics: true,
         child: LayoutBuilder(
           builder: (context, constraints) => Row(
@@ -290,7 +292,7 @@ class PongFigureTile extends StatelessWidget {
         borderRadius: PongRadii.segmentAll,
       ),
       child: Semantics(
-        label: '$label : $value',
+        label: context.l10n.commonLabelValue(label, value),
         excludeSemantics: true,
         child: Column(
           mainAxisSize: MainAxisSize.min,

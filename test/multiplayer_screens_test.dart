@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pong_game/l10n/l10n.dart';
 import 'package:pong_game/multiplayer/screens/duel_result_screen.dart';
 import 'package:pong_game/multiplayer/screens/duel_screen.dart';
 import 'package:pong_game/multiplayer/screens/join_screen.dart';
@@ -48,14 +49,25 @@ void main() {
   setUpAll(loadArchivo);
 
   test('tournures autour d\'un pseudo', () {
-    expect(DuelTexts.gameOf('Tom'), 'Partie de Tom');
-    expect(DuelTexts.gameOf('Inès'), "Partie d'Inès");
-    expect(DuelTexts.gameOf('Éloïse'), "Partie d'Éloïse");
-    expect(DuelTexts.gameOf('Yanis'), 'Partie de Yanis');
-    expect(DuelTexts.gameOf('Hugo'), 'Partie de Hugo');
-    expect(DuelTexts.waitingFor('Inès'), "En attente d'Inès…");
+    final fr = lookupAppLocalizations(const Locale('fr'));
+    expect(fr.gameOfName('Tom'), 'Partie de Tom');
+    expect(fr.gameOfName('Inès'), "Partie d'Inès");
+    expect(fr.gameOfName('Éloïse'), "Partie d'Éloïse");
+    expect(fr.gameOfName('Yanis'), 'Partie de Yanis');
+    expect(fr.gameOfName('Hugo'), 'Partie de Hugo');
+    expect(fr.waitingForName('Inès'), "En attente d'Inès…");
+    expect(fr.waitingForName(''), 'En attente de ton adversaire…');
     expect(DuelTexts.initial(' léa'), 'L');
     expect(DuelTexts.initial(''), '?');
+  });
+
+  test('tournures autour d\'un pseudo, en anglais et en espagnol', () {
+    final en = lookupAppLocalizations(const Locale('en'));
+    final es = lookupAppLocalizations(const Locale('es'));
+    expect(en.gameOfName('Inès'), "Inès's game");
+    expect(en.waitingForName('Tom'), 'Waiting for Tom…');
+    expect(es.gameOfName('Inès'), 'Partida de Inès');
+    expect(es.waitingForName('Tom'), 'Esperando a Tom…');
   });
 
   group('menu (M1)', () {
@@ -381,7 +393,11 @@ void main() {
           );
       await pumpScreen(tester, lobby(3), testScreens.first);
       await tester
-          .pumpWidget(MaterialApp(theme: PongTheme.dark(), home: lobby(2)));
+          .pumpWidget(MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: testLocale,
+      theme: PongTheme.dark(), home: lobby(2)));
       await tester.pump(const Duration(milliseconds: 400));
       expect(find.text('2'), findsOneWidget);
       expect(find.text('3'), findsNothing);
@@ -631,23 +647,26 @@ void main() {
           await tester.tap(find.text('ouvrir'));
           await tester.pumpAndSettle();
 
-          expect(find.text(incident.title), findsOneWidget);
-          expect(find.text(incident.message), findsOneWidget);
+          final l10n = lookupAppLocalizations(testLocale);
+          final title = incident.title(l10n);
+          expect(find.text(title), findsOneWidget);
+          expect(find.text(incident.message(l10n)), findsOneWidget);
           // Le retour Android ne ferme pas l'incident
           await pressBack(tester);
-          expect(find.text(incident.title), findsOneWidget);
+          expect(find.text(title), findsOneWidget);
 
-          final secondary = incident.secondaryLabel;
+          final secondary = incident.secondaryLabel(l10n);
           if (secondary != null) {
             await tester.tap(find.text(secondary));
             await tester.pumpAndSettle();
             expect(chosen, DuelIncidentAction.secondary);
           } else {
-            await tester.tap(find.text(incident.primaryLabel.toUpperCase()));
+            await tester
+                .tap(find.text(incident.primaryLabel(l10n).toUpperCase()));
             await tester.pumpAndSettle();
             expect(chosen, DuelIncidentAction.primary);
           }
-          expect(find.text(incident.title), findsNothing);
+          expect(find.text(title), findsNothing);
         });
       }
     }

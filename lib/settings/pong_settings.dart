@@ -1,5 +1,6 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:pong_game/game/paddle_sensitivity.dart';
+import 'package:pong_game/l10n/l10n.dart';
 
 /// Réglages du joueur, enregistrés dans la boîte Hive `settings` (ouverte
 /// dans `main()`).
@@ -33,6 +34,9 @@ class PongSettings {
   /// Ancien cran de sensibilité (0 à 4), lu seulement si [sensitivityKey]
   /// est absente.
   static const String legacySensitivityKey = 'paddleSensitivity';
+
+  /// Langue choisie : `system`, `fr`, `en` ou `es` ([AppLanguage.code]).
+  static const String languageKey = 'language';
 
   // --- Pseudo ---------------------------------------------------------------
   /// Longueur maximale d'un pseudo : il tient sur une ligne du classement.
@@ -92,6 +96,11 @@ class PongSettings {
 
   set paddleSensitivity(int value) =>
       _box.put(sensitivityKey, PaddleSensitivity.clamp(value));
+
+  // --- Langue -----------------------------------------------------------------
+  /// Langue de l'app ; par défaut, celle du téléphone ([AppLanguage.system]).
+  AppLanguage get language => AppLanguage.fromCode(_box.get(languageKey));
+  set language(AppLanguage value) => _box.put(languageKey, value.code);
 
   bool _readBool(String key) {
     final value = _box.get(key);

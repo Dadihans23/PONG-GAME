@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.1+2
+version: 1.1.0+3
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
@@ -33,6 +33,12 @@ dependency_overrides:
 dependencies:
   flutter:
     sdk: flutter
+  # Langues de l'app (français, anglais, espagnol) : système officiel de
+  # Flutter, textes dans lib/l10n/*.arb, classe AppLocalizations générée
+  # (voir l10n.yaml). intl est la version imposée par flutter_localizations.
+  flutter_localizations:
+    sdk: flutter
+  intl: 0.19.0
   sensors_plus: ^4.0.2
   avatar_glow: ^3.0.1
   hive_flutter: ^1.1.0
@@ -73,6 +79,9 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  # Génère AppLocalizations à partir de lib/l10n/*.arb (voir l10n.yaml)
+  generate: true
 
   assets:
     - assets/sounds/

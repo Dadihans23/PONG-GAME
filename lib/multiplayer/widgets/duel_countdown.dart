@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pong_game/l10n/l10n.dart';
 import 'package:pong_game/ui/pong_ui.dart';
 
 /// Compte à rebours plein écran (maquette L4) : « LÉA CONTRE TOM », le
@@ -23,6 +24,7 @@ class DuelCountdownOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final TextStyle namesStyle = PongText.hudLabel.copyWith(
       fontSize: 12,
       letterSpacing: 12 * 0.3,
@@ -51,9 +53,10 @@ class DuelCountdownOverlay extends StatelessWidget {
                             text: myName.toUpperCase(),
                             style:
                                 const TextStyle(color: PongColors.playerLight)),
-                        const TextSpan(
-                            text: '  CONTRE  ',
-                            style: TextStyle(color: PongColors.textDisabled)),
+                        TextSpan(
+                            text: '  ${l10n.countdownVersus.toUpperCase()}  ',
+                            style: const TextStyle(
+                                color: PongColors.textDisabled)),
                         TextSpan(
                             text: opponentName.toUpperCase(),
                             style: const TextStyle(
@@ -118,7 +121,7 @@ class DuelCountdownOverlay extends StatelessWidget {
                   FittedBox(
                     fit: BoxFit.scaleDown,
                     child: PongSpacedText(
-                      'PRENDS TON TÉLÉPHONE',
+                      l10n.countdownGrabPhone.toUpperCase(),
                       style: PongText.screenTitle.copyWith(
                         fontSize: 14,
                         letterSpacing: 14 * 0.3,
@@ -127,14 +130,14 @@ class DuelCountdownOverlay extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 28),
-                  const Row(
+                  Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.screen_rotation_rounded,
+                      const Icon(Icons.screen_rotation_rounded,
                           size: 18, color: PongColors.textSecondary),
-                      SizedBox(width: PongSpacing.xs),
+                      const SizedBox(width: PongSpacing.xs),
                       Flexible(
-                        child: Text('À deux mains, prêt à incliner',
+                        child: Text(l10n.countdownHint,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: PongText.caption),

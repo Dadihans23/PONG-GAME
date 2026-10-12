@@ -25,6 +25,9 @@ void main() {
 
   testWidgets("l'app s'ouvre sur le chargement, sans logo du studio",
       (tester) async {
+    // Téléphone en français : l'app suit sa langue
+    tester.platformDispatcher.localesTestValue = const [Locale('fr', 'FR')];
+    addTearDown(tester.platformDispatcher.clearLocalesTestValue);
     await tester.pumpWidget(const MyApp());
     final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
     expect(app.title, Brand.gameName);

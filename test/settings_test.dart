@@ -9,6 +9,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pong_game/l10n/l10n.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:pong_game/brand.dart';
 import 'package:pong_game/game/paddle_sensitivity.dart';
@@ -17,6 +18,8 @@ import 'package:pong_game/settings/pong_settings.dart';
 import 'package:pong_game/settings/settings_page.dart';
 import 'package:pong_game/studio/studio_page.dart';
 import 'package:pong_game/ui/pong_ui.dart';
+
+import 'support/screen_harness.dart' show testLocale;
 import 'package:sensors_plus/sensors_plus.dart';
 
 const List<Size> _screens = [Size(320, 665), Size(360, 800)];
@@ -44,6 +47,10 @@ Future<void> _pump(WidgetTester tester, Size size, Box<dynamic> box,
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   await tester.pumpWidget(MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: testLocale,
+      
       theme: PongTheme.dark(),
       home: SettingsPage(
           settings: PongSettings(box),
@@ -239,13 +246,13 @@ void main() {
 
         // Signature du studio et version, tout en bas
         await tester.scrollUntilVisible(
-            find.text('${Brand.gameName} · version 1.0.1'), 50);
+            find.text('${Brand.gameName} · version 1.1.0'), 50);
         expect(find.byType(PongStudioSignature), findsOneWidget);
-        expect(find.text(Brand.signaturePrefix), findsOneWidget);
+        expect(find.text('Un jeu de'), findsOneWidget);
         expect(tester.takeException(), isNull);
 
         // La signature ouvre la page « Le studio »
-        await tester.tap(find.text(Brand.signaturePrefix));
+        await tester.tap(find.text('Un jeu de'));
         await tester.pumpAndSettle();
         expect(find.byType(StudioPage), findsOneWidget);
       });

@@ -26,3 +26,7 @@ linter:
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
+analyzer:
+  exclude:
+    # Code généré par flutter gen-l10n (lib/l10n/*.arb)
+    - lib/l10n/generated/**

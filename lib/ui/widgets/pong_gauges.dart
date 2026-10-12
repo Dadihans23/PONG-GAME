@@ -6,6 +6,8 @@
 // - `PongBarGauge` : barres (ex. 5 barres = points du duel, bleu joueur).
 import 'package:flutter/material.dart';
 
+import '../../l10n/l10n.dart';
+
 import '../pong_colors.dart';
 import '../pong_text.dart';
 
@@ -29,9 +31,11 @@ class PongDotGauge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final label = this.label;
+    final l10n = context.l10n;
     return Semantics(
-      label:
-          label == null ? '$filled sur $count' : '$label, $filled sur $count',
+      label: label == null
+          ? l10n.gaugeProgress(filled, count)
+          : l10n.gaugeProgressLabelled(label, filled, count),
       excludeSemantics: true,
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -85,7 +89,7 @@ class PongBarGauge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: '$filled sur $count',
+      label: context.l10n.gaugeProgress(filled, count),
       excludeSemantics: true,
       child: Row(
         mainAxisSize: MainAxisSize.min,

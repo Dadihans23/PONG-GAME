@@ -108,7 +108,7 @@ void main() {
           testScreens.first);
       expect(find.byType(PongPressable), findsNothing);
       expect(find.byIcon(Icons.chevron_right_rounded), findsNothing);
-      expect(find.text(Brand.signaturePrefix), findsOneWidget);
+      expect(find.text('Un jeu de'), findsOneWidget);
     });
   });
 

@@ -7,6 +7,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pong_game/l10n/l10n.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:pong_game/game/pong_engine.dart';
 import 'package:pong_game/game_ui/game_court.dart';
@@ -15,6 +16,8 @@ import 'package:pong_game/game_ui/game_over_card.dart';
 import 'package:pong_game/game_ui/pause_overlay.dart';
 import 'package:pong_game/hompage.dart';
 import 'package:pong_game/ui/pong_ui.dart';
+
+import 'support/screen_harness.dart' show testLocale;
 
 /// Largeurs vérifiées : le SM-A135F (320 dp) et la maquette (360 dp).
 const List<Size> _screens = [Size(320, 640), Size(360, 800)];
@@ -28,6 +31,10 @@ void _setSize(WidgetTester tester, Size size) {
 Future<void> _pumpGame(WidgetTester tester, Size size) async {
   _setSize(tester, size);
   await tester.pumpWidget(MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: testLocale,
+      
     theme: PongTheme.dark(),
     home: const Scaffold(body: Center(child: Text('Accueil'))),
   ));
@@ -43,6 +50,10 @@ Future<void> _pumpGame(WidgetTester tester, Size size) async {
 Future<void> _pumpCourt(WidgetTester tester, Size size, Widget child) async {
   _setSize(tester, size);
   await tester.pumpWidget(MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: testLocale,
+      
     theme: PongTheme.dark(),
     home: Scaffold(
       backgroundColor: PongColors.background,
@@ -246,6 +257,10 @@ void main() {
     testWidgets('P1 voile de pause seul, $w', (tester) async {
       _setSize(tester, size);
       await tester.pumpWidget(MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: testLocale,
+      
         theme: PongTheme.dark(),
         home: Scaffold(
           body: PauseOverlay(
@@ -260,6 +275,10 @@ void main() {
       _setSize(tester, size);
       GameOverAction? chosen;
       await tester.pumpWidget(MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: testLocale,
+      
         theme: PongTheme.dark(),
         home: Scaffold(
           backgroundColor: PongColors.background,
@@ -297,10 +316,16 @@ void main() {
     });
   }
 
-  test('formatRank', () {
-    expect(formatRank(1), '1er');
-    expect(formatRank(2), '2e');
-    expect(formatRank(10), '10e');
+  test('rang au classement, dans les trois langues', () {
+    final fr = lookupAppLocalizations(const Locale('fr'));
+    final en = lookupAppLocalizations(const Locale('en'));
+    final es = lookupAppLocalizations(const Locale('es'));
+    expect([for (final r in [1, 2, 3, 4, 10]) fr.rankLabel(r)],
+        ['1er', '2e', '3e', '4e', '10e']);
+    expect([for (final r in [1, 2, 3, 4, 10]) en.rankLabel(r)],
+        ['1st', '2nd', '3rd', '4th', '10th']);
+    expect([for (final r in [1, 2, 3, 4, 10]) es.rankLabel(r)],
+        ['1.º', '2.º', '3.º', '4.º', '10.º']);
   });
 
   test('GameSummary.record : le meilleur des deux scores', () {

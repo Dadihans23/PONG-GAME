@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:pong_game/l10n/l10n.dart';
 import 'package:pong_game/ui/pong_ui.dart';
 
 /// Classement (maquette C1 / C2) : le podium (64 px, trophée, bordure de
@@ -29,23 +30,23 @@ class LeaderboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final entries = readEntries();
+    final l10n = context.l10n;
     if (entries.isEmpty) {
       return PongPageScaffold(
-        title: 'Classement',
-        body: const PongEmptyState(
+        title: l10n.leaderboardTitle,
+        body: PongEmptyState(
           icon: Icons.emoji_events_rounded,
-          title: 'Aucun score enregistré',
-          message:
-              'Joue une partie solo : tes 10 meilleurs scores apparaîtront ici.',
+          title: l10n.leaderboardEmptyTitle,
+          message: l10n.leaderboardEmptyMessage(maxEntries),
         ),
         bottomAction: PongPrimaryButton(
-          label: 'Jouer',
+          label: l10n.homePlay,
           onPressed: () => _backToHome(context),
         ),
       );
     }
     return PongPageScaffold(
-      title: 'Classement',
+      title: l10n.leaderboardTitle,
       body: ListView.separated(
         padding: const EdgeInsets.fromLTRB(PongSpacing.screen, PongSpacing.xxs,
             PongSpacing.screen, PongSpacing.screen),
@@ -72,19 +73,25 @@ class LeaderboardEntry {
     final score = map['score'];
     final date = map['date'];
     return LeaderboardEntry(
-      name: map['name']?.toString() ?? 'Inconnu',
+      name: map['name']?.toString(),
       score: score is int ? score : 0,
       date: date is String ? DateTime.tryParse(date) : null,
     );
   }
 
-  final String name;
+  /// Pseudo enregistré, `null` pour une ancienne ligne sans pseudo.
+  final String? name;
   final int score;
   final DateTime? date;
 
-  String? get formattedDate {
+  /// Pseudo à afficher (« Inconnu » s'il manque).
+  String displayName(AppLocalizations l10n) =>
+      name ?? l10n.leaderboardUnknownPlayer;
+
+  /// Date de la partie dans la langue de l'app.
+  String? formattedDate(PongFormat format) {
     final date = this.date;
-    return date == null ? null : PongFormat.date(date);
+    return date == null ? null : format.date(date);
   }
 }
 
@@ -102,16 +109,18 @@ class _PodiumRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final format = PongFormat.of(context);
     final row = PongListRow(
       leading: Icon(
         Icons.emoji_events_rounded,
         size: 26,
         color: color,
-        semanticLabel: _rankLabel(rank),
+        semanticLabel: l10n.rankLabel(rank),
       ),
-      title: entry.name,
-      subtitle: entry.formattedDate,
-      value: PongFormat.number(entry.score),
+      title: entry.displayName(l10n),
+      subtitle: entry.formattedDate(format),
+      value: format.number(entry.score),
       borderColor: color,
     );
     if (rank != 1) return row;
@@ -136,11 +145,16 @@ class _RankRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final date = entry.formattedDate;
-    final score = PongFormat.number(entry.score);
+    final l10n = context.l10n;
+    final format = PongFormat.of(context);
+    final date = entry.formattedDate(format);
+    final score = format.number(entry.score);
+    final name = entry.displayName(l10n);
+    final rankLabel = l10n.rankLabel(rank);
     return Semantics(
-      label: '${_rankLabel(rank)}, ${entry.name}, $score points'
-          '${date == null ? '' : ', le $date'}',
+      label: date == null
+          ? l10n.leaderboardRowSemantics(rankLabel, name, score)
+          : l10n.leaderboardRowSemanticsWithDate(rankLabel, name, score, date),
       excludeSemantics: true,
       child: SizedBox(
         height: _height,
@@ -162,7 +176,7 @@ class _RankRow extends StatelessWidget {
               Expanded(
                 child: Text.rich(
                   TextSpan(
-                    text: entry.name,
+                    text: name,
                     children: [
                       if (date != null)
                         TextSpan(
@@ -194,5 +208,3 @@ class _RankRow extends StatelessWidget {
     );
   }
 }
-
-String _rankLabel(int rank) => rank == 1 ? '1er' : '${rank}e';

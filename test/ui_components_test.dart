@@ -2,7 +2,10 @@
 // qu'aucun ne plante, dans ses états principaux, sur un écran étroit.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pong_game/l10n/l10n.dart';
 import 'package:pong_game/ui/pong_ui.dart';
+
+import 'support/screen_harness.dart' show testLocale;
 
 Future<void> _pump(WidgetTester tester, Widget child,
     {Size size = const Size(360, 2400)}) async {
@@ -10,6 +13,10 @@ Future<void> _pump(WidgetTester tester, Widget child,
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   await tester.pumpWidget(MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: testLocale,
+      
     theme: PongTheme.dark(),
     home: Scaffold(
       body: SingleChildScrollView(
@@ -229,6 +236,10 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: testLocale,
+      
       theme: PongTheme.dark(),
       home: Builder(
         builder: (context) => PongPageScaffold(

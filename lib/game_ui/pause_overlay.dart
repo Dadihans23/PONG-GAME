@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pong_game/l10n/l10n.dart';
 import 'package:pong_game/ui/pong_ui.dart';
 
 /// Voile de pause (maquette P1) : opaque à 80 %, sans flou (coûteux sur
@@ -19,9 +20,11 @@ class PauseOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final format = PongFormat.of(context);
     final String summary = record > 0
-        ? 'Score ${PongFormat.number(score)} · Record ${PongFormat.number(record)}'
-        : 'Score ${PongFormat.number(score)}';
+        ? l10n.pauseScoreAndRecord(format.number(score), format.number(record))
+        : l10n.pauseScore(format.number(score));
     return ColoredBox(
       color: PongColors.scrim,
       child: SafeArea(
@@ -34,7 +37,7 @@ class PauseOverlay extends StatelessWidget {
                 Semantics(
                   header: true,
                   child: PongSpacedText(
-                    'PAUSE',
+                    l10n.pauseTitle.toUpperCase(),
                     style: PongText.logo.copyWith(
                       fontSize: 32,
                       letterSpacing: 32 * 0.45,
@@ -59,12 +62,12 @@ class PauseOverlay extends StatelessWidget {
                 ),
                 const SizedBox(height: 48),
                 PongPrimaryButton(
-                  label: 'Reprendre',
+                  label: l10n.pauseResume,
                   icon: Icons.play_arrow_rounded,
                   onPressed: onResume,
                 ),
                 const SizedBox(height: PongSpacing.sm),
-                PongTextButton(label: 'Quitter la partie', onPressed: onQuit),
+                PongTextButton(label: l10n.pauseQuit, onPressed: onQuit),
               ],
             ),
           ),
