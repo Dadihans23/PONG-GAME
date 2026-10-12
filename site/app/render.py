@@ -42,6 +42,30 @@ def date_short(value: str) -> str:
     return f"{d.day} {MONTHS_SHORT[d.month - 1]} {d.year}"
 
 
+def accent(value: str) -> Markup:
+    """Titre en deux graisses (maquette « Néon magenta ») : début léger, fin en gras.
+
+    La fin mise en gras est ce qui suit la dernière virgule (« Quatre idées,
+    **poussées jusqu'au bout.** ») ; sans virgule, les trois derniers mots d'une
+    phrase de six mots ou plus (« Le Pong qu'on joue en **inclinant son
+    téléphone.** »), sinon le dernier mot (« Comment **jouer** »). Un seul mot :
+    tout en gras. Le texte est échappé ; seul <b> est ajouté.
+    """
+    text = (value or "").strip()
+    if not text:
+        return Markup("")
+    head, sep, tail = text.rpartition(", ")
+    if sep:
+        head += ","
+    else:
+        words = text.split()
+        keep = 3 if len(words) >= 6 else 1
+        head, tail = " ".join(words[:-keep]), " ".join(words[-keep:])
+    if not head:
+        return Markup("<b>%s</b>") % tail
+    return Markup("%s <b>%s</b>") % (head, tail)
+
+
 def when(value: str, mode: str = "list", now: datetime | None = None) -> str:
     """Date et heure d'un horodatage ISO (UTC), pour l'administration.
 
@@ -162,6 +186,7 @@ def make_templates(directory: Path, static_dir: Path | None = None,
     templates.env.filters["rich_sections"] = rich_sections
     templates.env.filters["nbsp"] = nbsp
     templates.env.filters["when"] = when
+    templates.env.filters["accent"] = accent
     return templates
 
 

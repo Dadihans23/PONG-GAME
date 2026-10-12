@@ -199,6 +199,8 @@ DEFAULT_SETTINGS = {
         "et la balle accélère tous les 4 renvois."
     ),
     "hero_note": "Gratuit · Android",
+    # Pastille à côté du grand titre (maquette « Néon magenta »). Vide = masquée.
+    "hero_badge": "1 vs 1",
     # Section « Le jeu » (arguments)
     "features_kicker": "CE QUI CHANGE DU PONG CLASSIQUE",
     "features_title": "Quatre idées, poussées jusqu'au bout.",
@@ -207,6 +209,25 @@ DEFAULT_SETTINGS = {
         "Ce qui change, c'est la façon de jouer. Ici, ce sont tes mains et le téléphone "
         "tout entier qui servent de manette, et le duel se joue sans réseau mobile ni compte."
     ),
+    # Scène « Face-à-face » (section Solo ou Duel, au-dessus du comparatif).
+    # Dans l'app, chaque joueur voit SA raquette en bas, en bleu, et l'adversaire
+    # en haut, en vert : les téléphones dessinés suivent cette règle.
+    "duel_kicker": "FACE-À-FACE · DUEL · PREMIER À 5",
+    "duel_title": "Chacun son téléphone,",
+    "duel_title_accent": "chacun sa raquette en bas.",
+    "duel_left_label": "TÉLÉPHONE DE LÉA",
+    "duel_left_name": "Léa",
+    "duel_left_score": "2",
+    "duel_left_text": "Léa se voit en bas, en bleu. Tom est en haut, en vert.",
+    "duel_right_label": "TÉLÉPHONE DE TOM",
+    "duel_right_name": "Tom",
+    "duel_right_score": "3",
+    "duel_right_text": (
+        "Sur son écran, c'est Tom qui est en bas, en bleu. Le premier à 5 gagne."
+    ),
+    "duel_chip_1": "Même Wi-Fi ou partage de connexion",
+    "duel_chip_2": "Les deux « Prêt », puis 3-2-1",
+    "duel_chip_3": "Revanche en un bouton",
     # Comparatif Solo / Duel
     "compare_kicker": "SOLO OU DUEL",
     "compare_title": "Deux façons de jouer, mêmes règles de base.",
@@ -235,6 +256,8 @@ DEFAULT_SETTINGS = {
     "notes_title": "Nouveautés",
     # Liens
     "play_store_url": "",
+    # Sous « Google Play », sur le bouton non cliquable affiché tant que le lien est vide.
+    "play_soon_text": "Bientôt disponible",
     "contact_email": "",
     # Pied de page
     "footer_text": (

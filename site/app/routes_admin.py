@@ -49,7 +49,8 @@ PAGES: dict[str, tuple[str, str, str, str]] = {
               "de la démo.", CONTENT, "/admin/tableaux/fiche"),
     "arguments": ("Arguments", "La section « Le jeu » du site.", CONTENT,
                   "/admin/listes/arguments"),
-    "comparatif": ("Solo / Duel", "Le tableau comparatif des deux modes.", CONTENT,
+    "comparatif": ("Solo / Duel", "La scène Face-à-face et le tableau comparatif des deux "
+                   "modes.", CONTENT,
                    "/admin/tableaux/comparatif"),
     "etapes": ("Comment jouer", "Les étapes de la section « Comment jouer », dans l'ordre.",
                CONTENT, "/admin/listes/etapes"),
@@ -94,12 +95,17 @@ TEXT_FIELDS: dict[str, dict] = {
     "game_name": _f("Nom du jeu", 60, required=True, help="Le grand titre du haut de page."),
     "tagline": _f("Accroche", 300, area=True),
     "hero_note": _f("Mention sous les boutons", 80),
+    "hero_badge": _f("Pastille à côté du titre", 20, opt=True,
+                     help="Petite pastille rose à droite du grand titre. Vide = masquée."),
     "download_title": _f("Titre", 80),
     "download_text": _f("Phrase", 300, area=True),
     "notes_title": _f("Titre des notes de version", 60,
                       help="Suivi du numéro de la version proposée : « Nouveautés 1.0.0 »."),
     "play_store_url": _f("Lien Play Store", 500, kind="url",
                          help="Laisse vide pour masquer le bouton Google Play."),
+    "play_soon_text": _f("Mention « Google Play » en attente", 60, opt=True,
+                         help="Tant que le lien Play Store est vide, un bouton Google Play non "
+                              "cliquable porte cette mention."),
     "contact_email": _f("Adresse de contact", 200, kind="email", opt=True,
                         help="Affichée sur la page Contact, sous le formulaire, pour qui "
                              "préfère écrire directement. Le formulaire marche sans elle."),
@@ -116,7 +122,24 @@ TEXT_FIELDS: dict[str, dict] = {
     "features_kicker": _f("Sur-titre", 80),
     "features_title": _f("Titre", 120),
     "features_intro": _f("Introduction", 1000, area=True),
-    # Solo / Duel
+    # Solo / Duel : scène Face-à-face
+    "duel_kicker": _f("Sur-titre", 80),
+    "duel_title": _f("Titre, première ligne", 120),
+    "duel_title_accent": _f("Titre, deuxième ligne (en dégradé)", 120),
+    "duel_left_label": _f("Téléphone de gauche : étiquette", 60),
+    "duel_left_name": _f("Téléphone de gauche : pseudo", 12,
+                         help="Écrit sur les deux téléphones dessinés (en bas sur le sien, en "
+                              "haut sur l'autre)."),
+    "duel_left_score": _f("Téléphone de gauche : score", 1, help="Un chiffre de 0 à 5."),
+    "duel_left_text": _f("Téléphone de gauche : texte", 300, area=True),
+    "duel_right_label": _f("Téléphone de droite : étiquette", 60),
+    "duel_right_name": _f("Téléphone de droite : pseudo", 12),
+    "duel_right_score": _f("Téléphone de droite : score", 1, help="Un chiffre de 0 à 5."),
+    "duel_right_text": _f("Téléphone de droite : texte", 300, area=True),
+    "duel_chip_1": _f("Pastille 1", 80, opt=True),
+    "duel_chip_2": _f("Pastille 2", 80, opt=True),
+    "duel_chip_3": _f("Pastille 3", 80, opt=True, help="Une pastille vide est masquée."),
+    # Solo / Duel : comparatif
     "compare_kicker": _f("Sur-titre", 80),
     "compare_title": _f("Titre", 120),
     # Comment jouer, barème
@@ -144,13 +167,21 @@ SETTING_GROUPS: dict[str, list[tuple[str, str, list[str]]]] = {
     "textes": [
         ("Haut de page", "", ["game_name", "tagline", "hero_note"]),
         ("Bloc de téléchargement", "", ["download_title", "download_text", "notes_title"]),
-        ("Liens", "", ["play_store_url", "contact_email"]),
+        ("Liens", "", ["play_store_url", "play_soon_text", "contact_email"]),
         ("Pied de page", "Sur toutes les pages du site.",
          ["footer_text", "footer_note", "footer_trademark"]),
     ],
-    "fiche": [("Haut de page", "", ["hero_kicker", "hero_demo_text", "hero_text",
+    "fiche": [("Haut de page", "", ["hero_kicker", "hero_badge", "hero_demo_text", "hero_text",
                                      "hero_text_short"])],
-    "comparatif": [("En-tête du bloc", "", ["compare_kicker", "compare_title"])],
+    "comparatif": [
+        ("Face-à-face", "La scène sombre du duel, au-dessus du tableau : deux téléphones, "
+         "chacun avec sa raquette en bas, en bleu.",
+         ["duel_kicker", "duel_title", "duel_title_accent",
+          "duel_left_label", "duel_left_name", "duel_left_score", "duel_left_text",
+          "duel_right_label", "duel_right_name", "duel_right_score", "duel_right_text",
+          "duel_chip_1", "duel_chip_2", "duel_chip_3"]),
+        ("En-tête du tableau", "", ["compare_kicker", "compare_title"]),
+    ],
     "bareme": [("En-tête du bloc", "", ["scoring_title"])],
     "installation": [("Titre et note", "", ["install_title", "install_note"])],
     "arguments": [("En-tête de la section", "", ["features_kicker", "features_title",
@@ -190,6 +221,9 @@ def validate_settings(values: dict[str, str]) -> dict[str, str]:
         errors["play_store_url"] = "Le lien Play Store doit commencer par https://"
     if values.get("contact_email") and not EMAIL_RE.match(values["contact_email"]):
         errors["contact_email"] = INVALID_EMAIL
+    for key in ("duel_left_score", "duel_right_score"):
+        if values.get(key) and values[key] not in {"0", "1", "2", "3", "4", "5"}:
+            errors[key] = "Un chiffre de 0 à 5 (le duel se joue en 5 points)."
     return errors
 
 
