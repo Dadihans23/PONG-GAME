@@ -275,9 +275,9 @@ docker compose exec tilto-site python -m app.reseed_v2 --apply    # demande « o
 
 La commande remplace, position par position, les textes des arguments (et leurs caractéristiques), des étapes et des légendes et descriptions des captures par ceux de la v2 (images conservées, capture manquante ajoutée sans image), l'accroche et la phrase de téléchargement, et ajoute la section contact à la politique de confidentialité (date mise à aujourd'hui). Elle ne touche ni aux APK, ni aux images, ni à la FAQ, ni aux tableaux, ni aux mentions légales.
 
-## Habiller les gabarits (maquette « Tilto Site v2 »)
+## Habiller les gabarits (maquette « Tilto Landing Neon », direction Néon magenta)
 
-Les données suivent les sections de la maquette `maquette/Corrections et validation des maquettes/Tilto Site v2.dc.html` (planches 3a ordinateur, 3b mobile). Les gabarits actuels affichent ces données avec un balisage minimal, sans habillage : l'habillage ne touche que les gabarits publics, `app/static/css/site.css` et `app/static/js/`. Routes et base ne changent pas. Toutes les valeurs sont échappées par Jinja ; `|rich_text` pour les textes longs à intertitres.
+L'accueil suit la maquette `maquette/Corrections et validation des maquettes/Tilto Landing Neon.dc.html` (planche 6a, ordinateur 1440 px ; mobile, tablette et mode sombre conçus dans le même esprit). Surfaces « néon » sombres dans les deux thèmes (en-tête collant, héros, Face-à-face, téléchargement, pied de page) ; sections claires rosées (Le jeu, Comment jouer, Captures, FAQ) qui passent sur les fonds sombres du site en mode sombre. Les titres en deux graisses passent par le filtre `|accent` (`app/render.py`) : la fin en gras est ce qui suit la dernière virgule, sinon les trois derniers mots (phrase de six mots ou plus) ou le dernier mot. Les données suivaient à l'origine la maquette « Tilto Site v2 ». Les gabarits actuels affichent ces données avec un balisage minimal, sans habillage : l'habillage ne touche que les gabarits publics, `app/static/css/site.css` et `app/static/js/`. Routes et base ne changent pas. Toutes les valeurs sont échappées par Jinja ; `|rich_text` pour les textes longs à intertitres.
 
 Variables communes à toutes les pages publiques (`routes_public.site_context`) :
 
@@ -293,13 +293,14 @@ Page d'accueil (`index.html`) :
 
 | Section de la maquette | Données |
 |---|---|
-| Barre de navigation (Le jeu, Solo ou Duel, Comment jouer, Captures, FAQ, Installer l'APK ; « v1.0.0 · 9 oct. 2026 ») | ancres `#le-jeu`, `#solo-duel`, `#comment-jouer`, `#captures`, `#faq`, `#installer-apk`, `#telecharger`, `#nouveautes`, `#bareme` ; `apk.version`, `apk.date\|date_short`. Pas de bandeau « Nouveau », pas de sélecteur de langue. |
-| Haut de page | `site.hero_kicker`, `site.game_name`, `site.tagline`, `site.hero_text` (ordinateur), `site.hero_text_short` (mobile), `site.play_store_url` (vide = bouton masqué), `apk` (version, taille, « sans Play Store » est du gabarit), `site.hero_note` |
+| Barre de navigation (Le jeu, Solo ou Duel, Comment jouer, Captures, FAQ, Installer l'APK) | ancres `#le-jeu`, `#solo-duel` (section Face-à-face, qui contient le tableau), `#comment-jouer`, `#captures`, `#faq`, `#installer-apk`, `#telecharger`, `#nouveautes`, `#bareme` ; bande utilitaire : `site.hero_note`, `apk.version`, taille, `apk.date\|date_short`. La pastille de la section visible est allumée par `nav.js` (attribut `data-section`). Sélecteur de langue prêt dans `base.html` mais affiché seulement si une liste `languages` (`{code, label, href, current}`) est passée : vide aujourd'hui. |
+| Haut de page | `site.hero_kicker`, `site.game_name`, `site.hero_badge` (pastille à côté du titre, vide = masquée), `site.tagline`, `site.hero_text` (ordinateur), `site.hero_text_short` (mobile), `site.play_store_url` (rempli = bouton Google Play rose ; vide = bouton « Google Play » non cliquable avec `site.play_soon_text`), `apk` (version, taille, « sans Play Store » est du gabarit) |
 | Fiche technique (MODES, JOUEURS…) | `hero_specs` : `label`, `value` (la version mobile de la maquette n'en montre que 3 : au gabarit de choisir) |
-| Démo | `site.hero_demo_text` (légende) ; l'animation est du gabarit |
+| Démo | `site.hero_demo_text` (légende) ; le terrain rond animé est du gabarit ; bulle = première capture qui a une image (`screenshots`), sinon pas de bulle |
 | Section « Ce qui change » | `site.features_kicker`, `site.features_title`, `site.features_intro` |
 | 4 arguments (01 à 04) | `features` : `kicker`, `title`, `body`, `short_body` (mobile, peut être vide), `specs` (liste de `label`, `value`) ; le numéro est `loop.index` |
-| Solo ou Duel | `site.compare_kicker`, `site.compare_title`, `compare` : `label` (critère), `value` (Solo), `value2` (Duel) |
+| Face-à-face (section `#solo-duel`) | `site.duel_kicker`, `site.duel_title`, `site.duel_title_accent` (2e ligne en dégradé ; titre et 2e ligne vides = scène masquée), `site.duel_left_label` / `duel_left_name` / `duel_left_score` / `duel_left_text`, idem `duel_right_*`, `site.duel_chip_1` à `duel_chip_3` (vides masquées). Les pseudos et scores servent aussi aux téléphones dessinés (scène et argument 02) : chaque téléphone montre son propriétaire en bas, en bleu, l'autre en haut, en vert, comme dans l'app |
+| Solo ou Duel (dans Face-à-face) | `site.compare_kicker`, `site.compare_title`, `compare` : `label` (critère), `value` (Solo), `value2` (Duel) |
 | Comment jouer | `site.steps_title`, `steps` : `title`, `body` |
 | Barème en solo | `site.scoring_title`, `scoring` : `label`, `value` |
 | Captures | `site.screens_title`, `site.screens_intro`, `site.screens_note`, `screenshots` : `filename` (`/media/<filename>`, vide = emplacement réservé), `caption`, `description` |
@@ -319,7 +320,23 @@ Autres pages :
 | `/contact/merci` | `contact_sent.html` | variables communes |
 | Erreurs | `error.html` | `status`, `message` (sans `site` : le pied de page affiche des liens fixes) |
 
-La CSP interdit le JavaScript et les styles en ligne (`style="…"`) ainsi que toute ressource externe : scripts dans `app/static/js/` chargés par `<script src>`, polices dans `app/static/fonts/` (WOFF2). Dans les gabarits, les CSS et JS passent par `static_url('…')` (URL versionnée). Les éléments purement décoratifs de la maquette (classement d'exemple, curseur Douce / Vive, téléphones de Léa et Tom, partie de démonstration) relèvent du gabarit, pas de la base.
+La CSP interdit le JavaScript et les styles en ligne (`style="…"`) ainsi que toute ressource externe : scripts dans `app/static/js/` chargés par `<script src>`, polices dans `app/static/fonts/` (WOFF2). Dans les gabarits, les CSS et JS passent par `static_url('…')` (URL versionnée). Les éléments purement décoratifs de la maquette (classement d'exemple, curseur Douce / Vive, écrans dessinés dans les téléphones, partie de démonstration, « VS ») relèvent du gabarit, pas de la base. Icônes : seulement des SVG en ligne fonctionnels (`_icons.html` pour la flèche de téléchargement ; soleil / lune, +/− de la FAQ, chevron de l'empreinte, flèche de Contact), aucune police d'icônes.
+
+### Réglages ajoutés avec la maquette Néon magenta
+
+Ajoutés à `DEFAULT_SETTINGS` : les bases existantes les reçoivent avec leur valeur par défaut au démarrage suivant, sans toucher aux autres textes.
+
+| Clé | Valeur par défaut | Où dans l'administration |
+|---|---|---|
+| `hero_badge` | « 1 vs 1 » | Fiche technique › Haut de page |
+| `play_soon_text` | « Bientôt disponible » | Textes › Liens |
+| `duel_kicker` | « FACE-À-FACE · DUEL · PREMIER À 5 » | Solo / Duel › Face-à-face |
+| `duel_title`, `duel_title_accent` | « Chacun son téléphone, » / « chacun sa raquette en bas. » | Solo / Duel › Face-à-face |
+| `duel_left_label`, `duel_left_name`, `duel_left_score`, `duel_left_text` | « TÉLÉPHONE DE LÉA », « Léa », « 2 », « Léa se voit en bas, en bleu. Tom est en haut, en vert. » | Solo / Duel › Face-à-face |
+| `duel_right_label`, `duel_right_name`, `duel_right_score`, `duel_right_text` | « TÉLÉPHONE DE TOM », « Tom », « 3 », « Sur son écran, c'est Tom qui est en bas, en bleu. Le premier à 5 gagne. » | Solo / Duel › Face-à-face |
+| `duel_chip_1` à `duel_chip_3` | « Même Wi-Fi ou partage de connexion », « Les deux « Prêt », puis 3-2-1 », « Revanche en un bouton » | Solo / Duel › Face-à-face |
+
+Les scores acceptent un chiffre de 0 à 5.
 
 ## Déploiement automatique (branche `prod`)
 
