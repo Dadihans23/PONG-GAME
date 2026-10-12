@@ -5,7 +5,6 @@ import 'package:pong_game/entername.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:pong_game/game_sound.dart';
 import 'package:pong_game/settings/pong_settings.dart';
-import 'package:pong_game/studio_intro.dart';
 import 'package:pong_game/ui/pong_ui.dart';
 
 void main() async {
@@ -51,28 +50,25 @@ class MyApp extends StatelessWidget {
       title: Brand.gameName,
       theme: PongTheme.dark(),
       themeMode: ThemeMode.dark,
-      // Intro du studio, puis chargement, puis accueil
-      home: const StudioIntro(next: SplashScreen.builder),
+      // Chargement, puis accueil
+      home: const SplashScreen(),
     );
   }
 }
 
-/// Écran de chargement (maquette S1), après l'intro du studio : 4,5 s avec
+/// Écran de chargement (maquette S1), premier écran de l'app : 4,5 s avec
 /// `loader.mp3`, puis l'accueil. La balle qui pulse annonce le jeu ; la
 /// barre rose porte le seul halo de l'écran.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
-  /// Durée du chargement. Intro (1,5 s) + chargement = 6 s, comme avant
-  /// l'intro. Le jingle `loader.mp3` dure lui aussi environ 4,5 s : il
-  /// démarre et finit avec la barre.
+  /// Durée du chargement. Le jingle `loader.mp3` dure lui aussi environ
+  /// 4,5 s : il démarre et finit avec la barre.
   static const Duration duration = Duration(milliseconds: 4500);
 
-  /// Durée totale à ne pas dépasser, de l'intro à l'accueil.
-  static const Duration startupBudget = Duration(seconds: 6);
-
-  /// Pour `StudioIntro.next`.
-  static Widget builder(BuildContext context) => const SplashScreen();
+  /// Durée totale à ne pas dépasser, du lancement à l'accueil : le
+  /// chargement seul (l'intro du studio a été retirée).
+  static const Duration startupBudget = duration;
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();

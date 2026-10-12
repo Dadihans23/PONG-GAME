@@ -65,7 +65,6 @@ flutter build apk
 |---|---|
 | `lib/brand.dart` | Nom du jeu, nom du studio, logos : le seul fichier à changer pour la marque |
 | `lib/main.dart` | Démarrage, ouverture des boîtes Hive, écran de chargement |
-| `lib/studio_intro.dart` | Intro du studio avant le chargement |
 | `lib/entername.dart` | Écran d'accueil : pseudo, mode (solo ou multijoueur), difficulté |
 | `lib/game/pong_engine.dart` | Moteur du jeu solo : balle, collisions, score, IA, sans dépendance à Flutter |
 | `lib/game/duel_engine.dart` | Moteur du duel, sur le téléphone qui a créé la partie |
