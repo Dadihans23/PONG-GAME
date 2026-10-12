@@ -118,6 +118,18 @@ PRIVACY_CONTACT_SECTION = """\
 Si tu nous écris avec le formulaire de la page Contact, nous recevons ton adresse e-mail, le sujet choisi, ton message et, si tu l'indiques, ton nom. Ces informations servent uniquement à te répondre : elles ne sont ni vendues, ni partagées, ni utilisées pour t'envoyer de la publicité. Elles sont conservées jusqu'à ce que nous supprimions le message. Une copie peut nous être transmise par e-mail pour que nous la voyions plus vite. La page Contact dépose un cookie technique de sécurité, effacé à la fermeture du navigateur ; il ne sert pas à te suivre.
 """
 
+# Section ajoutée à la politique de confidentialité quand l'app a commencé à
+# demander au site le nom et le logo du studio (GET /api/app/studio).
+PRIVACY_STUDIO_SECTION = """## Nom et logo du studio
+
+Au lancement, et au plus une fois par jour, Tilto demande à tilto.fun le nom, le logo et la présentation du studio, pour les afficher dans l'app. Cette demande ne contient aucune donnée personnelle et rien sur ta façon de jouer. Comme pour toute visite d'un site, notre serveur voit l'adresse IP du téléphone (voir « Ce site »). Sans Internet, l'app affiche simplement le dernier logo connu.
+"""
+
+# Phrase « Autorisations demandées » d'avant l'appel au site, et sa version à jour.
+PRIVACY_PERMISSIONS_OLD = "L'accès au réseau Wi-Fi, pour trouver et rejoindre une partie en duel."
+PRIVACY_PERMISSIONS_NEW = ("L'accès au réseau : le Wi-Fi local, pour trouver et rejoindre une partie "
+                           "en duel, et Internet, pour récupérer le nom et le logo du studio.")
+
 # Texte de la planche 3c de la maquette. Syntaxe : voir render.rich_text.
 PRIVACY_DEFAULT = """\
 Tilto ne collecte aucune donnée personnelle. Tout ce que le jeu enregistre reste sur ton téléphone.
@@ -130,13 +142,14 @@ Ton pseudo, tes 10 meilleurs scores, tes statistiques (parties jouées, temps de
 
 Les deux téléphones communiquent directement sur votre réseau Wi-Fi local, le temps de la partie : pseudos, position des raquettes et de la balle, score. Rien ne passe par Internet ni par nos serveurs.
 
+""" + PRIVACY_STUDIO_SECTION + """
 ## Ce que Tilto n'utilise pas
 
 Pas de compte, pas de publicité, pas d'outil de mesure d'audience, pas de localisation.
 
 ## Autorisations demandées
 
-L'accès au réseau Wi-Fi, pour trouver et rejoindre une partie en duel. La vibration, pour les renvois. Le capteur de mouvement qui sert à déplacer la raquette ne demande pas d'autorisation.
+""" + PRIVACY_PERMISSIONS_NEW + """ La vibration, pour les renvois. Le capteur de mouvement qui sert à déplacer la raquette ne demande pas d'autorisation.
 
 ## Ce site
 
@@ -230,11 +243,13 @@ DEFAULT_SETTINGS = {
     ),
     "footer_note": "Aucune donnée personnelle collectée · tout reste sur ton téléphone",
     "footer_trademark": "Android est une marque de Google LLC.",
-    # Studio (pied de page)
+    # Studio (pied de page du site, page Le studio de l'app)
     "studio_name": "Nexora",
     "studio_logo": "",
+    # Présentation du studio, affichée dans l'app (page Le studio). Vide par défaut.
+    "studio_about": "",
     # Confidentialité
-    "privacy_updated": "2026-10-09",
+    "privacy_updated": "2026-10-12",
     "privacy_policy": PRIVACY_DEFAULT,
     # Mentions légales (l'hébergeur est pré-rempli ; adresse et téléphone à vérifier)
     **{key: "" for key in LEGAL_FIELDS},

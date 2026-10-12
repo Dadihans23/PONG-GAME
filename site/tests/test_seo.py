@@ -67,10 +67,11 @@ def test_robots_txt(client):
     assert r.status_code == 200
     assert r.headers["content-type"].startswith("text/plain")
     text = r.text
-    # Groupe général : tout est permis sauf trois chemins.
+    # Groupe général : tout est permis sauf quatre chemins.
     general = text.split("User-agent: *\n", 1)[1].split("\n\n", 1)[0]
     assert general.splitlines() == ["Allow: /", "Disallow: /telecharger",
-                                    "Disallow: /contact/merci", "Disallow: /sante"]
+                                    "Disallow: /contact/merci", "Disallow: /sante",
+                                    "Disallow: /api/"]
     # Robots d'entraînement : un seul groupe, User-agent consécutifs, tout refusé.
     group = re.search(r"((?:User-agent: [^*\n]+\n)+)Disallow: /\n", text)
     assert group
@@ -98,7 +99,7 @@ def test_sitemap_xml_absolute_urls_on_fixed_base(client):
     assert "pirate.example" not in r.text
     # Pas d'APK : pas de date pour l'accueil ; confidentialité datée ; mentions vides.
     assert urls["https://tilto.fun/"] is None
-    assert urls["https://tilto.fun/confidentialite"].text == "2026-10-09"
+    assert urls["https://tilto.fun/confidentialite"].text == "2026-10-12"
     assert urls["https://tilto.fun/mentions-legales"] is None
     assert "priority" not in r.text and "changefreq" not in r.text
 

@@ -62,7 +62,8 @@ PAGES: dict[str, tuple[str, str, str, str]] = {
                      "téléchargement.", CONTENT, "/admin/tableaux/installation"),
     "apk": ("APK et notes de version", "Le fichier proposé par le bouton « Télécharger l'APK », "
             "et ses nouveautés.", "", "/admin/apk"),
-    "studio": ("Studio", "Le nom et le logo affichés dans le pied de page.", "", "/admin/studio"),
+    "studio": ("Studio", "Le nom, le logo et la présentation du studio, sur le site et dans l'app.",
+               "", "/admin/studio"),
     "confidentialite": ("Confidentialité", "La page {host}/confidentialite.", LEGAL,
                         "/admin/confidentialite"),
     "mentions": ("Mentions légales", "La page {host}/mentions-legales. Obligatoire pour un "
@@ -458,7 +459,9 @@ def site_state(conn: sqlite3.Connection, site: dict) -> dict:
                         plural(len(compare), "ligne Solo / Duel", "lignes Solo / Duel")]),
             PAGES["arguments"][3], "Modifier"),
         row("Studio", f"{site.get('studio_name', '')} · "
-            + ("logo présent" if site.get("studio_logo") else "sans logo"),
+            + (("logo présent" if site["studio_logo"].endswith((".png", ".jpg", ".webp"))
+                else "logo présent, pas affiché dans l'app (SVG ou GIF)")
+               if site.get("studio_logo") else "sans logo"),
             PAGES["studio"][3], "Modifier"),
         row("Confidentialité",
             f"mise à jour le {render.date_short(site.get('privacy_updated', ''))}"
@@ -538,6 +541,9 @@ def header_save(page: str, request: Request, form=Depends(admin_form),
 
 # --- Studio -----------------------------------------------------------------------
 
+# Présentation du studio (page Le studio de l'app, via /api/app/studio).
+STUDIO_ABOUT_MAX = 800
+
 def studio_view(request: Request, conn: sqlite3.Connection, vals: dict | None = None,
                 errors: dict | None = None, banner=None, status_code: int = 200):
     site = {**db.get_settings(conn), **(vals or {})}
@@ -545,6 +551,7 @@ def studio_view(request: Request, conn: sqlite3.Connection, vals: dict | None = 
     return admin_page(request, "admin/studio.html", {
         "vals": site, "errors": errors or {}, "banner": banner,
         "max_image_mb": request.app.state.settings.max_image_mb,
+        "about_max": STUDIO_ABOUT_MAX,
         "saved_at": db.get_internal(conn, "_saved:studio"),
         "year": date.today().year, "apk": db.current_apk(conn),
     }, status_code=status_code, page="studio")
@@ -562,12 +569,15 @@ def studio_save(request: Request, form=Depends(admin_form),
     settings = request.app.state.settings
     current = db.get_settings(conn)
     name = text(form, "studio_name", 60)
+    sent = {"studio_name": name}
+    if "studio_about" in form:  # seuls les champs envoyés sont modifiés
+        sent["studio_about"] = text(form, "studio_about", STUDIO_ABOUT_MAX)
     if not name:
-        return studio_view(request, conn, {"studio_name": ""},
+        return studio_view(request, conn, sent,
                            {"studio_name": "Le nom du studio est obligatoire."},
                            banner=("error", "Le nom du studio est obligatoire."),
                            status_code=400)
-    values = {"studio_name": name}
+    values = dict(sent)
     old_logo = current.get("studio_logo", "")
     logo = upload(form, "logo")
     if logo:
@@ -575,7 +585,7 @@ def studio_save(request: Request, form=Depends(admin_form),
             values["studio_logo"] = save_image(logo.file, settings.images_dir,
                                                settings.max_image_bytes, allow_svg=True)
         except UploadError as exc:
-            return studio_view(request, conn, {"studio_name": name},
+            return studio_view(request, conn, sent,
                                {"logo": str(exc)}, banner=("error", str(exc)), status_code=400)
     elif form.get("remove_logo"):
         values["studio_logo"] = ""

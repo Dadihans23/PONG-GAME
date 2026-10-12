@@ -24,7 +24,11 @@
     {% else %}
     <p class="muted">Aucun logo : le pied de page n'affiche que le texte.</p>
     {% endif %}
-    <p class="field__help">Le site pose le logo tel quel sur le thème sombre, et sur une petite plaque sombre en thème clair : un logo clair (texte blanc) reste donc lisible partout. PNG, JPEG, WebP, GIF ou SVG, {{ max_image_mb }} Mo maximum. Le SVG est conseillé : il reste net à toutes les tailles.</p>
+    {% if vals.studio_logo and not vals.studio_logo.endswith((".png", ".jpg", ".webp")) %}
+    <p class="field__help"><strong>Attention :</strong> ce logo est en {{ "SVG" if vals.studio_logo.endswith(".svg") else "GIF" }} : le site l'affiche, mais pas l'app, qui ne montre alors que le nom du studio. Dépose une version PNG pour l'app.</p>
+    {% endif %}
+    <p class="field__help">Le site pose le logo tel quel sur le thème sombre, et sur une petite plaque sombre en thème clair : un logo clair (texte blanc) reste donc lisible partout. PNG, JPEG, WebP, GIF ou SVG, {{ max_image_mb }} Mo maximum.</p>
+    <p class="field__help">Dans l'app, le logo s'affiche seulement s'il est en PNG, JPEG ou WebP (pas en SVG ni en GIF), et toujours sur fond sombre : un logo clair (texte blanc) est conseillé, le PNG à fond transparent est le meilleur choix. Les changements arrivent dans l'app au plus tard le lendemain, quand le téléphone a Internet.</p>
     <div class="logo-actions">
       <label class="field__label" for="f-logo">{{ "Remplacer le logo" if vals.studio_logo_url else "Ajouter un logo" }}</label>
       <input class="file" type="file" id="f-logo" name="logo" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"{% if lerr %} aria-invalid="true" aria-describedby="e-f-logo"{% endif %}>
@@ -36,6 +40,10 @@
     </div>
   </div>
 
+  {{ ui.field("studio_about", "Présentation du studio", vals.studio_about, max=about_max, area=True, rows=6, mark="optional",
+              help="Affichée dans l'app, sur la page Le studio (Réglages ou Aide › Un jeu de …). Laisse vide pour ne montrer que le nom et le logo.",
+              err=errors.get("studio_about", "")) }}
+
   <div class="where">
     <p class="where__title">Où ils apparaissent</p>
     <p class="where__text">Dans le pied de page de toutes les pages du site :</p>
@@ -44,6 +52,7 @@
       <p class="where__credit">Un jeu de {{ vals.studio_name }} · © {{ year }}{% if apk %} · {{ game_name }} {{ apk.version }}{% endif %}</p>
     </div>
     <p class="where__note">Sans logo, seul le texte s'affiche. Le nom du studio apparaît aussi en haut de page (« un jeu de {{ vals.studio_name }} »).</p>
+    <p class="where__text">Dans l'app, sur la page Le studio (Réglages ou Aide › Un jeu de …) : le nom, le logo et la présentation. L'app les demande au site au plus une fois par jour et garde la dernière version reçue pour jouer sans Internet.</p>
   </div>
 
   {{ ui.savebar(ui.saved_note(saved_at)) }}

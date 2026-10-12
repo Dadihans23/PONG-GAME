@@ -48,7 +48,8 @@ AI_TRAINING_BOTS = [
 
 def robots_txt(site_url: str) -> str:
     """Politique « recherche oui, entraînement non ». /admin n'y figure pas
-    (robots.txt est public) : ses pages portent <meta name="robots" content="noindex">."""
+    (robots.txt est public) : ses pages portent <meta name="robots" content="noindex">.
+    /api/ (lue par l'app) est exclue et absente du sitemap."""
     training = "\n".join(f"User-agent: {bot}" for bot in AI_TRAINING_BOTS)
     return (
         "# Robots de recherche des assistants (OAI-SearchBot, ChatGPT-User, PerplexityBot,\n"
@@ -59,6 +60,7 @@ def robots_txt(site_url: str) -> str:
         "Disallow: /telecharger\n"
         "Disallow: /contact/merci\n"
         "Disallow: /sante\n"
+        "Disallow: /api/\n"
         "\n"
         "# Robots d'entraînement des IA : refusés\n"
         f"{training}\n"

@@ -18,6 +18,7 @@ from . import contact, db, render
 from .config import Settings
 from .routes_admin import LoginRequired
 from .routes_admin import router as admin_router
+from .routes_api import router as api_router
 from .routes_public import router as public_router
 from .security import BodySizeLimitMiddleware, LoginLimiter, SecurityHeadersMiddleware
 
@@ -58,6 +59,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app.mount("/static", StaticFiles(directory=APP_DIR / "static"), name="static")
     app.include_router(public_router)
+    app.include_router(api_router)
     app.include_router(admin_router)
 
     # Les middlewares ajoutés en dernier s'exécutent en premier.

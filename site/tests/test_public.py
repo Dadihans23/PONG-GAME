@@ -41,15 +41,15 @@ def test_privacy_page(client):
     r = client.get("/confidentialite")
     assert r.status_code == 200
     page = unescape(r.text)
-    assert "Dernière mise à jour : 9 octobre 2026" in page
+    assert "Dernière mise à jour : 12 octobre 2026" in page
     assert "Tilto ne collecte aucune donnée personnelle." in page
     for section in ("Ce que Tilto garde sur ton téléphone", "Pendant un duel",
                     "Ce que Tilto n'utilise pas", "Autorisations demandées",
-                    "Effacer tes données", "Une question ?"):
+                    "Nom et logo du studio", "Effacer tes données", "Une question ?"):
         assert f"<h2>{section}</h2>" in page
     # Chaque intertitre ouvre une section (mise en page en colonnes) ; l'introduction
     # reste hors des sections.
-    assert page.count('<section class="policy__section">') == 8
+    assert page.count('<section class="policy__section">') == 9
     assert '<div class="page__intro"><p>Tilto ne collecte' in page
 
 
