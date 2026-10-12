@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import mimetypes
+import sqlite3
 import time
 from http import HTTPStatus
 from pathlib import Path
@@ -12,18 +13,22 @@ from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.sessions import SessionMiddleware
-from starlette.responses import RedirectResponse
+from starlette.responses import JSONResponse, RedirectResponse
 
 from . import contact, db, i18n, render
 from .config import Settings
 from .routes_admin import LoginRequired
 from .routes_admin import router as admin_router
 from .routes_api import router as api_router
-from .routes_public import lang_context
+from .routes_public import lang_context, site_context
 from .routes_public import router as public_router
 from .security import BodySizeLimitMiddleware, LoginLimiter, SecurityHeadersMiddleware
 
 APP_DIR = Path(__file__).resolve().parent
+
+# Erreurs sous /api/ : code lisible par l'app, en JSON.
+API_ERRORS = {400: "bad_request", 403: "forbidden", 404: "not_found",
+              405: "method_not_allowed", 413: "too_large", 429: "too_many_requests"}
 
 # Python 3.12 ne connaît pas toujours .woff2 (selon /etc/mime.types) : sans
 # cela, StaticFiles servirait les polices en text/plain.
@@ -93,13 +98,27 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         # espagnol, français ailleurs). Les messages par défaut de Starlette
         # (« Not Found »…) sont remplacés par ceux du catalogue ; un message écrit
         # par l'application (detail) est gardé tel quel.
-        context = lang_context(request)
+        headers = getattr(exc, "headers", None)
+        if request.url.path == "/api" or request.url.path.startswith("/api/"):
+            # API lue par l'app : erreurs en JSON, jamais la page HTML.
+            code = API_ERRORS.get(exc.status_code, "error")
+            return JSONResponse({"error": code}, status_code=exc.status_code, headers=headers)
+        # Même contexte que les pages normales (en-tête, logo et phrase du pied de
+        # page, liens de la langue) ; sans base lisible, seulement la langue.
+        try:
+            conn = db.connect(settings.db_path)
+            try:
+                context = site_context(request, conn)
+            finally:
+                conn.close()
+        except sqlite3.Error:
+            context = lang_context(request)
         t = context["t"]
         key = f"err_{exc.status_code}"
         default = t(key) if key in i18n.UI else t.err_other
         message = exc.detail if exc.detail != HTTPStatus(exc.status_code).phrase else None
         context.update(status=exc.status_code, message=message or default)
         return render.page(request, "error.html", context, status_code=exc.status_code,
-                           headers=getattr(exc, "headers", None))
+                           headers=headers)
 
     return app

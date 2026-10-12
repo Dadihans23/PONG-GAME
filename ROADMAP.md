@@ -273,6 +273,7 @@ Décisions du propriétaire : la langue du téléphone par défaut (fr, en ou es
 - [x] Textes fixes de l'interface dans un catalogue par langue (`i18n.UI`), textes de la base traduits avec repli sur le français (table `translation`), pages d'erreur dans la langue du préfixe, formulaire de contact dans les trois langues (langue enregistrée avec le message), mentions légales et confidentialité traduites (« la version française fait foi »)
 - [x] Traductions EN/ES rédigées d'après les textes en ligne ; fichiers de relecture `site/RELECTURE.md` / `site/relecture.csv` (`python -m app.relecture`)
 - [x] Vérifié en local (Playwright) à 360, 1180 et 1440 px, trois langues, thèmes sombre et clair : aucun débordement
+- [x] Pages d'erreur avec le même pied de page que l'accueil (logo du studio, phrase du jeu) dans les trois langues ; erreurs en JSON sous `/api/` (`{"error": "not_found"}`)
 - [ ] **À faire après le déploiement, avec l'accord du propriétaire** (sauvegarde du volume `tilto-data` d'abord) : `python -m app.reseed_i18n` (simulation) puis `--apply` sur le serveur
 - [ ] Relecture de l'anglais et de l'espagnol du site par des locuteurs courants (`site/RELECTURE.md`)
 - [ ] Propriétaire : vérifier sur téléphone le bandeau de langue et le sélecteur, et les pages en anglais et en espagnol
