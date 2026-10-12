@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+version: 1.0.1+2
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
@@ -41,6 +41,14 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
+  # Page « Le studio » : ouvrir le site et la page de contact dans le
+  # navigateur. url_launcher_android est épinglé en 6.3.14, dernière version
+  # compilée avec le SDK 34 de l'app (les suivantes exigent le SDK 35).
+  url_launcher: ^6.3.2
+  url_launcher_android: 6.3.14
+  # Empreinte SHA-256 du logo du studio téléchargé (paquet Dart pur de
+  # l'équipe Dart, déjà présent en dépendance indirecte).
+  crypto: ^3.0.7
 
 dev_dependencies:
   flutter_test:

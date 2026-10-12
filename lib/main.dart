@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pong_game/brand.dart';
@@ -5,6 +7,7 @@ import 'package:pong_game/entername.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:pong_game/game_sound.dart';
 import 'package:pong_game/settings/pong_settings.dart';
+import 'package:pong_game/studio/studio_repository.dart';
 import 'package:pong_game/ui/pong_ui.dart';
 
 void main() async {
@@ -16,6 +19,7 @@ void main() async {
   await Hive.openBox('settings');
   await Hive.openBox('leaderboard');
   await Hive.openBox('stats');
+  await Hive.openBox(StudioRepository.boxName);
 
   // Réglages du son appliqués avant le premier son (chargement)
   final settings = PongSettings();
@@ -36,6 +40,12 @@ void main() async {
     leaderboardBox.put('entries', entries);
     leaderboardBox.put('migrated', true);
   }
+
+  // Studio : le cache tout de suite, puis le site en arrière-plan (au plus
+  // une fois par 24 h), sans retarder le chargement
+  final studio = StudioRepository(Hive.box(StudioRepository.boxName))
+    ..loadCache();
+  unawaited(studio.refreshIfDue());
 
   runApp(const MyApp());
 }
