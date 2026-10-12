@@ -381,7 +381,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String settingsLanguageAutomaticHint(String language) {
-    return 'Suit la langue du téléphone : $language';
+    return 'Selon ton téléphone : $language';
   }
 
   @override

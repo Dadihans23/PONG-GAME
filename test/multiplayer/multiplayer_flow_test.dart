@@ -72,7 +72,6 @@ Widget app(Key key, MultiplayerFlow Function() flow) => MaterialApp(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: testLocale,
-      
       key: key,
       theme: PongTheme.dark(),
       home: Builder(

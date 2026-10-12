@@ -697,10 +697,10 @@ abstract class AppLocalizations {
   /// **'Automatique'**
   String get settingsLanguageAutomatic;
 
-  /// Under the language buttons when "Automatic" is selected; {language} is the language the app uses now, in its own name ("English").
+  /// Under the language buttons when "Automatic" is selected; {language} is the language the app uses now, in its own name ("English"): the phone language if the app speaks it, otherwise English.
   ///
   /// In fr, this message translates to:
-  /// **'Suit la langue du téléphone : {language}'**
+  /// **'Selon ton téléphone : {language}'**
   String settingsLanguageAutomaticHint(String language);
 
   /// Settings section title, spaced capitals. Max ~14 chars.

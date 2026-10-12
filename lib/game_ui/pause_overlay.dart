@@ -36,12 +36,16 @@ class PauseOverlay extends StatelessWidget {
               children: [
                 Semantics(
                   header: true,
-                  child: PongSpacedText(
-                    l10n.pauseTitle.toUpperCase(),
-                    style: PongText.logo.copyWith(
-                      fontSize: 32,
-                      letterSpacing: 32 * 0.45,
-                      shadows: const [],
+                  // Rétrécit plutôt que d'être coupé (« PAUSED » à 320 dp)
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: PongSpacedText(
+                      l10n.pauseTitle.toUpperCase(),
+                      style: PongText.logo.copyWith(
+                        fontSize: 32,
+                        letterSpacing: 32 * 0.45,
+                        shadows: const [],
+                      ),
                     ),
                   ),
                 ),

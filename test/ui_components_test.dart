@@ -16,7 +16,6 @@ Future<void> _pump(WidgetTester tester, Widget child,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: testLocale,
-      
     theme: PongTheme.dark(),
     home: Scaffold(
       body: SingleChildScrollView(
@@ -239,7 +238,6 @@ void main() {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: testLocale,
-      
       theme: PongTheme.dark(),
       home: Builder(
         builder: (context) => PongPageScaffold(

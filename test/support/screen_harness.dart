@@ -49,6 +49,7 @@ Future<void> pumpScreen(WidgetTester tester, Widget page, Size size,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: locale,
+      debugShowCheckedModeBanner: false,
       theme: PongTheme.dark(),
       home: page));
   await tester.pump();

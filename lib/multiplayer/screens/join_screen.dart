@@ -331,6 +331,9 @@ class _GameTile extends StatelessWidget {
   /// masquée : 320 dp d'écran donnent 250, 360 dp en donnent 290.
   static const double _avatarMinWidth = 270;
 
+  /// Pendant la connexion : texte et icône de la deuxième ligne.
+  static const Color _joiningColor = PongColors.pinkLight;
+
   @override
   Widget build(BuildContext context) {
     final bool full = game.isFull;
@@ -384,22 +387,38 @@ class _GameTile extends StatelessWidget {
                   const SizedBox(height: 3),
                   Row(
                     children: [
-                      Icon(full ? Icons.group_rounded : Icons.person_rounded,
+                      Icon(
+                          joining
+                              ? Icons.wifi_rounded
+                              : full
+                                  ? Icons.group_rounded
+                                  : Icons.person_rounded,
                           size: 15,
-                          color: full
-                              ? PongColors.textTertiary
-                              : PongColors.textSecondary),
-                      const SizedBox(width: PongSpacing.xxs),
-                      Flexible(
-                        child: Text(
-                          l10n.joinPlayers(game.playerCount, game.maxPlayers),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: PongText.caption.copyWith(
-                              fontWeight: FontWeight.w400,
-                              color: full
+                          color: joining
+                              ? _joiningColor
+                              : full
                                   ? PongColors.textTertiary
                                   : PongColors.textSecondary),
+                      const SizedBox(width: PongSpacing.xxs),
+                      Flexible(
+                        child: Semantics(
+                          liveRegion: joining,
+                          child: Text(
+                            joining
+                                ? l10n.joinConnecting
+                                : l10n.joinPlayers(
+                                    game.playerCount, game.maxPlayers),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: PongText.caption.copyWith(
+                                fontWeight:
+                                    joining ? FontWeight.w600 : FontWeight.w400,
+                                color: joining
+                                    ? _joiningColor
+                                    : full
+                                        ? PongColors.textTertiary
+                                        : PongColors.textSecondary),
+                          ),
                         ),
                       ),
                     ],
@@ -416,33 +435,27 @@ class _GameTile extends StatelessWidget {
   }
 }
 
-/// À la place de « Rejoindre » pendant la connexion : roue + « Connexion… ».
+/// À la place de « Rejoindre » pendant la connexion : une roue dans un
+/// cadre rose. « Connexion… » s'écrit sous le nom de la partie : la ligne
+/// garde ainsi la place du nom dans toutes les langues.
 class _JoiningBadge extends StatelessWidget {
   const _JoiningBadge();
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: PongSizes.touchTarget,
       height: PongSizes.touchTarget,
-      padding: const EdgeInsets.symmetric(horizontal: PongSpacing.sm),
+      alignment: Alignment.center,
       decoration: BoxDecoration(
         color: PongColors.alpha(PongColors.pink, 0.1),
         borderRadius: PongRadii.fieldAll,
         border: Border.all(color: PongColors.alpha(PongColors.pink, 0.6)),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox.square(
-            dimension: 14,
-            child: CircularProgressIndicator(
-                strokeWidth: 2, color: PongColors.pinkLight),
-          ),
-          const SizedBox(width: PongSpacing.xs),
-          Text(context.l10n.joinConnecting,
-              style: PongText.buttonLabelPlain
-                  .copyWith(fontSize: 14, color: PongColors.pinkLight)),
-        ],
+      child: const SizedBox.square(
+        dimension: 18,
+        child: CircularProgressIndicator(
+            strokeWidth: 2, color: PongColors.pinkLight),
       ),
     );
   }

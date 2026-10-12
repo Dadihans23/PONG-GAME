@@ -306,12 +306,16 @@ class _StartPrompt extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  PongSpacedText(
-                    l10n.courtTapToStart.toUpperCase(),
-                    style: PongText.screenTitle.copyWith(
-                      fontSize: 20,
-                      letterSpacing: 20 * 0.4,
-                      color: PongColors.textPrimary,
+                  // Rétrécit plutôt que d'être coupé (« TOCA PARA JUGAR »)
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: PongSpacedText(
+                      l10n.courtTapToStart.toUpperCase(),
+                      style: PongText.screenTitle.copyWith(
+                        fontSize: 20,
+                        letterSpacing: 20 * 0.4,
+                        color: PongColors.textPrimary,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 14),

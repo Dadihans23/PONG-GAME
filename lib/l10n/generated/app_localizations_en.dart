@@ -140,7 +140,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pauseTooltip => 'Pause';
 
   @override
-  String get courtTapToStart => 'Tap the screen';
+  String get courtTapToStart => 'Tap to start';
 
   @override
   String get courtTiltHint => 'Tilt your phone to move';
@@ -343,13 +343,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsMusic => 'Music';
 
   @override
-  String get settingsMusicSubtitle => 'Home and pause screens';
+  String get settingsMusicSubtitle => 'Home and pause';
 
   @override
   String get settingsEffects => 'Sound effects';
 
   @override
-  String get settingsEffectsSubtitle => 'Hits, high score, game over';
+  String get settingsEffectsSubtitle => 'Hits, high score, loss';
 
   @override
   String get settingsGameSection => 'Game';
@@ -383,7 +383,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String settingsLanguageAutomaticHint(String language) {
-    return 'Follows your phone\'s language: $language';
+    return 'Based on your phone: $language';
   }
 
   @override

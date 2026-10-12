@@ -34,7 +34,6 @@ Future<void> _pumpGame(WidgetTester tester, Size size) async {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: testLocale,
-      
     theme: PongTheme.dark(),
     home: const Scaffold(body: Center(child: Text('Accueil'))),
   ));
@@ -53,7 +52,6 @@ Future<void> _pumpCourt(WidgetTester tester, Size size, Widget child) async {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: testLocale,
-      
     theme: PongTheme.dark(),
     home: Scaffold(
       backgroundColor: PongColors.background,
@@ -260,7 +258,6 @@ void main() {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: testLocale,
-      
         theme: PongTheme.dark(),
         home: Scaffold(
           body: PauseOverlay(
@@ -278,7 +275,6 @@ void main() {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: testLocale,
-      
         theme: PongTheme.dark(),
         home: Scaffold(
           backgroundColor: PongColors.background,

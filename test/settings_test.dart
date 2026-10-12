@@ -14,6 +14,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:pong_game/brand.dart';
 import 'package:pong_game/game/paddle_sensitivity.dart';
 import 'package:pong_game/game_sound.dart';
+import 'package:pong_game/main.dart' show MyApp;
 import 'package:pong_game/settings/pong_settings.dart';
 import 'package:pong_game/settings/settings_page.dart';
 import 'package:pong_game/studio/studio_page.dart';
@@ -50,7 +51,6 @@ Future<void> _pump(WidgetTester tester, Size size, Box<dynamic> box,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: testLocale,
-      
       theme: PongTheme.dark(),
       home: SettingsPage(
           settings: PongSettings(box),
@@ -153,6 +153,17 @@ void main() {
       expect(settings.musicEnabled, isTrue);
       expect(settings.paddleSensitivity, PaddleSensitivity.defaultValue);
       expect(settings.pseudo, isNull);
+    });
+
+    test('langue : celle du téléphone par défaut, enregistrée sinon', () async {
+      final settings = PongSettings(box);
+      expect(settings.language, AppLanguage.system);
+      settings.language = AppLanguage.spanish;
+      expect(box.get(PongSettings.languageKey), 'es');
+      expect(PongSettings(box).language, AppLanguage.spanish);
+      // Valeur illisible : retour à la langue du téléphone
+      await box.put(PongSettings.languageKey, 'klingon');
+      expect(PongSettings(box).language, AppLanguage.system);
     });
 
     test('pseudo : mêmes règles que l\'accueil', () {
@@ -384,6 +395,65 @@ void main() {
       expect(find.text('Ton pseudo'), findsNothing);
       expect(find.text('Max'), findsOneWidget);
       expect(PongSettings(memoryBox).pseudo, 'Max');
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('langue : enregistrée et appliquée tout de suite',
+        (tester) async {
+      AppLanguageSetting.current.value = AppLanguage.system;
+      addTearDown(() => AppLanguageSetting.current.value = AppLanguage.system);
+      addTearDown(tester.platformDispatcher.clearLocalesTestValue);
+      tester.platformDispatcher.localesTestValue = const [Locale('fr', 'FR')];
+      tester.view.physicalSize = _screens.first;
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(MyApp(
+          home: SettingsPage(
+              settings: PongSettings(memoryBox),
+              accelerometer: const Stream.empty())));
+      await tester.pump();
+
+      // Par défaut : Automatique, avec la langue que le téléphone donne
+      await tester.scrollUntilVisible(
+          find.byKey(const ValueKey('langue-es')), 50);
+      // Toute la carte Langue à l'écran, pas seulement son bord
+      await tester.drag(find.byType(ListView), const Offset(0, -200));
+      await tester.pump();
+      bool selected(String code) => tester
+          .widget<PongSelectableButton>(find.byKey(ValueKey('langue-$code')))
+          .selected;
+      expect(find.text('LANGUE'), findsOneWidget);
+      expect(selected('system'), isTrue);
+      expect(find.text('Automatique'), findsOneWidget);
+      expect(find.text('Français'), findsOneWidget);
+      expect(find.text('English'), findsOneWidget);
+      expect(find.text('Español'), findsOneWidget);
+      expect(find.text('Selon ton téléphone : Français'), findsOneWidget);
+
+      // English : tout l'écran passe en anglais, sans redémarrer
+      await tester.tap(find.text('English'));
+      await tester.pump();
+      expect(memoryBox.get(PongSettings.languageKey), 'en');
+      expect(AppLanguageSetting.current.value, AppLanguage.english);
+      expect(find.text('SETTINGS'), findsOneWidget);
+      expect(find.text('LANGUAGE'), findsOneWidget);
+      expect(selected('en'), isTrue);
+      // Les noms des langues ne sont jamais traduits ; « Automatique » l'est
+      expect(find.text('Español'), findsOneWidget);
+      expect(find.text('Automatic'), findsOneWidget);
+      expect(find.textContaining('Based on'), findsNothing);
+
+      await tester.tap(find.text('Español'));
+      await tester.pump();
+      expect(find.text('AJUSTES'), findsOneWidget);
+      expect(memoryBox.get(PongSettings.languageKey), 'es');
+
+      // Retour à Automatique : la langue du téléphone revient
+      await tester.tap(find.text('Automático'));
+      await tester.pump();
+      expect(memoryBox.get(PongSettings.languageKey), 'system');
+      expect(find.text('RÉGLAGES'), findsOneWidget);
+      expect(find.text('Selon ton téléphone : Français'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   });

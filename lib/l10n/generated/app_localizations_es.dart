@@ -99,7 +99,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get homeMultiplayerSubtitle => 'Dos jugadores, mismo Wi‑Fi';
+  String get homeMultiplayerSubtitle => 'Para dos, mismo Wi‑Fi';
 
   @override
   String homeMultiplayerDetail(int points) {
@@ -140,7 +140,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get pauseTooltip => 'Pausa';
 
   @override
-  String get courtTapToStart => 'Toca la pantalla';
+  String get courtTapToStart => 'Toca para jugar';
 
   @override
   String get courtTiltHint => 'Inclina el teléfono para moverte';
@@ -233,7 +233,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String leaderboardEmptyMessage(int count) {
-    return 'Juega una partida en solo: tus $count mejores puntuaciones aparecerán aquí.';
+    return 'Juega una partida en solitario: tus $count mejores puntuaciones aparecerán aquí.';
   }
 
   @override
@@ -343,7 +343,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get settingsMusicSubtitle => 'Inicio y pausa';
 
   @override
-  String get settingsEffects => 'Efectos de sonido';
+  String get settingsEffects => 'Efectos sonoros';
 
   @override
   String get settingsEffectsSubtitle => 'Golpes, récord, derrota';
@@ -355,7 +355,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get settingsVibration => 'Vibración';
 
   @override
-  String get settingsVibrationSubtitle => 'Al golpear y con cada récord';
+  String get settingsVibrationSubtitle => 'En golpes y récords';
 
   @override
   String get settingsSensitivity => 'Sensibilidad';
@@ -380,7 +380,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String settingsLanguageAutomaticHint(String language) {
-    return 'Sigue el idioma del teléfono: $language';
+    return 'Según tu teléfono: $language';
   }
 
   @override
